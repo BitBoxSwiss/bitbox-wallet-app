@@ -9,14 +9,28 @@ afterEach(() => {
   document.body.removeAttribute('style');
 });
 
-// Light and dark experiments persist independently and survive reading the settings again.
-it('keeps separate light and dark appearances', () => {
+// Colors stay theme-specific, while saving shared geometry in either theme updates both persisted profiles.
+it('shares design settings while keeping separate light and dark palettes', () => {
   expect(saveAppearance('light', { background: '#abcdef', buttonRadius: 100 })).toBe(true);
   expect(saveAppearance('dark', { background: '#123456', buttonRadius: 0 })).toBe(true);
   expect(readAppearance()).toEqual({
-    light: { background: '#abcdef', buttonRadius: 100 },
+    light: { background: '#abcdef', buttonRadius: 0 },
     dark: { background: '#123456', buttonRadius: 0 },
   });
+});
+
+// Existing conflicting profiles resolve consistently, retaining both palettes and settings present in only one theme.
+it('normalizes previously separate layout preferences without losing either color palette', () => {
+  localStorage.setItem('bitbox.desktop-appearance', JSON.stringify({
+    light: { background: '#ffffff', switchRadius: 12, logoPosition: 'centered' },
+    dark: { background: '#222222', switchRadius: 24, sidebarWidth: 400 },
+  }));
+  const profiles = readAppearance();
+  expect(profiles.light).toEqual({ background: '#ffffff', switchRadius: 12, logoPosition: 'centered', sidebarWidth: 400 });
+  expect(profiles.dark).toEqual({ ...profiles.light, background: '#222222' });
+  saveAppearance('dark', { ...profiles.dark, scrollbarHighlightOpacity: 35 });
+  expect(readAppearance().light.scrollbarHighlightOpacity).toBe(35);
+  expect(readAppearance().dark.scrollbarHighlightOpacity).toBe(35);
 });
 
 // Stored input cannot inject CSS, overflow numeric limits, add unknown fields or crash startup.
@@ -25,6 +39,7 @@ it('rejects invalid preferences and recovers from malformed storage', () => {
     background: 'url(https://example.invalid)', buttonRadius: 101, cardRadius: 7.5,
     scrollbarIdle: -1, scrollbarWidth: 9, scrollbarFade: NaN, animationDuration: 0.5, unknown: 'red',
     logoPosition: 'before', logoGap: -1, sidebarWidth: 249, switchRadius: 101, switchThumbRadius: NaN,
+    scrollbarHighlightOpacity: 101,
   });
   expect(readAppearance().light).toEqual({ cardRadius: 7.5 });
   for (const data of ['{broken', 'null', '[]', '{"light": [1]}']) {

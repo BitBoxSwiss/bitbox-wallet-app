@@ -30,6 +30,7 @@ import { Bip85 } from './device/bitbox02/bip85';
 import { Account } from './account/account';
 import { ReceiveAccountsSelector } from './accounts/select-receive';
 import { General } from './settings/general';
+import { Playground } from './settings/playground';
 import { MobileSettings } from './settings/mobile-settings';
 import { About } from './settings/about';
 import { AdvancedSettings } from './settings/advanced-settings';
@@ -137,6 +138,7 @@ export const AppRouter = () => {
             <Route index element={<MobileSettings />} />
             <Route path="more" element={<Navigate replace to="/settings" />} />
             <Route path="general" element={<General />} />
+            <Route path="playground" element={<Playground />} />
             <Route path="about" element={<About />} />
             <Route path="device-settings/:deviceID" element={<DeviceSwitch key={useDevicesKey('device-switch')} />} />
             <Route path="no-device-connected" element={<NoDeviceConnected key="no-device-connected" />} />

@@ -832,7 +832,7 @@
   },
   "desktopDesign": {
     "dark": "dark appearance",
-    "description": "Edits the current {{mode}} and saves it on this device. Changes are live and independent of system window borders. Custom colors may reduce contrast. Header height, window button preview and logo visibility are shared between themes.",
+    "description": "Layout, shapes, motion and effects are shared between themes. Colors are saved separately for the current {{mode}}. Changes apply live and are independent of system window borders. Custom colors may reduce contrast.",
     "fields": {
       "accent": "Accent and primary buttons",
       "accentHover": "Accent on hover",
@@ -870,6 +870,7 @@
       "mutedText": "Secondary text",
       "scrollbarColor": "Scrollbar color",
       "scrollbarFade": "Scrollbar fade duration (ms)",
+      "scrollbarHighlightOpacity": "Scrollbar 1px highlight opacity (%)",
       "scrollbarIdle": "Scrollbar idle opacity (%)",
       "scrollbarWidth": "Scrollbar thumb width (px)",
       "separatorOpacity": "Header separator opacity (%)",
@@ -919,11 +920,12 @@
       "switch": "Sample switch",
       "title": "Live component preview"
     },
-    "reset": "Reset current appearance",
+    "reset": "Reset current color palette",
     "resetAll": "Reset all playground defaults",
     "resizeSidebar": "Resize sidebar",
     "saveFailed": "Changes are visible, but could not be saved. They may be lost when the app closes.",
     "shapesDescription": "Use 0 for square buttons or 100 for pill shapes. Logo scaling and hiding preserve its space. Window corners stay unchanged.",
+    "tab": "Playground",
     "title": "Design playground (PoC)"
   },
   "device": {

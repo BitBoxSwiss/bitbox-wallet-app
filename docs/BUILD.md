@@ -52,15 +52,20 @@ system/Linux captions (following desktop button preferences), simulated macOS
 traffic lights on the left, and simulated Windows captions on the right.
 These previews retain Linux's native actions; they do not emulate AppKit or Snap
 Layouts. Header height, button preview and logo visibility persist across themes.
-Logo placement (beside/below the controls), spacing, sidebar minimum width and
-switch track/thumb radii are editable per theme. Sidebar width can also be dragged
+The dedicated desktop Settings > Playground tab contains the experimental controls,
+including the system-border testing option. Shapes, placement, spacing, gradients'
+strength/angle, sidebar width, motion and scrollbar effects are shared between
+themes; color palettes remain separate. Existing conflicting shared values use
+the light profile, retaining any dark-only settings. Sidebar width can also be dragged
 at its edge or adjusted with arrow keys, Home and End. Dragging saves on release;
 width remains bounded by logo space and the viewport. Mobile stays unchanged.
 The centered logo option balances the space between left-side controls and the
 sidebar edge, with the configured spacing as minimum padding on each side.
 The collapsible live preview uses actual form and settings components with isolated
-sample state. Reset-current clears one theme; reset-all also clears the other theme
+sample state. Reset-palette clears only the current colors; reset-all clears both palettes and shared settings
 and restores the shared 48px header, visible logo and system button style.
+An optional 1px inset scrollbar highlight has adjustable opacity and follows the
+thumb's idle fade without changing the 16px gutter.
 Linux uses a web alpha mask with 12px corners (with the current 7.5px button
 radius) and a 1px inset outline at 5% opacity. An outward-rounded native guard
 bounds stale WebEngine frames during resize without cutting the antialiased edge.

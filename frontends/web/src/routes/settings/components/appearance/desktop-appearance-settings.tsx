@@ -5,12 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { Accordion } from '@/components/accordion/accordion';
 import { Button, Input, Select } from '@/components/forms';
 import { useDarkmode } from '@/hooks/darkmode';
-import { appearanceFields, appearanceValue, applyAppearance, readAppearance, saveAppearance, TAppearance } from '@/utils/desktop-appearance';
+import { appearanceFields, appearanceValue, applyAppearance, mergeAppearance, readAppearance, saveAppearance, TAppearance } from '@/utils/desktop-appearance';
 import { setPreviewButtonStyle, setPreviewHeaderHeight, setPreviewLogoVisible } from '@/utils/desktop-chrome';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { DesktopButtonStyleSetting, DesktopHeaderHeightSetting, DesktopLogoSetting } from './desktop-preview-settings';
 import styles from './desktop-preview-settings.module.css';
 import { DesktopAppearancePreview } from './desktop-appearance-preview';
+import { NativeDecorationsSetting } from './native-decorations-setting';
 
 const groups = ['colors', 'gradients', 'layout', 'shapes', 'effects', 'scrollbars', 'motion'];
 
@@ -28,13 +29,13 @@ export const DesktopAppearanceSettings = () => {
   }, []);
   const values = profiles[mode];
   const update = (next: TAppearance) => {
-    setProfiles({ ...profiles, [mode]: next });
+    setProfiles(mergeAppearance(profiles, mode, next));
     applyAppearance(next, mode);
     setSaveFailed(!saveAppearance(mode, next));
   };
 
   return (
-    <Accordion className={styles.playground} title={t('desktopDesign.title')}>
+    <section className={styles.playground} aria-label={t('desktopDesign.title')}>
       <p>{t('desktopDesign.description', { mode: t(`desktopDesign.${mode}`) })}</p>
       <div className={styles.actions}>
         <Button secondary onClick={() => {
@@ -49,7 +50,9 @@ export const DesktopAppearanceSettings = () => {
           setPreviewButtonStyle('system');
         }}>{t('desktopDesign.resetAll')}</Button>
         <Button secondary onClick={() => {
-          update({});
+          const next = { ...values };
+          appearanceFields.filter(field => field.type === 'color').forEach(field => delete next[field.id]);
+          update(next);
           setDraft(undefined);
         }}>{t('desktopDesign.reset')}</Button>
       </div>
@@ -58,6 +61,7 @@ export const DesktopAppearanceSettings = () => {
         <DesktopAppearancePreview />
       </Accordion>
       <Accordion className={styles.section} title={t('desktopDesign.header')}>
+        <NativeDecorationsSetting />
         <DesktopButtonStyleSetting />
         <DesktopHeaderHeightSetting />
         <DesktopLogoSetting />
@@ -105,6 +109,6 @@ export const DesktopAppearanceSettings = () => {
           })}
         </Accordion>
       ))}
-    </Accordion>
+    </section>
   );
 };

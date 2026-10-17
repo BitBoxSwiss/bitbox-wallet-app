@@ -28,6 +28,7 @@ import {
 } from '@/components/icon';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import styles from './tabs.module.css';
+import { useDesktopModernized } from '@/components/desktop-chrome/desktop-chrome';
 
 type TWithSettingsTabsProps = {
   children: ReactNode;
@@ -206,6 +207,7 @@ export const Tabs = ({ hideMobileMenu }: TTabs) => {
   const { t } = useTranslation();
   const { isDarkMode } = useDarkmode();
   const { deviceIDs, devices, hasAccounts } = useAppState();
+  const desktop = useDesktopModernized();
 
   return (
     <div className={styles.container}>
@@ -266,6 +268,14 @@ export const Tabs = ({ hideMobileMenu }: TTabs) => {
         name={t('settings.about')}
         url="/settings/about"
       />
+      {desktop && (
+        <Tab
+          icon={isDarkMode ? <CogLight className={styles.tabIcon} /> : <CogDark className={styles.tabIcon} />}
+          hideMobileMenu={hideMobileMenu}
+          name={t('desktopDesign.tab')}
+          url="/settings/playground"
+        />
+      )}
     </div>
   );
 };

@@ -119,10 +119,14 @@
     border-radius: 8px;
     background-clip: content-box;
     background-color: color-mix(in srgb, var(--design-scrollbar-color, var(--desktop-scrollbar-color, var(--color-secondary))) var(--desktop-scrollbar-visibility), transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb,
+        color-mix(in srgb, var(--color-default) var(--design-scrollbar-highlight-opacity, 0%), transparent)
+        var(--desktop-scrollbar-visibility), transparent);
 }
 
 :global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar-thumb:vertical:hover,
 :global(body[data-desktop-modernized]:is(.os-linux, .os-windows) [data-window-scroll])::-webkit-scrollbar-thumb:vertical:active {
+    --desktop-scrollbar-visibility: 100%;
     background-color: var(--design-scrollbar-color, var(--desktop-scrollbar-color, var(--color-secondary)));
 }
 
@@ -141,6 +145,7 @@
         --design-scrollbar-color: CanvasText;
         --desktop-scrollbar-color: CanvasText;
         --desktop-scrollbar-visibility: 100%;
+        --design-scrollbar-highlight-opacity: 0%;
     }
 }
 

@@ -13,7 +13,7 @@ vi.mock('@/hooks/mediaquery', () => ({ useMediaQuery: () => false }));
 vi.mock('@/components/desktop-chrome/desktop-chrome', () => ({
   useDesktopChrome: () => ({ csd: false, previewHeaderHeight: 70, previewLogoVisible: true, previewButtonStyle: 'system' }),
 }));
-vi.mock('@/utils/desktop-chrome', () => ({ setPreviewHeaderHeight: vi.fn(), setPreviewLogoVisible: vi.fn(), setPreviewButtonStyle: vi.fn() }));
+vi.mock('@/utils/desktop-chrome', () => ({ setPreviewHeaderHeight: vi.fn(), setPreviewLogoVisible: vi.fn(), setPreviewButtonStyle: vi.fn(), setNativeDecorations: vi.fn(), notifyChromeLayout: vi.fn() }));
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -29,7 +29,6 @@ const open = (group: string) => fireEvent.click(screen.getByRole('button', { nam
 it('edits and resets the current appearance independently of native window borders', () => {
   saveAppearance('dark', { background: '#112233' });
   render(<DesktopAppearanceSettings />);
-  open('desktopDesign.title');
   open('desktopDesign.groups.colors');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.background'), { target: { value: '#abcdef' } });
   expect(document.body.style.getPropertyValue('--background')).toBe('#abcdef');
@@ -46,7 +45,6 @@ it('edits and resets the current appearance independently of native window borde
 // Button shapes and gradients reject invalid numbers while allowing partially typed values until the field loses focus.
 it('supports button shapes and gradients with numeric limits', () => {
   render(<DesktopAppearanceSettings />);
-  open('desktopDesign.title');
   open('desktopDesign.groups.shapes');
   const radius = screen.getByLabelText('desktopDesign.fields.buttonRadius');
   fireEvent.change(radius, { target: { value: '100' } });
@@ -70,7 +68,6 @@ it('supports button shapes and gradients with numeric limits', () => {
 // Caption previews and layout/shape settings apply live through their existing native and CSS contracts.
 it('edits caption style, logo placement, sidebar width and switch shapes', () => {
   render(<DesktopAppearanceSettings />);
-  open('desktopDesign.title');
   open('desktopDesign.header');
   fireEvent.change(screen.getByLabelText('desktopChrome.previewButtonStyle'), { target: { value: 'windows' } });
   expect(setPreviewButtonStyle).toHaveBeenCalledWith('windows');
@@ -97,7 +94,6 @@ it('edits caption style, logo placement, sidebar width and switch shapes', () =>
 it('edits the dark profile and reports a persistence failure', () => {
   vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: true, toggleDarkmode: vi.fn() });
   render(<DesktopAppearanceSettings />);
-  open('desktopDesign.title');
   open('desktopDesign.groups.colors');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.background'), { target: { value: '#123456' } });
   expect(readAppearance().dark.background).toBe('#123456');
@@ -110,10 +106,33 @@ it('edits the dark profile and reports a persistence failure', () => {
   expect(screen.getByRole('alert')).toHaveTextContent('desktopDesign.saveFailed');
 });
 
+// Theme changes keep shared settings in the mounted UI and on disk; palette reset preserves them.
+it('keeps shapes and scrollbar highlights global while editing separate palettes', () => {
+  saveAppearance('light', { background: '#abcdef' });
+  const { rerender } = render(<DesktopAppearanceSettings />);
+  open('desktopDesign.groups.shapes');
+  fireEvent.change(screen.getByLabelText('desktopDesign.fields.switchRadius'), { target: { value: '12' } });
+  open('desktopDesign.groups.scrollbars');
+  fireEvent.change(screen.getByLabelText('desktopDesign.fields.scrollbarHighlightOpacity'), { target: { value: '35' } });
+  vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: true, toggleDarkmode: vi.fn() });
+  rerender(<DesktopAppearanceSettings />);
+  expect(screen.getByLabelText('desktopDesign.fields.switchRadius')).toHaveValue(12);
+  expect(screen.getByLabelText('desktopDesign.fields.scrollbarHighlightOpacity')).toHaveValue(35);
+  open('desktopDesign.groups.colors');
+  fireEvent.change(screen.getByLabelText('desktopDesign.fields.background'), { target: { value: '#123456' } });
+  vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: false, toggleDarkmode: vi.fn() });
+  rerender(<DesktopAppearanceSettings />);
+  expect(screen.getByLabelText('desktopDesign.fields.background')).toHaveValue('#abcdef');
+  fireEvent.click(screen.getByRole('button', { name: 'desktopDesign.reset' }));
+  expect(readAppearance()).toEqual({
+    light: { switchRadius: 12, scrollbarHighlightOpacity: 35 },
+    dark: { background: '#123456', switchRadius: 12, scrollbarHighlightOpacity: 35 },
+  });
+});
+
 // Sample controls use the real components while keeping all interactions isolated from saved preferences.
 it('provides interactive component samples without changing app preferences', () => {
   render(<DesktopAppearanceSettings />);
-  open('desktopDesign.title');
   const preview = within(screen.getByRole('region', { name: 'desktopDesign.preview.title' }));
   const toggle = preview.getByRole('checkbox', { name: 'desktopDesign.preview.switch' });
   expect(toggle).toBeChecked();
@@ -134,7 +153,6 @@ it('resets all playground defaults including centered logo placement and shared 
   saveAppearance('dark', { sidebarWidth: 400 });
   applyAppearance(readAppearance().light, 'light');
   render(<DesktopAppearanceSettings />);
-  open('desktopDesign.title');
   fireEvent.click(screen.getByRole('button', { name: 'desktopDesign.resetAll' }));
   expect(readAppearance()).toEqual({ light: {}, dark: {} });
   expect(document.body.style.getPropertyValue('--design-switch-radius')).toBe('');

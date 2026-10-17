@@ -47,6 +47,7 @@ export const appearanceFields: TField[] = [
   { id: 'scrollbarWidth', group: 'scrollbars', type: 'number', property: '--design-scrollbar-width', defaults: [4, 4], min: 2, max: 8, unit: 'px' },
   { id: 'scrollbarIdle', group: 'scrollbars', type: 'number', property: '--design-scrollbar-idle', defaults: [10, 10], min: 0, max: 100, unit: '%' },
   { id: 'scrollbarFade', group: 'scrollbars', type: 'number', property: '--design-scrollbar-fade', defaults: [200, 200], min: 0, max: 2000, unit: 'ms' },
+  { id: 'scrollbarHighlightOpacity', group: 'scrollbars', type: 'number', property: '--design-scrollbar-highlight-opacity', defaults: [0, 0], min: 0, max: 100, unit: '%' },
   { id: 'animationDuration', group: 'motion', type: 'number', property: '--design-animation-duration', defaults: [200, 200], min: 0, max: 1000, unit: 'ms' },
   ...gradientTargets.flatMap((target): TField[] => [
     { id: `${target}GradientColor`, group: 'gradients', type: 'color', property: `--design-${target}-gradient-color`, defaults: ['#ffffff', '#000000'] },
@@ -74,10 +75,25 @@ const sanitize = (value: unknown): TAppearance => {
   }));
 };
 
+const appearancePart = (values: TAppearance, colors: boolean): TAppearance =>
+  Object.fromEntries(appearanceFields.filter(field => (field.type === 'color') === colors && values[field.id] !== undefined)
+    .map(field => [field.id, values[field.id]!]));
+
+export const mergeAppearance = (profiles: Record<TAppearanceMode, TAppearance>, mode: TAppearanceMode, input: TAppearance) => {
+  const values = sanitize(input);
+  const shared = appearancePart(values, false);
+  return {
+    light: { ...shared, ...appearancePart(mode === 'light' ? values : profiles.light, true) },
+    dark: { ...shared, ...appearancePart(mode === 'dark' ? values : profiles.dark, true) },
+  };
+};
+
 export const readAppearance = (): Record<TAppearanceMode, TAppearance> => {
   try {
     const data = JSON.parse(localStorage.getItem(storageKey) || '{}');
-    return { light: sanitize(data?.light), dark: sanitize(data?.dark) };
+    const profiles = { light: sanitize(data?.light), dark: sanitize(data?.dark) };
+    // Resolve shared values consistently, preserving choices present in only one palette.
+    return mergeAppearance(profiles, 'light', { ...appearancePart(profiles.dark, false), ...profiles.light });
   } catch {
     return { light: {}, dark: {} };
   }
@@ -85,7 +101,7 @@ export const readAppearance = (): Record<TAppearanceMode, TAppearance> => {
 
 export const saveAppearance = (mode: TAppearanceMode, values: TAppearance) => {
   try {
-    localStorage.setItem(storageKey, JSON.stringify({ ...readAppearance(), [mode]: sanitize(values) }));
+    localStorage.setItem(storageKey, JSON.stringify(mergeAppearance(readAppearance(), mode, values)));
     return true;
   } catch {
     return false;
