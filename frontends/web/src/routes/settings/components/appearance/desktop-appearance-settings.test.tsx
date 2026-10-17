@@ -4,16 +4,16 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useDarkmode } from '@/hooks/darkmode';
 import { readAppearance, saveAppearance } from '@/utils/desktop-appearance';
-import { setPreviewHeaderHeight } from '@/utils/desktop-chrome';
+import { setPreviewButtonStyle, setPreviewHeaderHeight } from '@/utils/desktop-chrome';
 import { DesktopAppearanceSettings } from './desktop-appearance-settings';
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
 vi.mock('@/hooks/darkmode', () => ({ useDarkmode: vi.fn(() => ({ isDarkMode: false, toggleDarkmode: vi.fn() })) }));
 vi.mock('@/hooks/mediaquery', () => ({ useMediaQuery: () => false }));
 vi.mock('@/components/desktop-chrome/desktop-chrome', () => ({
-  useDesktopChrome: () => ({ csd: false, previewHeaderHeight: 70, previewLogoVisible: true }),
+  useDesktopChrome: () => ({ csd: false, previewHeaderHeight: 70, previewLogoVisible: true, previewButtonStyle: 'system' }),
 }));
-vi.mock('@/utils/desktop-chrome', () => ({ setPreviewHeaderHeight: vi.fn(), setPreviewLogoVisible: vi.fn() }));
+vi.mock('@/utils/desktop-chrome', () => ({ setPreviewHeaderHeight: vi.fn(), setPreviewLogoVisible: vi.fn(), setPreviewButtonStyle: vi.fn() }));
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -64,6 +64,29 @@ it('supports button shapes and gradients with numeric limits', () => {
   open('desktopDesign.groups.gradients');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.buttonGradientStrength'), { target: { value: '25' } });
   expect(document.body.style.getPropertyValue('--design-button-gradient')).toContain('25%');
+});
+
+// Caption previews and layout/shape settings apply live through their existing native and CSS contracts.
+it('edits caption style, logo placement, sidebar width and switch shapes', () => {
+  render(<DesktopAppearanceSettings />);
+  open('desktopDesign.title');
+  open('desktopDesign.header');
+  fireEvent.change(screen.getByLabelText('desktopChrome.previewButtonStyle'), { target: { value: 'windows' } });
+  expect(setPreviewButtonStyle).toHaveBeenCalledWith('windows');
+  open('desktopDesign.groups.layout');
+  fireEvent.change(screen.getByLabelText('desktopDesign.fields.logoPosition'), { target: { value: 'below' } });
+  expect(document.body).toHaveAttribute('data-desktop-logo-position', 'below');
+  fireEvent.change(screen.getByLabelText('desktopDesign.fields.logoGap'), { target: { value: '12' } });
+  fireEvent.change(screen.getByLabelText('desktopDesign.fields.sidebarWidth'), { target: { value: '320' } });
+  expect(document.body.style.getPropertyValue('--design-logo-gap')).toBe('12px');
+  expect(document.body.style.getPropertyValue('--design-sidebar-width')).toBe('320px');
+  open('desktopDesign.groups.shapes');
+  fireEvent.change(screen.getByLabelText('desktopDesign.fields.switchRadius'), { target: { value: '14' } });
+  fireEvent.change(screen.getByLabelText('desktopDesign.fields.switchThumbRadius'), { target: { value: '8' } });
+  expect(readAppearance().light).toMatchObject({ logoPosition: 'below', logoGap: 12, sidebarWidth: 320, switchRadius: 14, switchThumbRadius: 8 });
+  saveAppearance('light', { ...readAppearance().light, sidebarWidth: 360 });
+  fireEvent(window, new Event('bitbox-appearance-saved'));
+  expect(screen.getByLabelText('desktopDesign.fields.sidebarWidth')).toHaveValue(360);
 });
 
 // The theme shown by the app determines which profile receives changes, while storage failures remain visible to the user.

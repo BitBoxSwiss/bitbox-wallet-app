@@ -24,6 +24,7 @@ it('rejects invalid preferences and recovers from malformed storage', () => {
   saveAppearance('light', {
     background: 'url(https://example.invalid)', buttonRadius: 101, cardRadius: 7.5,
     scrollbarIdle: -1, scrollbarWidth: 9, scrollbarFade: NaN, animationDuration: 0.5, unknown: 'red',
+    logoPosition: 'before', logoGap: -1, sidebarWidth: 249, switchRadius: 101, switchThumbRadius: NaN,
   });
   expect(readAppearance().light).toEqual({ cardRadius: 7.5 });
   for (const data of ['{broken', 'null', '[]', '{"light": [1]}']) {

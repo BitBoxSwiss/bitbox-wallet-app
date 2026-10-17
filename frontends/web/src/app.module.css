@@ -59,8 +59,9 @@
 }
 
 :global(body[data-desktop-modernized]) {
-    --header-height: 70px;
-    --sidebar-width-large: max(var(--sidebar-width-min), calc(var(--desktop-controls-left, 0px) + var(--space-default) + var(--sidebar-logo-width) + var(--space-half)));
+    --header-height: 48px;
+    --desktop-logo-controls-left: var(--desktop-controls-left, 0px);
+    --sidebar-width-large: min(calc(100vw - 48px), max(var(--design-sidebar-width, var(--sidebar-width-min)), calc(var(--desktop-logo-controls-left) + var(--design-logo-gap, var(--space-default)) + var(--sidebar-logo-width) + var(--space-half))));
     --desktop-scrollbar-gutter: stable;
     --desktop-window-outline: rgba(0, 0, 0, 0.05);
     --desktop-caption-separator: color-mix(in srgb, black var(--design-separator-opacity, 5%), transparent);
@@ -69,6 +70,10 @@
     --design-border: inset 0 0 0 var(--design-border-width, 1px) color-mix(in srgb, var(--design-border-color, black) var(--design-border-opacity, 0%), transparent);
     --design-card-shadow: 0 0 var(--design-card-shadow-size, 0px) var(--design-shadow-color), var(--design-border);
     --design-button-shadow: 0 0 var(--design-button-shadow-size, 0px) var(--design-shadow-color), inset 0 0 var(--design-button-inset-size, 0px) var(--design-shadow-color), var(--design-border);
+}
+
+:global(body[data-desktop-modernized][data-desktop-logo-position="below"]) {
+    --desktop-logo-controls-left: 0px;
 }
 
 :global(body.dark-mode[data-desktop-modernized]) {

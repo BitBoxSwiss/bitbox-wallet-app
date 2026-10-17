@@ -2,14 +2,33 @@
 
 import { useTranslation } from 'react-i18next';
 import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
-import { Input } from '@/components/forms';
+import { Input, Select } from '@/components/forms';
 import { Toggle } from '@/components/toggle/toggle';
-import { setPreviewHeaderHeight, setPreviewLogoVisible } from '@/utils/desktop-chrome';
+import { setPreviewHeaderHeight, setPreviewLogoVisible, setPreviewButtonStyle } from '@/utils/desktop-chrome';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import styles from './desktop-preview-settings.module.css';
 
 const minHeight = 36;
 const maxHeight = 256;
+
+export const DesktopButtonStyleSetting = () => {
+  const { t } = useTranslation();
+  const state = useDesktopChrome();
+  if (state?.previewButtonStyle === undefined) {
+    return null;
+  }
+  return (<SettingsItem
+    settingName={t('desktopChrome.previewButtonStyle')}
+    secondaryText={t('desktopChrome.previewButtonStyleDescription')}
+    extraComponent={<Select
+      id="desktop-button-style"
+      aria-label={t('desktopChrome.previewButtonStyle')}
+      value={state.previewButtonStyle}
+      options={['system', 'linux', 'windows', 'macos'].map(value => ({ value, text: t(`desktopChrome.buttonStyles.${value}`) }))}
+      onChange={event => setPreviewButtonStyle(event.target.value)}
+    />}
+  />);
+};
 
 export const DesktopHeaderHeightSetting = () => {
   const { t } = useTranslation();

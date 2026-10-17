@@ -10,6 +10,7 @@ export type TDesktopChromeState = {
   activeNativeDecorations: boolean;
   previewHeaderHeight?: number;
   previewLogoVisible?: boolean;
+  previewButtonStyle?: string;
   revision: number;
   topInset: number;
   leftInset: number;
@@ -30,6 +31,7 @@ type TChrome = {
   setNativeDecorations: (enabled: boolean) => void;
   setPreviewHeaderHeight: (height: number) => void;
   setPreviewLogoVisible: (visible: boolean) => void;
+  setPreviewButtonStyle: (style: string) => void;
 };
 
 let chrome: TChrome | undefined;
@@ -85,6 +87,7 @@ export const initializeDesktopChrome = () => {
 export const setNativeDecorations = (enabled: boolean) => chrome?.setNativeDecorations(enabled);
 export const setPreviewHeaderHeight = (height: number) => chrome?.setPreviewHeaderHeight(height);
 export const setPreviewLogoVisible = (visible: boolean) => chrome?.setPreviewLogoVisible(visible);
+export const setPreviewButtonStyle = (style: string) => chrome?.setPreviewButtonStyle(style);
 
 export const notifyChromeLayout = () => {
   if (runningInQtWebEngine()) {

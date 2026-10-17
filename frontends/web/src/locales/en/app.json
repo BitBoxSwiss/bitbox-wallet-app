@@ -812,10 +812,18 @@
     "toggle": "Dark mode"
   },
   "desktopChrome": {
+    "buttonStyles": {
+      "linux": "Linux (desktop preferences)",
+      "macos": "macOS",
+      "system": "System default",
+      "windows": "Windows"
+    },
     "close": "Close",
     "maximize": "Maximize or restore",
     "minimize": "Minimize",
     "nativeDecorations": "Use system window borders",
+    "previewButtonStyle": "Window button preview",
+    "previewButtonStyleDescription": "Preview button appearance and positioning on Linux. Window actions still use Linux; this does not emulate macOS or Windows behavior.",
     "previewHeaderHeight": "Header height (px)",
     "previewHeaderHeightDescription": "Resize all desktop headers. Enter a whole number from {{min}} to {{max}}.",
     "previewLogo": "Show BitBoxApp logo",
@@ -824,7 +832,7 @@
   },
   "desktopDesign": {
     "dark": "dark appearance",
-    "description": "Edits the current {{mode}} and saves it on this device. Changes are live and independent of system window borders. Custom colors may reduce contrast. Header and logo visibility are shared between themes.",
+    "description": "Edits the current {{mode}} and saves it on this device. Changes are live and independent of system window borders. Custom colors may reduce contrast. Header height, window button preview and logo visibility are shared between themes.",
     "fields": {
       "accent": "Accent and primary buttons",
       "accentHover": "Accent on hover",
@@ -853,6 +861,8 @@
       "guideHeader": "Guide header",
       "guideText": "Guide text",
       "inputRadius": "Input corner radius (px)",
+      "logoGap": "Spacing between logo and window buttons (px)",
+      "logoPosition": "Logo position relative to window buttons",
       "logoScale": "Logo scale (%)",
       "mainGradientAngle": "Main background: gradient angle (°)",
       "mainGradientColor": "Main background: gradient end color",
@@ -869,7 +879,10 @@
       "sidebarGradientColor": "Sidebar: gradient end color",
       "sidebarGradientStrength": "Sidebar: gradient strength (%)",
       "sidebarText": "Sidebar text",
+      "sidebarWidth": "Sidebar minimum width (px)",
       "surface": "Cards and inputs",
+      "switchRadius": "Switch track corner radius (px)",
+      "switchThumbRadius": "Switch thumb corner radius (px)",
       "text": "Main text"
     },
     "gradientsDescription": "Set strength above 0 to enable a gradient over its background color. At 0 the gradient is off.",
@@ -877,13 +890,19 @@
       "colors": "Colors",
       "effects": "Inner borders, separators and shadows",
       "gradients": "Gradients",
+      "layout": "Sidebar width and logo placement",
       "motion": "Animation timing",
       "scrollbars": "Scrollbars",
       "shapes": "Shapes and logo scale"
     },
     "header": "Header and logo",
     "light": "light appearance",
+    "options": {
+      "below": "Below the buttons",
+      "beside": "Beside the buttons"
+    },
     "reset": "Reset current appearance",
+    "resizeSidebar": "Resize sidebar",
     "saveFailed": "Changes are visible, but could not be saved. They may be lost when the app closes.",
     "shapesDescription": "Use 0 for square buttons or 100 for pill shapes. Logo scaling and hiding preserve its space. Window corners stay unchanged.",
     "title": "Design playground (PoC)"

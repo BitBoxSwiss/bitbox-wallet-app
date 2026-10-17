@@ -23,7 +23,7 @@
 
 .slider {
   background-color: var(--background-tertiary);
-  border-radius: 2px;
+  border-radius: var(--design-switch-radius, 2px);
   bottom: 0;
   cursor: pointer;
   left: 0;
@@ -35,7 +35,7 @@
 
 .slider:before {
   background-color: white;
-  border-radius: 2px;
+  border-radius: var(--design-switch-thumb-radius, 2px);
   bottom: 4px;
   content: "";
   height: min(1.6rem, 20px);

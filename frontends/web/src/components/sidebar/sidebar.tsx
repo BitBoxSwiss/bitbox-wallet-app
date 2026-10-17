@@ -20,6 +20,7 @@ import { NewBadge } from '@/components/new-badge/new-badge';
 import { useDesktopModernized } from '@/components/desktop-chrome/desktop-chrome';
 import { ConnectedKeystore } from '../keystore/connected-keystore';
 import style from './sidebar.module.css';
+import { SidebarResize } from './sidebar-resize';
 
 type SidebarProps = {
   devices: TDevices;
@@ -135,7 +136,8 @@ const Sidebar = ({
         data-window-frame-surface data-window-dismiss-overlay={activeSidebar || undefined}></div>
       <nav className={[style.sidebar, activeSidebar ? style.forceShow : ''].join(' ')} data-window-sidebar
         data-window-frame-surface data-window-frame-panel data-window-frame-foreground={modernized ? undefined : 'white'}>
-        <div key="app-logo" className={style.sidebarLogoContainer} data-window-titlebar data-window-logo data-window-frame-surface data-window-frame-foreground={modernized ? undefined : 'white'}>
+        <div key="app-logo" className={style.sidebarLogoContainer} data-window-titlebar={modernized ? undefined : ''} data-window-logo data-window-frame-surface data-window-frame-foreground={modernized ? undefined : 'white'}>
+          {modernized && <div className={style.desktopTitlebar} data-window-titlebar data-window-frame-surface />}
           {modernized ? (
             <div className={style.desktopLogo}>
               <AppLogoInverted className={style.sidebarLogo} />
@@ -147,7 +149,7 @@ const Sidebar = ({
               <AppLogoInverted className={style.sidebarLogo} />
             </Link>
           )}
-          <button className={style.closeButton} onClick={toggleSidebar}>
+          <button className={style.closeButton} onClick={toggleSidebar} data-window-no-drag-overlay>
             <CloseXWhite />
           </button>
         </div>
@@ -261,6 +263,7 @@ const Sidebar = ({
             </div>
           )}
         </SidebarScroll>
+        {modernized && <SidebarResize />}
       </nav>
     </div>
   );

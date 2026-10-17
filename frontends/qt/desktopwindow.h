@@ -26,6 +26,7 @@ public:
     void setNativeDecorations(bool enabled);
     void setPreviewHeaderHeight(int height);
     void setPreviewLogoVisible(bool visible);
+    void setPreviewButtonStyle(const QString &style);
 signals:
     void stateChanged();
 protected:
@@ -54,7 +55,8 @@ private:
     QVector<QWidget *> resizeTargets_;
     LinuxDecorationPreferences *preferences_ = nullptr;
     bool native_ = false;
-    int headerHeight_ = 70;
+    int headerHeight_ = 48;
+    QString buttonStyle_ = "system";
     bool logoVisible_ = true;
     bool syncFrame_ = false;
     QMargins shadowMargins_;

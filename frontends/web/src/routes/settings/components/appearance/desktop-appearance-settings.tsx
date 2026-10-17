@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Accordion } from '@/components/accordion/accordion';
-import { Button, Input } from '@/components/forms';
+import { Button, Input, Select } from '@/components/forms';
 import { useDarkmode } from '@/hooks/darkmode';
 import { appearanceFields, appearanceValue, applyAppearance, readAppearance, saveAppearance, TAppearance } from '@/utils/desktop-appearance';
 import { SettingsItem } from '../settingsItem/settingsItem';
-import { DesktopHeaderHeightSetting, DesktopLogoSetting } from './desktop-preview-settings';
+import { DesktopButtonStyleSetting, DesktopHeaderHeightSetting, DesktopLogoSetting } from './desktop-preview-settings';
 import styles from './desktop-preview-settings.module.css';
 
-const groups = ['colors', 'gradients', 'shapes', 'effects', 'scrollbars', 'motion'];
+const groups = ['colors', 'gradients', 'layout', 'shapes', 'effects', 'scrollbars', 'motion'];
 
 export const DesktopAppearanceSettings = () => {
   const { t } = useTranslation();
@@ -19,6 +19,11 @@ export const DesktopAppearanceSettings = () => {
   const [profiles, setProfiles] = useState(readAppearance);
   const [saveFailed, setSaveFailed] = useState(false);
   const [draft, setDraft] = useState<{ id: string; value: string }>();
+  useEffect(() => {
+    const changed = () => setProfiles(readAppearance());
+    window.addEventListener('bitbox-appearance-saved', changed);
+    return () => window.removeEventListener('bitbox-appearance-saved', changed);
+  }, []);
   const values = profiles[mode];
   const update = (next: TAppearance) => {
     setProfiles({ ...profiles, [mode]: next });
@@ -35,6 +40,7 @@ export const DesktopAppearanceSettings = () => {
       }}>{t('desktopDesign.reset')}</Button>
       {saveFailed && <p role="alert">{t('desktopDesign.saveFailed')}</p>}
       <Accordion className={styles.section} title={t('desktopDesign.header')}>
+        <DesktopButtonStyleSetting />
         <DesktopHeaderHeightSetting />
         <DesktopLogoSetting />
       </Accordion>
@@ -50,21 +56,31 @@ export const DesktopAppearanceSettings = () => {
                 key={field.id}
                 settingName={label}
                 collapseOnSmall
-                displayedValue={field.type === 'number' ? `${value}${field.unit}` : value}
-                extraComponent={<Input
-                  className={styles.heightInput}
-                  type={field.type === 'color' ? 'color' : 'number'}
-                  aria-label={label}
-                  value={draft?.id === `${mode}:${field.id}` ? draft.value : value}
-                  {...(field.type === 'number' ? { min: field.min, max: field.max, step: field.step ?? 1, required: true } : {})}
-                  onBlur={() => setDraft(undefined)}
-                  onChange={event => {
-                    setDraft({ id: `${mode}:${field.id}`, value: event.currentTarget.value });
-                    if (event.currentTarget.validity.valid) {
-                      update({ ...values, [field.id]: field.type === 'color' ? event.currentTarget.value : event.currentTarget.valueAsNumber });
-                    }
-                  }}
-                />}
+                displayedValue={field.type === 'number' ? `${value}${field.unit}` : field.type === 'select' ? t(`desktopDesign.options.${value}`) : value}
+                extraComponent={field.type === 'select' ? (
+                  <Select
+                    id={`desktop-design-${field.id}`}
+                    aria-label={label}
+                    value={value}
+                    options={field.options.map(option => ({ value: option, text: t(`desktopDesign.options.${option}`) }))}
+                    onChange={event => update({ ...values, [field.id]: event.target.value })}
+                  />
+                ) : (
+                  <Input
+                    className={styles.heightInput}
+                    type={field.type === 'color' ? 'color' : 'number'}
+                    aria-label={label}
+                    value={draft?.id === `${mode}:${field.id}` ? draft.value : value}
+                    {...(field.type === 'number' ? { min: field.min, max: field.max, step: field.step ?? 1, required: true } : {})}
+                    onBlur={() => setDraft(undefined)}
+                    onChange={event => {
+                      setDraft({ id: `${mode}:${field.id}`, value: event.currentTarget.value });
+                      if (event.currentTarget.validity.valid) {
+                        update({ ...values, [field.id]: field.type === 'color' ? event.currentTarget.value : event.currentTarget.valueAsNumber });
+                      }
+                    }}
+                  />
+                )}
               />
             );
           })}

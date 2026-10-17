@@ -126,6 +126,38 @@ private slots:
         QVERIFY(chrome.metaObject()->indexOfMethod("setWindowFlags(Qt::WindowFlags)") < 0);
     }
 
+    // Linux can preview all caption styles live without replacing the native window or accepting unknown styles.
+    void captionStylePreviewUsesCorrectGeometryAndPersists() {
+        auto *view = new QWebEngineView;
+        DesktopWindow window(view);
+        window.show();
+        QVERIFY(QTest::qWaitForWindowExposed(&window));
+        const auto handle = window.windowHandle();
+        QCOMPARE(window.state().value("previewButtonStyle").toString(), QString("system"));
+        window.setPreviewButtonStyle("macos");
+        auto state = window.state();
+        QVERIFY(state.value("leftInset").toDouble() > 0);
+        QCOMPARE(state.value("rightInset").toDouble(), 0.0);
+        QCOMPARE(state.value("captionButtons").toList().size(), 3);
+        window.setPreviewButtonStyle("windows");
+        state = window.state();
+        QCOMPARE(state.value("leftInset").toDouble(), 0.0);
+        QVERIFY(state.value("rightInset").toDouble() >= 138);
+        for (const auto &entry : state.value("captionButtons").toList()) {
+            const auto button = entry.toMap();
+            QCOMPARE(button.value("width").toInt(), 46);
+            QCOMPARE(button.value("height").toInt(), 32);
+            QCOMPARE(button.value("y").toInt(), 0);
+        }
+        window.setPreviewButtonStyle("unknown");
+        QCOMPARE(window.state().value("previewButtonStyle").toString(), QString("windows"));
+        QCOMPARE(window.windowHandle(), handle);
+        DesktopWindow restored(new QWebEngineView);
+        QCOMPARE(restored.state().value("previewButtonStyle").toString(), QString("windows"));
+        window.setPreviewButtonStyle("linux");
+        QCOMPARE(window.state().value("previewButtonStyle").toString(), QString("linux"));
+    }
+
     void portalReadSignalsAndLegacyFallback() {
         auto bus = QDBusConnection::sessionBus();
         QVERIFY(bus.isConnected());

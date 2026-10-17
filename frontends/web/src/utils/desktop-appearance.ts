@@ -7,9 +7,10 @@ type TField = {
   group: string;
   property: string;
   defaults: [string, string] | [number, number];
-} & ({ type: 'color' } | { type: 'number'; min: number; max: number; unit: string; step?: number });
+} & ({ type: 'color' } | { type: 'number'; min: number; max: number; unit: string; step?: number } | { type: 'select'; options: string[] });
 
 export const gradientTargets = ['main', 'sidebar', 'guide', 'button', 'card'] as const;
+export const sidebarWidthLimits = { min: 250, max: 600 };
 export const appearanceFields: TField[] = [
   { id: 'background', group: 'colors', type: 'color', property: '--background', defaults: ['#f5f5f5', '#1d1d1b'] },
   { id: 'surface', group: 'colors', type: 'color', property: '--background-secondary', defaults: ['#ffffff', '#333333'] },
@@ -31,6 +32,11 @@ export const appearanceFields: TField[] = [
   { id: 'buttonRadius', group: 'shapes', type: 'number', property: '--design-button-radius', defaults: [7.5, 7.5], min: 0, max: 100, step: 0.5, unit: 'px' },
   { id: 'cardRadius', group: 'shapes', type: 'number', property: '--radius-xl', defaults: [7.5, 7.5], min: 0, max: 40, step: 0.5, unit: 'px' },
   { id: 'inputRadius', group: 'shapes', type: 'number', property: '--design-input-radius', defaults: [7.5, 7.5], min: 0, max: 40, step: 0.5, unit: 'px' },
+  { id: 'switchRadius', group: 'shapes', type: 'number', property: '--design-switch-radius', defaults: [2, 2], min: 0, max: 100, step: 0.5, unit: 'px' },
+  { id: 'switchThumbRadius', group: 'shapes', type: 'number', property: '--design-switch-thumb-radius', defaults: [2, 2], min: 0, max: 100, step: 0.5, unit: 'px' },
+  { id: 'sidebarWidth', group: 'layout', type: 'number', property: '--design-sidebar-width', defaults: [250, 250], ...sidebarWidthLimits, unit: 'px' },
+  { id: 'logoPosition', group: 'layout', type: 'select', property: '--design-logo-position', defaults: ['beside', 'beside'], options: ['beside', 'below'] },
+  { id: 'logoGap', group: 'layout', type: 'number', property: '--design-logo-gap', defaults: [32, 32], min: 0, max: 80, unit: 'px' },
   { id: 'logoScale', group: 'shapes', type: 'number', property: '--design-logo-scale', defaults: [100, 100], min: 50, max: 100, unit: '%' },
   { id: 'buttonShadow', group: 'effects', type: 'number', property: '--design-button-shadow-size', defaults: [0, 0], min: 0, max: 32, unit: 'px' },
   { id: 'buttonInset', group: 'effects', type: 'number', property: '--design-button-inset-size', defaults: [0, 0], min: 0, max: 24, unit: 'px' },
@@ -60,7 +66,7 @@ const sanitize = (value: unknown): TAppearance => {
   const input = value as Record<string, unknown>;
   return Object.fromEntries(appearanceFields.flatMap(field => {
     const item = input[field.id];
-    const valid = (field.type === 'color'
+    const valid = (field.type === 'select' ? typeof item === 'string' && field.options.includes(item) : field.type === 'color'
       ? typeof item === 'string' && /^#[0-9a-f]{6}$/i.test(item)
       : typeof item === 'number' && Number.isFinite(item) && item >= field.min && item <= field.max &&
         Number.isInteger(item / (field.step ?? 1)));
@@ -112,5 +118,6 @@ export const applyAppearance = (input: TAppearance, mode: TAppearanceMode) => {
     style.setProperty(`--design-${target}-gradient`, Number(strength) > 0
       ? `linear-gradient(${angle}deg, transparent, color-mix(in srgb, ${color} ${strength}%, transparent))` : 'none');
   });
+  document.body.dataset.desktopLogoPosition = String(values.logoPosition ?? 'beside');
   window.dispatchEvent(new Event('bitbox-chrome-layout'));
 };

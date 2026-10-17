@@ -31,6 +31,7 @@ constexpr int controlHeight = 36;
 constexpr int maxExclusions = 32;
 constexpr int resizeBorder = 4;
 constexpr int resizeShadow = 6;
+const QStringList buttonStyles{"system", "linux", "windows", "macos"};
 
 class WindowButton final : public QAbstractButton {
 public:
@@ -42,6 +43,7 @@ public:
         setAccessibleName(action);
     }
     QString action;
+    QString style;
     QColor color = Qt::black;
     bool restored = false;
 protected:
@@ -51,51 +53,50 @@ protected:
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
         const bool highlighted = underMouse() || isDown();
-#if defined(Q_OS_LINUX)
-        // Linux preview: approximate AppKit traffic lights without changing the native backend.
-        const bool active = window()->isActiveWindow();
-        QColor trafficColor = active ? QColor(action == "close" ? "#ff5f57" :
-            action == "minimize" ? "#febc2e" : "#28c840") : QColor("#999999");
-        if (isDown()) trafficColor = trafficColor.darker(115);
-        painter.setPen(QPen(trafficColor.darker(120), 0.6));
-        painter.setBrush(trafficColor);
-        const QPointF center(width() / 2.0, height() / 2.0);
-        painter.drawEllipse(center, 6, 6);
-        if (!highlighted || !active) return;
-        painter.setPen(QPen(QColor("#4b350b"), 1.1, Qt::SolidLine, Qt::RoundCap));
-        if (action == "close") {
-            painter.drawLine(center + QPointF(-2.5, -2.5), center + QPointF(2.5, 2.5));
-            painter.drawLine(center + QPointF(-2.5, 2.5), center + QPointF(2.5, -2.5));
-        } else if (action == "minimize") {
-            painter.drawLine(center + QPointF(-3, 0), center + QPointF(3, 0));
-        } else {
-            painter.setPen(Qt::NoPen);
-            painter.setBrush(QColor("#125522"));
-            QPainterPath arrows;
-            arrows.moveTo(center + QPointF(-3, -3));
-            arrows.lineTo(center + QPointF(1, -3));
-            arrows.lineTo(center + QPointF(-3, 1));
-            arrows.closeSubpath();
-            arrows.moveTo(center + QPointF(3, 3));
-            arrows.lineTo(center + QPointF(-1, 3));
-            arrows.lineTo(center + QPointF(3, -1));
-            arrows.closeSubpath();
-            painter.drawPath(arrows);
+        if (style == "macos") {
+            // The preview keeps Linux's native window backend and actions.
+            const bool active = window()->isActiveWindow();
+            QColor trafficColor = active ? QColor(action == "close" ? "#ff5f57" :
+                action == "minimize" ? "#febc2e" : "#28c840") : QColor("#999999");
+            if (isDown()) trafficColor = trafficColor.darker(115);
+            painter.setPen(QPen(trafficColor.darker(120), 0.6));
+            painter.setBrush(trafficColor);
+            const QPointF center(width() / 2.0, height() / 2.0);
+            painter.drawEllipse(center, 6, 6);
+            if (!highlighted || !active) return;
+            painter.setPen(QPen(QColor("#4b350b"), 1.1, Qt::SolidLine, Qt::RoundCap));
+            if (action == "close") {
+                painter.drawLine(center + QPointF(-2.5, -2.5), center + QPointF(2.5, 2.5));
+                painter.drawLine(center + QPointF(-2.5, 2.5), center + QPointF(2.5, -2.5));
+            } else if (action == "minimize") {
+                painter.drawLine(center + QPointF(-3, 0), center + QPointF(3, 0));
+            } else {
+                painter.setPen(Qt::NoPen);
+                painter.setBrush(QColor("#125522"));
+                QPainterPath arrows;
+                arrows.moveTo(center + QPointF(-3, -3));
+                arrows.lineTo(center + QPointF(1, -3));
+                arrows.lineTo(center + QPointF(-3, 1));
+                arrows.closeSubpath();
+                arrows.moveTo(center + QPointF(3, 3));
+                arrows.lineTo(center + QPointF(-1, 3));
+                arrows.lineTo(center + QPointF(3, -1));
+                arrows.closeSubpath();
+                painter.drawPath(arrows);
+            }
+            return;
         }
-        return;
-#endif
         QColor fill = color;
         fill.setAlpha(highlighted ? 40 : 15);
         painter.setPen(Qt::NoPen);
-#if defined(Q_OS_WIN)
-        const bool closeHover = action == "close" && highlighted;
-        painter.fillRect(rect(), closeHover ? QColor("#e81123") : highlighted ? fill : QColor(Qt::transparent));
+        const bool closeHover = style == "windows" && action == "close" && highlighted;
+        if (style == "windows") {
+            painter.fillRect(rect(), closeHover ? QColor("#e81123") : highlighted ? fill : QColor(Qt::transparent));
+        } else {
+            painter.setBrush(fill);
+            painter.drawEllipse(QPointF(width() / 2.0, height() / 2.0), 13, 13);
+        }
         const auto stroke = closeHover ? QColor(Qt::white) : color;
-#else
-        painter.setBrush(fill);
-        painter.drawEllipse(QPointF(width() / 2.0, height() / 2.0), 13, 13);
-        const auto stroke = color;
-#endif
         painter.setPen(QPen(stroke, 1.4));
         const QRectF glyph(width() / 2.0 - 5, height() / 2.0 - 5, 10, 10);
         if (action == "close") {
@@ -133,6 +134,12 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
     QSettings settings;
     headerHeight_ = qBound(36, settings.value("macosControlsPreview/headerHeight", headerHeight_).toInt(), 256);
     logoVisible_ = settings.value("macosControlsPreview/logoVisible", true).toBool();
+#if defined(Q_OS_WIN)
+    buttonStyle_ = "windows";
+#elif defined(Q_OS_LINUX)
+    const auto style = settings.value("desktopPreview/buttonStyle", "system").toString();
+    if (buttonStyles.contains(style)) buttonStyle_ = style;
+#endif
     native_ = settings.value("nativeDecorations", false).toBool() || qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
     setWindowTitle("BitBoxApp");
     setMouseTracking(true);
@@ -185,12 +192,6 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
         agent_->setWindowAttribute("no-system-buttons", false);
         agent_->setSystemButtonArea(trafficLights_);
 #else
-#if defined(Q_OS_LINUX)
-        trafficLights_ = new QWidget(this);
-        trafficLights_->setAttribute(Qt::WA_TransparentForMouseEvents);
-        trafficLights_->setAttribute(Qt::WA_NoSystemBackground);
-        trafficLights_->show();
-#endif
         for (const auto &action : QStringList{"minimize", "maximize", "close"}) {
             auto *button = new WindowButton(action, this);
             buttons_.append(button);
@@ -256,6 +257,9 @@ QVariantMap DesktopWindow::state() const {
 #endif
     return {{"csd", !native_}, {"nativeDecorations", QSettings().value("nativeDecorations", false).toBool()},
             {"previewHeaderHeight", headerHeight_}, {"previewLogoVisible", logoVisible_},
+#if defined(Q_OS_LINUX)
+            {"previewButtonStyle", buttonStyle_},
+#endif
             {"activeNativeDecorations", native_}, {"revision", revision_},
             {"systemDark", systemDark},
             {"systemAppearanceReady", systemAppearanceReady},
@@ -383,6 +387,18 @@ void DesktopWindow::setPreviewLogoVisible(bool visible) {
 
 void DesktopWindow::toggleMaximize() { if (!isFullScreen()) isMaximized() ? showNormal() : showMaximized(); }
 
+void DesktopWindow::setPreviewButtonStyle(const QString &style) {
+#if defined(Q_OS_LINUX)
+    if (buttonStyle_ == style || !buttonStyles.contains(style)) return;
+    buttonStyle_ = style;
+    QSettings().setValue("desktopPreview/buttonStyle", style);
+    placeControls();
+    invalidateLayout();
+#else
+    Q_UNUSED(style);
+#endif
+}
+
 void DesktopWindow::placeControls() {
     const auto body = view_->geometry();
     const int controlY = body.y() + (headerHeight_ - controlHeight) / 2;
@@ -390,33 +406,24 @@ void DesktopWindow::placeControls() {
     QStringList left, right{"minimize", "maximize", "close"};
 #if defined(Q_OS_LINUX)
     if (preferences_) {
-        left = QStringList{"close", "minimize", "maximize"};
-        right.clear();
+        left = preferences_->buttons().left;
+        right = preferences_->buttons().right;
         if (windowHandle()) windowHandle()->setProperty("_qwk_title_double_click", preferences_->buttons().doubleClick);
     }
 #endif
+    if (buttonStyle_ == "macos") { left = QStringList{"close", "minimize", "maximize"}; right.clear(); }
+    if (buttonStyle_ == "windows") { left.clear(); right = QStringList{"minimize", "maximize", "close"}; }
     for (auto *button : buttons_) {
+        static_cast<WindowButton *>(button)->style = buttonStyle_;
         const auto action = static_cast<WindowButton *>(button)->action;
         if (isFullScreen() || (!left.contains(action) && !right.contains(action))) button->hide();
     }
     auto place = [this, body, controlY](const QStringList &actions, bool onLeft) {
-#if defined(Q_OS_WIN)
-        const int width = 46;
-        const int offset = 0;
-        const int height = 32;
-        const int y = body.y();
-#elif defined(Q_OS_LINUX)
-        // Match the native macOS reserved area: x=8, width=80, centered lights 20px apart.
-        const int width = 20;
-        const int offset = 18;
-        const int height = controlHeight;
-        const int y = controlY;
-#else
-        const int width = 36;
-        const int offset = (headerHeight_ - controlHeight) / 2;
-        const int height = controlHeight;
-        const int y = controlY;
-#endif
+        const bool windows = buttonStyle_ == "windows", macos = buttonStyle_ == "macos";
+        const int width = windows ? 46 : macos ? 20 : 36;
+        const int offset = windows ? 0 : macos ? 18 : (headerHeight_ - controlHeight) / 2;
+        const int height = windows ? 32 : controlHeight;
+        const int y = windows ? body.y() : controlY;
         int x = onLeft ? body.left() + offset : body.x() + body.width() - offset - actions.size() * width;
         for (const auto &action : actions) {
             for (auto *button : buttons_) {

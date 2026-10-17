@@ -47,8 +47,15 @@ surface transparent across background changes and renderer reloads.
 Controls share the app's fixed header; scrolling and desktop banners
 start below it. Only occupied left/right control slots reserve space, and one
 centering rule aligns the logo, heading, Guide and controls. Standard captions
-are 48px high. The local macOS-controls preview defaults to 70px, with live
-header-height and logo settings; it keeps simulated controls on the left.
+are 48px high by default. Linux's design playground can switch live between
+system/Linux captions (following desktop button preferences), simulated macOS
+traffic lights on the left, and simulated Windows captions on the right.
+These previews retain Linux's native actions; they do not emulate AppKit or Snap
+Layouts. Header height, button preview and logo visibility persist across themes.
+Logo placement (beside/below the controls), spacing, sidebar minimum width and
+switch track/thumb radii are editable per theme. Sidebar width can also be dragged
+at its edge or adjusted with arrow keys, Home and End. Dragging saves on release;
+width remains bounded by logo space and the viewport. Mobile stays unchanged.
 Linux uses a web alpha mask with 12px corners (with the current 7.5px button
 radius) and a 1px inset outline at 5% opacity. An outward-rounded native guard
 bounds stale WebEngine frames during resize without cutting the antialiased edge.

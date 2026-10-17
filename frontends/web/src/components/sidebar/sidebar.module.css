@@ -106,8 +106,23 @@
     z-index: 1;
     flex-shrink: 0;
     background-color: rgba(0, 0, 0, 0.1);
-    padding-left: calc(var(--space-default) + var(--desktop-controls-left, 0px));
+    padding-left: calc(var(--design-logo-gap, var(--space-default)) + var(--desktop-logo-controls-left, 0px));
     padding-right: var(--space-half);
+}
+
+.desktopTitlebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    pointer-events: none;
+}
+
+:global(body[data-desktop-modernized][data-desktop-logo-position="below"]) .sidebarLogoContainer {
+    height: calc(2 * var(--header-height) + var(--design-logo-gap, 32px));
+    padding-top: calc(var(--header-height) + var(--design-logo-gap, 32px));
+    padding-left: var(--space-default);
 }
 
 :global(body[data-desktop-modernized]) .desktopLogo {
@@ -313,6 +328,26 @@ a.sidebarActive .single img,
     top: -2px;
     vertical-align: top;
     width: 8px;
+}
+
+.resizeHandle {
+    position: absolute;
+    top: var(--header-height);
+    right: 0;
+    bottom: 0;
+    width: 6px;
+    z-index: 2;
+    cursor: col-resize;
+    touch-action: none;
+}
+
+.resizeHandle:hover,
+.resizeHandle:focus-visible {
+    border-right: 2px solid var(--color-blue);
+}
+
+@media (max-width: 560px) {
+    .resizeHandle { display: none; }
 }
 
 :global(body[data-desktop-modernized]) .sidebarItem > :is(a, button) {
