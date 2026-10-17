@@ -98,8 +98,8 @@
 }
 
 :global(body[data-desktop-modernized]) .sidebarLogoContainer {
-    height: var(--header-height);
-    padding-top: 0;
+    height: calc(var(--header-height) + var(--desktop-caption-height, 0px));
+    padding-top: var(--desktop-caption-height, 0px);
     padding-bottom: 0;
     position: sticky;
     top: 0;
@@ -115,13 +115,13 @@
     top: 0;
     left: 0;
     right: 0;
-    height: var(--header-height);
+    height: calc(var(--header-height) + var(--desktop-caption-height, 0px));
     pointer-events: none;
 }
 
 :global(body[data-desktop-modernized][data-desktop-logo-position="below"]) .sidebarLogoContainer {
-    height: calc(2 * var(--header-height) + var(--design-logo-gap, 32px));
-    padding-top: calc(var(--header-height) + var(--design-logo-gap, 32px));
+    height: calc(2 * var(--header-height) + var(--design-logo-gap, 32px) + var(--desktop-caption-height, 0px));
+    padding-top: calc(var(--header-height) + var(--design-logo-gap, 32px) + var(--desktop-caption-height, 0px));
     padding-left: var(--space-default);
 }
 
@@ -346,7 +346,7 @@ a.sidebarActive .single img,
 
 .resizeHandle {
     position: absolute;
-    top: var(--header-height);
+    top: calc(var(--header-height) + var(--desktop-caption-height, 0px));
     right: 0;
     bottom: 0;
     width: 6px;

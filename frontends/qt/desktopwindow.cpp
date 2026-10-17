@@ -249,7 +249,7 @@ QVariantMap DesktopWindow::state() const {
 #endif
     QVariantList captionButtons;
     for (auto *button : buttons_) {
-        if (button->isHidden() || captionHeight()) continue;
+        if (button->isHidden()) continue;
         const auto geometry = button->geometry().translated(-view_->pos());
         captionButtons.append(QVariantMap{{"action", static_cast<WindowButton *>(button)->action},
             {"x", geometry.x() / view_->zoomFactor()}, {"y", geometry.y() / view_->zoomFactor()},
@@ -270,7 +270,7 @@ QVariantMap DesktopWindow::state() const {
             {"activeNativeDecorations", native_}, {"revision", revision_},
             {"systemDark", systemDark},
             {"systemAppearanceReady", systemAppearanceReady},
-            {"topInset", 0}, {"leftInset", leftInset / view_->zoomFactor()}, {"rightInset", rightInset / view_->zoomFactor()},
+            {"topInset", captionHeight() / view_->zoomFactor()}, {"leftInset", leftInset / view_->zoomFactor()}, {"rightInset", rightInset / view_->zoomFactor()},
             {"cornerRadius", cornerRadius}, {"captionButtons", captionButtons},
             {"maximized", isMaximized()}, {"fullScreen", isFullScreen()},
             {"width", view_->width()}, {"height", view_->height()}};
@@ -292,7 +292,6 @@ void DesktopWindow::safeTitle() {
 }
 
 void DesktopWindow::updateLayout(const QVariantMap &snapshot) {
-    if (captionHeight()) { safeTitle(); return; }
     if (!title_ || snapshot.value("revision").toULongLong() != revision_) return;
     const auto sequence = snapshot.value("sequence").toULongLong();
     if (sequence <= sequence_) return;
@@ -304,7 +303,7 @@ void DesktopWindow::updateLayout(const QVariantMap &snapshot) {
         qAbs(width * zoom - view_->width()) > 2 || qAbs(height * zoom - view_->height()) > 2) return;
     const auto list = snapshot.value("exclusions").toList();
     if (list.size() > maxExclusions) { safeTitle(); return; }
-    const QRect bounds(0, 0, view_->width(), qMin(256, view_->height()));
+    const QRect bounds(0, 0, view_->width(), captionHeight() ? captionHeight() : qMin(256, view_->height()));
     QRect header;
     if (!readRect(snapshot.value("titlebar").toMap(), zoom, bounds, &header)) return;
     QVector<QRect> rectangles;
@@ -464,7 +463,7 @@ void DesktopWindow::placeControls() {
 void DesktopWindow::updateControls() {
     for (auto *button : buttons_) {
         auto *control = static_cast<WindowButton *>(button);
-        control->color = captionHeight() ? foreground_ : captionColors_.value(control->action, foreground_);
+        control->color = captionColors_.value(control->action, foreground_);
         if (!isActiveWindow()) control->color.setAlpha(170);
         control->restored = isMaximized();
         control->update();
@@ -492,7 +491,7 @@ void DesktopWindow::syncFrame() {
     }
 #endif
     const auto body = bodyRect();
-    view_->setGeometry(body.adjusted(0, captionHeight(), 0, 0));
+    view_->setGeometry(body);
     if (windowHandle()) {
         windowHandle()->setProperty("_qwk_resize_frame", body);
         windowHandle()->setProperty("_qwk_resize_border", resizeBorder);
@@ -514,7 +513,6 @@ void DesktopWindow::syncFrame() {
             const int cut = qMax(0, qFloor(radius - std::sqrt(radius * radius - distance * distance)) - 1);
             if (!cut) continue;
             for (const int row : {y, view_->height() - y - 1}) {
-                if (captionHeight() && row == y) continue;
                 visible -= QRegion(0, row, cut, 1);
                 visible -= QRegion(view_->width() - cut, row, cut, 1);
             }
@@ -650,18 +648,5 @@ void DesktopWindow::paintEvent(QPaintEvent *) {
     painter.setBrush(background_);
     const QRectF backdrop = QRectF(bodyRect()).adjusted(inset, inset, -inset, -inset);
     painter.drawRoundedRect(backdrop, qMax(0.0, radius - inset), qMax(0.0, radius - inset));
-    if (captionHeight()) {
-        const QRect caption(bodyRect().topLeft(), QSize(bodyRect().width(), captionHeight()));
-        painter.save();
-        painter.setClipRect(caption);
-        painter.drawRoundedRect(QRectF(bodyRect()), radius, radius);
-        painter.restore();
-        int padding = 16;
-        for (auto *button : buttons_) if (!button->isHidden())
-            padding = qMax(padding, button->x() < caption.center().x() ? button->geometry().right() - caption.x() + 8 : caption.right() - button->x() + 8);
-        const auto text = caption.adjusted(padding, 0, -padding, 0);
-        painter.setPen(foreground_);
-        painter.drawText(text, Qt::AlignCenter, fontMetrics().elidedText(windowTitle(), Qt::ElideRight, qMax(0, text.width())));
-    }
 #endif
 }

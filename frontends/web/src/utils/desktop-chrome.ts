@@ -67,9 +67,9 @@ export const initializeDesktopChrome = () => {
         // Native masks and Chromium must use the same radius from startup onward.
         document.body.setAttribute('data-desktop-modernized', '');
         document.body.toggleAttribute('data-desktop-csd', state.csd);
-        document.body.toggleAttribute('data-desktop-separate-titlebar', state.csd && state.previewSeparateTitlebar === true && !state.fullScreen);
         document.body.toggleAttribute('data-desktop-edge-to-edge', state.maximized || state.fullScreen);
         document.documentElement.toggleAttribute('data-desktop-csd', state.csd);
+        document.body.style.setProperty('--desktop-caption-height', `${state.topInset}px`);
         document.body.style.setProperty('--desktop-controls-left', `${state.leftInset}px`);
         document.body.style.setProperty('--desktop-controls-right', `${state.rightInset}px`);
         document.body.style.setProperty('--desktop-window-radius', `${state.cornerRadius}px`);

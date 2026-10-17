@@ -68,7 +68,7 @@
 
 .togglersContainer {
     position: fixed;
-    top: calc((var(--header-height) - 32px) / 2);
+    top: calc(var(--desktop-caption-height, 0px) + (var(--header-height) - 32px) / 2);
     max-width: var(--content-width);
     width: 100%;
     padding: 0 var(--space-default);

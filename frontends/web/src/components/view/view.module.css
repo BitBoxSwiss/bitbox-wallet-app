@@ -189,7 +189,7 @@
     left: 0;
     position: absolute;
     text-align: center;
-    top: env(safe-area-inset-top, 0);
+    top: calc(env(safe-area-inset-top, 0px) + var(--desktop-caption-height, 0px));
     width: var(--header-height);
 }
 

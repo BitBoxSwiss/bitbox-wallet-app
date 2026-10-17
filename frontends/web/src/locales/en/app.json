@@ -829,7 +829,7 @@
     "previewLogo": "Show BitBoxApp logo",
     "previewLogoDescription": "Show the sidebar logo while preserving its space when hidden.",
     "previewSeparateTitlebar": "Separate custom titlebar",
-    "previewSeparateTitlebarDescription": "Put window buttons and the title in their own CSD row above the app. Turn off system window borders and restart to enable this option.",
+    "previewSeparateTitlebarDescription": "Keep window buttons in a separate row that continues the app backgrounds and animations. Turn off system window borders and restart to enable this option.",
     "restart": "Changes take effect after restarting BitBoxApp."
   },
   "desktopDesign": {

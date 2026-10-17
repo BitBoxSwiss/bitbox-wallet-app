@@ -52,10 +52,13 @@ choices remain respected. Linux's design playground can switch live between
 system/Linux captions (following desktop button preferences), simulated macOS
 traffic lights on the left, and simulated Windows captions on the right.
 These previews retain Linux's native actions; they do not emulate AppKit or Snap
-Layouts. An optional separate custom titlebar puts these controls and a centered
-window title in a native CSD row above the web view. It keeps normal web clicks out
-of the caption, uses the same QWindowKit drag/resize behavior, and switches live
-when CSD is active. System borders must be disabled with a restart first.
+Layouts. An optional separate custom titlebar reserves a controls row above the
+app's headings. The web view fills the whole window body, so panel colors,
+gradients, dimming and animations extend through this row in the same composition.
+There is no duplicate centered title or separately painted titlebar background.
+QWindowKit handles dragging within the controls row; web dismiss overlays remain
+clickable there. The option switches live when CSD is active. System borders
+must be disabled with a restart first.
 Header height, button preview and logo visibility persist across themes.
 The dedicated desktop Settings > Playground tab contains the experimental controls,
 including the system-border option. Gradients are nested under each element

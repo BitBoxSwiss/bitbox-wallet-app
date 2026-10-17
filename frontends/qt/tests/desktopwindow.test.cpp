@@ -119,7 +119,7 @@ private slots:
         QVERIFY(window.findChildren<QAbstractButton *>().isEmpty());
     }
 
-    // A separate CSD row keeps controls and dragging above the app while preserving resize targets and lower corners.
+    // A separate CSD row shares the web surface while keeping dragging bounded, dismiss overlays clickable and corners rounded.
     void separateTitlebarReservesOnlyNativeCaptionRow() {
         auto *view = new QWebEngineView;
         DesktopWindow window(view);
@@ -129,17 +129,25 @@ private slots:
         const auto handle = window.windowHandle();
         window.setPreviewSeparateTitlebar(true);
         const auto body = handle->property("_qwk_resize_frame").toRect();
-        QCOMPARE(view->geometry(), body.adjusted(0, 36, 0, 0));
+        QCOMPARE(view->geometry(), body);
+        QCOMPARE(window.state().value("topInset").toInt(), 36);
         QCOMPARE(window.state().value("leftInset").toInt(), 0);
         QCOMPARE(window.state().value("rightInset").toInt(), 0);
-        QVERIFY(window.state().value("captionButtons").toList().isEmpty());
-        QVERIFY(view->mask().contains(QPoint(0, 0)));
+        QCOMPARE(window.state().value("captionButtons").toList().size(), 3);
+        QVERIFY(!view->mask().contains(QPoint(0, 0)));
         QVERIFY(!view->mask().contains(QPoint(0, view->height() - 1)));
         for (auto *button : window.findChildren<QAbstractButton *>()) {
             QVERIFY(button->isVisible());
-            QVERIFY(button->geometry().bottom() < view->y());
+            QVERIFY(button->geometry().bottom() < view->y() + 36);
         }
-        window.updateLayout(snapshot(window, *view));
+        auto layout = snapshot(window, *view);
+        layout["exclusions"] = QVariantList{rectangle(350, 0, 100, 36)};
+        window.updateLayout(layout);
+        QTest::mouseDClick(handle, Qt::LeftButton, Qt::NoModifier, body.topLeft() + QPoint(400, 18));
+        QVERIFY(!window.isMaximized());
+        layout["sequence"] = 2;
+        layout["exclusions"] = QVariantList{};
+        window.updateLayout(layout);
         QTest::mouseDClick(handle, Qt::LeftButton, Qt::NoModifier, view->pos() + QPoint(400, 65));
         QVERIFY(!window.isMaximized());
         QTest::mouseDClick(handle, Qt::LeftButton, Qt::NoModifier, body.topLeft() + QPoint(400, 18));
@@ -147,11 +155,13 @@ private slots:
         window.showNormal();
         QTRY_VERIFY(!window.isMaximized());
         window.setPreviewButtonStyle("windows");
-        QCOMPARE(view->y(), handle->property("_qwk_resize_frame").toRect().top() + 32);
+        QCOMPARE(view->geometry(), handle->property("_qwk_resize_frame").toRect());
+        QCOMPARE(window.state().value("topInset").toInt(), 32);
         QCOMPARE(window.windowHandle(), handle);
         DesktopWindow restored(new QWebEngineView);
         QVERIFY(restored.state().value("previewSeparateTitlebar").toBool());
         window.setPreviewSeparateTitlebar(false);
+        QCOMPARE(window.state().value("topInset").toInt(), 0);
         QCOMPARE(view->geometry(), handle->property("_qwk_resize_frame").toRect());
         QVERIFY(window.state().value("rightInset").toInt() >= 138);
     }

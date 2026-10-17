@@ -68,9 +68,9 @@
 
 :global(body[data-desktop-modernized]) .header {
     background-color: var(--design-guide-header, var(--color-blue));
-    height: var(--header-height);
-    min-height: var(--header-height);
-    padding-top: 0;
+    height: calc(var(--header-height) + var(--desktop-caption-height, 0px));
+    min-height: calc(var(--header-height) + var(--desktop-caption-height, 0px));
+    padding-top: var(--desktop-caption-height, 0px);
     padding-bottom: 0;
     padding-left: calc(var(--space-default) + var(--desktop-caption-controls-left, var(--desktop-controls-left, 0px)));
     padding-right: calc(var(--space-default) + var(--desktop-caption-controls-right, var(--desktop-controls-right, 0px)));

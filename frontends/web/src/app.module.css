@@ -87,12 +87,6 @@
     --desktop-caption-separator: color-mix(in srgb, white var(--design-separator-opacity, 5%), transparent);
 }
 
-:global(body[data-desktop-csd][data-desktop-separate-titlebar]),
-:global(body[data-desktop-csd][data-desktop-separate-titlebar])::after {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-}
-
 :global(body[data-desktop-csd][data-desktop-edge-to-edge])::after {
     display: none;
 }

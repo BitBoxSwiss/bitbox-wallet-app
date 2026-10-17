@@ -55,7 +55,7 @@ const setup = async (csd = true, previewSeparateTitlebar = false) => {
   const updateFrame = vi.fn();
   const { getQtChannel } = await import('./transport-qt');
   vi.mocked(getQtChannel).mockResolvedValue({ objects: { desktopChrome: {
-    state: { csd, previewSeparateTitlebar, revision: 1, topInset: 0, leftInset: 0, rightInset: 52, cornerRadius: 12 },
+    state: { csd, previewSeparateTitlebar, revision: 1, topInset: csd && previewSeparateTitlebar ? 36 : 0, leftInset: 0, rightInset: 52, cornerRadius: 12 },
     stateChanged: { connect: vi.fn() },
     updateFrame,
   } } });
@@ -278,12 +278,12 @@ it('keeps sampling overlapping transitions until both finish', async () => {
   expect(callbacks.size).toBe(0);
 });
 
-// Only separate CSD rows square off the web surface's upper corners; system borders retain their own contour.
-it('limits the separate titlebar contour to active CSD', async () => {
+// Separate CSD reserves a row within the same web surface; system borders remove that extra row.
+it('reserves a separate controls row only for active CSD', async () => {
   await setup(true, true);
-  expect(document.body).toHaveAttribute('data-desktop-separate-titlebar');
+  expect(document.body.style.getPropertyValue('--desktop-caption-height')).toBe('36px');
   dispose?.();
   vi.resetModules();
   await setup(false, true);
-  expect(document.body).not.toHaveAttribute('data-desktop-separate-titlebar');
+  expect(document.body.style.getPropertyValue('--desktop-caption-height')).toBe('0px');
 });

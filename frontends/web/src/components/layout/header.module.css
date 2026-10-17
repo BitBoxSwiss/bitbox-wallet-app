@@ -59,8 +59,8 @@
 }
 
 :global(body[data-desktop-modernized]) .header {
-    height: var(--header-height);
-    padding-top: 0;
+    height: calc(var(--header-height) + var(--desktop-caption-height, 0px));
+    padding-top: var(--desktop-caption-height, 0px);
     padding-bottom: 0;
     max-width: none;
     display: flex;
