@@ -896,12 +896,31 @@
       "shapes": "Shapes and logo scale"
     },
     "header": "Header and logo",
+    "layoutDescription": "Centered placement balances the logo between left-side window buttons and the sidebar edge. Spacing sets the minimum padding on both sides; without left-side buttons, the logo is centered in the sidebar.",
     "light": "light appearance",
     "options": {
       "below": "Below the buttons",
-      "beside": "Beside the buttons"
+      "beside": "Beside the buttons",
+      "centered": "Centered between buttons and sidebar edge"
+    },
+    "preview": {
+      "checkbox": "Sample checkbox",
+      "description": "Sample controls only. Interacting here does not change your app settings. Collapse this preview for more editing space.",
+      "disabled": "Disabled button",
+      "disabledSwitch": "Disabled switch",
+      "first": "First option",
+      "input": "Sample input",
+      "placeholder": "Enter sample text",
+      "primary": "Primary button",
+      "second": "Second option",
+      "secondary": "Secondary button",
+      "secondaryText": "Secondary text on a sample settings card",
+      "select": "Sample dropdown",
+      "switch": "Sample switch",
+      "title": "Live component preview"
     },
     "reset": "Reset current appearance",
+    "resetAll": "Reset all playground defaults",
     "resizeSidebar": "Resize sidebar",
     "saveFailed": "Changes are visible, but could not be saved. They may be lost when the app closes.",
     "shapesDescription": "Use 0 for square buttons or 100 for pill shapes. Logo scaling and hiding preserve its space. Window corners stay unchanged.",

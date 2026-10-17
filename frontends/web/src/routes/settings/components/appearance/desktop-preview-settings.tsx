@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
 import { Input, Select } from '@/components/forms';
@@ -34,6 +35,7 @@ export const DesktopHeaderHeightSetting = () => {
   const { t } = useTranslation();
   const state = useDesktopChrome();
   const height = state?.previewHeaderHeight;
+  const [draft, setDraft] = useState<string>();
   if (height === undefined) {
     return null;
   }
@@ -49,17 +51,14 @@ export const DesktopHeaderHeightSetting = () => {
         max={maxHeight}
         step={1}
         required
-        defaultValue={height}
+        value={draft ?? height}
         onChange={event => {
+          setDraft(event.currentTarget.value);
           if (event.currentTarget.validity.valid) {
             setPreviewHeaderHeight(event.currentTarget.valueAsNumber);
           }
         }}
-        onBlur={event => {
-          if (!event.currentTarget.validity.valid) {
-            event.currentTarget.value = String(height);
-          }
-        }}
+        onBlur={() => setDraft(undefined)}
       />}
     />
   );

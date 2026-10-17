@@ -133,6 +133,20 @@
     cursor: default;
 }
 
+:global(body[data-desktop-modernized][data-desktop-logo-position="centered"]) .sidebarLogoContainer {
+    justify-content: center;
+    padding-right: var(--design-logo-gap, 32px);
+}
+
+:global(body[data-desktop-modernized][data-desktop-logo-position="centered"]) .sidebarLogoContainer img {
+    transform-origin: center;
+}
+
+:global(body[data-desktop-modernized][data-desktop-logo-position="centered"]) .closeButton {
+    position: absolute;
+    right: var(--space-half);
+}
+
 :global(body[data-desktop-modernized][data-desktop-logo-hidden]) .desktopLogo {
     visibility: hidden;
 }

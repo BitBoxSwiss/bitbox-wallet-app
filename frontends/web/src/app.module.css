@@ -61,7 +61,8 @@
 :global(body[data-desktop-modernized]) {
     --header-height: 48px;
     --desktop-logo-controls-left: var(--desktop-controls-left, 0px);
-    --sidebar-width-large: min(calc(100vw - 48px), max(var(--design-sidebar-width, var(--sidebar-width-min)), calc(var(--desktop-logo-controls-left) + var(--design-logo-gap, var(--space-default)) + var(--sidebar-logo-width) + var(--space-half))));
+    --desktop-logo-end-padding: var(--space-half);
+    --sidebar-width-large: min(calc(100vw - 48px), max(var(--design-sidebar-width, var(--sidebar-width-min)), calc(var(--desktop-logo-controls-left) + var(--design-logo-gap, var(--space-default)) + var(--sidebar-logo-width) + var(--desktop-logo-end-padding))));
     --desktop-scrollbar-gutter: stable;
     --desktop-window-outline: rgba(0, 0, 0, 0.05);
     --desktop-caption-separator: color-mix(in srgb, black var(--design-separator-opacity, 5%), transparent);
@@ -74,6 +75,10 @@
 
 :global(body[data-desktop-modernized][data-desktop-logo-position="below"]) {
     --desktop-logo-controls-left: 0px;
+}
+
+:global(body[data-desktop-modernized][data-desktop-logo-position="centered"]) {
+    --desktop-logo-end-padding: var(--design-logo-gap, 32px);
 }
 
 :global(body.dark-mode[data-desktop-modernized]) {

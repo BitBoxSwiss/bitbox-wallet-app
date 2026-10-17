@@ -6,9 +6,11 @@ import { Accordion } from '@/components/accordion/accordion';
 import { Button, Input, Select } from '@/components/forms';
 import { useDarkmode } from '@/hooks/darkmode';
 import { appearanceFields, appearanceValue, applyAppearance, readAppearance, saveAppearance, TAppearance } from '@/utils/desktop-appearance';
+import { setPreviewButtonStyle, setPreviewHeaderHeight, setPreviewLogoVisible } from '@/utils/desktop-chrome';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { DesktopButtonStyleSetting, DesktopHeaderHeightSetting, DesktopLogoSetting } from './desktop-preview-settings';
 import styles from './desktop-preview-settings.module.css';
+import { DesktopAppearancePreview } from './desktop-appearance-preview';
 
 const groups = ['colors', 'gradients', 'layout', 'shapes', 'effects', 'scrollbars', 'motion'];
 
@@ -34,11 +36,27 @@ export const DesktopAppearanceSettings = () => {
   return (
     <Accordion className={styles.playground} title={t('desktopDesign.title')}>
       <p>{t('desktopDesign.description', { mode: t(`desktopDesign.${mode}`) })}</p>
-      <Button secondary onClick={() => {
-        update({});
-        setDraft(undefined);
-      }}>{t('desktopDesign.reset')}</Button>
+      <div className={styles.actions}>
+        <Button secondary onClick={() => {
+          const lightSaved = saveAppearance('light', {});
+          const darkSaved = saveAppearance('dark', {});
+          setProfiles({ light: {}, dark: {} });
+          applyAppearance({}, mode);
+          setSaveFailed(!lightSaved || !darkSaved);
+          setDraft(undefined);
+          setPreviewHeaderHeight(48);
+          setPreviewLogoVisible(true);
+          setPreviewButtonStyle('system');
+        }}>{t('desktopDesign.resetAll')}</Button>
+        <Button secondary onClick={() => {
+          update({});
+          setDraft(undefined);
+        }}>{t('desktopDesign.reset')}</Button>
+      </div>
       {saveFailed && <p role="alert">{t('desktopDesign.saveFailed')}</p>}
+      <Accordion className={styles.preview} title={t('desktopDesign.preview.title')} defaultOpen>
+        <DesktopAppearancePreview />
+      </Accordion>
       <Accordion className={styles.section} title={t('desktopDesign.header')}>
         <DesktopButtonStyleSetting />
         <DesktopHeaderHeightSetting />
@@ -48,6 +66,7 @@ export const DesktopAppearanceSettings = () => {
         <Accordion key={group} className={styles.section} title={t(`desktopDesign.groups.${group}`)}>
           {group === 'shapes' && <p>{t('desktopDesign.shapesDescription')}</p>}
           {group === 'gradients' && <p>{t('desktopDesign.gradientsDescription')}</p>}
+          {group === 'layout' && <p>{t('desktopDesign.layoutDescription')}</p>}
           {appearanceFields.filter(field => field.group === group).map(field => {
             const label = t(`desktopDesign.fields.${field.id}`);
             const value = appearanceValue(values, field, mode);

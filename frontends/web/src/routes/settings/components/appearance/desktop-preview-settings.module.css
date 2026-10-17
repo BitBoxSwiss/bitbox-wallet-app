@@ -13,6 +13,29 @@
     margin-top: var(--space-half);
 }
 
+.actions,
+.previewGrid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-half);
+}
+
+.preview {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    max-height: 40vh;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+    margin-block: var(--space-half);
+    padding: var(--space-half);
+    background-color: var(--background-secondary);
+    background-image: var(--design-card-gradient, none);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--design-card-shadow);
+}
+
 .playground button:focus-visible {
     outline: 2px solid var(--design-focus, var(--color-electric-blue));
     outline-offset: 2px;

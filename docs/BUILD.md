@@ -56,6 +56,11 @@ Logo placement (beside/below the controls), spacing, sidebar minimum width and
 switch track/thumb radii are editable per theme. Sidebar width can also be dragged
 at its edge or adjusted with arrow keys, Home and End. Dragging saves on release;
 width remains bounded by logo space and the viewport. Mobile stays unchanged.
+The centered logo option balances the space between left-side controls and the
+sidebar edge, with the configured spacing as minimum padding on each side.
+The collapsible live preview uses actual form and settings components with isolated
+sample state. Reset-current clears one theme; reset-all also clears the other theme
+and restores the shared 48px header, visible logo and system button style.
 Linux uses a web alpha mask with 12px corners (with the current 7.5px button
 radius) and a 1px inset outline at 5% opacity. An outward-rounded native guard
 bounds stale WebEngine frames during resize without cutting the antialiased edge.

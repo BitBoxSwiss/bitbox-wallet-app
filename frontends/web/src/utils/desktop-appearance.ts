@@ -35,7 +35,7 @@ export const appearanceFields: TField[] = [
   { id: 'switchRadius', group: 'shapes', type: 'number', property: '--design-switch-radius', defaults: [2, 2], min: 0, max: 100, step: 0.5, unit: 'px' },
   { id: 'switchThumbRadius', group: 'shapes', type: 'number', property: '--design-switch-thumb-radius', defaults: [2, 2], min: 0, max: 100, step: 0.5, unit: 'px' },
   { id: 'sidebarWidth', group: 'layout', type: 'number', property: '--design-sidebar-width', defaults: [250, 250], ...sidebarWidthLimits, unit: 'px' },
-  { id: 'logoPosition', group: 'layout', type: 'select', property: '--design-logo-position', defaults: ['beside', 'beside'], options: ['beside', 'below'] },
+  { id: 'logoPosition', group: 'layout', type: 'select', property: '--design-logo-position', defaults: ['beside', 'beside'], options: ['beside', 'below', 'centered'] },
   { id: 'logoGap', group: 'layout', type: 'number', property: '--design-logo-gap', defaults: [32, 32], min: 0, max: 80, unit: 'px' },
   { id: 'logoScale', group: 'shapes', type: 'number', property: '--design-logo-scale', defaults: [100, 100], min: 50, max: 100, unit: '%' },
   { id: 'buttonShadow', group: 'effects', type: 'number', property: '--design-button-shadow-size', defaults: [0, 0], min: 0, max: 32, unit: 'px' },
