@@ -12,7 +12,6 @@ import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { BitsuranceTerms } from '@/components/terms/bitsurance-terms';
 import { useLoad } from '@/hooks/api';
-import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
 import { getBitsuranceURL } from '@/api/bitsurance';
 import { convertScriptType } from '@/utils/request-addess';
@@ -45,6 +44,12 @@ export const BitsuranceWidget = () => {
   const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitsuranceDisclaimer ?? false);
   useVendorIframeActive(agreedTerms && !!iframeURL && accountInfoResponse?.success !== false);
   const signingRef = useRef(false);
+  const onBack = () => {
+    if (!signingRef.current) {
+      navigate(`/market/bitsurance/${code}`, { replace: true });
+    }
+  };
+
   useEffect(() => {
     window.addEventListener('message', onMessage);
     return () => {
@@ -89,7 +94,6 @@ export const BitsuranceWidget = () => {
       addressType,
       withMessageSignature)
       .then(response => {
-        signingRef.current = false;
         if (response.success) {
           if (withExtendedPublicKey) {
             const xpub = getXPub(addressType as ScriptType);
@@ -107,6 +111,8 @@ export const BitsuranceWidget = () => {
             console.log('error: ' + response.errorMessage);
           }
         }
+      }).finally(() => {
+        signingRef.current = false;
       });
 
   };
@@ -151,12 +157,12 @@ export const BitsuranceWidget = () => {
     <GuideWrapper>
       <GuidedContent>
         <Main>
-          <Header title={t('generic.buySell')} />
+          <Header title={t('generic.buySell')} variant="navigation" mobileBackButton onBack={onBack} />
           <div ref={containerRef} className={style.container}>
             { accountInfoResponse && !accountInfoResponse.success ? (
               <div className="content">
                 <Message type="error">{accountInfoResponse.errorMessage || t('genericError')}</Message>
-                <BackButton enableEsc>{t('button.back')}</BackButton>
+                <BackButton enableEsc onClick={onBack}>{t('button.back')}</BackButton>
               </div>
             ) : !agreedTerms ? (
               <BitsuranceTerms
@@ -164,7 +170,6 @@ export const BitsuranceWidget = () => {
               />
             ) : (
               <div style={{ height }}>
-                <UseDisableBackButton />
                 {!iframeLoaded && <Spinner text={t('loading')} /> }
                 <iframe
                   onLoad={() => {
