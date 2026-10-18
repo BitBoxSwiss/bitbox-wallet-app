@@ -18,3 +18,5 @@ win32 {
     SOURCES += desktopwindow-windows.test.cpp
     LIBS += -luxtheme -luser32 -lgdi32 -lshell32
 }
+
+macx: SOURCES += desktopwindow-macos.test.cpp

@@ -45,6 +45,26 @@ private slots:
         QVERIFY(window.findChildren<QAbstractButton *>().isEmpty());
     }
 
+    // Preview choices persist and returning to System default restores Windows geometry.
+    void captionPreviewsSwitchAndPersist() {
+        DesktopWindow window(new QWebEngineView);
+        window.show();
+        QVERIFY(QTest::qWaitForWindowExposed(&window));
+        const auto handle = window.windowHandle();
+        for (const auto &style : QStringList{"macos", "ubuntu", "fedora", "windows", "system"}) {
+            window.setPreviewButtonStyle(style);
+            const auto state = window.state();
+            QCOMPARE(state.value("previewButtonStyle").toString(), style);
+            const auto buttons = state.value("captionButtons").toList();
+            QCOMPARE(buttons.size(), style == "fedora" ? 1 : 3);
+            QCOMPARE(buttons.first().toMap().value("width").toInt(),
+                     style == "macos" ? 20 : style == "ubuntu" || style == "fedora" ? 36 : 46);
+            QCOMPARE(window.windowHandle(), handle);
+            DesktopWindow restored(new QWebEngineView);
+            QCOMPARE(restored.state().value("previewButtonStyle").toString(), style);
+        }
+    }
+
     // Caption roles required by Snap survive translated labels, recoloring and window state changes.
     void captionRolesSurviveAppearanceAndMaximization() {
         DesktopWindow window(new QWebEngineView);

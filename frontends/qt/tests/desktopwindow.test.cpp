@@ -273,6 +273,28 @@ private slots:
         QVERIFY(chrome.metaObject()->indexOfMethod("setWindowFlags(Qt::WindowFlags)") < 0);
     }
 
+    // Simulated Windows hover backgrounds follow Linux's rounded body, including separate captions.
+    void windowsPreviewClipsHoverToRoundedBody() {
+        auto *view = new QWebEngineView;
+        DesktopWindow window(view);
+        window.setPreviewButtonStyle("windows");
+        window.show();
+        QVERIFY(QTest::qWaitForWindowExposed(&window));
+        QAbstractButton *close = nullptr;
+        for (auto *button : window.findChildren<QAbstractButton *>())
+            if (button->accessibleName() == "close") close = button;
+        QVERIFY(close);
+        close->setDown(true);
+        const auto corner = [close] { return close->grab().toImage().pixelColor(close->width() - 1, 0); };
+        QVERIFY(corner() != QColor("#e81123"));
+        QCOMPARE(close->grab().toImage().pixelColor(5, 16), QColor("#e81123"));
+        window.setPreviewSeparateTitlebar(true);
+        QVERIFY(corner() != QColor("#e81123"));
+        window.showMaximized();
+        QTRY_VERIFY(window.isMaximized());
+        QCOMPARE(corner(), QColor("#e81123"));
+    }
+
     // Linux can preview all caption styles live without replacing the native window or accepting unknown styles.
     void captionStylePreviewUsesCorrectGeometryAndPersists() {
         auto *view = new QWebEngineView;
@@ -301,8 +323,18 @@ private slots:
         QCOMPARE(window.windowHandle(), handle);
         DesktopWindow restored(new QWebEngineView);
         QCOMPARE(restored.state().value("previewButtonStyle").toString(), QString("windows"));
-        window.setPreviewButtonStyle("linux");
-        QCOMPARE(window.state().value("previewButtonStyle").toString(), QString("linux"));
+        window.setPreviewButtonStyle("ubuntu");
+        state = window.state();
+        QCOMPARE(state.value("leftInset").toDouble(), 0.0);
+        QCOMPARE(state.value("captionButtons").toList().size(), 3);
+        window.setPreviewButtonStyle("fedora");
+        state = window.state();
+        QCOMPARE(state.value("leftInset").toDouble(), 0.0);
+        const auto buttons = state.value("captionButtons").toList();
+        QCOMPARE(buttons.size(), 1);
+        QCOMPARE(buttons.first().toMap().value("action").toString(), QString("close"));
+        DesktopWindow linuxRestored(new QWebEngineView);
+        QCOMPARE(linuxRestored.state().value("previewButtonStyle").toString(), QString("fedora"));
     }
 
     void portalReadSignalsAndLegacyFallback() {

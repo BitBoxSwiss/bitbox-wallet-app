@@ -813,9 +813,10 @@
   },
   "desktopChrome": {
     "buttonStyles": {
-      "linux": "Linux (desktop preferences)",
+      "fedora": "Fedora/Debian",
       "macos": "macOS",
       "system": "System default",
+      "ubuntu": "Ubuntu/Mint",
       "windows": "Windows"
     },
     "close": "Close",
@@ -823,7 +824,7 @@
     "minimize": "Minimize",
     "nativeDecorations": "Use system window borders",
     "previewButtonStyle": "Window button preview",
-    "previewButtonStyleDescription": "Preview button appearance and positioning on Linux. Window actions still use Linux; this does not emulate macOS or Windows behavior.",
+    "previewButtonStyleDescription": "Preview button appearance and positioning. System default uses your desktop’s controls; previews keep the window behavior of your current operating system.",
     "previewHeaderHeight": "Header height (px)",
     "previewHeaderHeightDescription": "Resize all desktop headers. Enter a whole number from {{min}} to {{max}}.",
     "previewLogo": "Show BitBoxApp logo",

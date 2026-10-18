@@ -31,7 +31,7 @@ constexpr int controlHeight = 36;
 constexpr int maxExclusions = 32;
 constexpr int resizeBorder = 4;
 constexpr int resizeShadow = 6;
-const QStringList buttonStyles{"system", "linux", "windows", "macos"};
+const QStringList buttonStyles{"system", "ubuntu", "fedora", "windows", "macos"};
 }
 
 class DesktopWindow::WindowButton final : public QAbstractButton {
@@ -92,7 +92,19 @@ protected:
         painter.setPen(Qt::NoPen);
         const bool closeHover = style == "windows" && action == "close" && highlighted;
         if (style == "windows") {
-            painter.fillRect(rect(), closeHover ? QColor("#e81123") : highlighted ? fill : QColor(Qt::transparent));
+            const auto background = closeHover ? QColor("#e81123") : highlighted ? fill : QColor(Qt::transparent);
+#if defined(Q_OS_LINUX)
+            // Caption widgets are siblings of the masked web view, so clip their backgrounds too.
+            const auto *frame = static_cast<DesktopWindow *>(parentWidget());
+            const auto body = frame->bodyRect().translated(-pos());
+            const qreal radius = frame->isMaximized() || frame->isFullScreen() || frame->tiledEdges_ ? 0 : frame->radius_;
+            QPainterPath contour, button;
+            contour.addRoundedRect(body, radius, radius);
+            button.addRect(rect());
+            painter.fillPath(button.intersected(contour), background);
+#else
+            painter.fillRect(rect(), background);
+#endif
         } else {
             painter.setBrush(fill);
             painter.drawEllipse(QPointF(width() / 2.0, height() / 2.0), 13, 13);
@@ -136,11 +148,9 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
     QSettings settings;
     headerHeight_ = qBound(36, settings.value("macosControlsPreview/headerHeight", headerHeight_).toInt(), 256);
     logoVisible_ = settings.value("macosControlsPreview/logoVisible", true).toBool();
-#if defined(Q_OS_WIN)
-    buttonStyle_ = "windows";
-#elif defined(Q_OS_LINUX)
     const auto style = settings.value("desktopPreview/buttonStyle", "system").toString();
     if (buttonStyles.contains(style)) buttonStyle_ = style;
+#if defined(Q_OS_LINUX)
     separateTitlebar_ = settings.value("desktopPreview/separateTitlebar", false).toBool();
 #endif
     native_ = settings.value("nativeDecorations", true).toBool() || qEnvironmentVariableIsSet("BITBOXAPP_NATIVE_DECORATIONS");
@@ -192,9 +202,8 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
         trafficLights_ = new QWidget(this);
         trafficLights_->setAttribute(Qt::WA_TransparentForMouseEvents);
         trafficLights_->show();
-        agent_->setWindowAttribute("no-system-buttons", false);
         agent_->setSystemButtonArea(trafficLights_);
-#else
+#endif
         for (const auto &action : QStringList{"minimize", "maximize", "close"}) {
             auto *button = new WindowButton(action, this);
             buttons_.append(button);
@@ -207,7 +216,6 @@ DesktopWindow::DesktopWindow(QWebEngineView *view, QWidget *parent) : QWidget(pa
                 else toggleMaximize();
             });
         }
-#endif
 #if defined(Q_OS_LINUX)
         connect(preferences_, &LinuxDecorationPreferences::changed, this, [this] {
             placeControls();
@@ -238,7 +246,7 @@ int DesktopWindow::captionHeight() const {
 
 QVariantMap DesktopWindow::state() const {
     const auto body = view_->geometry();
-    int leftInset = trafficLights_ && !isFullScreen() ? trafficLights_->geometry().right() - body.x() + 1 : 0;
+    int leftInset = trafficLights_ && !trafficLights_->isHidden() && !isFullScreen() ? trafficLights_->geometry().right() - body.x() + 1 : 0;
     int rightInset = 0;
     for (auto *button : buttons_) {
         if (button->isHidden() || captionHeight()) continue;
@@ -265,8 +273,8 @@ QVariantMap DesktopWindow::state() const {
 #endif
     return {{"csd", !native_}, {"nativeDecorations", QSettings().value("nativeDecorations", true).toBool()},
             {"previewHeaderHeight", headerHeight_}, {"previewLogoVisible", logoVisible_},
-#if defined(Q_OS_LINUX)
             {"previewButtonStyle", buttonStyle_},
+#if defined(Q_OS_LINUX)
             {"previewSeparateTitlebar", separateTitlebar_},
 #endif
             {"activeNativeDecorations", native_}, {"revision", revision_},
@@ -395,15 +403,11 @@ void DesktopWindow::setPreviewLogoVisible(bool visible) {
 void DesktopWindow::toggleMaximize() { if (!isFullScreen()) isMaximized() ? showNormal() : showMaximized(); }
 
 void DesktopWindow::setPreviewButtonStyle(const QString &style) {
-#if defined(Q_OS_LINUX)
     if (buttonStyle_ == style || !buttonStyles.contains(style)) return;
     buttonStyle_ = style;
     QSettings().setValue("desktopPreview/buttonStyle", style);
     syncFrame();
     invalidateLayout();
-#else
-    Q_UNUSED(style);
-#endif
 }
 
 void DesktopWindow::setPreviewSeparateTitlebar(bool enabled) {
@@ -422,7 +426,18 @@ void DesktopWindow::placeControls() {
     const auto body = captionHeight() ? bodyRect() : view_->geometry();
     const int height = captionHeight() ? captionHeight() : headerHeight_;
     const int controlY = body.y() + (height - controlHeight) / 2;
-    if (trafficLights_) trafficLights_->setGeometry(body.x() + 8, controlY, 80, controlHeight);
+    auto style = buttonStyle_;
+#if defined(Q_OS_WIN)
+    if (style == "system") style = "windows";
+#elif defined(Q_OS_MACOS)
+    if (style == "system") style = "macos";
+#endif
+    const bool nativeTrafficLights = trafficLights_ && buttonStyle_ == "system";
+    if (trafficLights_) {
+        trafficLights_->setGeometry(body.x() + 8, controlY, 80, controlHeight);
+        trafficLights_->setVisible(nativeTrafficLights && !isFullScreen());
+        agent_->setWindowAttribute("no-system-buttons", !nativeTrafficLights);
+    }
     QStringList left, right{"minimize", "maximize", "close"};
 #if defined(Q_OS_LINUX)
     if (preferences_) {
@@ -431,15 +446,16 @@ void DesktopWindow::placeControls() {
         if (windowHandle()) windowHandle()->setProperty("_qwk_title_double_click", preferences_->buttons().doubleClick);
     }
 #endif
-    if (buttonStyle_ == "macos") { left = QStringList{"close", "minimize", "maximize"}; right.clear(); }
-    if (buttonStyle_ == "windows") { left.clear(); right = QStringList{"minimize", "maximize", "close"}; }
+    if (style == "macos") { left = QStringList{"close", "minimize", "maximize"}; right.clear(); }
+    if (style == "windows" || style == "ubuntu") { left.clear(); right = QStringList{"minimize", "maximize", "close"}; }
+    if (style == "fedora") { left.clear(); right = QStringList{"close"}; }
     for (auto *button : buttons_) {
-        button->style = buttonStyle_;
+        button->style = style;
         const auto action = button->action;
-        if (isFullScreen() || (!left.contains(action) && !right.contains(action))) button->hide();
+        if (nativeTrafficLights || isFullScreen() || (!left.contains(action) && !right.contains(action))) button->hide();
     }
-    auto place = [this, body, controlY, height](const QStringList &actions, bool onLeft) {
-        const bool windows = buttonStyle_ == "windows", macos = buttonStyle_ == "macos";
+    auto place = [this, body, controlY, height, style, nativeTrafficLights](const QStringList &actions, bool onLeft) {
+        const bool windows = style == "windows", macos = style == "macos";
         const int width = windows ? 46 : macos ? 20 : 36;
         const int offset = windows ? 0 : macos ? 18 : (height - controlHeight) / 2;
         const int buttonHeight = windows ? 32 : controlHeight;
@@ -449,7 +465,7 @@ void DesktopWindow::placeControls() {
             for (auto *button : buttons_) {
                 if (button->action != action) continue;
                 button->setGeometry(x, y, width, buttonHeight);
-                button->setVisible(!isFullScreen());
+                button->setVisible(!nativeTrafficLights && !isFullScreen());
                 button->raise();
             }
             x += width;

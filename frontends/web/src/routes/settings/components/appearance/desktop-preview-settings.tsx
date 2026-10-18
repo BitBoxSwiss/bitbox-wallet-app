@@ -25,7 +25,7 @@ export const DesktopButtonStyleSetting = () => {
       id="desktop-button-style"
       aria-label={t('desktopChrome.previewButtonStyle')}
       value={state.previewButtonStyle}
-      options={['system', 'linux', 'windows', 'macos'].map(value => ({ value, text: t(`desktopChrome.buttonStyles.${value}`) }))}
+      options={['system', 'ubuntu', 'fedora', 'windows', 'macos'].map(value => ({ value, text: t(`desktopChrome.buttonStyles.${value}`) }))}
       onChange={event => setPreviewButtonStyle(event.target.value)}
     />}
   />);

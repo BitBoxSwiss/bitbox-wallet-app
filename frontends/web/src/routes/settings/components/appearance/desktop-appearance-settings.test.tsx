@@ -82,6 +82,13 @@ it('edits caption style, logo placement, sidebar width and switch shapes', () =>
   expect(setPreviewSeparateTitlebar).toHaveBeenCalledWith(true);
   fireEvent.change(screen.getByLabelText('desktopChrome.previewButtonStyle'), { target: { value: 'windows' } });
   expect(setPreviewButtonStyle).toHaveBeenCalledWith('windows');
+  const styles = screen.getByLabelText('desktopChrome.previewButtonStyle');
+  expect(within(styles).queryByRole('option', { name: 'desktopChrome.buttonStyles.linux' })).not.toBeInTheDocument();
+  for (const value of ['ubuntu', 'fedora']) {
+    expect(within(styles).getByRole('option', { name: `desktopChrome.buttonStyles.${value}` })).toBeInTheDocument();
+    fireEvent.change(styles, { target: { value } });
+    expect(setPreviewButtonStyle).toHaveBeenCalledWith(value);
+  }
   open('desktopDesign.groups.sidebar');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.logoPosition'), { target: { value: 'below' } });
   expect(document.body).toHaveAttribute('data-desktop-logo-position', 'below');
