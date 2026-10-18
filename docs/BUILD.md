@@ -128,8 +128,8 @@ button preferences through the Settings portal, with bounded `gsettings` or
 
 **Use system window borders** remains available on all desktop systems for testing
 and displays a restart reminder when changed. It takes effect after restarting
-the app. Modern CSD is the default, including
-on macOS and Windows; native decorations requires an explicit opt-in.
+the app. System borders are the PoC default; disabling the option enables modern
+CSD. The modernized in-app design and playground remain available in either mode.
 `BITBOXAPP_NATIVE_DECORATIONS=1` forces native decorations for troubleshooting. Browser and mobile layouts/transports do not enable this feature.
 
 Launch a desktop test build with `-testnet`. Close an already running BitBoxApp
@@ -150,6 +150,28 @@ The tests use an isolated settings directory and D-Bus session. Headless root
 containers additionally need `QTWEBENGINE_DISABLE_SANDBOX=1`; do not use that
 override for normal desktop launches. Manual acceptance still covers compositor
 dragging/snapping, monitor scaling, shadows and Windows/macOS behavior.
+
+For Windows native regression tests, use an interactive terminal on the Windows
+desktop, initialize the existing Visual Studio/Qt environment, then run:
+
+```bat
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+set "PATH=C:\Qt\6.8.2\msvc2022_64\bin;%PATH%"
+mkdir C:\dev\bitbox-native-tests
+cd /d C:\dev\bitbox-native-tests
+qmake C:\path\to\source\frontends\qt\tests\desktopwindow.pro QWINDOWKIT_PREFIX=C:/path/to/source/frontends/qt/build/qwindowkit/install "CONFIG+=release" "CONFIG-=debug_and_release"
+nmake /NOLOGO
+desktopwindow-test.exe
+```
+
+Replace the source/prefix paths with the retained workspace from a standard
+Windows build (`build-bitbox.sh windows --plain --keep-windows`). Use a separate
+test build directory. The fixture uses isolated INI settings, not wallet data.
+It checks native caption/resize messages and window states. An SSH session
+cannot expose its windows to the compositor; use the logged-in desktop session
+for these tests. Visible Snap Layouts, screen readers and real mixed-DPI monitor
+moves still require manual acceptance. Linux emulation does not verify AppKit;
+macOS native build/runtime verification requires an actual Mac.
 
 ## MacOS
 
