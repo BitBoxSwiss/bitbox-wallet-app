@@ -9,7 +9,6 @@
 #include <QVector>
 
 class QWebEngineView;
-class QAbstractButton;
 class QQuickWindow;
 namespace QWK { class WidgetWindowAgent; }
 class LinuxDecorationPreferences;
@@ -38,6 +37,7 @@ protected:
     bool event(QEvent *) override;
     bool eventFilter(QObject *, QEvent *) override;
 private:
+    class WindowButton;
     void toggleMaximize();
     void syncFrame();
     void placeControls();
@@ -53,7 +53,7 @@ private:
     QWidget *title_ = nullptr;
     QWidget *trafficLights_ = nullptr;
     QVector<QWidget *> exclusions_;
-    QVector<QAbstractButton *> buttons_;
+    QVector<WindowButton *> buttons_;
     QVector<QWidget *> resizeTargets_;
     LinuxDecorationPreferences *preferences_ = nullptr;
     bool native_ = false;

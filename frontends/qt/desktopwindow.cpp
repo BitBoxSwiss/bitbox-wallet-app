@@ -32,8 +32,9 @@ constexpr int maxExclusions = 32;
 constexpr int resizeBorder = 4;
 constexpr int resizeShadow = 6;
 const QStringList buttonStyles{"system", "linux", "windows", "macos"};
+}
 
-class WindowButton final : public QAbstractButton {
+class DesktopWindow::WindowButton final : public QAbstractButton {
 public:
     WindowButton(const QString &action, QWidget *parent) : QAbstractButton(parent), action(action) {
         // Caption controls use the window manager's keyboard shortcuts and
@@ -115,6 +116,7 @@ protected:
     }
 };
 
+namespace {
 bool readRect(const QVariantMap &input, qreal zoom, const QRect &bounds, QRect *output) {
     const QStringList keys{"x", "y", "width", "height"};
     double values[4];
@@ -251,7 +253,7 @@ QVariantMap DesktopWindow::state() const {
     for (auto *button : buttons_) {
         if (button->isHidden()) continue;
         const auto geometry = button->geometry().translated(-view_->pos());
-        captionButtons.append(QVariantMap{{"action", static_cast<WindowButton *>(button)->action},
+        captionButtons.append(QVariantMap{{"action", button->action},
             {"x", geometry.x() / view_->zoomFactor()}, {"y", geometry.y() / view_->zoomFactor()},
             {"width", geometry.width() / view_->zoomFactor()}, {"height", geometry.height() / view_->zoomFactor()}});
     }
@@ -272,8 +274,7 @@ QVariantMap DesktopWindow::state() const {
             {"systemAppearanceReady", systemAppearanceReady},
             {"topInset", captionHeight() / view_->zoomFactor()}, {"leftInset", leftInset / view_->zoomFactor()}, {"rightInset", rightInset / view_->zoomFactor()},
             {"cornerRadius", cornerRadius}, {"captionButtons", captionButtons},
-            {"maximized", isMaximized()}, {"fullScreen", isFullScreen()},
-            {"width", view_->width()}, {"height", view_->height()}};
+            {"maximized", isMaximized()}, {"fullScreen", isFullScreen()}};
 }
 
 void DesktopWindow::invalidateLayout() {
@@ -331,18 +332,16 @@ void DesktopWindow::updateAppearance(const QVariantMap &appearance) {
     background_ = background; foreground_ = foreground;
     const auto captionColors = appearance.value("captionColors").toMap();
     for (auto *button : buttons_) {
-        auto *control = static_cast<WindowButton *>(button);
-        const QColor color(captionColors.value(control->action).toString());
-        captionColors_[control->action] = color.isValid() ? color : foreground_;
+        const QColor color(captionColors.value(button->action).toString());
+        captionColors_[button->action] = color.isValid() ? color : foreground_;
     }
     const double radius = appearance.value("buttonRadius").toDouble();
     const qreal newRadius = std::isfinite(radius) && radius >= 8 ? qBound(8.0, radius * view_->zoomFactor(), 64.0) : 12;
     if (radius_ != newRadius) { radius_ = newRadius; shadow_ = {}; syncFrame(); invalidateLayout(); }
     const auto labels = appearance.value("labels").toMap();
     for (auto *button : buttons_) {
-        auto *control = static_cast<WindowButton *>(button);
-        const auto label = labels.value(control->action).toString().left(100);
-        if (!label.isEmpty() && control->accessibleName() != label) { control->setAccessibleName(label); control->setToolTip(label); }
+        const auto label = labels.value(button->action).toString().left(100);
+        if (!label.isEmpty() && button->accessibleName() != label) { button->setAccessibleName(label); button->setToolTip(label); }
     }
     updateControls();
     // Theme changes affect the native shadow; WebEngine presents its own frames.
@@ -435,8 +434,8 @@ void DesktopWindow::placeControls() {
     if (buttonStyle_ == "macos") { left = QStringList{"close", "minimize", "maximize"}; right.clear(); }
     if (buttonStyle_ == "windows") { left.clear(); right = QStringList{"minimize", "maximize", "close"}; }
     for (auto *button : buttons_) {
-        static_cast<WindowButton *>(button)->style = buttonStyle_;
-        const auto action = static_cast<WindowButton *>(button)->action;
+        button->style = buttonStyle_;
+        const auto action = button->action;
         if (isFullScreen() || (!left.contains(action) && !right.contains(action))) button->hide();
     }
     auto place = [this, body, controlY, height](const QStringList &actions, bool onLeft) {
@@ -448,7 +447,7 @@ void DesktopWindow::placeControls() {
         int x = onLeft ? body.left() + offset : body.x() + body.width() - offset - actions.size() * width;
         for (const auto &action : actions) {
             for (auto *button : buttons_) {
-                if (static_cast<WindowButton *>(button)->action != action) continue;
+                if (button->action != action) continue;
                 button->setGeometry(x, y, width, buttonHeight);
                 button->setVisible(!isFullScreen());
                 button->raise();
@@ -462,11 +461,10 @@ void DesktopWindow::placeControls() {
 
 void DesktopWindow::updateControls() {
     for (auto *button : buttons_) {
-        auto *control = static_cast<WindowButton *>(button);
-        control->color = captionColors_.value(control->action, foreground_);
-        if (!isActiveWindow()) control->color.setAlpha(170);
-        control->restored = isMaximized();
-        control->update();
+        button->color = captionColors_.value(button->action, foreground_);
+        if (!isActiveWindow()) button->color.setAlpha(170);
+        button->restored = isMaximized();
+        button->update();
     }
 }
 
