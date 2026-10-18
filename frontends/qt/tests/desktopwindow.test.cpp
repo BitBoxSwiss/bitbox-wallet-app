@@ -147,6 +147,7 @@ private slots:
         QTimer::singleShot(0, &window, [&] {
             auto *dialog = window.findChild<QFileDialog *>();
             if (!dialog) qFatal("Expected modal preset chooser");
+            QTimer::singleShot(0, dialog, &QDialog::reject);
             QCOMPARE(dialog->parentWidget(), &window);
             QCOMPARE(dialog->thread(), qApp->thread());
             QCOMPARE(dialog->windowTitle().size(), 200);
