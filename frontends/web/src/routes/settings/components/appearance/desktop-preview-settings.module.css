@@ -46,6 +46,28 @@
     gap: var(--space-half);
 }
 
+.previewFields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: var(--space-half);
+    margin-block: var(--space-half);
+}
+
+.previewFields > div {
+    margin-bottom: 0;
+}
+
+.previewSwitch {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-quarter);
+}
+
+.previewSecondary {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+}
+
 .preview {
     position: sticky;
     top: 0;

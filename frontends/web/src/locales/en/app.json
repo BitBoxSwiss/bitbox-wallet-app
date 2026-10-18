@@ -922,7 +922,6 @@
       "checkbox": "Sample checkbox",
       "description": "Sample controls only. Interacting here does not change your app settings. Collapse this preview for more editing space.",
       "disabled": "Disabled button",
-      "disabledSwitch": "Disabled switch",
       "first": "First option",
       "input": "Sample input",
       "placeholder": "Enter sample text",

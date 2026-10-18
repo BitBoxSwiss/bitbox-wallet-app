@@ -150,7 +150,9 @@ it('provides interactive component samples without changing app preferences', ()
   expect(toggle).toBeChecked();
   fireEvent.change(preview.getByLabelText('desktopDesign.preview.input'), { target: { value: 'Sample' } });
   expect(preview.getByRole('button', { name: 'desktopDesign.preview.disabled' })).toBeDisabled();
-  expect(preview.getByRole('checkbox', { name: 'desktopDesign.preview.disabledSwitch' })).toBeDisabled();
+  expect(preview.queryByRole('checkbox', { name: 'desktopDesign.preview.disabledSwitch' })).not.toBeInTheDocument();
+  expect(preview.getByText('desktopDesign.preview.secondaryText')).toBeInTheDocument();
+  expect(preview.getByRole('combobox', { name: 'desktopDesign.preview.select' })).toBeInTheDocument();
   expect(localStorage.length).toBe(0);
 });
 
