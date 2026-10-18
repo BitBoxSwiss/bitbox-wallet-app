@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/forms';
 import { useMountedRef } from '@/hooks/mount';
 import { parseAppearancePreset, presetSizeLimit, serializeAppearancePreset, TAppearancePreset, TAppearanceProfiles } from '@/utils/desktop-appearance';
-import { saveDesktopAppearancePreset } from '@/utils/desktop-chrome';
+import { saveDesktopAppearancePreset } from '@/utils/transport-qt';
 import styles from './desktop-preview-settings.module.css';
 
 type TProps = { profiles: TAppearanceProfiles; onImport: (preset: TAppearancePreset) => boolean };

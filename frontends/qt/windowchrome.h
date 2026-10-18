@@ -3,8 +3,6 @@
 
 #include <QObject>
 #include <QPointer>
-#include <QFileDialog>
-#include <QSaveFile>
 #include "desktopwindow.h"
 
 // Publish only the desktop contract, never QWidget's inherited native methods.
@@ -30,15 +28,6 @@ public:
     Q_INVOKABLE void setPreviewLogoVisible(bool value) { if (window_) window_->setPreviewLogoVisible(value); }
     Q_INVOKABLE void setPreviewButtonStyle(const QString &value) { if (window_) window_->setPreviewButtonStyle(value); }
     Q_INVOKABLE void setPreviewSeparateTitlebar(bool value) { if (window_) window_->setPreviewSeparateTitlebar(value); }
-    Q_INVOKABLE QString saveAppearancePreset(const QString &contents, const QString &caption) {
-        const auto bytes = contents.toUtf8();
-        if (!window_ || bytes.size() > 64 * 1024) return "error";
-        const auto filename = QFileDialog::getSaveFileName(window_, caption.left(200), "bitbox-design.json", "JSON (*.json)");
-        if (filename.isEmpty()) return "cancelled";
-        QSaveFile file(filename);
-        if (!file.open(QIODevice::WriteOnly) || file.write(bytes) != bytes.size() || !file.commit()) return "error";
-        return "saved";
-    }
 signals:
     void stateChanged();
 private:

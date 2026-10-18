@@ -388,7 +388,7 @@ int main(int argc, char *argv[])
     std::string decimalSeparatorStr = decimalSeparator.toUtf8().toStdString();
     std::string groupSeparatorStr = groupSeparator.toUtf8().toStdString();
 
-    webClass = new WebClass();
+    webClass = new WebClass(desktopWindow);
 
     setupReachabilityNotifier();
 

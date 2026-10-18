@@ -5,7 +5,8 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
 import { useDarkmode } from '@/hooks/darkmode';
 import { applyAppearance, readAppearance, saveAppearance, serializeAppearancePreset } from '@/utils/desktop-appearance';
-import { saveDesktopAppearancePreset, setPreviewButtonStyle, setPreviewHeaderHeight, setPreviewLogoVisible, setNativeDecorations, setPreviewSeparateTitlebar } from '@/utils/desktop-chrome';
+import { setPreviewButtonStyle, setPreviewHeaderHeight, setPreviewLogoVisible, setNativeDecorations, setPreviewSeparateTitlebar } from '@/utils/desktop-chrome';
+import { saveDesktopAppearancePreset } from '@/utils/transport-qt';
 import { DesktopAppearanceSettings } from './desktop-appearance-settings';
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
@@ -14,7 +15,8 @@ vi.mock('@/hooks/mediaquery', () => ({ useMediaQuery: () => false }));
 vi.mock('@/components/desktop-chrome/desktop-chrome', () => ({
   useDesktopChrome: vi.fn(() => ({ csd: true, nativeDecorations: false, activeNativeDecorations: false, previewSeparateTitlebar: false, previewHeaderHeight: 70, previewLogoVisible: true, previewButtonStyle: 'system' })),
 }));
-vi.mock('@/utils/desktop-chrome', () => ({ setPreviewHeaderHeight: vi.fn(), setPreviewLogoVisible: vi.fn(), setPreviewButtonStyle: vi.fn(), setNativeDecorations: vi.fn(), setPreviewSeparateTitlebar: vi.fn(), notifyChromeLayout: vi.fn(), saveDesktopAppearancePreset: vi.fn().mockResolvedValue('saved') }));
+vi.mock('@/utils/desktop-chrome', () => ({ setPreviewHeaderHeight: vi.fn(), setPreviewLogoVisible: vi.fn(), setPreviewButtonStyle: vi.fn(), setNativeDecorations: vi.fn(), setPreviewSeparateTitlebar: vi.fn(), notifyChromeLayout: vi.fn() }));
+vi.mock('@/utils/transport-qt', () => ({ saveDesktopAppearancePreset: vi.fn().mockResolvedValue('saved') }));
 
 afterEach(() => {
   vi.mocked(useDesktopChrome).mockReset();

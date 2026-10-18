@@ -45,6 +45,16 @@ export const call = (query: string): Promise<unknown> => {
   });
 };
 
+export const saveDesktopAppearancePreset = async (contents: string, caption: string) => {
+  if (!runningInQtWebEngine()) {
+    return 'error' as const;
+  }
+  const channel = await getQtChannel();
+  return new Promise<'saved' | 'cancelled' | 'error'>(resolve => {
+    channel.objects.backend.saveAppearancePreset(contents, caption, resolve);
+  });
+};
+
 export const qtSubscribePushNotifications = (msgCallback: TMsgCallback) => {
   currentListeners.push(msgCallback);
   return () => {

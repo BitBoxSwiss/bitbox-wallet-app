@@ -8,3 +8,5 @@ INCLUDEPATH += $$PWD/..
 SOURCES += desktopwindow.test.cpp ../desktopwindow.cpp ../linuxdecorationpreferences.cpp
 HEADERS += ../desktopwindow.h ../linuxdecorationpreferences.h ../windowchrome.h
 LIBS += -ldl
+
+unix:!macx: HEADERS += ../webclass.h

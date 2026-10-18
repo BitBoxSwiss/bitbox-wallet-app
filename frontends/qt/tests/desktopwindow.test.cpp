@@ -18,6 +18,10 @@
 #include "desktopwindow.h"
 #include "linuxdecorationpreferences.h"
 #include "windowchrome.h"
+#include "webclass.h"
+
+// This fixture exercises the native bridge without starting a wallet backend.
+extern "C" void backendCall(int, const char *) {}
 
 namespace {
 QVariant evaluate(QWebEnginePage *page, const QString &script) {
@@ -105,14 +109,61 @@ private slots:
         qApp->setApplicationName("BitBoxCSDTest");
         qInfo() << "Platform:" << QGuiApplication::platformName();
         qunsetenv("BITBOXAPP_NATIVE_DECORATIONS");
+        QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs);
     }
     void init() { QSettings().clear(); QSettings().setValue("nativeDecorations", false); }
 
-    // Reject excessive preset data before presenting a native file chooser.
+    // Reject excessive data and a destroyed parent before presenting a preset chooser.
     void rejectsOversizedAppearancePreset() {
+        auto window = std::make_unique<QWidget>();
+        WebClass backend(window.get());
+        QCOMPARE(backend.saveAppearancePreset(QString(64 * 1024 + 1, 'x'), "Export"), "error");
+        QCOMPARE(backend.saveAppearancePreset(QString(32 * 1024 + 1, QChar(0x00e9)), "Export"), "error");
+        window.reset();
+        QCOMPARE(backend.saveAppearancePreset("{}", "Export"), "error");
+    }
+
+    // Preset export preserves save/cancel/write-failure results in both decoration modes.
+    void appearancePresetDialog_data() {
+        QTest::addColumn<bool>("native");
+        QTest::addColumn<QString>("outcome");
+        for (const bool native : {true, false})
+            for (const auto &outcome : {"saved", "cancelled", "error"})
+                QTest::newRow(qPrintable(QString::number(native) + outcome)) << native << QString(outcome);
+    }
+
+    // Frame updates during the modal loop must not change the dialog's parent, thread or saved bytes.
+    void appearancePresetDialog() {
+        QFETCH(bool, native);
+        QFETCH(QString, outcome);
+        QSettings().setValue("nativeDecorations", native);
         DesktopWindow window(new QWebEngineView);
+        WebClass backend(&window);
         WindowChrome chrome(&window);
-        QCOMPARE(chrome.saveAppearancePreset(QString(64 * 1024 + 1, 'x'), "Export"), "error");
+        QTemporaryDir output;
+        QVERIFY(output.isValid());
+        const auto filename = output.filePath("preset.json");
+        const QString contents = "{\"light\":{},\"dark\":{}}";
+        QTimer::singleShot(0, &window, [&] {
+            auto *dialog = window.findChild<QFileDialog *>();
+            if (!dialog) qFatal("Expected modal preset chooser");
+            QCOMPARE(dialog->parentWidget(), &window);
+            QCOMPARE(dialog->thread(), qApp->thread());
+            QCOMPARE(dialog->windowTitle().size(), 200);
+            window.invalidateLayout();
+            chrome.updateFrame({{"appearance", QVariantMap{{"background", "#333333"}, {"foreground", "#ffffff"}}}});
+            if (outcome == "cancelled") { dialog->reject(); return; }
+            dialog->selectFile(filename);
+            QMetaObject::invokeMethod(dialog, "accept", Qt::DirectConnection);
+            // Remove only this test's directory after chooser validation, before QSaveFile opens it.
+            if (outcome == "error") QDir(output.path()).removeRecursively();
+        });
+        QCOMPARE(backend.saveAppearancePreset(contents, QString(201, 'x')), outcome);
+        QFile file(filename);
+        if (outcome == "saved") {
+            QVERIFY(file.open(QIODevice::ReadOnly));
+            QCOMPARE(file.readAll(), contents.toUtf8());
+        } else QVERIFY(!file.exists());
     }
 
     // Dialogs nested in differently colored panels must use their own active palette in both themes.
