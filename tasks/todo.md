@@ -1,7 +1,7 @@
 # CSD simplification checklist
 
 Plan: [plan.md](plan.md). Baseline: `c263a90b4`.
-Implementation is complete; packaging is in progress. Evidence: [results.md](results.md).
+Implementation and both requested builds are complete. Evidence: [results.md](results.md).
 For optional simplification candidates, record either implemented + evidence or
 retained + reason. Unavailable runtime checks remain pending, never passed.
 
@@ -91,10 +91,10 @@ plan.
 
 - [x] Run focused regressions, then full frontend tests and lint/type/i18n checks.
 - [x] Run the Linux native suite on X11 and Wayland and Windows native checks.
-- [ ] Build with `build-bitbox.sh linux --plain` and
+- [x] Build with `build-bitbox.sh linux --plain` and
       `build-bitbox.sh windows --plain --keep-windows`; freeze source during
       builds and use only the existing standard environments.
-- [ ] Record the helper's retained VM source/runtime paths for Windows
+- [x] Record the helper's retained VM source/runtime paths for Windows
       verification rather than letting cleanup remove them.
 - [x] Record native manual acceptance status for Snap hover, drag/restore,
       resizing, theme, available DPI, accessibility and shadows-disabled Windows.
@@ -102,7 +102,7 @@ plan.
       unless a launch is requested, and remain pending until actually performed.
 - [x] Verify unchanged playground behavior and system-borders persistence.
 - [x] Correct stale defaults/test instructions in `docs/BUILD.md` as needed.
-- [ ] Report before/after core and aggregate code counts, moved responsibilities,
+- [x] Report before/after core and aggregate code counts, moved responsibilities,
       actual tests/builds, and retained workarounds with their reasons.
 - [x] Keep all work local; do not launch the app, push PRs or transfer additional
       artifacts without a request covering that action. The standard helper's

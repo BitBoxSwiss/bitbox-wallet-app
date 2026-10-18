@@ -1,7 +1,7 @@
 # CSD simplification implementation plan
 
-Status: implementation complete; packaging in progress. Evidence is recorded in
-[results.md](results.md). Source baseline: `c263a90b4`,
+Status: implemented and packaged for Linux and Windows. Native macOS and manual
+visual acceptance remain pending. Evidence: [results.md](results.md). Source baseline: `c263a90b4`,
 branch `codex/desktop-csd-lean`. Intended implementation branch:
 `codex/csd-core-simplification`. Tasks are tracked in [todo.md](todo.md).
 

@@ -2,7 +2,7 @@
 
 Branch: `codex/csd-core-simplification`. Baseline: `c263a90b4`.
 Implementation: `475cd86d0`, `3180dedb9`, `fa6dba857`.
-Packaging is in progress; artifact paths will be recorded after verified success.
+Both requested builds and packaging succeeded using the standard helper (exit 0).
 
 ## Changes and retained decisions
 
@@ -93,3 +93,24 @@ cd /var/home/pako/Documents/Codex
 These are unsigned development builds for user testing. No production wallet
 launch, PR push or extra binary transfer is part of this work. The standard
 helper's verified installer download is expected.
+
+
+## Completed builds
+
+Compiled source: `2078883613f85d071ec938a52dfd59535dee3f84`, with a clean
+working tree. Subsequent changes only complete these documentation records.
+The standard all-platform helper succeeded in 56m29s. Its artifact checks passed,
+including the downloaded Windows installer's SHA-256. Production source remained
+unchanged during both builds.
+
+- Linux AppImage: `/var/home/pako/Documents/Codex/builds/20261018-221513-2078883613f8-rHzYof/linux/BitBoxApp.AppImage`
+- All Linux assets (including DEB/RPM): `/var/home/pako/Documents/Codex/builds/20261018-221513-2078883613f8-rHzYof/linux/artifacts`
+- Windows installer on Linux: `/var/home/pako/Documents/Codex/builds/20261018-221513-2078883613f8-rHzYof/windows/BitBox-installer.exe`
+- Windows runtime executable on VM: `C:/dev/bitbox-builds/20261018-221513-2078883613f8-rHzYof/source/frontends/qt/build/windows/BitBox.exe`
+- Windows installer on VM: `C:/dev/bitbox-builds/20261018-221513-2078883613f8-rHzYof/source/frontends/qt/BitBox-installer.exe`
+- Build metadata/logs/checksums: `/var/home/pako/Documents/Codex/builds/20261018-221513-2078883613f8-rHzYof`
+
+The complete Windows runtime directory was retained with `--keep-windows`.
+Both artifacts are local development builds, not official signed releases.
+The helper's "tests not run" message describes packaging only; the independent
+regression runs are recorded above. The wallet application was not launched.
