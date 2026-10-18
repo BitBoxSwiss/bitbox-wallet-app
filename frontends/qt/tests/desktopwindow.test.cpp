@@ -2,6 +2,7 @@
 #include <QtTest>
 #include <QSettings>
 #include <QTemporaryDir>
+#include <QFile>
 #include <QWebEngineView>
 #include <QWebEnginePage>
 #include <QQuickWidget>
@@ -106,6 +107,41 @@ private slots:
         qunsetenv("BITBOXAPP_NATIVE_DECORATIONS");
     }
     void init() { QSettings().clear(); QSettings().setValue("nativeDecorations", false); }
+
+    // Reject excessive preset data before presenting a native file chooser.
+    void rejectsOversizedAppearancePreset() {
+        DesktopWindow window(new QWebEngineView);
+        WindowChrome chrome(&window);
+        QCOMPARE(chrome.saveAppearancePreset(QString(64 * 1024 + 1, 'x'), "Export"), "error");
+    }
+
+    // Dialogs nested in differently colored panels must use their own active palette in both themes.
+    void dialogsUseThemeTextInsteadOfParentText() {
+        QWebEngineView view;
+        view.resize(1000, 700);
+        view.show();
+        QVERIFY(QTest::qWaitForWindowExposed(&view));
+        for (const char *path : {"../../web/src/components/dialog/dialog.module.css",
+                                 "../../web/src/components/dialog/dialog-legacy.module.css"}) {
+            QFile css(QFINDTESTDATA(path));
+            QVERIFY(css.open(QIODevice::ReadOnly));
+            QSignalSpy loaded(&view, &QWebEngineView::loadFinished);
+            view.setHtml("<style>:root{--color-default:#1d1d1b;--background-secondary:#fff}" +
+                         QString::fromUtf8(css.readAll()) + "</style>"
+                         "<div id='parent' style='color:white'><div class='modal' id='modal'>"
+                         "<h3 id='title'>Unlock test wallet</h3><p id='text'>Description</p><label id='label'>Password</label>"
+                         "</div></div>");
+            QVERIFY(loaded.wait());
+            const QString colors = "['modal','title','text','label'].every(id => getComputedStyle(document.getElementById(id)).color === ";
+            QVERIFY(evaluate(view.page(), colors + "'rgb(29, 29, 27)')").toBool());
+            evaluate(view.page(), "document.documentElement.style.setProperty('--color-default','#f5f5f5');"
+                                 "document.documentElement.style.setProperty('--background-secondary','#333333');"
+                                 "document.getElementById('parent').style.color='black';");
+            QVERIFY(evaluate(view.page(), colors + "'rgb(245, 245, 245)')").toBool());
+            QCOMPARE(evaluate(view.page(), "getComputedStyle(document.getElementById('modal')).backgroundColor").toString(),
+                     "rgb(51, 51, 51)");
+        }
+    }
 
     // Fresh preferences use the system frame and standard header height without attaching CSD controls.
     void defaultsUseSystemBorders() {

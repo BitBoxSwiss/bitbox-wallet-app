@@ -98,7 +98,7 @@
     --desktop-scroll-background: var(--design-guide-background, var(--color-lightblue));
     background-color: var(--design-guide-background, var(--color-lightblue));
     background-image: var(--design-guide-gradient, none);
-    color: var(--design-guide-text, white);
+    color: var(--design-guide-text, var(--design-button-text, white));
     --desktop-scrollbar-color: white;
     overflow: hidden;
     height: 100dvh;

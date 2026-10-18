@@ -18,6 +18,7 @@
 }
 
 .modal {
+    color: var(--color-default);
     background-color: var(--background-secondary);
     width: 100%;
     max-width: 420px;

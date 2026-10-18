@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { afterEach, expect, it, vi } from 'vitest';
-import { appearanceFields, applyAppearance, readAppearance, saveAppearance } from './desktop-appearance';
+import { appearanceFields, appearanceValue, applyAppearance, parseAppearancePreset, presetSizeLimit, readAppearance, saveAppearance, saveAppearanceProfiles, serializeAppearancePreset } from './desktop-appearance';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -77,4 +77,38 @@ it('does not crash when local storage is unavailable', () => {
   expect(readAppearance()).toEqual({ light: {}, dark: {} });
   expect(saveAppearance('light', { buttonShadow: 8 })).toBe(false);
   expect(() => applyAppearance({ buttonShadow: 8 }, 'light')).not.toThrow();
+});
+
+// Presets contain both palettes and shared geometry only, and use the same normalization as persisted preferences.
+it('round-trips design presets and normalizes shared values', () => {
+  const profiles = { light: { accent: '#abcdef', buttonRadius: 12 }, dark: { accent: '#123456', cardShadow: 8 } };
+  const preset = parseAppearancePreset(serializeAppearancePreset(profiles));
+  expect(preset.profiles).toEqual({
+    light: { accent: '#abcdef', buttonRadius: 12, cardShadow: 8 },
+    dark: { accent: '#123456', buttonRadius: 12, cardShadow: 8 },
+  });
+  expect(saveAppearanceProfiles(preset.profiles)).toBe(true);
+  expect(readAppearance()).toEqual(preset.profiles);
+});
+
+// Invalid files are rejected as a whole instead of silently discarding fields or executing arbitrary CSS.
+it('rejects malformed, unsupported, oversized and invalid design presets', () => {
+  for (const text of ['{broken', 'null', '[]', '{}', ' '.repeat(presetSizeLimit + 1),
+    JSON.stringify({ format: 'bitbox-design', version: 2, profiles: { light: {}, dark: {} } }),
+    JSON.stringify({ format: 'bitbox-design', version: 1, profiles: { light: [], dark: {} } }),
+    ...[{ accent: 'url(bad)' }, { cardShadowOpacity: 101 }, { unknown: 1 }, { switchColor: '#abc' }]
+      .map(light => JSON.stringify({ format: 'bitbox-design', version: 1, profiles: { light, dark: {} } })),
+  ]) {
+    expect(() => parseAppearancePreset(text)).toThrow();
+  }
+  expect(localStorage.length).toBe(0);
+});
+
+// Effective control values use shared palette/strength choices unless an explicit component override exists.
+it('resolves optional color and shadow overrides through shared values', () => {
+  const switchColor = appearanceFields.find(field => field.id === 'switchColor')!;
+  const strength = appearanceFields.find(field => field.id === 'cardShadowOpacity')!;
+  expect(appearanceValue({ accent: '#abcdef' }, switchColor, 'light')).toBe('#abcdef');
+  expect(appearanceValue({ accent: '#abcdef', switchColor: '#123456' }, switchColor, 'light')).toBe('#123456');
+  expect(appearanceValue({ shadowOpacity: 65 }, strength, 'dark')).toBe(65);
 });

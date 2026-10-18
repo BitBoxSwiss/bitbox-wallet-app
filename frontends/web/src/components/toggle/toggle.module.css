@@ -22,7 +22,7 @@
 }
 
 .slider {
-  background-color: var(--background-tertiary);
+  background-color: var(--design-switch-off-color, var(--background-tertiary));
   border-radius: var(--design-switch-radius, 2px);
   bottom: 0;
   cursor: pointer;
@@ -34,7 +34,7 @@
 }
 
 .slider:before {
-  background-color: white;
+  background-color: var(--design-switch-thumb-color, var(--design-button-text, white));
   border-radius: var(--design-switch-thumb-radius, 2px);
   bottom: 4px;
   content: "";
@@ -46,7 +46,7 @@
 }
 
 input:checked + .slider {
-  background-color: var(--color-blue);
+  background-color: var(--design-switch-color, var(--color-blue));
 }
 
 input:checked + .slider:before {

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { afterEach, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { useDesktopChrome } from '@/components/desktop-chrome/desktop-chrome';
 import { useDarkmode } from '@/hooks/darkmode';
-import { applyAppearance, readAppearance, saveAppearance } from '@/utils/desktop-appearance';
-import { setPreviewButtonStyle, setPreviewHeaderHeight, setPreviewLogoVisible, setNativeDecorations, setPreviewSeparateTitlebar } from '@/utils/desktop-chrome';
+import { applyAppearance, readAppearance, saveAppearance, serializeAppearancePreset } from '@/utils/desktop-appearance';
+import { saveDesktopAppearancePreset, setPreviewButtonStyle, setPreviewHeaderHeight, setPreviewLogoVisible, setNativeDecorations, setPreviewSeparateTitlebar } from '@/utils/desktop-chrome';
 import { DesktopAppearanceSettings } from './desktop-appearance-settings';
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }));
@@ -14,12 +14,13 @@ vi.mock('@/hooks/mediaquery', () => ({ useMediaQuery: () => false }));
 vi.mock('@/components/desktop-chrome/desktop-chrome', () => ({
   useDesktopChrome: vi.fn(() => ({ csd: true, nativeDecorations: false, activeNativeDecorations: false, previewSeparateTitlebar: false, previewHeaderHeight: 70, previewLogoVisible: true, previewButtonStyle: 'system' })),
 }));
-vi.mock('@/utils/desktop-chrome', () => ({ setPreviewHeaderHeight: vi.fn(), setPreviewLogoVisible: vi.fn(), setPreviewButtonStyle: vi.fn(), setNativeDecorations: vi.fn(), setPreviewSeparateTitlebar: vi.fn(), notifyChromeLayout: vi.fn() }));
+vi.mock('@/utils/desktop-chrome', () => ({ setPreviewHeaderHeight: vi.fn(), setPreviewLogoVisible: vi.fn(), setPreviewButtonStyle: vi.fn(), setNativeDecorations: vi.fn(), setPreviewSeparateTitlebar: vi.fn(), notifyChromeLayout: vi.fn(), saveDesktopAppearancePreset: vi.fn().mockResolvedValue('saved') }));
 
 afterEach(() => {
   vi.mocked(useDesktopChrome).mockReset();
   vi.restoreAllMocks();
   vi.clearAllMocks();
+  vi.mocked(saveDesktopAppearancePreset).mockResolvedValue('saved');
   vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: false, toggleDarkmode: vi.fn() });
   localStorage.clear();
   document.body.removeAttribute('style');
@@ -33,7 +34,7 @@ it('edits and resets the current appearance independently of native window borde
   vi.mocked(useDesktopChrome).mockReturnValue({ ...useDesktopChrome()!, csd: false });
   saveAppearance('dark', { background: '#112233' });
   render(<DesktopAppearanceSettings />);
-  open('desktopDesign.groups.main');
+  open('desktopDesign.groups.palette');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.background'), { target: { value: '#abcdef' } });
   expect(document.body.style.getPropertyValue('--background')).toBe('#abcdef');
   expect(readAppearance().light.background).toBe('#abcdef');
@@ -102,7 +103,7 @@ it('edits caption style, logo placement, sidebar width and switch shapes', () =>
 it('edits the dark profile and reports a persistence failure', () => {
   vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: true, toggleDarkmode: vi.fn() });
   render(<DesktopAppearanceSettings />);
-  open('desktopDesign.groups.main');
+  open('desktopDesign.groups.palette');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.background'), { target: { value: '#123456' } });
   expect(readAppearance().dark.background).toBe('#123456');
   expect(readAppearance().light).toEqual({});
@@ -126,7 +127,7 @@ it('keeps shapes and scrollbar highlights global while editing separate palettes
   rerender(<DesktopAppearanceSettings />);
   expect(screen.getByLabelText('desktopDesign.fields.switchRadius')).toHaveValue(12);
   expect(screen.getByLabelText('desktopDesign.fields.scrollbarHighlightOpacity')).toHaveValue(35);
-  open('desktopDesign.groups.main');
+  open('desktopDesign.groups.palette');
   fireEvent.change(screen.getByLabelText('desktopDesign.fields.background'), { target: { value: '#123456' } });
   vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: false, toggleDarkmode: vi.fn() });
   rerender(<DesktopAppearanceSettings />);
@@ -241,4 +242,88 @@ it('provides optional inset and fade treatments with no effect as the default', 
   expect(effect).toHaveValue('none');
   expect(document.body).toHaveAttribute('data-desktop-scroll-edge-effect', 'none');
   expect(readAppearance()).toEqual({ light: {}, dark: {} });
+});
+
+// Related controls follow the shared palette until explicitly overridden; removing the override restores inheritance.
+it('shares accent colors with switches while allowing a separate switch color', () => {
+  render(<DesktopAppearanceSettings />);
+  open('desktopDesign.groups.palette');
+  open('desktopDesign.groups.switch');
+  const accent = screen.getByLabelText('desktopDesign.fields.accent');
+  const track = screen.getByLabelText('desktopDesign.fields.switchColor');
+  fireEvent.change(accent, { target: { value: '#123456' } });
+  expect(track).toHaveValue('#123456');
+  expect(document.body.style.getPropertyValue('--color-blue')).toBe('#123456');
+  expect(document.body.style.getPropertyValue('--design-switch-color')).toBe('');
+  fireEvent.change(track, { target: { value: '#abcdef' } });
+  fireEvent.change(accent, { target: { value: '#654321' } });
+  expect(track).toHaveValue('#abcdef');
+  fireEvent.click(screen.getAllByRole('button', { name: 'desktopDesign.useShared' })[0]!);
+  expect(track).toHaveValue('#654321');
+  expect(readAppearance().light.switchColor).toBeUndefined();
+});
+
+// Strength applies to in-app card/button shadows and is shared across themes, independently of blur size.
+it('edits card and button shadow strength independently', () => {
+  saveAppearance('light', { shadowOpacity: 30 });
+  const { rerender } = render(<DesktopAppearanceSettings />);
+  open('desktopDesign.groups.card');
+  open('desktopDesign.groups.button');
+  expect(screen.getByLabelText('desktopDesign.fields.cardShadowOpacity')).toHaveValue(30);
+  fireEvent.change(screen.getByLabelText('desktopDesign.fields.cardShadowOpacity'), { target: { value: '65' } });
+  fireEvent.change(screen.getByLabelText('desktopDesign.fields.buttonShadowOpacity'), { target: { value: '80' } });
+  expect(document.body.style.getPropertyValue('--design-card-shadow-opacity')).toBe('65%');
+  expect(document.body.style.getPropertyValue('--design-button-shadow-opacity')).toBe('80%');
+  vi.mocked(useDarkmode).mockReturnValue({ isDarkMode: true, toggleDarkmode: vi.fn() });
+  rerender(<DesktopAppearanceSettings />);
+  expect(screen.getByLabelText('desktopDesign.fields.cardShadowOpacity')).toHaveValue(65);
+  expect(screen.getByLabelText('desktopDesign.fields.buttonShadowOpacity')).toHaveValue(80);
+  expect(setNativeDecorations).not.toHaveBeenCalled();
+});
+
+// Export includes both design palettes, handles cancellation/failure, and never exports wallet or window settings.
+it('exports an in-app design preset through the native save dialog', async () => {
+  saveAppearance('light', { accent: '#abcdef', cardShadow: 8 });
+  saveAppearance('dark', { accent: '#123456', cardShadow: 8 });
+  render(<DesktopAppearanceSettings />);
+  const button = screen.getByRole('button', { name: 'desktopDesign.presets.export' });
+  fireEvent.click(button);
+  await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('desktopDesign.presets.saved'));
+  const preset = JSON.parse(vi.mocked(saveDesktopAppearancePreset).mock.calls[0]![0]);
+  expect(preset).toEqual({ format: 'bitbox-design', version: 1, profiles: readAppearance() });
+  vi.mocked(saveDesktopAppearancePreset).mockResolvedValueOnce('cancelled');
+  fireEvent.click(button);
+  await waitFor(() => expect(button).not.toBeDisabled());
+  expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  vi.mocked(saveDesktopAppearancePreset).mockRejectedValueOnce(new Error('failed'));
+  fireEvent.click(button);
+  await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('desktopDesign.presets.error'));
+});
+
+// Import persists both palettes before applying; bad files or denied storage preserve the current design and window settings.
+it('imports validated design presets without changing window decorations', async () => {
+  render(<DesktopAppearanceSettings />);
+  const input = screen.getByLabelText('desktopDesign.presets.import');
+  const upload = (text: string) => {
+    const file = new File([text], 'design.json', { type: 'application/json' });
+    Object.defineProperty(file, 'text', { value: async () => text });
+    fireEvent.change(input, { target: { files: [file] } });
+  };
+  const profiles = { light: { accent: '#abcdef', cardShadowOpacity: 60 }, dark: { accent: '#123456', cardShadowOpacity: 60 } };
+  upload(serializeAppearancePreset(profiles));
+  await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('desktopDesign.presets.imported'));
+  expect(readAppearance()).toEqual(profiles);
+  expect(document.body.style.getPropertyValue('--color-blue')).toBe('#abcdef');
+  upload('{broken');
+  await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('desktopDesign.presets.invalid'));
+  expect(readAppearance()).toEqual(profiles);
+  vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+    throw new Error('full');
+  });
+  upload(serializeAppearancePreset({ light: {}, dark: {} }));
+  await waitFor(() => expect(screen.getAllByRole('alert').some(alert => alert.textContent?.includes('desktopDesign.saveFailed'))).toBe(true));
+  expect(readAppearance()).toEqual(profiles);
+  expect(document.body.style.getPropertyValue('--color-blue')).toBe('#abcdef');
+  expect(setNativeDecorations).not.toHaveBeenCalled();
+  expect(setPreviewButtonStyle).not.toHaveBeenCalled();
 });

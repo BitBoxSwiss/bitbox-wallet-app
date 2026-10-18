@@ -67,10 +67,10 @@
     --desktop-window-outline: rgba(0, 0, 0, 0.05);
     --desktop-caption-separator: color-mix(in srgb, black var(--design-separator-opacity, 5%), transparent);
     --design-border-color: black;
-    --design-shadow-color: color-mix(in srgb, black var(--design-shadow-opacity, 20%), transparent);
+    --design-button-shadow-color: color-mix(in srgb, black var(--design-button-shadow-opacity, var(--design-shadow-opacity, 20%)), transparent);
     --design-border: inset 0 0 0 var(--design-border-width, 1px) color-mix(in srgb, var(--design-border-color, black) var(--design-border-opacity, 0%), transparent);
-    --design-card-shadow: 0 0 var(--design-card-shadow-size, 0px) var(--design-shadow-color), var(--design-border);
-    --design-button-shadow: 0 0 var(--design-button-shadow-size, 0px) var(--design-shadow-color), inset 0 0 var(--design-button-inset-size, 0px) var(--design-shadow-color), var(--design-border);
+    --design-card-shadow: 0 0 var(--design-card-shadow-size, 0px) color-mix(in srgb, black var(--design-card-shadow-opacity, var(--design-shadow-opacity, 20%)), transparent), var(--design-border);
+    --design-button-shadow: 0 0 var(--design-button-shadow-size, 0px) var(--design-button-shadow-color), inset 0 0 var(--design-button-inset-size, 0px) var(--design-button-shadow-color), var(--design-border);
 }
 
 :global(body[data-desktop-modernized][data-desktop-logo-position="below"]) {

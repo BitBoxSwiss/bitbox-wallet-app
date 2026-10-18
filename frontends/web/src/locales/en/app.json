@@ -838,8 +838,8 @@
     "description": "Layout, shapes, motion and effects are shared between themes. Colors are saved separately for the current {{mode}}. Changes apply live and are independent of system window borders. Custom colors may reduce contrast.",
     "effectsDescription": "Content edges use no effect by default. The inset leaves a 12px gap below each scroll area. The fade blends its bottom 16px into the panel background while more content remains below.",
     "fields": {
-      "accent": "Accent and primary buttons",
-      "accentHover": "Accent on hover",
+      "accent": "Shared accent (buttons, switches and selection controls)",
+      "accentHover": "Shared accent on hover",
       "animationDuration": "Panel and button animation duration (ms)",
       "background": "Main background",
       "borderColor": "Inner border color",
@@ -851,12 +851,14 @@
       "buttonInset": "Button inner shadow (px)",
       "buttonRadius": "Button corner radius (px)",
       "buttonShadow": "Button outer shadow (px)",
-      "buttonText": "Primary button text",
+      "buttonShadowOpacity": "Button shadow strength (%)",
+      "buttonText": "Text and icons on accent",
       "cardGradientAngle": "Setting and list cards: gradient angle (°)",
       "cardGradientColor": "Setting and list cards: gradient end color",
       "cardGradientStrength": "Setting and list cards: gradient strength (%)",
       "cardRadius": "Card corner radius (px)",
       "cardShadow": "Setting and list card shadow (px)",
+      "cardShadowOpacity": "Card shadow strength (%)",
       "focus": "Keyboard focus outline",
       "guide": "Guide background",
       "guideGradientAngle": "Guide: gradient angle (°)",
@@ -881,7 +883,7 @@
       "scrollbarRadius": "Scrollbar thumb corner radius (px)",
       "scrollbarWidth": "Scrollbar thumb width (px)",
       "separatorOpacity": "Header separator opacity (%)",
-      "shadowOpacity": "Inner and outer shadow opacity (%)",
+      "shadowOpacity": "Shared in-app shadow strength (%)",
       "sidebar": "Sidebar background",
       "sidebarGradientAngle": "Sidebar: gradient angle (°)",
       "sidebarGradientColor": "Sidebar: gradient end color",
@@ -889,7 +891,11 @@
       "sidebarText": "Sidebar text",
       "sidebarWidth": "Sidebar minimum width (px)",
       "surface": "Cards and inputs",
+      "surfaceMuted": "Muted surfaces and inactive controls",
+      "switchColor": "Switch on color",
+      "switchOffColor": "Switch off color",
       "switchRadius": "Switch track corner radius (px)",
+      "switchThumbColor": "Switch thumb color",
       "switchThumbRadius": "Switch thumb corner radius (px)",
       "text": "Main text"
     },
@@ -903,6 +909,7 @@
       "input": "Inputs",
       "main": "Main content",
       "motion": "Animation timing",
+      "palette": "Shared color palette",
       "scrollbars": "Scrollbars",
       "sidebar": "Sidebar and logo",
       "switch": "Switches"
@@ -917,6 +924,15 @@
       "fade": "16px fade",
       "inset": "12px inset",
       "none": "None (standard)"
+    },
+    "paletteDescription": "Shared colors apply throughout the app. Individual elements can override them; Use shared value removes that override. Light and dark palettes remain separate.",
+    "presets": {
+      "error": "The preset could not be saved. Please try again.",
+      "export": "Export design preset",
+      "import": "Import design preset",
+      "imported": "Design preset imported. Both color palettes and shared in-app settings have been replaced.",
+      "invalid": "Invalid design preset. Choose a BitBoxApp design JSON file (up to 64 KB).",
+      "saved": "Design preset exported."
     },
     "preview": {
       "checkbox": "Sample checkbox",
@@ -938,9 +954,11 @@
     "resizeSidebar": "Resize sidebar",
     "saveFailed": "Changes are visible, but could not be saved. They may be lost when the app closes.",
     "scrollbarsDescription": "Padding and corner radius default to 0 for square scrollbars flush with the edge. Increase them for inset, rounded scrollbars. Space stays reserved while scrollbars are idle.",
+    "shadowDescription": "Size controls the shadow blur; strength controls its opacity. These settings apply to in-app elements. Set a size above 0 to see the shadow.",
     "shapesDescription": "Use 0 for square buttons or 100 for pill shapes. Window corners stay unchanged.",
     "tab": "Playground",
-    "title": "Design playground (PoC)"
+    "title": "Design playground (PoC)",
+    "useShared": "Use shared value"
   },
   "device": {
     "appUpradeRequired": "Your BitBox is not compatible with this desktop application. Please download and install the latest version.",

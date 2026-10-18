@@ -29,6 +29,7 @@ type TChrome = {
   state: TDesktopChromeState;
   stateChanged: { connect: (callback: () => void) => void };
   updateFrame: (frame: { layout?: unknown; appearance?: unknown }, applied: () => void) => void;
+  saveAppearancePreset: (contents: string, caption: string, done: (result: 'saved' | 'cancelled' | 'error') => void) => void;
   setNativeDecorations: (enabled: boolean) => void;
   setPreviewHeaderHeight: (height: number) => void;
   setPreviewLogoVisible: (visible: boolean) => void;
@@ -86,6 +87,14 @@ export const initializeDesktopChrome = () => {
   }
   return initialization;
 };
+
+export const saveDesktopAppearancePreset = (contents: string, caption: string) => new Promise<'saved' | 'cancelled' | 'error'>(resolve => {
+  if (chrome) {
+    chrome.saveAppearancePreset(contents, caption, resolve);
+  } else {
+    resolve('error');
+  }
+});
 
 export const setNativeDecorations = (enabled: boolean) => chrome?.setNativeDecorations(enabled);
 export const setPreviewHeaderHeight = (height: number) => chrome?.setPreviewHeaderHeight(height);

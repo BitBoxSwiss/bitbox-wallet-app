@@ -5,15 +5,16 @@ import { useTranslation } from 'react-i18next';
 import { Accordion } from '@/components/accordion/accordion';
 import { Button, Input, Select } from '@/components/forms';
 import { useDarkmode } from '@/hooks/darkmode';
-import { appearanceFields, gradientTargets, appearanceValue, applyAppearance, mergeAppearance, readAppearance, saveAppearance, TAppearance } from '@/utils/desktop-appearance';
+import { appearanceFields, gradientTargets, appearanceValue, applyAppearance, mergeAppearance, readAppearance, saveAppearance, saveAppearanceProfiles, TAppearance } from '@/utils/desktop-appearance';
 import { setPreviewButtonStyle, setPreviewHeaderHeight, setPreviewLogoVisible, setPreviewSeparateTitlebar, setNativeDecorations } from '@/utils/desktop-chrome';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { DesktopButtonStyleSetting, DesktopHeaderHeightSetting, DesktopLogoSetting, DesktopSeparateTitlebarSetting } from './desktop-preview-settings';
 import styles from './desktop-preview-settings.module.css';
+import { DesktopAppearancePresets } from './desktop-appearance-presets';
 import { DesktopAppearancePreview } from './desktop-appearance-preview';
 import { NativeDecorationsSetting } from './native-decorations-setting';
 
-const groups = ['main', 'sidebar', 'guide', 'button', 'card', 'input', 'switch', 'effects', 'scrollbars', 'motion'];
+const groups = ['palette', 'main', 'sidebar', 'guide', 'button', 'card', 'input', 'switch', 'effects', 'scrollbars', 'motion'];
 
 export const DesktopAppearanceSettings = () => {
   const { t } = useTranslation();
@@ -45,30 +46,40 @@ export const DesktopAppearanceSettings = () => {
           settingName={label}
           collapseOnSmall
           displayedValue={field.type === 'number' ? `${value}${field.unit}` : field.type === 'select' ? t(`desktopDesign.options.${value}`) : value}
-          extraComponent={field.type === 'select' ? (
-            <Select
-              id={`desktop-design-${field.id}`}
-              aria-label={label}
-              value={value}
-              options={field.options.map(option => ({ value: option, text: t(`desktopDesign.options.${option}`) }))}
-              onChange={event => update({ ...values, [field.id]: event.target.value })}
-            />
-          ) : (
-            <Input
-              className={styles.heightInput}
-              type={field.type === 'color' ? 'color' : 'number'}
-              aria-label={label}
-              value={draft?.id === `${mode}:${field.id}` ? draft.value : value}
-              {...(field.type === 'number' ? { min: field.min, max: field.max, step: field.step ?? 1, required: true } : {})}
-              onBlur={() => setDraft(undefined)}
-              onChange={event => {
-                setDraft({ id: `${mode}:${field.id}`, value: event.currentTarget.value });
-                if (event.currentTarget.validity.valid) {
-                  update({ ...values, [field.id]: field.type === 'color' ? event.currentTarget.value : event.currentTarget.valueAsNumber });
-                }
-              }}
-            />
-          )}
+          extraComponent={<div className={styles.actions}>
+            {field.type === 'select' ? (
+              <Select
+                id={`desktop-design-${field.id}`}
+                aria-label={label}
+                value={value}
+                options={field.options.map(option => ({ value: option, text: t(`desktopDesign.options.${option}`) }))}
+                onChange={event => update({ ...values, [field.id]: event.target.value })}
+              />
+            ) : (
+              <Input
+                className={styles.heightInput}
+                type={field.type === 'color' ? 'color' : 'number'}
+                aria-label={label}
+                value={draft?.id === `${mode}:${field.id}` ? draft.value : value}
+                {...(field.type === 'number' ? { min: field.min, max: field.max, step: field.step ?? 1, required: true } : {})}
+                onBlur={() => setDraft(undefined)}
+                onChange={event => {
+                  setDraft({ id: `${mode}:${field.id}`, value: event.currentTarget.value });
+                  if (event.currentTarget.validity.valid) {
+                    update({ ...values, [field.id]: field.type === 'color' ? event.currentTarget.value : event.currentTarget.valueAsNumber });
+                  }
+                }}
+              />
+            )}
+            {field.fallback && (
+              <Button secondary disabled={values[field.id] === undefined} onClick={() => {
+                const next = { ...values };
+                delete next[field.id];
+                update(next);
+                setDraft(undefined);
+              }}>{t('desktopDesign.useShared')}</Button>
+            )}
+          </div>}
         />
       );
     });
@@ -98,6 +109,16 @@ export const DesktopAppearanceSettings = () => {
           setDraft(undefined);
         }}>{t('desktopDesign.reset')}</Button>
       </div>
+      <DesktopAppearancePresets profiles={profiles} onImport={preset => {
+        if (!saveAppearanceProfiles(preset.profiles)) {
+          return false;
+        }
+        setProfiles(preset.profiles);
+        applyAppearance(preset.profiles[mode], mode);
+        setDraft(undefined);
+        setSaveFailed(false);
+        return true;
+      }} />
       {saveFailed && <p role="alert">{t('desktopDesign.saveFailed')}</p>}
       <Accordion className={styles.preview} title={t('desktopDesign.preview.title')} defaultOpen>
         <DesktopAppearancePreview />
@@ -111,6 +132,9 @@ export const DesktopAppearanceSettings = () => {
       </Accordion>
       {groups.map(group => (
         <Accordion key={group} className={styles.section} title={t(`desktopDesign.groups.${group}`)}>
+          {group === 'palette' && <p>{t('desktopDesign.paletteDescription')}</p>}
+          {group === 'button' && <p>{t('desktopDesign.shadowDescription')}</p>}
+          {group === 'card' && <p>{t('desktopDesign.shadowDescription')}</p>}
           {group === 'effects' && <p>{t('desktopDesign.effectsDescription')}</p>}
           {group === 'scrollbars' && <p>{t('desktopDesign.scrollbarsDescription')}</p>}
           {group === 'button' && <p>{t('desktopDesign.shapesDescription')}</p>}

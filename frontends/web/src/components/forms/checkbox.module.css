@@ -86,6 +86,7 @@
 }
 
 .checkbox input:checked + label::after {
+    border-color: var(--design-button-text, var(--background-secondary));
     opacity: 1;
     transform: scale(1) rotate(37deg);
 }
