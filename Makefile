@@ -40,6 +40,7 @@ buildweb:
 	rm -rf ${WEBROOT}/build
 	cd ${WEBROOT} && npm ci --ignore-scripts
 	cd ${WEBROOT} && npm run check-licenses
+	cd ${WEBROOT} && npm run generate-licenses && git diff --exit-code -- frontends/web/public/licenses-npm.json
 	cd ${WEBROOT} && npm run build
 webdev:
 	cd ${WEBROOT} && $(MAKE) dev
