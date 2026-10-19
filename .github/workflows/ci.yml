@@ -43,7 +43,7 @@ jobs:
           OS_NAME: linux
 
   playwright:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: test-lint
     strategy:
       fail-fast: false
