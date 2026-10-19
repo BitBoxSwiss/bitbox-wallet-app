@@ -1987,6 +1987,13 @@
         "description": "If you have general feedback",
         "title": "Feedback"
       },
+      "licenses": {
+        "description": "View the licenses of open-source libraries and dependencies used in this app",
+        "error": "Failed to load licenses.",
+        "packagesInfo": "This application uses the following open-source dependencies {{packageCount}} packages).",
+        "title": "Licenses",
+        "unavailableLicenseText": "License text not available."
+      },
       "supportLink": {
         "description": "If you have an issue or need help",
         "title": "Support"

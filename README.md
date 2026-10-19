@@ -162,6 +162,8 @@ Check **outdated** dependencies: `npm outdated`.
 Production dependencies must have approved licenses. See
 [Frontend dependency licenses](./docs/dependency-licenses.md) for the check and how to resolve failures.
 
+The `make buildweb` target checks npm dependencies for approved licenses and regenerates license-npm.json. If dependencies have changed, commit the updated license-npm.json alongside package-lock.json.
+
 #### Qt WebEngine Debugging
 
 Set the following environment variable to debug the Qt WebEngine with Chrome developer tools,
