@@ -9,6 +9,7 @@ import * as accountApi from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { WCWeb3WalletContext } from '@/contexts/WCWeb3WalletContext';
 import { WCGuide } from './guide';
+import { WCLoadError } from './load-error';
 import { TConnectStatus } from './types';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { alertUser } from '@/components/alert/Alert';
@@ -31,7 +32,8 @@ export const ConnectScreenWalletConnect = () => {
   const { web3wallet, isWalletInitialized, pair } = useContext(WCWeb3WalletContext);
   const [currentProposal, setCurrentProposal] = useState<SignClientTypes.EventArguments['session_proposal']>();
   const { t } = useTranslation();
-  const receiveAddresses = useLoad(accountApi.getReceiveAddressList(code));
+  const receiveAddressResponse = useLoad(accountApi.getReceiveAddressList(code));
+  const receiveAddresses = receiveAddressResponse?.success ? receiveAddressResponse.addresses : undefined;
   const onSessionProposal = useCallback(
     (proposal: SignClientTypes.EventArguments['session_proposal']) => {
       setUri('');
@@ -80,6 +82,10 @@ export const ConnectScreenWalletConnect = () => {
       setLoading(false);
     }
   };
+
+  if (receiveAddressResponse && !receiveAddressResponse.success) {
+    return <WCLoadError errorMessage={receiveAddressResponse.errorMessage} />;
+  }
 
   if (!receiveAddresses || !isWalletInitialized) {
     return null;
