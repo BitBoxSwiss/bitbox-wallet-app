@@ -27,6 +27,8 @@
     color: var(--color-default);
     font-size: var(--size-default);
     margin: 0;
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
 
@@ -45,10 +47,12 @@
     color: var(--color-secondary);
     font-size: var(--size-small);
     margin: 0;
+    overflow-wrap: anywhere;
     padding-left: var(--space-half);
     padding-right: 0;
     user-select: none;
-    -webkit-user-select: none;
+    text-align: right;
+    word-break: normal;
 }
 
 button .displayedValue {
@@ -77,10 +81,6 @@ button .displayedValue {
         min-width: 100%;
         padding-left: var(--space-half);
         padding-right: var(--space-half);
-    }
-
-    .secondaryText {
-        display: none;
     }
 }
 

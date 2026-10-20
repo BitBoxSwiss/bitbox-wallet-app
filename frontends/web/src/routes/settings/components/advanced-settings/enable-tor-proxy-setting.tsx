@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useConfig } from '@/contexts/ConfigProvider';
-import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { SettingsItem, SettingsValue } from '@/routes/settings/components/settingsItem/settingsItem';
 import { TorProxyDialog } from './tor-proxy-dialog';
 import { Message } from '@/components/message/message';
 import { runningInIOS } from '@/utils/env';
@@ -39,7 +39,7 @@ export const EnableTorProxySetting = () => {
         settingName={t('settings.expert.useProxy')}
         onClick={isIOS ? undefined : () => setShowTorProxyDialog(true)}
         secondaryText={t('newSettings.advancedSettings.torProxy.description')}
-        displayedValue={displayedValue}
+        displayedValue={<SettingsValue>{displayedValue}</SettingsValue>}
       />
       <TorProxyDialog
         open={showTorProxyDialog}

@@ -8,7 +8,7 @@ import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/
 import { Button } from '@/components/forms';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { Checked, PointToBitBox02, RedDot } from '@/components/icon';
-import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
+import { SettingsItem, SettingsValue } from '@/routes/settings/components/settingsItem/settingsItem';
 
 export type TProps = {
   deviceID: string;
@@ -55,7 +55,9 @@ const FirmwareSetting = ({
           settingName={t('deviceSettings.firmware.title')}
           secondaryText={secondaryText}
           onClick={handleOpenDialog}
-          displayedValue={versionInfo.currentVersion}
+          displayedValue={
+            <SettingsValue>{versionInfo.currentVersion}</SettingsValue>
+          }
           extraComponent={extraComponent}
         />
       )}
