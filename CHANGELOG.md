@@ -8,6 +8,7 @@
 - Rename "Factory reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings
+- Swap: add a link to buy ETH when the token's parent account cannot cover network fees
 - Add transaction indicators to the portfolio chart
 - Ethereum: allow sending ETH and tokens from the same account while earlier transactions are pending
 - Ethereum: automatically remove replaced transactions from history
