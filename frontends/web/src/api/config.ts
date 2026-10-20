@@ -36,9 +36,10 @@ export type TConfigFrontendBadgeKey =
   | 'hasSeenSwapMarketTab'
   | 'hasSeenOtcMarketTab';
 
-/** Dynamic frontend keys written when dismissing Status banners. */
+/** Dynamic frontend keys for dismissed banners and release notes. */
 type TConfigFrontendDismissibleDynamicKey =
   | `update-${string}`
+  | `whats-new-${string}`
   | `banner-backup-${string}`
   | `banner-${string}-${string}`;
 
@@ -87,6 +88,7 @@ export type TConfigFrontend = Readonly<{
 }>;
 
 export type TConfigBackend = Readonly<{
+  whatsNew?: Readonly<{ version: string }>;
   proxy: TConfigBackendProxy;
   /**
    * Deprecated global coin activation flags (backend/config/config.go: DeprecatedBitcoinActive,

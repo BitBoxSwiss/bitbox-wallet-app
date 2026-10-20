@@ -5,6 +5,8 @@
 - Mobile: add copy and open actions when touching and holding transaction explorer links, without loading a preview on iOS
 - Lightning: preserve invoice details when going back to edit an invoice
 - Lightning: add "Send all" for Bitcoin addresses, Lightning addresses, and amountless invoices
+- Add support for remotely published, translated "What's new" notes after app upgrades,
+  with optional images and release-blog links
 - Rename "Factory reset" to "Delete wallet from BitBox" (settings)
 - Lightning: use the configured Tor proxy
 - iOS: follow system text size settings

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import { UseBackButton } from '@/hooks/backbutton';
 import { useEsc, useFocusTrap } from '@/hooks/keyboard';
@@ -27,6 +28,7 @@ const DialogContainer = ({
   slim,
   title,
 }: TDialogContainerProps) => {
+  const { t } = useTranslation();
 
   const headerClass = `
     ${style.header || ''}
@@ -48,6 +50,7 @@ const DialogContainer = ({
           {onClose && (
             <button
               className={style.closeButton}
+              aria-label={t('generic.close')}
               onClick={handleCloseClick}
               data-testid="close-button">
               <CloseXDark className="show-in-lightmode" />
@@ -64,6 +67,8 @@ const DialogContainer = ({
 };
 
 type TProps = {
+  className?: string;
+  contentRef?: React.RefObject<HTMLDivElement>;
   title?: string;
   small?: boolean;
   medium?: boolean;
@@ -74,9 +79,13 @@ type TProps = {
   onClose?: () => void;
   children: React.ReactNode;
   open: boolean;
+  /** Hide temporarily without unmounting the dialog's contents. */
+  hidden?: boolean;
 };
 
 export const Dialog = ({
+  className = '',
+  contentRef,
   title,
   small,
   medium,
@@ -87,16 +96,18 @@ export const Dialog = ({
   onClose,
   children,
   open,
+  hidden = false,
 }: TProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const [status, setStatus] = useState<'idle' | 'opening' | 'open' | 'closing'>('idle');
   const modalRef = useRef<HTMLDivElement>(null);
-  const contentContainerRef = useRef<HTMLDivElement>(null);
+  const defaultContentRef = useRef<HTMLDivElement>(null);
+  const contentContainerRef = contentRef || defaultContentRef;
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  useFocusTrap(modalRef, status === 'open');
+  useFocusTrap(modalRef, status === 'open' && !hidden);
 
   // create a stable ref so deactivate() doesn't recreate
   // on every parent re-render
@@ -145,7 +156,7 @@ export const Dialog = ({
 
   // ESC closes dialog (fires onClose)
   useEsc(() => {
-    if (open && onClose) {
+    if (open && !hidden && onClose) {
       deactivate(true);
     }
   });
@@ -197,6 +208,7 @@ export const Dialog = ({
 
   const modalClass = `
     ${style.modal || ''}
+    ${className}
     ${small && style.small || ''}
     ${medium && style.medium || ''}
     ${large && style.large || ''}
@@ -215,8 +227,9 @@ export const Dialog = ({
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       className={overlayClass}
+      style={hidden ? { visibility: 'hidden' } : undefined}
     >
-      <UseBackButton handler={handleBackButton} />
+      {!hidden && <UseBackButton handler={handleBackButton} />}
       {isMobile ? (
         <MobileDialog
           status={status}
@@ -255,6 +268,7 @@ export const Dialog = ({
 
 type DialogButtonsProps = {
   children: React.ReactNode;
+  className?: string;
 };
 
 /**
@@ -275,9 +289,9 @@ type DialogButtonsProps = {
  *   </Dialog>
  * ```
  */
-export const DialogButtons = ({ children }: DialogButtonsProps) => {
+export const DialogButtons = ({ children, className = '' }: DialogButtonsProps) => {
   return (
-    <div className={style.dialogButtons}>
+    <div className={`${style.dialogButtons || ''} ${className}`.trim()}>
       {children}
     </div>
   );
@@ -286,13 +300,15 @@ export const DialogButtons = ({ children }: DialogButtonsProps) => {
 
 type DialogScrollContentProps = {
   children: React.ReactNode;
+  className?: string;
 };
 
 export const DialogScrollContent = ({
   children,
+  className = '',
 }: DialogScrollContentProps) => {
   return (
-    <div className={style.dialogScrollContent}>
+    <div className={`${style.dialogScrollContent || ''} ${className}`.trim()}>
       {children}
     </div>
   );

@@ -63,6 +63,10 @@ Please consult [docs/BUILD.md](./docs/BUILD.md) for platform specific instructio
 
 Please consult [docs/i18n.md](./docs/i18n.md).
 
+## What's new notes
+
+See [docs/whats-new.md](./docs/whats-new.md) to add highlights for a release.
+
 ## Electrum server backend
 
 The servers used are configurable in the app settings. Currently, when running the app in devmode

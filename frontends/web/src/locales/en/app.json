@@ -2682,5 +2682,11 @@
     "message": "Please connect your BitBox and tap the side to continue.",
     "messageIOS": "Please connect your BitBox Nova and tap the side to continue.",
     "title": "Welcome"
+  },
+  "whatsNew": {
+    "pause": "Pause automatic navigation",
+    "play": "Resume automatic navigation",
+    "progress": "{{current}} of {{total}}",
+    "title": "What's new in the BitBoxApp"
   }
 }
