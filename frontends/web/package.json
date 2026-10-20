@@ -3,7 +3,7 @@
   "name": "bitboxapp",
   "version": "0.0.0",
   "engines": {
-    "node": ">=24 <25"
+    "node": ">=24.15.0 <25"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",
