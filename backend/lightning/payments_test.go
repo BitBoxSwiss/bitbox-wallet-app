@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -498,15 +499,19 @@ func makeActiveLightningWithSDK(t *testing.T, sdk breezSDK) *Lightning {
 	return lightning
 }
 
-// TestListPaymentsIncludesBitcoinDeposits verifies that ordinary, submitted, and declined deposits
+// TestListPayments verifies that ordinary, submitted, and declined deposits
 // appear as pending entries alongside completed payments. A refund awaiting broadcast remains
 // visible and retryable, while claimed deposits and broadcast refunds are excluded.
-func TestListPaymentsIncludesBitcoinDeposits(t *testing.T) {
+// Notes stay separate from invoice descriptions, and invalid notes data does not hide payments.
+func TestListPayments(t *testing.T) {
 	submitted := breez_sdk_spark.InstantClaimStatus(breez_sdk_spark.InstantClaimStatusSubmitted{ClaimId: "claim-id"})
 	declined := breez_sdk_spark.InstantClaimStatus(breez_sdk_spark.InstantClaimStatusDeclined{})
 	claimed := breez_sdk_spark.InstantClaimStatus(breez_sdk_spark.InstantClaimStatusClaimed{})
 	pendingRefund := breez_sdk_spark.RefundState(breez_sdk_spark.RefundStateBroadcastPending{})
 	broadcastRefund := breez_sdk_spark.RefundState(breez_sdk_spark.RefundStateBroadcast{})
+	var details breez_sdk_spark.PaymentDetails = breez_sdk_spark.PaymentDetailsLightning{
+		Description: stringPointer("invoice description"),
+	}
 	lightning := makeActiveLightningWithSDK(t, &testBreezSDK{
 		listPayments: func(breez_sdk_spark.ListPaymentsRequest) (breez_sdk_spark.ListPaymentsResponse, error) {
 			return breez_sdk_spark.ListPaymentsResponse{
@@ -517,6 +522,7 @@ func TestListPaymentsIncludesBitcoinDeposits(t *testing.T) {
 						Status:      breez_sdk_spark.PaymentStatusCompleted,
 						Amount:      big.NewInt(100),
 						Fees:        big.NewInt(0),
+						Details:     &details,
 					},
 				},
 			}, nil
@@ -544,6 +550,8 @@ func TestListPaymentsIncludesBitcoinDeposits(t *testing.T) {
 		},
 	})
 
+	_, err := lightning.SetTxNote("payment-id", "custom note")
+	require.NoError(t, err)
 	payments, err := lightning.ListPayments()
 
 	require.NoError(t, err)
@@ -563,6 +571,22 @@ func TestListPaymentsIncludesBitcoinDeposits(t *testing.T) {
 	require.Equal(t, "payment-id", payments[4].ID)
 	require.Equal(t, accounts.TxStatusComplete, payments[4].Status)
 	require.Nil(t, payments[4].BitcoinDeposit)
+	require.Equal(t, "custom note", payments[4].Note)
+	require.Equal(t, "invoice description", payments[4].Description)
+
+	t.Run("notes unavailable", func(t *testing.T) {
+		lightning.notes = nil
+		filename := filepath.Join(lightning.lightningDirectoryPath, fmt.Sprintf("notes-%s.json", lightning.Account().Code))
+		require.NoError(t, os.WriteFile(filename, []byte("invalid JSON"), 0600))
+
+		withoutNotes, err := lightning.ListPayments()
+		require.NoError(t, err)
+		payments[4].Note = ""
+		require.Equal(t, payments, withoutNotes)
+
+		_, err = lightning.SetTxNote("payment-id", "updated note")
+		require.Error(t, err)
+	})
 }
 
 // TestListPaymentsExcludesDuplicateDeposits verifies that SDK payments take precedence over matching
