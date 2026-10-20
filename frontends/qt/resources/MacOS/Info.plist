@@ -38,7 +38,7 @@
 	<true/>
 
 	<key>LSMinimumSystemVersion</key>
-	<string>10.11</string>
+	<string>13.0</string>
 
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.finance</string>

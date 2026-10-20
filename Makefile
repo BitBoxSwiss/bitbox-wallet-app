@@ -13,7 +13,7 @@ GO_RUN := go run -mod=vendor -ldflags "$(GO_LDFLAGS)"
 catch:
 	@echo "Choose a make target."
 envinit:
-	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v2.9.0
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/v2.15.0/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v2.15.0
 	go install github.com/vektra/mockery/v2@v2.53.5
 	go install github.com/matryer/moq@v0.6.0
 	go install golang.org/x/tools/cmd/goimports@latest
