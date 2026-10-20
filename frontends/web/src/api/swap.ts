@@ -43,31 +43,29 @@ export type TSwapQuoteRoute = {
 };
 
 export type TSwapQuoteErrorCode =
-  | 'insufficientFunds'
   | 'invalidRequest'
   | 'noRoutesFound'
+  | 'providersUnavailable'
   | 'unexpectedError';
 
-export type TSwapQuoteValidationErrorCode = Extract<TSwapQuoteErrorCode, 'insufficientFunds'>;
+export type TSwapQuoteValidationErrorCode = 'insufficientFunds';
 
 export type TSwapQuoteResponse = {
+  validationErrorCode?: TSwapQuoteValidationErrorCode;
+} & ({
   success: true;
   quote: {
     routes: TSwapQuoteRoute[];
   };
 } | {
   success: false;
-  errorCode: TSwapQuoteErrorCode;
+  quoteErrorCode: TSwapQuoteErrorCode;
   errorData?: {
     buyCoin?: string;
     sellCoin?: string;
   };
   errorMessage: string;
-  validationErrorCode?: TSwapQuoteValidationErrorCode;
-  quote?: {
-    routes: TSwapQuoteRoute[];
-  };
-};
+});
 export const getSwapQuote = (
   data: TSwapQuoteRequest,
 ): Promise<TSwapQuoteResponse> => {
