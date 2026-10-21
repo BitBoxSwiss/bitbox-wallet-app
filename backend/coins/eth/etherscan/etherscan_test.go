@@ -15,6 +15,7 @@ import (
 	"strings"
 	"testing"
 	"testing/synctest"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
@@ -80,6 +81,7 @@ func formValues(t *testing.T, req *http.Request) url.Values {
 	}
 }
 
+// TestRequestTimeout checks that a stalled HTTP response reaches the request deadline in fake time.
 func TestRequestTimeout(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
 		client := NewEtherScan("1", &http.Client{
@@ -88,8 +90,10 @@ func TestRequestTimeout(t *testing.T) {
 				return nil, req.Context().Err()
 			}),
 		}, rate.NewLimiter(rate.Inf, 1))
+		start := time.Now()
 		_, err := client.BlockNumber(t.Context())
 		require.ErrorIs(t, err, context.DeadlineExceeded)
+		require.Equal(t, 30*time.Second, time.Since(start))
 	})
 }
 
