@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, useContext, useState } from 'react';
+import { ReactNode, useContext, useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
@@ -54,8 +54,17 @@ type TProps = {
 };
 
 export const LightningTestnetGuard = ({ active, onCancel, children }: TProps) => {
-  const { isTesting, sessionConfig, updateSessionConfig } = useContext(AppContext);
+  const { isTesting, sessionConfig, updateSessionConfig, setHideTestnetBanner } = useContext(AppContext);
   const [, navigate] = useLocation();
+
+  // Embedded Lightning payments keep their host route, but still use mainnet funds.
+  useLayoutEffect(() => {
+    if (!active) {
+      return;
+    }
+    setHideTestnetBanner(true);
+    return () => setHideTestnetBanner(false);
+  }, [active, setHideTestnetBanner]);
 
   if (!active) {
     return children;

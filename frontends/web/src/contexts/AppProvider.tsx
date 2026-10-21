@@ -31,6 +31,7 @@ export const AppProvider = ({ children }: TProps) => {
   const [guideShown, setGuideShown] = useState(false);
   const [guideExists, setGuideExists] = useState(false);
   const [hideAmounts, setHideAmounts] = useState(false);
+  const [hideTestnetBanner, setHideTestnetBanner] = useState(false);
   const [portfolioPercentageType, setPortfolioPercentageType] = useState<TPortfolioPercentageType>('value');
   const [activeSidebar, setActiveSidebar] = useState(false);
   const [vendorIframeActive, setVendorIframeActive] = useState(false);
@@ -97,6 +98,7 @@ export const AppProvider = ({ children }: TProps) => {
         guideShown,
         guideExists,
         hideAmounts,
+        hideTestnetBanner,
         portfolioPercentageType,
         isTesting,
         isDevServers,
@@ -107,6 +109,7 @@ export const AppProvider = ({ children }: TProps) => {
         setActiveSidebar,
         setGuideExists,
         setHideAmounts,
+        setHideTestnetBanner,
         setVendorIframeActive,
         setChartDisplay,
         toggleHideAmounts,

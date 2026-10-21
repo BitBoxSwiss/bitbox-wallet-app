@@ -14,6 +14,7 @@ type AppContextProps = {
   guideShown: boolean;
   guideExists: boolean;
   hideAmounts: boolean;
+  hideTestnetBanner: boolean;
   portfolioPercentageType: TPortfolioPercentageType;
   isTesting: boolean | undefined;
   isDevServers: boolean;
@@ -25,6 +26,7 @@ type AppContextProps = {
   setActiveSidebar: Dispatch<SetStateAction<boolean>>;
   setGuideExists: Dispatch<SetStateAction<boolean>>;
   setHideAmounts: Dispatch<SetStateAction<boolean>>;
+  setHideTestnetBanner: Dispatch<SetStateAction<boolean>>;
   setVendorIframeActive: Dispatch<SetStateAction<boolean>>;
   setChartDisplay: Dispatch<SetStateAction<TChartDisplay>>;
   setFirmwareUpdateDialogOpen: Dispatch<SetStateAction<boolean>>;

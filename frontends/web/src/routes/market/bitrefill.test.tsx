@@ -2,7 +2,7 @@
 
 import '../../../__mocks__/i18n';
 import type { ComponentProps, ReactNode } from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Link, Route, Switch } from 'wouter';
 import { MemoryRouter } from '@/utils/test-helpers';
@@ -148,8 +148,8 @@ describe.each([false, true])('Bitrefill messages (dev servers: %s)', isDevServer
     vi.mocked(sendTx).mockResolvedValue({ success: true, txId: 'test-txid' });
   });
 
-  // Lightning payment review must retain the checkout iframe and its order state on return.
-  it('keeps the Bitrefill checkout mounted during a Lightning payment', async () => {
+  // Mainnet Lightning payments must hide the testnet banner, then restore it with the preserved checkout.
+  it('keeps checkout mounted and hides the testnet banner during a Lightning payment', async () => {
     const lightningAccount = {
       code: 'v0-test-ln-0', coinCode: 'lightning' as const, coinUnit: 'BTC' as const,
       rootFingerprint: 'test', num: 0,
@@ -169,12 +169,14 @@ describe.each([false, true])('Bitrefill messages (dev servers: %s)', isDevServer
     await deliver(checkoutWindow, bitrefillOrigin, lightningPayment);
 
     expect(screen.getByText(translations.lightning.testnetWarning.title)).toBeInTheDocument();
+    expect(screen.queryByText(translations.warning.testnet)).not.toBeInTheDocument();
     expect(screen.queryByText('lnbc1bitrefill')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('checkbox', { name: translations.generic.iHaveReadTheInformation }));
     fireEvent.click(screen.getByRole('button', { name: translations.button.done }));
 
     expect(screen.getByText('lnbc1bitrefill')).toBeVisible();
+    expect(screen.queryByText(translations.warning.testnet)).not.toBeInTheDocument();
     expect(screen.getByTitle('Bitrefill')).toBe(wrapper);
     expect(wrapper).not.toBeVisible();
     expect(proposeTx).not.toHaveBeenCalled();
@@ -191,6 +193,7 @@ describe.each([false, true])('Bitrefill messages (dev servers: %s)', isDevServer
 
     await deliver(checkoutWindow, bitrefillOrigin, lightningPayment);
     expect(screen.getByText('lnbc1bitrefill')).toBeVisible();
+    expect(screen.queryByText(translations.warning.testnet)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('link', { name: 'Leave checkout' }));
     expect(screen.getByText('Home page')).toBeInTheDocument();
@@ -225,7 +228,7 @@ describe.each([false, true])('Bitrefill messages (dev servers: %s)', isDevServer
       act(() => window.onBackButtonPressed?.());
     }
 
-    await waitFor(() => expect(wrapper).toBeVisible());
+    expect(await screen.findByText(translations.warning.testnet)).toBeInTheDocument();
     expect(window.location.hash).toBe(checkoutLocation);
     expect(screen.queryByText(translations.lightning.testnetWarning.title)).not.toBeInTheDocument();
     expect(screen.queryByText('lnbc1bitrefill')).not.toBeInTheDocument();
@@ -239,6 +242,7 @@ describe.each([false, true])('Bitrefill messages (dev servers: %s)', isDevServer
     expect(screen.getByRole('checkbox', { name: translations.generic.iHaveReadTheInformation })).not.toBeChecked();
     expect(screen.getByRole('button', { name: translations.button.done })).toBeDisabled();
     expect(screen.queryByText('lnbc1bitrefill')).not.toBeInTheDocument();
+    expect(screen.queryByText(translations.warning.testnet)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('checkbox', { name: translations.generic.iHaveReadTheInformation }));
     fireEvent.click(screen.getByRole('button', { name: translations.button.done }));
