@@ -15,7 +15,7 @@
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     .container p.successText {
         margin-bottom: var(--space-large);
         margin-top: calc(var(--space-quarter) + var(--space-default));

@@ -170,7 +170,7 @@
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     .guideWrapper {
         position: fixed;
         right: 0;

@@ -100,7 +100,7 @@
     text-align: left;
 }
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     .fill.withMobileSafetyMargin,
     .fullscreen.withMobileSafetyMargin {
         padding-left: calc(var(--space-quarter) + env(safe-area-inset-left, 0px));
@@ -119,9 +119,7 @@
     }
 
 }
-@media (min-width: 769px) and (min-height: 601px),
-       (min-width: 769px) and (hover: hover),
-       (min-width: 769px) and (pointer: fine) {
+@media (min-width: 769px) and (min-height: 601px) {
     .fullscreen .inner {
         padding-left: var(--space-default);
         padding-right: var(--space-default);
@@ -160,7 +158,7 @@
     padding-right: var(--space-default);
 }
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     .fill {
         padding: 0;
     }
@@ -231,7 +229,7 @@
     flex-shrink: 1;
 }
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     .content {
         flex-grow: 1;
         flex-basis: auto;
@@ -264,7 +262,7 @@
     width: 50%;
 }
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     .content .largeIcon {
         margin-bottom: var(--space-half);
         margin-top: var(--space-half);
@@ -298,7 +296,7 @@
     padding-right: var(--space-half);
 }
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     .buttons {
         padding: 0 var(--space-half);
     }
@@ -377,7 +375,7 @@
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     .footer {
         padding: 0 var(--space-half);
         margin: var(--space-half) 0 0 0;

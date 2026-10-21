@@ -242,7 +242,7 @@
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     :root {
         --size-header: min(2rem, 36px);
         --size-title: min(1.6rem, 36px);

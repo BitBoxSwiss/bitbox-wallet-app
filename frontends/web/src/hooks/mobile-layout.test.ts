@@ -43,7 +43,7 @@ describe('useMobileLayout', () => {
     ['a narrow portrait phone', true],
     ['a short coarse-pointer landscape phone', true],
     ['a tablet landscape viewport', false],
-    ['a short fine-pointer desktop viewport', false],
+    ['a short fine-pointer desktop viewport', true],
   ])('returns the media-query result for %s', (_description, matches) => {
     mockMatchMedia(matches);
 

@@ -27,7 +27,7 @@
     text-decoration: none;
 }
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     .guideClose {
         margin-left: 0;
         min-width: auto;
@@ -125,7 +125,7 @@
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     .header {
         column-gap: var(--space-half);
         display: grid;
