@@ -3,8 +3,13 @@
 package backend
 
 import (
+	"fmt"
+	"io"
 	"math/big"
+	"net/http"
+	"strings"
 	"testing"
+	"time"
 
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
@@ -107,4 +112,50 @@ func TestInsertLightningFormattedBalance(t *testing.T) {
 		[]coinFormattedAmount{{CoinCode: coinpkg.CodeBTC}},
 		insertLightningFormattedBalance([]coinFormattedAmount{{CoinCode: coinpkg.CodeBTC}}, nil),
 	)
+}
+
+type lightningHistoryTransport struct {
+	at time.Time
+}
+
+func (transport lightningHistoryTransport) RoundTrip(request *http.Request) (*http.Response, error) {
+	if err := request.Context().Err(); err != nil {
+		return nil, err
+	}
+	if !strings.HasSuffix(request.URL.Path, "/coins/bitcoin/market_chart/range") ||
+		request.URL.Query().Get("vs_currency") != "usd" {
+		return nil, fmt.Errorf("unexpected rates request: %s", request.URL)
+	}
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body: io.NopCloser(strings.NewReader(fmt.Sprintf(
+			`{"prices":[[%d,42]]}`, transport.at.UnixMilli()))),
+	}, nil
+}
+
+// Clearing the cache must restart BTC history for Lightning even without loaded on-chain accounts,
+// and Lightning must use the replacement rates updater.
+func TestClearCacheRestoresLightningHistory(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+
+	at := time.Now().Add(-time.Hour).Truncate(time.Second)
+	b.httpClient = &http.Client{Transport: lightningHistoryTransport{at: at}}
+	require.NoError(t, b.config.ModifyAppConfig(func(cfg *config.AppConfig) error {
+		cfg.Backend.FiatList = []string{"USD"}
+		return nil
+	}))
+	require.NoError(t, b.lightning.SetAccount(&config.LightningAccountConfig{Code: "v0-test-ln-0"}))
+	require.Empty(t, b.Accounts())
+	oldRatesUpdater := b.ratesUpdater
+
+	require.NoError(t, b.ClearCache())
+
+	require.Empty(t, b.Accounts())
+	require.NotSame(t, oldRatesUpdater, b.ratesUpdater)
+	lightningRatesUpdater, _ := b.lightning.TstRuntimeDependencies()
+	require.Same(t, b.ratesUpdater, lightningRatesUpdater)
+	require.Eventually(t, func() bool {
+		return lightningRatesUpdater.HistoricalPriceAt("btc", "USD", at) == 42
+	}, 5*time.Second, 10*time.Millisecond, "Lightning BTC history was not restored after clearing cache")
 }

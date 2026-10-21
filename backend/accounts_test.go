@@ -812,6 +812,8 @@ func TestCreateAndAddAccount(t *testing.T) {
 	require.Equal(t, "Tether USD 2", acct.Record.Name)
 }
 
+// Full reconciliation batches initial ETH/ERC20 syncs while startup leaves its batch to
+// PollBalances. Only additions request a refresh; removals and retained instances do not.
 func TestETHInitialSyncMode(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
@@ -850,30 +852,130 @@ func TestETHInitialSyncMode(t *testing.T) {
 		return MockEthAccount(config, coin, log)
 	}
 
+	enqueueAllAccountsRefreshes := 0
+	b.enqueueETHUpdateForAllAccountsAsync = func() {
+		enqueueAllAccountsRefreshes++
+	}
+
 	t.Run("startup-watchonly-load", func(t *testing.T) {
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
+			accountsConfig := accountsSnapshot(t, b)
+			b.reconcileAccountsLocked(accountsConfig)
 		}()
 
 		require.Equal(t, expected, captured)
+		// PollBalances performs the one initial refresh when startup completes.
+		require.Equal(t, 0, enqueueAllAccountsRefreshes)
 	})
 
-	t.Run("reinit-batch-load", func(t *testing.T) {
+	t.Run("reconcile-batch-load", func(t *testing.T) {
 		captured = map[accountsTypes.Code]bool{}
-		enqueueAllAccountsRefreshes := 0
-		b.enqueueETHUpdateForAllAccountsAsync = func() {
-			enqueueAllAccountsRefreshes++
-		}
+		enqueueAllAccountsRefreshes = 0
 
 		func() {
 			defer b.accountsAndKeystoreLock.Lock()()
-			b.initAccounts(true)
+			b.accounts.removeAll()
+			require.NoError(t, b.reconcileAccountsAndRefreshLocked())
 		}()
 
 		require.Equal(t, expected, captured)
 		require.Equal(t, 1, enqueueAllAccountsRefreshes)
 	})
+
+	_, otherAccount, err := b.buildAccountConfig(
+		coinpkg.CodeETH,
+		1,
+		false,
+		"",
+		ks,
+		nil,
+	)
+	require.NoError(t, err)
+	require.NotNil(t, otherAccount)
+	withoutTokens := *account
+	withoutTokens.ActiveTokens = nil
+	hidden := *account
+	hidden.HiddenBecauseUnused = true
+
+	// These steps retain the preceding runtime state, including a second ETH account that must not
+	// be refreshed when the first account or its token is removed.
+	for _, tt := range []struct {
+		name          string
+		records       []*config.Account
+		wantAccounts  int
+		wantRefreshes int
+	}{
+		{
+			name:         "unchanged",
+			records:      []*config.Account{account},
+			wantAccounts: 2,
+		},
+		{
+			name:          "add-eth",
+			records:       []*config.Account{account, otherAccount},
+			wantAccounts:  3,
+			wantRefreshes: 1,
+		},
+		{
+			name:         "remove-token",
+			records:      []*config.Account{&withoutTokens, otherAccount},
+			wantAccounts: 2,
+		},
+		{
+			name:          "add-token",
+			records:       []*config.Account{account, otherAccount},
+			wantAccounts:  3,
+			wantRefreshes: 1,
+		},
+		{
+			name:         "remove-ineligible-family",
+			records:      []*config.Account{&hidden, otherAccount},
+			wantAccounts: 1,
+		},
+		{
+			name:          "reload-eligible-family",
+			records:       []*config.Account{account, otherAccount},
+			wantAccounts:  3,
+			wantRefreshes: 1,
+		},
+		{
+			name:         "remove-deleted-family",
+			records:      []*config.Account{otherAccount},
+			wantAccounts: 1,
+		},
+		{
+			name:          "replace-eth-at-same-count",
+			records:       []*config.Account{&withoutTokens},
+			wantAccounts:  1,
+			wantRefreshes: 1,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			before := b.Accounts()
+			captured = map[accountsTypes.Code]bool{}
+			enqueueAllAccountsRefreshes = 0
+			func() {
+				defer b.accountsAndKeystoreLock.Lock()()
+				require.NoError(t, b.accountsDB.Update(func(cfg *config.AccountsConfig) error {
+					cfg.Accounts = tt.records
+					return nil
+				}))
+				require.NoError(t, b.reconcileAccountsAndRefreshLocked())
+			}()
+			require.Equal(t, tt.wantRefreshes, enqueueAllAccountsRefreshes)
+			after := b.Accounts()
+			require.Len(t, after, tt.wantAccounts)
+			for _, accountView := range after {
+				if previous := before.lookup(accountView.Record.Code); previous != nil {
+					require.Same(t, previous.Account, accountView.Account)
+				}
+			}
+			for code, skipInitialSync := range captured {
+				require.True(t, skipInitialSync, "%s queued a per-account refresh", code)
+			}
+		})
+	}
 }
 
 // TestAccountSupported tests that only accounts supported by a keystore are 1) persisted when the
@@ -982,8 +1084,9 @@ func TestInactiveAccount(t *testing.T) {
 	checkShownAccountsLen(t, b, 5, 3)
 }
 
-// Test that taproot subaccounts are added if a keytore gains taproot support (e.g. BitBox02 gained
-// taproot support in v9.10.0)
+// Test that taproot subaccounts are added if a keystore gains taproot support (e.g. BitBox02 gained
+// taproot support in v9.10.0). Watch-only accounts retain their runtime configurations until they
+// are unloaded and loaded again; even older firmware then loads the complete persisted configuration.
 func TestTaprootUpgrade(t *testing.T) {
 	// From mnemonic: wisdom minute home employ west tail liquid mad deal catalog narrow mistake
 	rootKey := test.TstMustXKey("xprv9s21ZrQH143K3gie3VFLgx8JcmqZNsBcBc6vAdJrsf4bPRhx69U8qZe3EYAyvRWyQdEfz7ZpyYtL8jW2d2Lfkfh6g2zivq8JdZPQqxoxLwB")
@@ -1070,13 +1173,20 @@ func TestTaprootUpgrade(t *testing.T) {
 		accountsConfig.Lookup("v0-55555555-btc-0").SigningConfigurations)
 
 	// "Unplug", then insert an updated keystore with taproot support.
+	require.NoError(t, b.SetWatchonly(fingerprint, true))
+	loadedBTCAccount := b.accounts.lookup("v0-55555555-btc-0")
+	loadedLTCAccount := b.accounts.lookup("v0-55555555-ltc-0")
 	b.DeregisterKeystore()
+	require.Same(t, loadedBTCAccount, b.accounts.lookup("v0-55555555-btc-0"))
 	b.registerKeystore(bitbox02Taproot)
 	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount = b.Accounts().lookup("v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
+	require.Same(t, loadedBTCAccount, btcAccount.Account)
+	require.Len(t, btcAccount.Account.Config().SigningConfigurations, 2)
 	ltcAccount = b.Accounts().lookup("v0-55555555-ltc-0")
 	require.NotNil(t, ltcAccount)
+	require.Same(t, loadedLTCAccount, ltcAccount.Account)
 	require.Equal(t, coinpkg.CodeBTC, b.Accounts()[0].Account.Coin().Code())
 	require.Len(t, btcAccount.Record.SigningConfigurations, 3)
 	// LTC (coin with no taproot support) unchanged.
@@ -1097,10 +1207,14 @@ func TestTaprootUpgrade(t *testing.T) {
 	// visible. All signing configurations remain loaded so Taproot balances and history are not
 	// silently omitted.
 	b.DeregisterKeystore()
+	// Unload the watched accounts so the next connection constructs them from persisted data.
+	require.NoError(t, b.SetWatchonly(fingerprint, false))
+	checkShownAccountsLen(t, b, 0, 3)
 	b.registerKeystore(bitbox02NoTaproot)
 	checkShownAccountsLen(t, b, 3, 3)
 	btcAccount = b.Accounts().lookup("v0-55555555-btc-0")
 	require.NotNil(t, btcAccount)
+	require.NotSame(t, loadedBTCAccount, btcAccount.Account)
 	require.Len(t, btcAccount.Account.Config().SigningConfigurations, 3)
 	accountsConfig = accountsSnapshot(t, b)
 	require.Equal(t,

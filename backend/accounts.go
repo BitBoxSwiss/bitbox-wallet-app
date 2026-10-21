@@ -688,6 +688,22 @@ func (backend *Backend) SetTokenActive(accountCode accountsTypes.Code, tokenCode
 	return backend.reconcileAccountWriteLocked(accountCode)
 }
 
+// reconcileAccountsAndRefreshLocked loads or unloads accounts according to persisted records and the
+// connected keystore. It emits an account-list reload notification, reconfigures historical
+// exchange-rate fetching when the loaded account set changes, and requests a batch ETH refresh when
+// ETH/ERC20 accounts are added.
+// The caller must hold accountsAndKeystoreLock.
+func (backend *Backend) reconcileAccountsAndRefreshLocked() error {
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		return err
+	}
+
+	membershipChanged, ethAccountsAdded := backend.reconcileAccountsLocked(accountsConfig)
+	backend.applyAccountReconcileEffectsLocked(membershipChanged, ethAccountsAdded)
+	return nil
+}
+
 // reconcileAccountWriteLocked updates runtime membership and dependent services after a persisted
 // account-family write. Callers hold accountsAndKeystoreLock across both persistence and
 // reconciliation so joined views cannot combine new desired membership with stale runtime state.
@@ -696,8 +712,13 @@ func (backend *Backend) reconcileAccountWriteLocked(accountCode accountsTypes.Co
 	if err != nil {
 		return err
 	}
-	membershipChanged := backend.reconcileAccountFamilyLocked(accountsConfig, accountCode)
-	backend.applyAccountReconcileEffectsLocked(membershipChanged)
+	membershipChanged, _ := backend.reconcileAccountFamilyLocked(
+		accountsConfig,
+		accountCode,
+		accountLoadOptions{},
+	)
+	// Newly initialized ETH accounts enqueue their own initial update.
+	backend.applyAccountReconcileEffectsLocked(membershipChanged, false)
 	return nil
 }
 
@@ -1122,28 +1143,31 @@ func (backend *Backend) removeAccountFamilyLocked(
 func (backend *Backend) reconcileAccountFamilyLocked(
 	accountsConfig config.AccountsConfig,
 	accountCode accountsTypes.Code,
-) (membershipChanged bool) {
+	options accountLoadOptions,
+) (membershipChanged bool, ethAccountsAdded bool) {
 	record := accountsConfig.Lookup(accountCode)
 	if record == nil {
-		return false
+		return false, false
 	}
 
 	accountCoin, loadable := backend.accountLoadableLocked(accountsConfig, record)
 	if !loadable {
-		return backend.removeAccountFamilyLocked(accountCode)
+		return backend.removeAccountFamilyLocked(accountCode), false
 	}
 
 	loadedAccount := backend.accounts.lookup(accountCode)
 	if loadedAccount == nil {
-		return backend.createAndAddAccount(
+		added := backend.createAndAddAccount(
 			accountCoin,
 			record,
-			accountLoadOptions{},
+			options,
 		)
+		_, isETH := accountCoin.(*eth.Coin)
+		return added, added && isETH
 	}
 
 	if _, isETH := accountCoin.(*eth.Coin); !isETH {
-		return false
+		return false, false
 	}
 
 	for _, account := range backend.accounts.all() {
@@ -1175,17 +1199,57 @@ func (backend *Backend) reconcileAccountFamilyLocked(
 		if backend.createAndAddAccount(
 			tokenCoin,
 			tokenRecord,
-			accountLoadOptions{},
+			options,
 		) {
+			membershipChanged = true
+			ethAccountsAdded = true
+		}
+	}
+	return membershipChanged, ethAccountsAdded
+}
+
+// reconcileAccountsLocked makes runtime membership match one authoritative accounts database
+// snapshot.
+// accountsAndKeystoreLock must be held.
+func (backend *Backend) reconcileAccountsLocked(
+	accountsConfig config.AccountsConfig,
+) (membershipChanged bool, ethAccountsAdded bool) {
+	desiredAccountCodes := make(map[accountsTypes.Code]struct{}, len(accountsConfig.Accounts))
+	for _, record := range accountsConfig.Accounts {
+		desiredAccountCodes[record.Code] = struct{}{}
+		for _, tokenCode := range record.ActiveTokens {
+			desiredAccountCodes[Erc20AccountCode(record.Code, tokenCode)] = struct{}{}
+		}
+
+		changed, ethAdded := backend.reconcileAccountFamilyLocked(
+			accountsConfig,
+			record.Code,
+			accountLoadOptions{skipETHInitialSync: true},
+		)
+		membershipChanged = membershipChanged || changed
+		ethAccountsAdded = ethAccountsAdded || ethAdded
+	}
+
+	for _, account := range backend.accounts.all() {
+		if _, desired := desiredAccountCodes[account.Config().Code]; desired {
+			continue
+		}
+		if backend.accounts.remove(account.Config().Code) {
 			membershipChanged = true
 		}
 	}
-	return membershipChanged
+	return membershipChanged, ethAccountsAdded
 }
 
 // applyAccountReconcileEffectsLocked updates services and observers after membership reconciliation.
 // accountsAndKeystoreLock must be held.
-func (backend *Backend) applyAccountReconcileEffectsLocked(membershipChanged bool) {
+func (backend *Backend) applyAccountReconcileEffectsLocked(
+	membershipChanged bool,
+	refreshAllETHAccounts bool,
+) {
+	if refreshAllETHAccounts {
+		backend.enqueueETHInitialSyncLocked()
+	}
 	backend.emitAccountsStatusChanged()
 	if membershipChanged {
 		backend.configureHistoryExchangeRates()
@@ -1324,23 +1388,6 @@ func (backend *Backend) buildETHAccountConfig(
 	}, nil
 }
 
-// The accountsAndKeystoreLock must be held when calling this function.
-func (backend *Backend) initPersistedAccounts(options accountLoadOptions) {
-	persistedAccounts, err := backend.accountsDB.Snapshot()
-	if err != nil {
-		backend.log.WithError(err).Error("could not load account records")
-		return
-	}
-
-	for _, account := range persistedAccounts.Accounts {
-		accountCoin, loadable := backend.accountLoadableLocked(persistedAccounts, account)
-		if !loadable {
-			continue
-		}
-		backend.createAndAddAccount(accountCoin, account, options)
-	}
-}
-
 // buildDefaultAccountConfigs prepares the default accounts for the connected keystore (not manually
 // user-added). Currently the first bip44 account of BTC/LTC/ETH. ERC20 tokens are added if they were
 // configured to be active by the user in the past, when they could still configure them globally
@@ -1443,22 +1490,6 @@ func (backend *Backend) maybeAddP2TR(
 	return changedAccountCodes, nil
 }
 
-// The accountsAndKeystoreLock must be held when calling this function.
-// if force is true, all accounts are uninitialized first, even if they are watch-only.
-func (backend *Backend) initAccounts(force bool) {
-	// Since initAccounts replaces all previous accounts, we need to properly close them first.
-	backend.uninitAccounts(force)
-
-	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
-	backend.enqueueETHInitialSyncLocked()
-
-	backend.emitAccountsStatusChanged()
-
-	// The updater fetches rates only for active accounts, so update its configuration whenever
-	// this operation changes the loaded account set.
-	backend.configureHistoryExchangeRates()
-}
-
 // enqueueETHInitialSyncLocked asks the ETH updater to refresh all loaded ETH accounts if any exist.
 //
 // The accountsAndKeystoreLock must be held when calling this function.
@@ -1468,47 +1499,6 @@ func (backend *Backend) enqueueETHInitialSyncLocked() {
 			backend.enqueueETHUpdateForAllAccountsAsync()
 			return
 		}
-	}
-}
-
-// The accountsAndKeystoreLock must be held when calling this function.
-// if force is true, all accounts are uninitialized, even if they are watch-only.
-func (backend *Backend) uninitAccounts(force bool) {
-	// This transitional implementation is removed once account membership is reconciled incrementally.
-	accountsConfig, err := backend.accountsDB.Snapshot()
-	if err != nil {
-		backend.log.WithError(err).Error("could not load account records")
-		return
-	}
-	for _, account := range backend.accounts.all() {
-		accountConfig := accountsConfig.Lookup(account.Config().Code)
-		if accountConfig == nil {
-			accountConfig, _ = derivedTokenRecord(account, accountsConfig)
-		}
-
-		belongsToKeystore := false
-		if backend.keystore != nil && accountConfig != nil {
-			fingerprint, err := backend.keystore.RootFingerprint()
-			if err != nil {
-				backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
-			} else {
-				belongsToKeystore =
-					accountConfig.SigningConfigurations.ContainsRootFingerprint(fingerprint)
-			}
-		}
-
-		isWatchonly := false
-		if accountConfig != nil {
-			var err error
-			isWatchonly, err = accountsConfig.IsAccountWatchOnly(accountConfig)
-			if err != nil {
-				backend.log.WithError(err).Error("could not determine watch status of account")
-			}
-		}
-		if !force && (belongsToKeystore || isWatchonly) {
-			continue
-		}
-		backend.accounts.remove(account.Config().Code)
 	}
 }
 
@@ -1604,7 +1594,7 @@ func (backend *Backend) maybeAddHiddenUnusedAccounts() {
 			log.WithError(err).Error("could not load account records")
 			continue
 		}
-		backend.reconcileAccountFamilyLocked(accountsConfig, accountCode)
+		backend.reconcileAccountFamilyLocked(accountsConfig, accountCode, accountLoadOptions{})
 		// Discovery adds scanning accounts without restarting historical exchange-rate updates.
 		backend.emitAccountsStatusChanged()
 	}

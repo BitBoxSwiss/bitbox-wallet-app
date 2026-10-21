@@ -887,7 +887,12 @@ func (backend *Backend) Start() <-chan interface{} {
 	backend.updateChecker.start()
 
 	defer backend.accountsAndKeystoreLock.Lock()()
-	backend.initPersistedAccounts(accountLoadOptions{skipETHInitialSync: true})
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records")
+	} else {
+		backend.reconcileAccountsLocked(accountsConfig)
+	}
 	backend.emitAccountsStatusChanged()
 
 	backend.ratesUpdater.StartCurrentRates()
@@ -1002,7 +1007,6 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 	}
 	if err != nil {
 		log.WithError(err).Error("Could not update account records")
-		taprootAccountCodes = nil
 	} else {
 		for _, accountCode := range taprootAccountCodes {
 			log.WithField("code", accountCode).
@@ -1010,7 +1014,11 @@ func (backend *Backend) registerKeystore(ks keystore.Keystore) {
 		}
 	}
 
-	backend.initAccounts(false)
+	// Existing accounts retain their runtime signing configurations until they are reloaded.
+	if err := backend.reconcileAccountsAndRefreshLocked(); err != nil {
+		log.WithError(err).Error("Could not load account records")
+		return
+	}
 
 	backend.aoppKeystoreRegistered()
 
@@ -1060,11 +1068,10 @@ func (backend *Backend) DeregisterKeystore() {
 		Action:  action.Reload,
 	})
 
-	backend.uninitAccounts(false)
-	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
-	// keystore. For now we just remove all, then re-add the rest.
-	backend.initPersistedAccounts(accountLoadOptions{})
-	backend.emitAccountsStatusChanged()
+	if err := backend.reconcileAccountsAndRefreshLocked(); err != nil {
+		backend.log.WithError(err).Error("could not load account records")
+		backend.emitAccountsStatusChanged()
+	}
 	backend.connectKeystore.onDisconnect()
 }
 
@@ -1299,7 +1306,7 @@ func (backend *Backend) ClearCache() error {
 		backend.ratesUpdater.Stop()
 	}
 
-	backend.uninitAccounts(true)
+	backend.accounts.removeAll()
 	if err := backend.closeCoins(); err != nil {
 		backend.log.WithError(err).Error("could not close coins before clearing cache")
 		errors = append(errors, err.Error())
@@ -1324,7 +1331,15 @@ func (backend *Backend) ClearCache() error {
 	}
 	backend.ethOutgoing = outgoing
 	backend.ratesUpdater = backend.newRatesUpdater()
-	backend.initAccounts(true)
+	accountsConfig, err := backend.accountsDB.Snapshot()
+	if err != nil {
+		backend.log.WithError(err).Error("could not load account records after clearing cache")
+		errors = append(errors, err.Error())
+	} else {
+		backend.reconcileAccountsLocked(accountsConfig)
+		backend.enqueueETHInitialSyncLocked()
+		backend.emitAccountsStatusChanged()
+	}
 	btcCoin, err := backend.Coin(coinpkg.CodeBTC)
 	if err != nil {
 		backend.log.WithError(err).Error("could not recreate Bitcoin coin after clearing cache")
@@ -1332,6 +1347,8 @@ func (backend *Backend) ClearCache() error {
 	} else {
 		backend.lightning.SetRuntimeDependencies(backend.ratesUpdater, btcCoin)
 	}
+	// The new updater needs historical rates even when only Lightning is active.
+	backend.configureHistoryExchangeRates()
 	if backend.started {
 		backend.ratesUpdater.StartCurrentRates()
 	}
@@ -1347,7 +1364,6 @@ func (backend *Backend) ClearCache() error {
 func (backend *Backend) Close() error {
 	backend.started = false
 	backend.updateChecker.stop()
-	backend.ratesUpdater.Stop()
 	// Call this without `accountsAndKeystoreLock` as it eventually calls `DeregisterKeystore()`,
 	// which acquires the same lock.
 	if backend.usbManager != nil {
@@ -1359,12 +1375,15 @@ func (backend *Backend) Close() error {
 
 	defer backend.accountsAndKeystoreLock.Lock()()
 
+	// Device deregistration can reconfigure historical rates, so stop the updater afterward.
+	backend.ratesUpdater.Stop()
+
 	errors := []string{}
 	if outgoingErr != nil {
 		errors = append(errors, outgoingErr.Error())
 	}
 
-	backend.uninitAccounts(true)
+	backend.accounts.removeAll()
 	if backend.unobserveKeystore != nil {
 		backend.unobserveKeystore()
 		backend.unobserveKeystore = nil
@@ -1456,6 +1475,8 @@ func (backend *Backend) CancelConnectKeystore() {
 
 // SetWatchonly sets the keystore's watchonly flag to `watchonly`.
 func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) error {
+	defer backend.accountsAndKeystoreLock.Lock()()
+
 	err := backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
 		ks, err := accountsConfig.LookupKeystore(rootFingerprint)
 		if err != nil {
@@ -1468,10 +1489,7 @@ func (backend *Backend) SetWatchonly(rootFingerprint []byte, watchonly bool) err
 		return err
 	}
 
-	defer backend.accountsAndKeystoreLock.Lock()()
-	backend.initAccounts(false)
-	backend.emitAccountsStatusChanged()
-	return nil
+	return backend.reconcileAccountsAndRefreshLocked()
 }
 
 // KeystoreName returns the persisted name of a keystore.
