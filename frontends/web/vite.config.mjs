@@ -25,7 +25,7 @@ export default defineConfig((env) => {
     build: {
       modulePreload: false,
       outDir: 'build',
-      target: ['chrome122'],
+      target: ['chrome122', 'safari16'],
     },
     plugins: [
       react(),
