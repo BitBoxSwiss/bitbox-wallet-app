@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Lightning: add contact list for Lightning addresses
 - Add option for percentage on portfolio to reflect performance
 - Mobile: add copy and open actions when touching and holding transaction explorer links, without loading a preview on iOS
 - Lightning: show the estimated claim fee before sending a top-up

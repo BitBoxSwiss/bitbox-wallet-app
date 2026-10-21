@@ -38,6 +38,8 @@ import cogLightSVG from './assets/icons/cog-light.svg';
 import cogDarkSVG from './assets/icons/cog-dark.svg';
 import cogBlueSVG from './assets/icons/cog-blue.svg';
 import coinsSVG from './assets/icons/coins.svg';
+import contactDarkSVG from './assets/icons/contact-dark.svg';
+import contactLightSVG from './assets/icons/contact-light.svg';
 import creditCardDarkSVG from './assets/icons/credit-card.svg';
 import creditCardLightSVG from './assets/icons/credit-card-light.svg';
 import deviceSVG from './assets/icons/device.svg';
@@ -171,6 +173,8 @@ export const ChevronLeftDark = (props: ImgProps) => (<img width={16} height={16}
 export const ChevronRightDark = (props: ImgProps) => (<img width={16} height={16} src={chevronRightDark} draggable={false} {...props} />);
 export const ChevronDownDark = (props: ImgProps) => (<img width={16} height={16} src={chevronDownDark} draggable={false} {...props} />);
 export const Cancel = (props: ImgProps) => (<img src={cancelSVG} draggable={false} {...props} />);
+export const ContactDark = (props: ImgProps) => (<img src={contactDarkSVG} draggable={false} {...props} />);
+export const ContactLight = (props: ImgProps) => (<img src={contactLightSVG} draggable={false} {...props} />);
 export const CreditCardDark = (props: ImgProps) => (<img src={creditCardDarkSVG} draggable={false} {...props} />);
 export const CreditCard = (props: ImgProps) => (<img src={creditCardLightSVG} draggable={false} {...props} />);
 export const CogBlue = (props: ImgProps) => (<img src={cogBlueSVG} draggable={false} {...props} />);
