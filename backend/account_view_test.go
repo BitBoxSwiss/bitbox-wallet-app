@@ -67,13 +67,7 @@ func TestSortAccountViews(t *testing.T) {
 		keystore3.Name = betaWalletName
 		return nil
 	}))
-	unlock := backend.accountsAndKeystoreLock.Lock()
-	for _, accountConfig := range accountConfigs {
-		accountCoin, err := backend.Coin(accountConfig.CoinCode)
-		require.NoError(t, err)
-		backend.createAndAddAccount(accountCoin, accountConfig, accountLoadOptions{})
-	}
-	unlock()
+	reconcileTestAccounts(t, backend)
 
 	expectedOrder := []accountsTypes.Code{
 		"acct-btc-alpha",

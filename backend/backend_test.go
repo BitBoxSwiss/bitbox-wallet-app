@@ -390,9 +390,7 @@ func newBackendWithDevServers(t *testing.T, testing, regtest, devServers bool) *
 			&types.GapLimits{Receive: 20, Change: 6}),
 		environment{},
 	)
-	b.tstCheckAccountUsed = func(accounts.Interface) bool {
-		return false
-	}
+	b.tstDisableAccountDiscovery = true
 	b.ratesUpdater.SetCoingeckoURL("unused") // avoid hitting real API
 
 	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
@@ -634,4 +632,19 @@ func TestRegisterKeystore(t *testing.T) {
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-btc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-ltc-0"))
 	require.NotNil(t, b.Accounts().lookup("v0-66666666-eth-0"))
+}
+
+// reconcileTestAccounts loads fixture records through the manager's reconciliation API.
+// Watch-only eligibility is enabled on a detached snapshot, leaving persisted metadata intact.
+func reconcileTestAccounts(t *testing.T, backend *Backend) {
+	t.Helper()
+	defer backend.accountsAndKeystoreLock.Lock()()
+	snapshot := accountsSnapshot(t, backend)
+	for _, record := range snapshot.Accounts {
+		fingerprint, err := record.SigningConfigurations.RootFingerprint()
+		require.NoError(t, err)
+		record.HiddenBecauseUnused = false
+		snapshot.GetOrAddKeystore(fingerprint).Watchonly = true
+	}
+	backend.accounts.Reconcile(snapshot, nil)
 }
