@@ -44,14 +44,10 @@ func accountCandidates(
 // findHiddenAccount finds the hidden unused account with the lowest account number.
 func findHiddenAccount(
 	coinCode coinpkg.Code,
-	keystore keystore.Keystore,
+	rootFingerprint []byte,
 	accountsConfig *config.AccountsConfig,
-) (*config.Account, error) {
-	rootFingerprint, err := keystore.RootFingerprint()
-	if err != nil {
-		return nil, err
-	}
-	return lowestHiddenAccount(accountCandidates(accountsConfig, rootFingerprint, coinCode)), nil
+) *config.Account {
+	return lowestHiddenAccount(accountCandidates(accountsConfig, rootFingerprint, coinCode))
 }
 
 func lowestHiddenAccount(candidates []accountCandidate) *config.Account {
