@@ -1,0 +1,35 @@
+.content {
+    font-size: var(--size-default);
+}
+
+.callWarning {
+    align-items: center;
+    font-size: var(--size-default);
+    font-weight: 700;
+    gap: var(--space-quarter);
+}
+
+@media (min-width: 1200px) {
+    .content {
+        --size-default: min(2rem, 36px);
+    }
+}
+
+.continueButton {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-quarter);
+    min-width: 16rem;
+}
+
+.countdown {
+    color: var(--color-default);
+    font-size: var(--size-small);
+    font-variant-numeric: tabular-nums;
+    min-height: 1.5em;
+    text-align: center;
+}
+
+.cancelButton {
+    align-self: flex-start;
+}
