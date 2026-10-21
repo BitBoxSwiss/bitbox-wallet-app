@@ -182,16 +182,14 @@
     width: 100%;
 }
 
-@media (min-width: 769px) and (min-height: 601px),
-       (min-width: 769px) and (hover: hover),
-       (min-width: 769px) and (pointer: fine) {
+@media (min-width: 769px) and (min-height: 601px) {
     .closingOverlay {
         display: none;
     }
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
 
     .header .title{
         font-size: var(--size-header);

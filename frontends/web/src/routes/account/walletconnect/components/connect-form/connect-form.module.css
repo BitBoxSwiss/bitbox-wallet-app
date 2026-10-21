@@ -14,7 +14,7 @@
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
     .formButtonsContainer {
         flex-direction: column-reverse;
         margin-bottom: 0;

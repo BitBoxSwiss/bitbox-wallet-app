@@ -64,7 +64,7 @@
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse){
+       (orientation: landscape) and (max-height: 600px){
   .chart {
     margin-bottom: var(--space-half);
   }
@@ -88,7 +88,7 @@
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
 
   .chartUnavailableMessage img {
     width: 20px;

@@ -232,7 +232,7 @@
 
 
 @media screen and (max-width: 768px),
-       screen and (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       screen and (orientation: landscape) and (max-height: 600px) {
     .groupHeader {
         padding-left: 0;
     }

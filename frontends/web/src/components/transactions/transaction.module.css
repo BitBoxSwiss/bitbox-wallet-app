@@ -5,7 +5,7 @@
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
   .tx {
     margin-bottom: var(--space-quarter);
   }
@@ -21,7 +21,7 @@
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
   .txContent {
     padding: 10px 0 8px 0;
   }
@@ -38,7 +38,7 @@
   width: 32px;
 }
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
 
   .txContent:active {
     background-color: var(--background-tap-active);
@@ -78,7 +78,7 @@
   white-space: nowrap;
 }
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
   .txAmountsColumn {
     padding-right: var(--space-half);
   }
@@ -235,7 +235,7 @@
 }
 
 @media (max-width: 768px),
-       (orientation: landscape) and (max-height: 600px) and (hover: none) and (pointer: coarse) {
+       (orientation: landscape) and (max-height: 600px) {
   .txShowDetailBtn {
     display: none;
   }
