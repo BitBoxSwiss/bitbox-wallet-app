@@ -66,7 +66,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24.x'
+          node-version: '26.x'
           cache: npm
           cache-dependency-path: frontends/web/package-lock.json
 
@@ -196,7 +196,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24.x'
+          node-version: '26.x'
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -262,7 +262,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24.x'
+          node-version: '26.x'
       - name: Build iOS app
         run: |
           make gomobileinit
@@ -287,7 +287,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24.x'
+          node-version: '26.x'
       - name: Install Go
         uses: actions/setup-go@v6
         with:

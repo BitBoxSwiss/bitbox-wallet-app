@@ -5,7 +5,7 @@ apt-get update
 apt-get install -y --no-install-recommends curl ca-certificates
 
 # add repository for node/npm
-curl -sL https://deb.nodesource.com/setup_24.x | bash -
+curl -sL https://deb.nodesource.com/setup_26.x | bash -
 
 apt-get install -y --no-install-recommends \
     clang \
