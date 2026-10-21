@@ -95,7 +95,8 @@ func (socksProxy *SocksProxy) GetHTTPClient() (*http.Client, error) {
 
 		// Make a http.Transport that uses the proxy dialer, and a
 		// http.Client that uses the transport.
-		tbTransport := &http.Transport{Dial: tbDialer.Dial}
+		// SOCKS5 dialers implement proxy.ContextDialer.
+		tbTransport := &http.Transport{DialContext: tbDialer.(proxy.ContextDialer).DialContext}
 		client := &http.Client{Transport: tbTransport}
 		return client, nil
 	}

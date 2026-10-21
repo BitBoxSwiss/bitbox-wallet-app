@@ -8,28 +8,24 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"math/big"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
 	"testing/synctest"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/time/rate"
 )
-
-type roundTripFunc func(*http.Request) (*http.Response, error)
-
-func (f roundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return f(req)
-}
 
 func makeTokenTx(hash, blockNumber string, from, to, contract common.Address) map[string]string {
 	return map[string]string{
@@ -47,23 +43,10 @@ func makeTokenTx(hash, blockNumber string, from, to, contract common.Address) ma
 	}
 }
 
-func newTestEtherScan(handler func(*http.Request) *http.Response) *EtherScan {
-	etherScan := NewEtherScan("1", &http.Client{
-		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			return handler(req), nil
-		}),
-	}, rate.NewLimiter(rate.Inf, 1))
-	etherScan.url = "https://example.test/v2/api"
-	return etherScan
-}
-
-func jsonRPCResponse(t *testing.T, body string) *http.Response {
+func newTestEtherScan(t *testing.T, handler http.HandlerFunc) *EtherScan {
 	t.Helper()
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewReader([]byte(body))),
-		Header:     make(http.Header),
-	}
+	server := httptest.NewTestServer(t, handler)
+	return NewEtherScan("1", server.Client(), rate.NewLimiter(rate.Inf, 1))
 }
 
 func formValues(t *testing.T, req *http.Request) url.Values {
@@ -72,24 +55,24 @@ func formValues(t *testing.T, req *http.Request) url.Values {
 	case http.MethodGet:
 		return req.URL.Query()
 	case http.MethodPost:
-		require.NoError(t, req.ParseForm())
+		assert.NoError(t, req.ParseForm())
 		return req.PostForm
 	default:
-		t.Fatalf("unexpected method: %s", req.Method)
+		t.Errorf("unexpected method: %s", req.Method)
 		return nil
 	}
 }
 
+// TestRequestTimeout checks that a stalled HTTP response reaches the request deadline in fake time.
 func TestRequestTimeout(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
-		client := NewEtherScan("1", &http.Client{
-			Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-				<-req.Context().Done()
-				return nil, req.Context().Err()
-			}),
-		}, rate.NewLimiter(rate.Inf, 1))
+		client := newTestEtherScan(t, func(_ http.ResponseWriter, req *http.Request) {
+			<-req.Context().Done()
+		})
+		start := time.Now()
 		_, err := client.BlockNumber(t.Context())
 		require.ErrorIs(t, err, context.DeadlineExceeded)
+		require.Equal(t, 30*time.Second, time.Since(start))
 	})
 }
 
@@ -100,7 +83,9 @@ func TestReconciliationRPCResponses(t *testing.T) {
 		`{"jsonrpc":"2.0","id":1,"error":{"message":"unavailable"}}`,
 	} {
 		t.Run(body, func(t *testing.T) {
-			client := newTestEtherScan(func(*http.Request) *http.Response { return jsonRPCResponse(t, body) })
+			client := newTestEtherScan(t, func(w http.ResponseWriter, _ *http.Request) {
+				fmt.Fprint(w, body)
+			})
 			receipt, receiptErr := client.TransactionReceiptWithBlockNumber(context.Background(), common.Hash{})
 			tx, _, txErr := client.TransactionByHash(context.Background(), common.Hash{})
 			require.Nil(t, receipt)
@@ -115,10 +100,10 @@ func TestReconciliationRPCResponses(t *testing.T) {
 			}
 		})
 	}
-	client := newTestEtherScan(func(req *http.Request) *http.Response {
-		require.Equal(t, "eth_getTransactionCount", req.URL.Query().Get("action"))
-		require.Equal(t, "0x64", req.URL.Query().Get("tag"))
-		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x9"}`)
+	client := newTestEtherScan(t, func(w http.ResponseWriter, req *http.Request) {
+		assert.Equal(t, "eth_getTransactionCount", req.URL.Query().Get("action"))
+		assert.Equal(t, "0x64", req.URL.Query().Get("tag"))
+		fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x9"}`)
 	})
 	nonce, err := client.NonceAt(context.Background(), common.Address{}, big.NewInt(100))
 	require.NoError(t, err)
@@ -128,8 +113,8 @@ func TestReconciliationRPCResponses(t *testing.T) {
 		GasUsed: 21000, Logs: []*types.Log{},
 	})
 	require.NoError(t, err)
-	client = newTestEtherScan(func(*http.Request) *http.Response {
-		return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"result":%s}`, receiptJSON))
+	client = newTestEtherScan(t, func(w http.ResponseWriter, _ *http.Request) {
+		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"result":%s}`, receiptJSON)
 	})
 	receipt, err := client.TransactionReceiptWithBlockNumber(context.Background(), common.Hash{})
 	require.NoError(t, err)
@@ -139,14 +124,14 @@ func TestReconciliationRPCResponses(t *testing.T) {
 
 func TestRPCProxyUsesGETForSmallEstimateGasRequest(t *testing.T) {
 	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
-	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
-		require.Equal(t, http.MethodGet, req.Method)
+	etherScan := newTestEtherScan(t, func(w http.ResponseWriter, req *http.Request) {
+		assert.Equal(t, http.MethodGet, req.Method)
 		params := formValues(t, req)
-		require.Equal(t, "1", params.Get("chainId"))
-		require.Equal(t, "proxy", params.Get("module"))
-		require.Equal(t, "eth_estimateGas", params.Get("action"))
-		require.Equal(t, to.Hex(), params.Get("to"))
-		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x5208"}`)
+		assert.Equal(t, "1", params.Get("chainId"))
+		assert.Equal(t, "proxy", params.Get("module"))
+		assert.Equal(t, "eth_estimateGas", params.Get("action"))
+		assert.Equal(t, to.Hex(), params.Get("to"))
+		fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x5208"}`)
 	})
 
 	gas, err := etherScan.EstimateGas(context.Background(), ethereum.CallMsg{
@@ -158,17 +143,17 @@ func TestRPCProxyUsesGETForSmallEstimateGasRequest(t *testing.T) {
 
 func TestRPCProxyUsesPOSTForLargeEstimateGasRequest(t *testing.T) {
 	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
-	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
-		require.Equal(t, http.MethodPost, req.Method)
-		require.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
-		require.Empty(t, req.URL.RawQuery)
+	etherScan := newTestEtherScan(t, func(w http.ResponseWriter, req *http.Request) {
+		assert.Equal(t, http.MethodPost, req.Method)
+		assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+		assert.Empty(t, req.URL.RawQuery)
 		params := formValues(t, req)
-		require.Equal(t, "1", params.Get("chainId"))
-		require.Equal(t, "proxy", params.Get("module"))
-		require.Equal(t, "eth_estimateGas", params.Get("action"))
-		require.Equal(t, to.Hex(), params.Get("to"))
-		require.Greater(t, len(params.Get("data")), maxGetRequestTargetLength)
-		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x5208"}`)
+		assert.Equal(t, "1", params.Get("chainId"))
+		assert.Equal(t, "proxy", params.Get("module"))
+		assert.Equal(t, "eth_estimateGas", params.Get("action"))
+		assert.Equal(t, to.Hex(), params.Get("to"))
+		assert.Greater(t, len(params.Get("data")), maxGetRequestTargetLength)
+		fmt.Fprint(w, `{"jsonrpc":"2.0","id":1,"result":"0x5208"}`)
 	})
 
 	gas, err := etherScan.EstimateGas(context.Background(), ethereum.CallMsg{
@@ -188,16 +173,16 @@ func TestRPCProxyUsesPOSTForSendTransactionRequest(t *testing.T) {
 		To:       &to,
 		Value:    big.NewInt(0),
 	})
-	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
-		require.Equal(t, http.MethodPost, req.Method)
-		require.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
-		require.Empty(t, req.URL.RawQuery)
+	etherScan := newTestEtherScan(t, func(w http.ResponseWriter, req *http.Request) {
+		assert.Equal(t, http.MethodPost, req.Method)
+		assert.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+		assert.Empty(t, req.URL.RawQuery)
 		params := formValues(t, req)
-		require.Equal(t, "1", params.Get("chainId"))
-		require.Equal(t, "proxy", params.Get("module"))
-		require.Equal(t, "eth_sendRawTransaction", params.Get("action"))
-		require.LessOrEqual(t, len(params.Get("hex")), maxGetRequestTargetLength)
-		return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"result":%q}`, tx.Hash().Hex()))
+		assert.Equal(t, "1", params.Get("chainId"))
+		assert.Equal(t, "proxy", params.Get("module"))
+		assert.Equal(t, "eth_sendRawTransaction", params.Get("action"))
+		assert.LessOrEqual(t, len(params.Get("hex")), maxGetRequestTargetLength)
+		fmt.Fprintf(w, `{"jsonrpc":"2.0","id":1,"result":%q}`, tx.Hash().Hex())
 	})
 	require.NoError(t, etherScan.SendTransaction(context.Background(), tx))
 }
@@ -237,30 +222,21 @@ func TestTokenTransactionsByContractPaginationDedup(t *testing.T) {
 		"500":  page2,
 	}
 
-	// Stub HTTP client so the test runs without real network calls.
-	client := &http.Client{
-		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
-			endBlock := req.URL.Query().Get("endblock")
-			result, ok := responses[endBlock]
-			if !ok {
-				result = []map[string]string{}
-			}
-			body, err := json.Marshal(struct {
-				Result []map[string]string `json:"result"`
-			}{
-				Result: result,
-			})
-			require.NoError(t, err)
-			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(bytes.NewReader(body)),
-				Header:     make(http.Header),
-			}, nil
-		}),
-	}
+	// Serve the responses over the in-memory network.
+	etherScan := newTestEtherScan(t, func(w http.ResponseWriter, req *http.Request) {
+		endBlock := req.URL.Query().Get("endblock")
+		result, ok := responses[endBlock]
+		if !ok {
+			result = []map[string]string{}
+		}
+		assert.NoError(t, json.NewEncoder(w).Encode(struct {
+			Result []map[string]string `json:"result"`
+		}{
+			Result: result,
+		}))
+	})
 
 	// Act: call the pagination code starting at endblock 9999.
-	etherScan := NewEtherScan("1", client, rate.NewLimiter(rate.Inf, 1))
 	result, err := etherScan.TokenTransactionsByContract(
 		big.NewInt(10000),
 		address,
@@ -283,51 +259,51 @@ func TestTokenTransactionsByContractPaginationDedup(t *testing.T) {
 
 func TestBalancesAtBlock(t *testing.T) {
 	address := common.Address{19: 2}
-	client := newTestEtherScan(func(req *http.Request) *http.Response {
+	client := newTestEtherScan(t, func(w http.ResponseWriter, req *http.Request) {
 		params := req.URL.Query()
-		require.Equal(t, "balancemulti", params.Get("action"))
-		require.Equal(t, "0x64", params.Get("tag"))
-		require.Equal(t, address.Hex(), params.Get("address"))
-		return jsonRPCResponse(t, `{"status":"1","result":[{"account":"`+address.Hex()+`","balance":"20000"}]}`)
+		assert.Equal(t, "balancemulti", params.Get("action"))
+		assert.Equal(t, "0x64", params.Get("tag"))
+		assert.Equal(t, address.Hex(), params.Get("address"))
+		fmt.Fprint(w, `{"status":"1","result":[{"account":"`+address.Hex()+`","balance":"20000"}]}`)
 	})
 	balances, err := client.Balances(context.Background(), []common.Address{address}, big.NewInt(100))
 	require.NoError(t, err)
 	require.Equal(t, big.NewInt(20000), balances[address])
 
-	client = newTestEtherScan(func(req *http.Request) *http.Response {
+	client = newTestEtherScan(t, func(w http.ResponseWriter, req *http.Request) {
 		params := req.URL.Query()
-		require.Equal(t, "balance", params.Get("action"))
-		require.Equal(t, address.Hex(), params.Get("address"))
-		require.Equal(t, "0x64", params.Get("tag"))
-		return jsonRPCResponse(t, `{"status":"1","result":"20000"}`)
+		assert.Equal(t, "balance", params.Get("action"))
+		assert.Equal(t, address.Hex(), params.Get("address"))
+		assert.Equal(t, "0x64", params.Get("tag"))
+		fmt.Fprint(w, `{"status":"1","result":"20000"}`)
 	})
 	balance, err := client.Balance(context.Background(), address, big.NewInt(100))
 	require.NoError(t, err)
 	require.Equal(t, big.NewInt(20000), balance)
 
 	token := erc20.NewToken("0x0000000000000000000000000000000000000001", 6)
-	client = newTestEtherScan(func(req *http.Request) *http.Response {
+	client = newTestEtherScan(t, func(w http.ResponseWriter, req *http.Request) {
 		params := req.URL.Query()
-		require.Equal(t, "eth_call", params.Get("action"))
-		require.Equal(t, token.ContractAddress().Hex(), params.Get("to"))
-		require.Equal(t, "0x70a082310000000000000000000000000000000000000000000000000000000000000002", params.Get("data"))
-		require.Equal(t, "0x64", params.Get("tag"))
-		return jsonRPCResponse(t, `{"jsonrpc":"2.0","result":"0x0000000000000000000000000000000000000000000000000000000000004e20"}`)
+		assert.Equal(t, "eth_call", params.Get("action"))
+		assert.Equal(t, token.ContractAddress().Hex(), params.Get("to"))
+		assert.Equal(t, "0x70a082310000000000000000000000000000000000000000000000000000000000000002", params.Get("data"))
+		assert.Equal(t, "0x64", params.Get("tag"))
+		fmt.Fprint(w, `{"jsonrpc":"2.0","result":"0x0000000000000000000000000000000000000000000000000000000000004e20"}`)
 	})
 	balance, err = client.ERC20Balance(address, token, big.NewInt(100))
 	require.NoError(t, err)
 	require.Equal(t, big.NewInt(20000), balance)
 
-	client = newTestEtherScan(func(*http.Request) *http.Response {
-		return jsonRPCResponse(t, `{"jsonrpc":"2.0","result":"0x"}`)
+	client = newTestEtherScan(t, func(w http.ResponseWriter, _ *http.Request) {
+		fmt.Fprint(w, `{"jsonrpc":"2.0","result":"0x"}`)
 	})
 	_, err = client.ERC20Balance(address, token, big.NewInt(100))
 	require.Error(t, err)
 }
 
 func TestSendTransactionPreservesRPCError(t *testing.T) {
-	client := newTestEtherScan(func(*http.Request) *http.Response {
-		return jsonRPCResponse(t, `{"jsonrpc":"2.0","error":{"code":-32000,"message":"insufficient funds"}}`)
+	client := newTestEtherScan(t, func(w http.ResponseWriter, _ *http.Request) {
+		fmt.Fprint(w, `{"jsonrpc":"2.0","error":{"code":-32000,"message":"insufficient funds"}}`)
 	})
 	tx := types.NewTransaction(0, common.Address{1}, big.NewInt(1), 21000, big.NewInt(1), nil)
 	require.ErrorIs(t, client.SendTransaction(context.Background(), tx), rpcclient.RPCError{Code: -32000, Message: "insufficient funds"})
@@ -347,8 +323,8 @@ func TestSendTransactionErrors(t *testing.T) {
 		{fmt.Sprintf(`{"jsonrpc":"2.0","result":%q}`, (common.Hash{1}).Hex()), false},
 	} {
 		t.Run(test.body, func(t *testing.T) {
-			client := newTestEtherScan(func(*http.Request) *http.Response {
-				return jsonRPCResponse(t, test.body)
+			client := newTestEtherScan(t, func(w http.ResponseWriter, _ *http.Request) {
+				fmt.Fprint(w, test.body)
 			})
 			err := client.SendTransaction(t.Context(), tx)
 			require.Error(t, err)
@@ -358,9 +334,8 @@ func TestSendTransactionErrors(t *testing.T) {
 }
 
 func TestSendTransactionNotAttempted(t *testing.T) {
-	client := newTestEtherScan(func(*http.Request) *http.Response {
-		t.Fatal("a canceled request must not be sent")
-		return nil
+	client := newTestEtherScan(t, func(http.ResponseWriter, *http.Request) {
+		t.Error("a canceled request must not be sent")
 	})
 	ctx, cancel := context.WithCancel(t.Context())
 	cancel()
