@@ -11,6 +11,7 @@ import (
 	"math/big"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
@@ -385,6 +386,24 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 		return nil, accounts.ErrSyncInProgress
 	}
 	return accounts.NewBalance(account.balance, coin.NewAmountFromInt64(0)), nil
+}
+
+// BalanceAtTime returns the native ETH balance at the last block at or before at.
+// Chain state includes balance changes such as validator withdrawals that are
+// absent from normal and internal transaction history.
+func (account *Account) BalanceAtTime(at time.Time) (coin.Amount, error) {
+	if IsERC20(account) {
+		return coin.Amount{}, errp.New("historical native balance requested for a token account")
+	}
+	address, err := account.Address()
+	if err != nil {
+		return coin.Amount{}, err
+	}
+	balance, err := account.coin.client.HistoricalBalanceAt(context.Background(), address.Address, at)
+	if err != nil {
+		return coin.Amount{}, err
+	}
+	return coin.NewAmount(balance), nil
 }
 
 type pendingTxProposal struct {

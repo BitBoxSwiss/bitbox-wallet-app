@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"math/big"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
@@ -25,6 +26,8 @@ type Interface interface {
 	TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, isPending bool, err error)
 	// Balance returns the balance at blockNumber.
 	Balance(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error)
+	// HistoricalBalanceAt returns the native balance at the last block at or before at.
+	HistoricalBalanceAt(ctx context.Context, account common.Address, at time.Time) (*big.Int, error)
 	// ERC20Balance returns the token balance at blockNumber, or the latest if nil.
 	ERC20Balance(account common.Address, erc20Token *erc20.Token, blockNumber *big.Int) (*big.Int, error)
 	// SendTransaction injects the transaction into the pending pool for execution.

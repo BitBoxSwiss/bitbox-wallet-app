@@ -19,6 +19,7 @@
 - Add dedicated view listing third-party attributions under about/licenses
 - Find setting items by descriptions and show description also on mobile
 - Lightning: add custom transaction notes, including notes import and export
+- Add PDF export of assets balance on chosen date
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1
