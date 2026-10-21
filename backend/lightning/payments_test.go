@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
-	"uuid"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
@@ -27,6 +26,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/btcsuite/btcd/chaincfg/v2"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -1544,7 +1544,7 @@ func TestPrepareLNURLPaymentIdempotencyKey(t *testing.T) {
 	require.NoError(t, err)
 	firstKey, err := uuid.Parse(firstFee.IdempotencyKey)
 	require.NoError(t, err)
-	require.NotEqual(t, uuid.Nil(), firstKey)
+	require.NotEqual(t, uuid.Nil, firstKey)
 
 	sdk.balanceSats = 0
 	repreparedFee, err := lightning.PreparePayment(preparePaymentRequest{
@@ -2103,7 +2103,7 @@ func TestPrepareBitcoinPayment(t *testing.T) {
 	require.NotEmpty(t, fee.IdempotencyKey)
 	idempotencyKey, err := uuid.Parse(fee.IdempotencyKey)
 	require.NoError(t, err)
-	require.NotEqual(t, uuid.Nil(), idempotencyKey)
+	require.NotEqual(t, uuid.Nil, idempotencyKey)
 	fee.IdempotencyKey = ""
 	require.Equal(t, &paymentFee{
 		AmountSat:     5_000,

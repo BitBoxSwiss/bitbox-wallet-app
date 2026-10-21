@@ -5,11 +5,11 @@ package bitbox02
 import (
 	"context"
 	"strings"
-	"uuid"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
+	"github.com/google/uuid"
 )
 
 // Keep in sync with MAX_PASSPHRASE_LEN and SPECIAL in firmware hww/api/unlock.rs.
@@ -57,7 +57,7 @@ func (device *Device) hostPassphraseAvailable(request func()) {
 	device.passphraseMu.Lock()
 	device.requestHostEntry = request
 	if request != nil {
-		device.passphrase.ID = uuid.NewV4().String()
+		device.passphrase.ID = uuid.NewString()
 		device.passphrase.Phase = passphraseDevice
 	} else if device.passphrase.Phase == passphraseDevice {
 		device.passphrase.Phase = passphraseWaiting
@@ -110,7 +110,7 @@ func (device *Device) enterMnemonicPassphrase(ctx context.Context) (*string, err
 	input := make(chan *string, 1)
 	device.passphraseMu.Lock()
 	device.hostPassphrase = input
-	device.passphrase.ID = uuid.NewV4().String()
+	device.passphrase.ID = uuid.NewString()
 	device.passphrase.Phase = passphraseHost
 	device.passphrase.Revision++
 	state := device.passphrase

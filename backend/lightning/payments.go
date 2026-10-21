@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"uuid"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
@@ -20,6 +19,7 @@ import (
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/btcsuite/btcd/mempool"
 	"github.com/btcsuite/btcd/wire/v2"
+	"github.com/google/uuid"
 )
 
 const (
@@ -696,6 +696,14 @@ func (lightning *Lightning) parseLNURLPayRequest(inputStr string) (*breez_sdk_sp
 	}
 }
 
+func generateIdempotencyKey() (string, error) {
+	key, err := uuid.NewRandom()
+	if err != nil {
+		return "", errp.Wrap(err, "generate idempotency key")
+	}
+	return key.String(), nil
+}
+
 // PreparePayment computes the fee quote for the provided payment input.
 func (lightning *Lightning) PreparePayment(request preparePaymentRequest) (*paymentFee, error) {
 	if request.SendAll && request.AmountSat == nil {
@@ -802,7 +810,10 @@ func (lightning *Lightning) prepareLNURLPay(
 		if err := checkPaymentBalance(fee, availableBalance); err != nil {
 			return fee, err
 		}
-		idempotencyKey = uuid.NewV4().String()
+		idempotencyKey, err = generateIdempotencyKey()
+		if err != nil {
+			return nil, err
+		}
 	}
 	fee.IdempotencyKey = idempotencyKey
 	lightning.log.Debug("Prepared LNURL-Pay payment")
@@ -1064,7 +1075,10 @@ func (lightning *Lightning) prepareBitcoinPayment(
 		return prepareResponse, fee, err
 	}
 	if idempotencyKey == "" {
-		idempotencyKey = uuid.NewV4().String()
+		idempotencyKey, err = generateIdempotencyKey()
+		if err != nil {
+			return breez_sdk_spark.PrepareSendPaymentResponse{}, nil, err
+		}
 	}
 	fee.IdempotencyKey = idempotencyKey
 	return prepareResponse, fee, nil
