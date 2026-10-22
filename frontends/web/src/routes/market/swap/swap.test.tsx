@@ -228,6 +228,7 @@ describe('routes/market/swap', () => {
     });
   });
 
+  // Quote requests identify the sell account, and the returned providers appear together.
   it('renders grouped provider label after quote fetch', async () => {
     const user = userEvent.setup();
 
@@ -276,7 +277,6 @@ describe('routes/market/swap', () => {
         buyCoinCode: 'eth',
         sellAccountCode: 'btc-account',
         sellAmount: '1',
-        sellCoinCode: 'btc',
       });
     });
   });

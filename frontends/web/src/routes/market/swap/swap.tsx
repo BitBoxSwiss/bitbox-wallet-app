@@ -244,7 +244,7 @@ export const Swap = () => {
   // fetch swap quotes whenever the selected pair or sell amount changes.
   useEffect(() => {
     let isCancelled = false;
-    const sellCoinCode = sellAccount?.coinCode;
+    const sellCode = sellAccount?.code;
     const buyCoinCode = buyAccount?.coinCode;
     const amount = Number(sellAmount);
 
@@ -254,12 +254,12 @@ export const Swap = () => {
     setExpectedOutputUnit(undefined);
 
     if (
-      !sellCoinCode
+      !sellCode
       || !buyCoinCode
       || !sellAmount
       || Number.isNaN(amount)
       || amount <= 0
-      || sellAccountCode === buyAccountCode
+      || sellCode === buyAccountCode
     ) {
       clearQuoteState();
       setIsFetchingRoutes(false);
@@ -274,9 +274,8 @@ export const Swap = () => {
       try {
         const response = await getSwapQuote({
           buyCoinCode,
-          sellAccountCode,
+          sellAccountCode: sellCode,
           sellAmount,
-          sellCoinCode,
         });
         if (isCancelled) {
           return;
@@ -354,8 +353,7 @@ export const Swap = () => {
     buyAccountCode,
     clearQuoteState,
     resetQuoteStateWithError,
-    sellAccount?.coinCode,
-    sellAccountCode,
+    sellAccount?.code,
     sellAmount,
     t,
   ]);
