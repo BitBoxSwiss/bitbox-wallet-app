@@ -797,12 +797,12 @@ func (etherScan *EtherScan) SuggestGasTipCap(ctx context.Context) (*big.Int, err
 }
 
 // FeeTargets returns three priorities with fee targets estimated by Etherscan
-// https://docs.etherscan.io/api-endpoints/gas-tracker#get-gas-oracle
+// https://docs.etherscan.io/api-reference/endpoint/gasoracle
 // FeeTargets implements rpc.Interface.
 // Note: This is not a true RPC but a custom Etherscan API call which implements their own fee estimation.
 func (etherScan *EtherScan) FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarget, error) {
 	var result struct {
-		// Values are in Gwei*10
+		// Values are decimal Gwei.
 		Result struct {
 			High    string `json:"FastGasPrice"`
 			Normal  string `json:"ProposeGasPrice"`
@@ -816,36 +816,44 @@ func (etherScan *EtherScan) FeeTargets(ctx context.Context) ([]*ethtypes.FeeTarg
 	if err := etherScan.call(ctx, params, &result); err != nil {
 		return nil, err
 	}
-	// Convert string fields to int64
-	high, err := strconv.ParseInt(result.Result.High, 10, 64)
+	parseGwei := func(value string) (*big.Int, error) {
+		amount, err := coin.NewAmountFromString(value, big.NewInt(1e9))
+		if err != nil {
+			return nil, err
+		}
+		wei := amount.BigInt()
+		if wei.Sign() < 0 {
+			return nil, errp.New("gas price must be non-negative")
+		}
+		return wei, nil
+	}
+	highFeeCap, err := parseGwei(result.Result.High)
 	if err != nil {
 		return nil, err
 	}
 
-	normal, err := strconv.ParseInt(result.Result.Normal, 10, 64)
+	normalFeeCap, err := parseGwei(result.Result.Normal)
 	if err != nil {
 		return nil, err
 	}
 
-	low, err := strconv.ParseInt(result.Result.Low, 10, 64)
+	lowFeeCap, err := parseGwei(result.Result.Low)
 	if err != nil {
 		return nil, err
 	}
 
-	baseFee, err := strconv.ParseFloat(result.Result.BaseFee, 64)
+	baseFeeWei, err := parseGwei(result.Result.BaseFee)
 	if err != nil {
 		return nil, err
 	}
-	// Conversion from Gwei to Wei.
-	factor := big.NewInt(1e9)
-
-	baseFeeWei := new(big.Int).Mul(big.NewInt(int64(baseFee)), factor)
-	highFeeCap := new(big.Int).Mul(big.NewInt(high), factor)
-	normalFeeCap := new(big.Int).Mul(big.NewInt(normal), factor)
-	lowFeeCap := new(big.Int).Mul(big.NewInt(low), factor)
-
-	if baseFeeWei.Cmp(highFeeCap) >= 0 || baseFeeWei.Cmp(normalFeeCap) >= 0 || baseFeeWei.Cmp(lowFeeCap) >= 0 {
-		return nil, errp.New("baseFeeWei must be smaller than GasFeeCap")
+	for _, feeCap := range []*big.Int{highFeeCap, normalFeeCap, lowFeeCap} {
+		if feeCap.Sign() == 0 || feeCap.Cmp(baseFeeWei) < 0 {
+			return nil, errp.New("gas fee cap must be positive and cover the base fee")
+		}
+		if feeCap.Cmp(baseFeeWei) == 0 {
+			// Keep a positive tip for account validation and nodes that reject zero-tip transactions.
+			feeCap.Add(feeCap, big.NewInt(1))
+		}
 	}
 
 	return []*ethtypes.FeeTarget{
