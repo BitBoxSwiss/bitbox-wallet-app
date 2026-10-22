@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, useCallback, useState, useEffect } from 'react';
+import { ChangeEvent, useCallback, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertUser } from '@/components/alert/Alert';
 import { TGroupedOption, TOption } from '@/components/dropdown/dropdown';
@@ -21,7 +21,14 @@ import { getAccountsByKeystore, getDisplayAccountNumber, isAmbiguousName } from 
 import receiverStyles from './receiver-address-input.module.css';
 import styles from './receiver-address-wrapper.module.css';
 
-type TAccountOption = TOption<TAccount | null> & { disabled?: boolean };
+type TRecipient = TAccount | 'lightning' | null;
+type TAccountOption = TOption<TRecipient> & { disabled?: boolean };
+
+export type TLightningRecipientOption = {
+  ready: boolean;
+  selected: boolean;
+  onSelect: () => void;
+};
 
 type Props = {
   option: TAccountOption;
@@ -36,6 +43,7 @@ type TReceiverAddressWrapperProps = {
   groupAccountsByKeystore?: boolean;
   inputLabel?: string;
   inputPlaceholder?: string;
+  lightningOption?: TLightningRecipientOption;
   onInputChange: (value: string) => void;
   onAccountChange?: (account: TAccount | null) => void;
   recipientAddress: string;
@@ -50,7 +58,11 @@ const AccountOption = ({ option, isSelectedValue }: Props) => {
 
   return (
     <div className={`${styles.accountOption || ''}`}>
-      <Logo coinCode={option.value.coinCode} alt={option.value.coinName} className={styles.coinLogo} />
+      <Logo
+        coinCode={option.value === 'lightning' ? 'lightning' : option.value.coinCode}
+        alt={option.value === 'lightning' ? option.label : option.value.coinName}
+        className={styles.coinLogo}
+      />
       <span className={isSelectedValue ? styles.accountName : ''}>
         {option.label}
       </span>
@@ -68,6 +80,7 @@ export const ReceiverAddressWrapper = ({
   groupAccountsByKeystore = false,
   inputLabel,
   inputPlaceholder,
+  lightningOption,
   onInputChange,
   onAccountChange,
   recipientAddress,
@@ -77,6 +90,7 @@ export const ReceiverAddressWrapper = ({
   const { t } = useTranslation();
   const [showFirmwareUpgradeDialog, setShowFirmwareUpgradeDialog] = useState(false);
   const mounted = useMountedRef();
+  const recipientRequest = useRef(0);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [selectedAccount, setSelectedAccount] = useState<TOption<TAccount | null> | null>(null);
   const [accountSyncStatus, setAccountSyncStatus] = useState<{ [code: string]: accountApi.TStatus }>({});
@@ -92,13 +106,22 @@ export const ReceiverAddressWrapper = ({
   };
   const flatAccountOptions = accounts?.map(toAccountOption) ?? [];
   const accountsByKeystore = getAccountsByKeystore(accounts ?? []);
-  const groupedAccountOptions: TGroupedOption<TAccount | null, { connected: boolean }>[] = accountsByKeystore.map(({ keystore, accounts }) => ({
+  const groupedAccountOptions: TGroupedOption<TRecipient, { connected: boolean }>[] = accountsByKeystore.map(({ keystore, accounts }) => ({
     connected: keystore.connected,
     label: isAmbiguousName(keystore.name, accountsByKeystore)
       ? `${keystore.name} (${keystore.rootFingerprint})`
       : keystore.name,
     options: accounts.map(toAccountOption),
   }));
+  const lightningAccountOption: TAccountOption = {
+    label: t('lightning.accountLabel'),
+    value: 'lightning',
+    disabled: !lightningOption?.ready,
+  };
+  if (lightningOption) {
+    flatAccountOptions.unshift(lightningAccountOption);
+    groupedAccountOptions.unshift({ label: lightningAccountOption.label, connected: false, options: [lightningAccountOption] });
+  }
   const accountOptions = groupAccountsByKeystore ? groupedAccountOptions : flatAccountOptions;
 
   const checkFirmwareSupport = useCallback(async (selectedAccount: accountApi.TAccount) => {
@@ -126,12 +149,20 @@ export const ReceiverAddressWrapper = ({
     if (selectedOption.value === null || selectedOption.disabled) {
       return;
     }
+    const request = ++recipientRequest.current;
+    if (selectedOption.value === 'lightning') {
+      setSelectedAccount(null);
+      lightningOption?.onSelect();
+      return;
+    }
     const selectedAccountValue = selectedOption.value;
 
     const supported = await checkFirmwareSupport(selectedAccountValue);
-    if (!supported) {
+    if (!supported || !mounted.current || request !== recipientRequest.current) {
       return;
     }
+    onInputChange('');
+    setSelectedAccount({ label: selectedOption.label, value: selectedAccountValue });
     try {
       const result = await getReceiveAddressList(selectedAccountValue.code)();
       if (!result.success) {
@@ -139,8 +170,7 @@ export const ReceiverAddressWrapper = ({
         return;
       }
       const receiveAddresses = result.addresses;
-      if (receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 0) {
-        setSelectedAccount(selectedOption);
+      if (mounted.current && request === recipientRequest.current && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 0) {
         const address = receiveAddresses[0].addresses[0].address;
         onInputChange(address);
         onAccountChange?.(selectedAccountValue);
@@ -148,9 +178,10 @@ export const ReceiverAddressWrapper = ({
     } catch (e) {
       console.error(e);
     }
-  }, [onInputChange, onAccountChange, checkFirmwareSupport]);
+  }, [onInputChange, onAccountChange, checkFirmwareSupport, mounted, lightningOption]);
 
   const handleReset = useCallback(() => {
+    recipientRequest.current++;
     setSelectedAccount(null);
     onInputChange('');
     onAccountChange?.(null);
@@ -195,10 +226,10 @@ export const ReceiverAddressWrapper = ({
         placeholder={inputPlaceholder ?? t('send.address.placeholder')}
         onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
         value={recipientAddress}
-        readOnly={selectedAccount !== null}
+        readOnly={lightningOption?.selected || selectedAccount !== null}
         autoFocus={autoFocus ?? !isMobile}
         dropdownOptions={accountOptions}
-        dropdownValue={selectedAccount}
+        dropdownValue={lightningOption?.selected ? lightningAccountOption : selectedAccount}
         onDropdownChange={(selected) => {
           if (selected && selected.value !== null && !(selected as TAccountOption).disabled) {
             handleSendToAccount(selected as TAccountOption);
@@ -209,7 +240,7 @@ export const ReceiverAddressWrapper = ({
         renderGroupHeader={groupAccountsByKeystore ? renderKeystoreGroupHeader : undefined}
         renderOptions={(e, isSelectedValue) => <AccountOption option={e} isSelectedValue={isSelectedValue} />}
         isOptionDisabled={(option) => (option as TAccountOption).disabled || false}
-        labelSection={selectedAccount ? (
+        labelSection={selectedAccount || lightningOption?.selected ? (
           <span role="button" id="sendToSelf" className={receiverStyles.action} onClick={handleReset}>
             {t('generic.reset')}
           </span>
