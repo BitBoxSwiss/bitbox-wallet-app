@@ -26,6 +26,7 @@ import mobileserver.GoEnvironmentInterface;
 import mobileserver.Mobileserver;
 
 public class GoService extends Service {
+    private PriceWidgetSync priceWidgetSync;
     private static final String channelId = "21";
 
     private static final int notificationId = 8;
@@ -53,6 +54,7 @@ public class GoService extends Service {
 
     @Override
     public void onCreate() {
+        priceWidgetSync = new PriceWidgetSync(this);
         Util.log("GoService onCreate()");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
@@ -105,6 +107,7 @@ public class GoService extends Service {
 
     @Override
     public void onDestroy() {
+        priceWidgetSync.stop();
         Util.log("GoService onDestroy()");
         super.onDestroy();
         unregisterReceiver(usbStateReceiver);
