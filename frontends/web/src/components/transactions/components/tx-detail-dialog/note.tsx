@@ -2,7 +2,7 @@
 
 import { ChangeEvent, FormEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { useMountedRef } from '@/hooks/mount';
 import { Input } from '@/components/forms';
 import detailsDialogStyles from './tx-detail-dialog.module.css';
@@ -15,7 +15,7 @@ type TProps = {
 
 export const Note = ({ note, onSave }: TProps) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const [newNote, setNewNote] = useState<string>(note);
   const savedNote = useRef<string | undefined>(note);
   const pendingNote = useRef<string>();

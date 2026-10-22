@@ -15,7 +15,7 @@ import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { Step, Steps } from '@/components/steps/steps';
 import { CoinDropDown } from '@/components/dropdown/coin-dropdown';
 import { SubTitle } from '@/components/title';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { UseBackButton } from '@/hooks/backbutton';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { AddAccountGuide } from './add-account-guide';
@@ -233,7 +233,7 @@ export const AddAccount = () => {
     'success'
   ].indexOf(step);
 
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const { titleText, nextButtonText } = getTextFor(step);
   return (
     <GuideWrapper>
