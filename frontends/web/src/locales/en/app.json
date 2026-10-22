@@ -193,9 +193,13 @@
       "understand": "I understand that an incorrect recovery password will create a different wallet"
     },
     "showMnemonic": {
-      "description": "The device will display the recovery words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
+      "availableIn_one": "Available in {{count}} second",
+      "availableIn_other": "Available in {{count}} seconds",
+      "instructions": "The BitBox will show your recovery words. <strong>Write them down on paper.</strong>",
+      "safetyWarnings": "<strong>Do not ever enter them in an app or website</strong>\n<strong>Do not photograph or save them digitally</strong>\n<strong>Do not say them out loud</strong>\n<strong>They are not password protected. Store them in a safe place.</strong>\n<strong>BitBox support or any other company will never ask you to share your recovery words.</strong>",
+      "scamWarning": "If someone is asking you to do this, hang up. It is a scam.",
       "title": "Show recovery words",
-      "warning": "<strong>Never share your recovery words with anyone.</strong> Your recovery words give full access to your wallet. If someone is asking you for your recovery words, it's a scammer, do not share them!"
+      "warning": "<strong>Never share your recovery words. </strong>Anyone with them can access your wallet."
     },
     "title": "Manage backups"
   },
