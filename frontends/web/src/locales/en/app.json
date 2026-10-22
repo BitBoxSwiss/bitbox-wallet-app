@@ -2297,6 +2297,8 @@
     },
     "fee": {
       "customPlaceholder": "Enter amount",
+      "highFee": "High fee",
+      "highFeeWarning": "Fee is {{percentage}}% of the send amount. Proceed?",
       "label": "Network fee",
       "placeholder": "Not available"
     },

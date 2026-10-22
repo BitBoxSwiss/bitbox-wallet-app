@@ -86,6 +86,7 @@ export const Send = ({
   const [errorHandling, setErrorHandling] = useState<TProposalError>({});
 
   const [proposedFee, setProposedFee] = useState<accountApi.TAmountWithConversions>();
+  const [highFeePercentage, setHighFeePercentage] = useState<string>();
   const [proposedTotal, setProposedTotal] = useState<accountApi.TAmountWithConversions>();
   const [proposedAmount, setProposedAmount] = useState<accountApi.TAmountWithConversions>();
   const [recipientDisplayAddress, setRecipientDisplayAddress] = useState('');
@@ -105,6 +106,7 @@ export const Send = ({
     setSelectedReceiverAccount(null);
     setProposedAmount(undefined);
     setProposedFee(undefined);
+    setHighFeePercentage(undefined);
     setProposedTotal(undefined);
     setRecipientDisplayAddress('');
     setFiatAmount('');
@@ -205,6 +207,7 @@ export const Send = ({
     if (result.success) {
       setErrorHandling({});
       setProposedFee(result.fee);
+      setHighFeePercentage(result.highFeePercentage);
       setProposedAmount(result.amount);
       setProposedTotal(result.total);
       setRecipientDisplayAddress(result.recipientDisplayAddress);
@@ -232,14 +235,18 @@ export const Send = ({
     updateFiat: boolean = true,
   ) => {
     setErrorHandling({});
-    const txInput = getValidTxInputData();
-    if (!txInput) {
-      setProposedTotal(undefined);
-      return;
-    }
+    setHighFeePercentage(undefined);
+    setValid(false);
+    lastProposal.current = null;
     if (proposeTimeout.current) {
       clearTimeout(proposeTimeout.current);
       proposeTimeout.current = null;
+    }
+    const txInput = getValidTxInputData();
+    if (!txInput) {
+      setProposedTotal(undefined);
+      setIsUpdatingProposal(false);
+      return;
     }
     setIsUpdatingProposal(true);
     // defer the transaction proposal
@@ -258,6 +265,7 @@ export const Send = ({
         if (proposePromise === lastProposal.current) {
           setValid(false);
           setProposedTotal(undefined);
+          setIsUpdatingProposal(false);
           console.error('Failed to propose transaction:', error);
         }
       } finally {
@@ -271,6 +279,12 @@ export const Send = ({
 
   useEffect(() => {
     validateAndDisplayFee(updateFiat);
+    return () => {
+      if (proposeTimeout.current) {
+        clearTimeout(proposeTimeout.current);
+      }
+      lastProposal.current = null;
+    };
   }, [amount, customFee, feeTarget, fiatAmount, updateFiat, validateAndDisplayFee]);
 
   useEffect(() => {
@@ -505,6 +519,7 @@ export const Send = ({
                     coinCode={account.coinCode}
                     disabled={!amount && !sendAll}
                     proposedFee={proposedFee}
+                    highFeePercentage={highFeePercentage}
                     customFee={customFee}
                     showCalculatingFeeLabel={isUpdatingProposal}
                     onFeeTargetChange={handleFeeTargetChange}

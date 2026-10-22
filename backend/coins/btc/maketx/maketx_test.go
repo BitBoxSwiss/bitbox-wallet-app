@@ -133,6 +133,20 @@ func (s *newTxSuite) TestNewTxNoCoins() {
 	s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err))
 }
 
+func (s *newTxSuite) TestSendAllFeeConsumesBalance() {
+	// A single legacy input and output need a 192 sat fee at 1 sat/vB.
+	for _, balance := range []int64{191, 192} {
+		proposal, err := s.newTxSpendAll(1000, s.buildUTXO(balance))
+		s.Require().Equal(errors.ErrInsufficientFunds, errp.Cause(err), "balance: %d", balance)
+		s.Require().Nil(proposal)
+	}
+
+	proposal, err := s.newTxSpendAll(1000, s.buildUTXO(193))
+	s.Require().NoError(err)
+	s.Require().Equal(btcutil.Amount(1), proposal.Amount)
+	s.Require().Equal(btcutil.Amount(192), proposal.Fee)
+}
+
 func (s *newTxSuite) check(
 	spendAll bool,
 	expectedAmount btcutil.Amount,

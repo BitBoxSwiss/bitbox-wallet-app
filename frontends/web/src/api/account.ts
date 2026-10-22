@@ -422,6 +422,7 @@ export type TTxProposalErrorCode =
 export type TTxProposalResult = {
   amount: TAmountWithConversions;
   fee: TAmountWithConversions;
+  highFeePercentage?: string;
   recipientDisplayAddress: string;
   success: true;
   total: TAmountWithConversions;
