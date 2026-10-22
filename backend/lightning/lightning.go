@@ -628,6 +628,12 @@ func (lightning *Lightning) Account() *config.LightningAccountConfig {
 	return lightningConfig.Accounts[0]
 }
 
+// IsAccount reports whether code identifies the active Lightning account.
+func (lightning *Lightning) IsAccount(code types.Code) bool {
+	account := lightning.Account()
+	return account != nil && account.Code == code
+}
+
 // SetAccount updates the active lightning account and notifies about the config change.
 func (lightning *Lightning) SetAccount(account *config.LightningAccountConfig) error {
 	if err := lightning.backendConfig.ModifyLightningConfig(func(cfg *config.LightningConfig) error {

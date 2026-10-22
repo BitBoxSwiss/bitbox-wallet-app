@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useLocation } from '@/utils/router-compatability';
@@ -94,7 +94,7 @@ const LocationPath = () => {
   return <span data-testid="location-path">{location.pathname}</span>;
 };
 
-const renderSend = () => render(
+const renderSend = (props: Omit<ComponentProps<typeof Send>, 'params'> = {}) => render(
   <MemoryRouter initialEntries={['/lightning/send']}>
     <BackButtonProvider>
       <AppStateContext.Provider
@@ -110,7 +110,7 @@ const renderSend = () => render(
           hasLightningAccount: false,
         }}
       >
-        <Send />
+        <Send params={{}} {...props} />
         <LocationPath />
       </AppStateContext.Provider>
     </BackButtonProvider>
@@ -148,6 +148,45 @@ describe('Lightning Send', () => {
       feeSat: 1,
       totalDebitSat: 101,
     });
+  });
+
+  // Embedded checkout reviews the supplied invoice and returns to its caller on back.
+  it('reviews a Bitrefill invoice and closes checkout on back', async () => {
+    const onClose = vi.fn();
+    renderSend({ initialPaymentInput: 'lnbc1bitrefill', onClose });
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'generic.send' })).toBeEnabled());
+    expect(lightningApi.getParsePaymentInput).toHaveBeenCalledExactlyOnceWith({ s: 'lnbc1bitrefill' });
+    expect(screen.queryByRole('button', { name: 'review payment' })).not.toBeInTheDocument();
+
+    pressSystemBack();
+
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(screen.getByTestId('location-path')).toHaveTextContent('/lightning/send');
+  });
+
+  // An invalid checkout invoice reports the error to Bitrefill's caller without changing routes.
+  it('returns an invalid Bitrefill invoice error to checkout', async () => {
+    vi.mocked(lightningApi.getParsePaymentInput).mockRejectedValueOnce(new Error('invalid invoice'));
+    const onClose = vi.fn();
+    renderSend({ initialPaymentInput: 'invalid invoice', onClose });
+
+    await waitFor(() => expect(onClose).toHaveBeenCalledWith(expect.any(String)));
+    expect(screen.getByTestId('location-path')).toHaveTextContent('/lightning/send');
+  });
+
+  // Successful embedded payments return to the existing checkout after showing success.
+  it('returns to Bitrefill after sending the supplied invoice', async () => {
+    vi.mocked(lightningApi.postSendPayment).mockResolvedValueOnce();
+    const onClose = vi.fn();
+    renderSend({ initialPaymentInput: 'lnbc1bitrefill', onClose });
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'generic.send' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'generic.send' }));
+
+    expect(await screen.findByText('payment sent')).toBeInTheDocument();
+    await waitFor(() => expect(onClose).toHaveBeenCalledExactlyOnceWith(), { timeout: 2000 });
+    expect(screen.getByTestId('location-path')).toHaveTextContent('/lightning/send');
   });
 
   it('allows back from review but blocks it while sending', async () => {

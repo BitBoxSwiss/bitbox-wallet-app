@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'wouter';
+import { type RouteComponentProps, useLocation } from 'wouter';
 import { type TPaymentInput, getParsePaymentInput } from '@/api/lightning';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -11,39 +11,73 @@ import { SelectPaymentInputStep } from './components/select-payment-input-step';
 import { SuccessStep } from './components/success-step';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
 import { LightningSendGuide } from '../guide';
+import { Spinner } from '@/components/spinner/Spinner';
+import { useMountedRef } from '@/hooks/mount';
 import { useAppState } from '@/contexts/app-state-context';
 
-type TSendStep = 'select-payment-input' | 'review' | 'success';
+type TSendStep = 'loading-payment-input' | 'select-payment-input' | 'review' | 'success';
 
-export const Send = () => {
+type TProps = RouteComponentProps & {
+  initialPaymentInput?: string;
+  onClose?: (error?: string) => void;
+};
+
+export const Send = ({ initialPaymentInput, onClose }: TProps) => {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
   const { activeAccounts } = useAppState();
-  const [step, setStep] = useState<TSendStep>('select-payment-input');
+  const consumedPaymentInput = useRef<string | null>(null);
+  const mounted = useMountedRef();
+  const [step, setStep] = useState<TSendStep>(initialPaymentInput ? 'loading-payment-input' : 'select-payment-input');
   const [paymentInput, setPaymentInput] = useState<TPaymentInput>();
   const [inputError, setInputError] = useState<string>();
   const [isSending, setIsSending] = useState(false);
 
+  const close = useCallback(() => {
+    if (onClose) {
+      onClose();
+    } else {
+      navigate('/lightning');
+    }
+  }, [navigate, onClose]);
+
   const resetToPaymentInputEntry = useCallback((nextInputError?: string) => {
+    if (onClose) {
+      onClose(nextInputError);
+      return;
+    }
     setIsSending(false);
     setStep('select-payment-input');
     setPaymentInput(undefined);
     setInputError(nextInputError);
-  }, []);
+  }, [onClose]);
 
   const submitPaymentInput = useCallback(async (rawInput: string) => {
     setInputError(undefined);
 
     try {
       const result = await getParsePaymentInput({ s: rawInput });
+      if (!mounted.current) {
+        return false;
+      }
       setPaymentInput(result);
       setStep('review');
       return true;
     } catch (error) {
-      setInputError(toLightningErrorMessage(t, error));
+      if (mounted.current) {
+        resetToPaymentInputEntry(toLightningErrorMessage(t, error));
+      }
       return false;
     }
-  }, [t]);
+  }, [mounted, resetToPaymentInputEntry, t]);
+
+  useEffect(() => {
+    if (!initialPaymentInput || consumedPaymentInput.current === initialPaymentInput) {
+      return;
+    }
+    consumedPaymentInput.current = initialPaymentInput;
+    submitPaymentInput(initialPaymentInput);
+  }, [initialPaymentInput, submitPaymentInput]);
 
   const showSuccess = useCallback(() => {
     setIsSending(false);
@@ -55,7 +89,7 @@ export const Send = () => {
       resetToPaymentInputEntry();
       return;
     }
-    navigate('/lightning');
+    close();
   };
 
   useEffect(() => {
@@ -63,9 +97,9 @@ export const Send = () => {
       return;
     }
 
-    const timeout = window.setTimeout(() => navigate('/lightning'), 1000);
+    const timeout = window.setTimeout(close, 1000);
     return () => window.clearTimeout(timeout);
-  }, [navigate, step]);
+  }, [close, step]);
 
   return (
     <GuideWrapper>
@@ -78,11 +112,12 @@ export const Send = () => {
             onBack={handleBack}
             title={t('lightning.send.title')}
           />
+          {step === 'loading-payment-input' && <Spinner text={t('loading')} />}
           {step === 'select-payment-input' && (
             <SelectPaymentInputStep
               activeAccounts={activeAccounts}
               inputError={inputError}
-              onCancel={() => navigate('/lightning')}
+              onCancel={close}
               onSubmit={submitPaymentInput}
               onClearError={() => setInputError(undefined)}
             />

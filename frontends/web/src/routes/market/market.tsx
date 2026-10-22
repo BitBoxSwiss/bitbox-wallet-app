@@ -8,11 +8,13 @@ import { useLocation, useParams } from 'wouter';
 import { useSearchParams } from '@/utils/router-compatability';
 import * as marketAPI from '@/api/market';
 import { getSwapStatus } from '@/api/swap';
-import type { AccountCode } from '@/api/account';
+import { AccountCode, TAccount } from '@/api/account';
+import type { TLightningAccount } from '@/api/lightning';
 import { useAppState } from '@/contexts/app-state-context';
 import { View, ViewContent } from '@/components/view/view';
 import { isBitcoinOnly } from '@/utils/coin';
 import { useLoad } from '@/hooks/api';
+import { useLightning } from '@/hooks/lightning';
 import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { MarketTab } from './components/markettab';
@@ -40,12 +42,35 @@ type TRouteParams = {
 
 export const Market = () => {
   const { code = '' } = useParams<TRouteParams>();
+  const { activeAccounts } = useAppState();
+  const { lightningAccount } = useLightning();
+  if (activeAccounts.length === 0 && lightningAccount === undefined) {
+    return null;
+  }
+  return <MarketContent accounts={activeAccounts} code={code} lightningAccount={lightningAccount} />;
+};
+
+type TMarketContentProps = {
+  accounts: TAccount[];
+  code: AccountCode;
+  lightningAccount: TLightningAccount | null | undefined;
+};
+
+const MarketContent = ({
+  accounts,
+  code,
+  lightningAccount,
+}: TMarketContentProps) => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const { activeAccounts } = useAppState();
+  const fallbackAccount = getFallbackMarketAccountCode(accounts);
+  const onlyLightning = !!lightningAccount && accounts.length === 0;
 
-  const activeTab: marketAPI.TMarketAction = searchParams.get('tab') as marketAPI.TMarketAction || 'buy';
-  const hasOnlyBTCAccounts = activeAccounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
+  const activeTab: marketAPI.TMarketAction = (
+    onlyLightning ? 'spend' : searchParams.get('tab') as marketAPI.TMarketAction || 'buy'
+  );
+  const spendLightningAccount = activeTab === 'spend' ? lightningAccount : undefined;
+  const hasOnlyBTCAccounts = accounts.every(({ coinCode }) => isBitcoinOnly(coinCode));
   const translationContext = hasOnlyBTCAccounts ? 'bitcoin' : 'crypto';
 
   const { config, setConfig } = useConfig();
@@ -57,7 +82,15 @@ export const Market = () => {
   } = useMarketContext();
 
   const [info, setInfo] = useState<TInfoContentProps>();
-  const selectedAccount = code || getFallbackMarketAccountCode(activeAccounts);
+  let selectedAccount: AccountCode | undefined = (
+    accounts.some(account => account.code === code) || spendLightningAccount?.code === code
+      ? code
+      : fallbackAccount || spendLightningAccount?.code || ''
+  );
+  // An unknown Spend account may be Lightning; wait for discovery before choosing a fallback.
+  if (activeTab === 'spend' && code && code !== selectedAccount && lightningAccount === undefined) {
+    selectedAccount = undefined;
+  }
   const {
     connect,
     connectAny,
@@ -91,7 +124,7 @@ export const Market = () => {
     accountCode: string,
     requiredFeature?: TKeystoreFeature,
   ): Promise<boolean> => {
-    const account = activeAccounts.find(acc => acc.code === accountCode);
+    const account = accounts.find(acc => acc.code === accountCode);
     if (!account) {
       return false;
     }
@@ -99,7 +132,7 @@ export const Market = () => {
   };
 
   const handleAccountChange = async (accountCode: string) => {
-    if (await promptConnectKeystore(accountCode)) {
+    if (accountCode === spendLightningAccount?.code || await promptConnectKeystore(accountCode)) {
       navigate(`/market/select/${accountCode}?tab=${activeTab}`, { replace: true });
     }
   };
@@ -151,7 +184,7 @@ export const Market = () => {
   };
 
   const goToVendor = async (vendor: marketAPI.TVendorName) => {
-    if (!vendor) {
+    if (!vendor || selectedAccount === undefined) {
       return;
     }
     switch (activeTab) {
@@ -176,7 +209,11 @@ export const Market = () => {
         return;
       }
     }
-    const account = activeAccounts.find(({ code }) => code === selectedAccount);
+    if (vendor === 'bitrefill' && selectedAccount === spendLightningAccount?.code) {
+      navigate(`/market/bitrefill/spend/${selectedAccount}/${selectedRegion}`);
+      return;
+    }
+    const account = accounts.find(({ code }) => code === selectedAccount);
     if (!account) {
       return;
     }
@@ -208,7 +245,7 @@ export const Market = () => {
           <Header title={t('generic.buySell')} />
           <MarketTab
             activeTab={activeTab}
-            code={code}
+            code={selectedAccount ?? code}
           />
           <Dialog
             medium
@@ -219,7 +256,7 @@ export const Market = () => {
             {info && (
               <InfoContent
                 action={info.action}
-                accounts={activeAccounts}
+                accounts={accounts}
                 vendorName={info.vendorName}
                 paymentFees={info.paymentFees}
               />
@@ -260,7 +297,8 @@ export const Market = () => {
                             </label>
                             <div className={style.selectContainer}>
                               <GroupedAccountSelector
-                                accounts={activeAccounts}
+                                accounts={accounts}
+                                lightningAccount={spendLightningAccount}
                                 selected={selectedAccount}
                                 onChange={handleAccountChange}
                               />
@@ -274,12 +312,14 @@ export const Market = () => {
                       {(activeTab === 'swap' || !!selectedAccount) && (
                         <label className={style.label}>{getServicesLabel(activeTab)}</label>
                       )}
-                      <Deals
-                        marketDealsResponse={getDealReponse(activeTab)}
-                        goToVendor={goToVendor}
-                        action={activeTab}
-                        setInfo={setInfo}
-                      />
+                      {selectedAccount === undefined ? <Spinner /> : (
+                        <Deals
+                          marketDealsResponse={getDealReponse(activeTab)}
+                          goToVendor={goToVendor}
+                          action={activeTab}
+                          setInfo={setInfo}
+                        />
+                      )}
                     </div>
                   </>
                 ) : <Spinner />}

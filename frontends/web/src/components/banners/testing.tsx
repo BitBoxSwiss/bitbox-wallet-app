@@ -9,10 +9,10 @@ import { isLightningRoute } from '@/utils/route';
 
 export const Testing = () => {
   const { t } = useTranslation();
-  const { isTesting } = useContext(AppContext);
+  const { isTesting, hideTestnetBanner } = useContext(AppContext);
   const { pathname } = useLocation();
 
-  if (!isTesting || isLightningRoute(pathname)) {
+  if (!isTesting || hideTestnetBanner || isLightningRoute(pathname)) {
     return null;
   }
 

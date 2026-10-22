@@ -2,6 +2,7 @@
 
 import type { TAccountBase } from '@/api/account';
 import { getBalance } from '@/api/account';
+import { getLightningBalance } from '@/api/lightning';
 import { TAccountsByKeystore, isAmbiguousName } from '@/routes/account/utils';
 import { TGroupedOption, TOption } from './groupedaccountselector';
 
@@ -29,6 +30,15 @@ const appendBalance = async (option: TOption) => {
   }
   if (!option.active) {
     return { ...option };
+  }
+  if (option.coinCode === 'lightning') {
+    try {
+      const balance = await getLightningBalance();
+      return { ...option, balance: balance.available };
+    } catch {
+      // The account can be selected while the Lightning SDK is initializing.
+      return { ...option };
+    }
   }
   const balance = await getBalance(option.value);
   if (!balance.success) {

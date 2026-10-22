@@ -14,11 +14,11 @@ import {
 } from './coin';
 
 describe('utils/coin bitcoin helpers', () => {
-  it('treats btc, tbtc, and rbtc as bitcoin-only coin codes', () => {
+  it('treats btc, tbtc, rbtc, and lightning as bitcoin-only coin codes', () => {
     expect(isBitcoinOnly('btc')).toBe(true);
     expect(isBitcoinOnly('tbtc')).toBe(true);
     expect(isBitcoinOnly('rbtc')).toBe(true);
-    expect(isBitcoinOnly('lightning')).toBe(false);
+    expect(isBitcoinOnly('lightning')).toBe(true);
   });
 
   it('treats rbtc coin codes as bitcoin-only and bitcoin-based', () => {
