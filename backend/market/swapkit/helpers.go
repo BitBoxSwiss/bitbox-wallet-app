@@ -87,12 +87,9 @@ func (quote *QuoteResponse) CheckGasBalance(balance coinpkg.Amount) error {
 			if !strings.EqualFold(fee.Type, "inbound") || !strings.EqualFold(fee.Asset, "ETH.ETH") {
 				continue
 			}
-			amount, err := coinpkg.NewAmountFromString(fee.Amount, big.NewInt(params.Ether))
+			amount, err := coinpkg.NewSendAmount(fee.Amount).Amount(big.NewInt(params.Ether), true)
 			if err != nil {
 				return errp.Wrap(err, "Invalid swap gas fee")
-			}
-			if amount.BigInt().Sign() < 0 {
-				return errp.New("Invalid negative swap gas fee")
 			}
 			gasFee = coinpkg.SumAmounts(gasFee, amount)
 		}
