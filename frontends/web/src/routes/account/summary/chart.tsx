@@ -195,7 +195,6 @@ export const Chart = ({
   const source = chartDisplay === 'week' ? 'hourly' : 'daily';
   const rangeStartTimestamp = data.chartPerformance[chartDisplay].startTimestamp;
   const [valueDifference, setValueDifference] = useState<number>();
-  const [diffSince, setDiffSince] = useState<string>();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isSwitchedBadgeVisible, setIsSwitchedBadgeVisible] = useState(false);
   const [switchedToType, setSwitchedToType] = useState<TPortfolioPercentageType>();
@@ -599,7 +598,6 @@ export const Chart = ({
       // should be and therefore barsBefore might still point to the old range
       // so we have to ignore this call and expect setVisibleRange with correct range
       setValueDifference(undefined);
-      setDiffSince('');
       return;
     }
     const nextValue = chartData[rangeFrom + 1] as FormattedLineData | undefined;
@@ -607,12 +605,10 @@ export const Chart = ({
     const nextValueDifference = calculateChartValueDifference(valueFrom, data.chartTotal);
     if (nextValueDifference === undefined) {
       setValueDifference(undefined);
-      setDiffSince('');
       return;
     }
     setValueDifference(nextValueDifference);
-    setDiffSince(`${chartData[rangeFrom].formattedValue} (${renderDate(Number(chartData[rangeFrom].time) * 1000, i18n.language, source)})`);
-  }, [data, i18n.language, source]);
+  }, [data, source]);
 
   const handleCrosshair = useCallback((params: MouseEventParams) => {
     const { point, time } = params;
@@ -933,7 +929,6 @@ export const Chart = ({
   );
 
   if (!hasData && chartIsUpToDate && valueDifference !== undefined) {
-    setDiffSince('');
     setValueDifference(undefined);
   }
 
@@ -1014,7 +1009,6 @@ export const Chart = ({
               onClick={togglePortfolioPercentageType}
               switchedLabel={switchedLabel}
               switchedType={switchedToType}
-              title={hasData ? diffSince : ''}
             />
           ) : (
             <span className={styles.diffValue}>

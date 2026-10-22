@@ -24,7 +24,6 @@ type TProps = {
   onClick?: () => void;
   switchedLabel?: string;
   switchedType?: TPortfolioPercentageType;
-  title?: string;
 };
 
 export const PercentageDiff = ({
@@ -34,7 +33,6 @@ export const PercentageDiff = ({
   onClick,
   switchedLabel,
   switchedType,
-  title,
 }: TProps) => {
   const { hideAmounts, nativeLocale, portfolioPercentageType } = useContext(AppContext);
   const { decimal, group } = useContext(LocalizationContext);
@@ -102,12 +100,11 @@ export const PercentageDiff = ({
           className={`${styles.button || ''} ${className} ${showUnavailableToggle ? styles.unavailableButton || '' : ''}`}
           data-testid="portfolio-percentage-toggle"
           onClick={onClick}
-          title={title}
           type="button">
           {content}
         </button>
       ) : (
-        <span className={className} title={title}>
+        <span className={className}>
           {content}
         </span>
       )}
