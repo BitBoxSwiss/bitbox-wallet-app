@@ -145,7 +145,10 @@ export const exportNotes = (): Promise<(FailResponse & { aborted: boolean }) | S
   return apiPost('notes/export');
 };
 
-export type TExportBalanceStatementResponse = (FailResponse & { aborted: boolean }) | SuccessResponse;
+export type TExportBalanceStatementResponse = (FailResponse & {
+  aborted: boolean;
+  errorCode?: 'sepoliaBalanceStatementUnsupported';
+}) | SuccessResponse;
 
 export const exportBalanceStatement = (
   accountCodes: AccountCode[],

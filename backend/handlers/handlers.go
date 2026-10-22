@@ -1904,9 +1904,10 @@ func (handlers *Handlers) postExportNotes(r *http.Request) interface{} {
 
 func (handlers *Handlers) postExportBalanceStatement(r *http.Request) interface{} {
 	type result struct {
-		Success bool   `json:"success"`
-		Message string `json:"message,omitempty"`
-		Aborted bool   `json:"aborted"`
+		Success   bool   `json:"success"`
+		Message   string `json:"message,omitempty"`
+		Aborted   bool   `json:"aborted"`
+		ErrorCode string `json:"errorCode,omitempty"`
 	}
 	var request struct {
 		AccountCodes []accountsTypes.Code `json:"accountCodes"`
@@ -1927,6 +1928,9 @@ func (handlers *Handlers) postExportBalanceStatement(r *http.Request) interface{
 			return result{Success: false, Aborted: true}
 		}
 		handlers.log.WithError(err).Error("Error exporting balance statement")
+		if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
+			return result{Success: false, ErrorCode: string(errCode)}
+		}
 		return result{Success: false, Message: err.Error()}
 	}
 	return result{Success: true}

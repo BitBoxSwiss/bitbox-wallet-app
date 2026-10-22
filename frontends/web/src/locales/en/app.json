@@ -2368,6 +2368,9 @@
           "generate": "Generate PDF",
           "noAccounts": "No active accounts available."
         },
+        "errors": {
+          "sepoliaBalanceStatementUnsupported": "Balance statement exports are unavailable for Ethereum Sepolia because its provider does not support historical balances. Deselect Sepolia accounts to export your other accounts."
+        },
         "title": "Export statement of balance"
       }
     },

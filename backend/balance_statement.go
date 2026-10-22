@@ -21,6 +21,8 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 )
 
+const errSepoliaBalanceStatementUnsupported errp.ErrorCode = "sepoliaBalanceStatementUnsupported"
+
 type statementRow struct {
 	coinName         string
 	amount           string
@@ -78,6 +80,11 @@ func (backend *Backend) ExportBalanceStatement(
 		}
 		if account.FatalError() {
 			return errp.Newf("account %s is not available", accountCode)
+		}
+		// Sepolia's provider does not support historical balances. Its ordinary
+		// balance endpoint ignores historical block tags and returns the latest balance.
+		if account.Coin().Code() == coinpkg.CodeSEPETH {
+			return errp.WithStack(errSepoliaBalanceStatementUnsupported)
 		}
 		selectedAccounts = append(selectedAccounts, account)
 	}

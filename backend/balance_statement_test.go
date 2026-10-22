@@ -19,6 +19,7 @@ import (
 	rpcmock "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	utilcfg "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
@@ -72,6 +73,37 @@ func TestExportBalanceStatementRejectsFutureDate(t *testing.T) {
 
 	err := b.ExportBalanceStatement(nil, time.Now().AddDate(0, 0, 1))
 	require.ErrorContains(t, err, "future")
+}
+
+// Sepolia selections, including mixed selections, must fail before any account
+// initialization or PDF creation because the provider cannot return historical balances.
+func TestExportBalanceStatementRejectsSepolia(t *testing.T) {
+	for _, test := range []struct {
+		name         string
+		accountCodes []accountsTypes.Code
+	}{
+		{"Sepolia only", []accountsTypes.Code{"v0-55555555-sepeth-0"}},
+		{"mixed accounts", []accountsTypes.Code{"v0-55555555-tbtc-0", "v0-55555555-sepeth-0"}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			b := newBackend(t, testnetEnabled, regtestDisabled)
+			defer b.Close()
+			filename := filepath.Join(t.TempDir(), "statement.pdf")
+			b.environment = fileExportEnvironment{filename: filename}
+			b.registerKeystore(makeBitBox02Multi())
+			for _, accountCode := range test.accountCodes {
+				view := b.Accounts().lookup(accountCode)
+				require.NotNil(t, view)
+				view.Account.(*accountsmock.InterfaceMock).InitializeFunc = func() error {
+					return errors.New("unsupported selections must fail before account initialization")
+				}
+			}
+
+			err := b.ExportBalanceStatement(test.accountCodes, time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC))
+			require.ErrorIs(t, err, errp.ErrorCode("sepoliaBalanceStatementUnsupported"))
+			require.NoFileExists(t, filename)
+		})
+	}
 }
 
 func TestExportBalanceStatementETHChainBalance(t *testing.T) {

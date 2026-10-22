@@ -73,6 +73,8 @@ export const ExportBalanceStatementSetting = ({ accounts }: TProps) => {
       const result = await exportBalanceStatement(selectedActiveCodes, snapshotDate);
       if (result.success) {
         setOpen(false);
+      } else if (!result.aborted && result.errorCode === 'sepoliaBalanceStatementUnsupported') {
+        alertUser(t('settings.balanceStatement.export.errors.sepoliaBalanceStatementUnsupported'));
       } else if (!result.aborted && result.message) {
         alertUser(result.message);
       }
