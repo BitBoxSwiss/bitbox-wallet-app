@@ -78,6 +78,10 @@ type DBTxInterface interface {
 	Output(wire.OutPoint) (*wire.TxOut, error)
 	Outputs() (map[wire.OutPoint]*wire.TxOut, error)
 
+	// KnownOutput retrieves a wallet output, including outputs removed from the current
+	// history. Use only for signature verification, not for balances or coin selection.
+	KnownOutput(wire.OutPoint) (*wire.TxOut, error)
+
 	// DeleteOutput deletes an output (nothing happens if not found).
 	DeleteOutput(wire.OutPoint) error
 
