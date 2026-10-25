@@ -31,6 +31,7 @@
 .sidebar {
     align-content: stretch;
     background-color: var(--background-dark);
+    border-top: var(--window-titlebar-height, 0px) solid rgba(0, 0, 0, 0.1);
     bottom: 0;
     display: flex;
     flex-direction: column;

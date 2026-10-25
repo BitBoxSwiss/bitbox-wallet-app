@@ -49,6 +49,10 @@
 #include "urlhandler.h"
 #include "network.h"
 
+#if defined(Q_OS_MACOS)
+#include "macoswindow.h"
+#endif
+
 #define APPNAME "BitBoxApp"
 
 // Custom scheme so we can intercept and serve local files.
@@ -464,6 +468,10 @@ int main(int argc, char *argv[])
     // frame, a custom bridge would be necessary.
     view->settings()->setAttribute(QWebEngineSettings::JavascriptCanPaste, false);
     view->show();
+#if defined(Q_OS_MACOS)
+    // Configure the native window after Qt has finished showing it.
+    setupMacOSWindow(view);
+#endif
     view->load(QUrl(QString("%1:/index.html").arg(scheme)));
 
     // Create TrayIcon
