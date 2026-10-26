@@ -26,6 +26,29 @@
     justify-content: center;
 }
 
+/* Fullscreen views cover the app banners, so keep genuine-check failures visible here too. */
+.attestationWarnings {
+    background: var(--background);
+    flex-shrink: 0;
+    padding: var(--space-half);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.attestationWarnings:empty {
+    display: none;
+}
+
+.attestationWarnings > div {
+    margin: 0 auto;
+    max-width: var(--content-width);
+}
+
+.attestationWarnings > div:last-child > div {
+    margin-bottom: 0;
+}
+
 /* this will be applied if fullscreen is false */
 .fill {
     align-self: center;

@@ -30,6 +30,7 @@ export const Unlock = ({ deviceID, attestation }: TProps) => {
       fullscreen
       textCenter
       verticallyCentered
+      hideAttestationWarningFor={attestation === false ? deviceID : undefined}
       withBottomBar
       width="690px">
       <ViewHeader title={t('button.unlock')}>

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
 import { CloseXDark, CloseXWhite } from '@/components/icon';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -28,6 +29,7 @@ export const SessionStatus = ({
   className = '',
   children,
 }: TProps) => {
+  const { t } = useTranslation();
   const { sessionConfig, updateSessionConfig } = useContext(AppContext);
   // note: dismissible can be falsy i.e. empty string ''
   const [show, setShow] = useState(dismissibleKey ? false : true);
@@ -62,6 +64,8 @@ export const SessionStatus = ({
             {children}
           </div>
           <button
+            type="button"
+            aria-label={t('button.dismiss')}
             hidden={!dismissibleKey}
             className={style.closeButton}
             onClick={dismiss}
