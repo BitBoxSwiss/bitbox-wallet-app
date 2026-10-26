@@ -83,6 +83,15 @@ func (communication *Communication) sendFrame(msg string) error {
 	if dataLen == 0 {
 		return nil
 	}
+	const (
+		initPayloadSize = writeReportSize - 7
+		contPayloadSize = writeReportSize - 5
+		// Continuation sequence numbers range from 0 to 127.
+		maxPayloadSize = initPayloadSize + 128*contPayloadSize
+	)
+	if dataLen > maxPayloadSize {
+		return errp.Newf("message too large: %d bytes exceeds maximum of %d", dataLen, maxPayloadSize)
+	}
 
 	readBuffer := bytes.NewBufferString(msg)
 	out := newBuffer()
@@ -90,8 +99,6 @@ func (communication *Communication) sendFrame(msg string) error {
 	// Calculate how large the `out` buffer should be. Round up to an equal
 	// number of writeReportSize sized bytes
 	outLen := writeReportSize
-	initPayloadSize := writeReportSize - 7
-	contPayloadSize := writeReportSize - 5
 	if dataLen > initPayloadSize {
 		contLen := dataLen - initPayloadSize
 		outLen += ((contLen + contPayloadSize - 1) / contPayloadSize) * writeReportSize
