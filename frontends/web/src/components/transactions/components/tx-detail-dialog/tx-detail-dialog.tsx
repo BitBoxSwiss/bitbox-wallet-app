@@ -97,7 +97,12 @@ export const TxDetailsDialog = ({
 
           <Note
             key={internalID}
-            onSave={note => postNotesTx(accountCode, { internalTxID: internalID, note })}
+            onSave={async note => {
+              const result = await postNotesTx(accountCode, { internalTxID: internalID, note });
+              if (!result.success) {
+                throw new Error(result.errorMessage || t('genericError'));
+              }
+            }}
             note={note}
           />
 
