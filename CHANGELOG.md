@@ -25,6 +25,7 @@
 - Lightning: add custom transaction notes, including notes import and export
 - Bitrefill: Add support for paying with Lightning wallet
 - WalletConnect: use standard host-based origin in Qt to fix WalletConnect pairings on desktop
+- Ethereum: add a safety margin to suggested transaction fees to reduce delays when network fees rise
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1
