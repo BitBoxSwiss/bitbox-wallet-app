@@ -231,11 +231,15 @@ func (backend *Backend) swapAccounts() ([]SwapAccount, []SwapAccount, error) {
 // swapDefaultSellAccount prefers ETH with balance first, then any non-BTC account with balance,
 // then BTC with balance, and finally falls back to the first available sell account.
 func (backend *Backend) swapDefaultSellAccount(sellAccounts []SwapAccount) (*SwapAccount, *accountsTypes.Code) {
+	if len(sellAccounts) == 0 {
+		return nil, nil
+	}
+	accountViews := backend.Accounts()
 	var firstBTCAccount *SwapAccount
 	var firstNonBTCAccount *SwapAccount
 	for _, account := range sellAccounts {
 		// Skip accounts with no balance as they can't be used to sell.
-		if !backend.accountHasNonZeroBalance(account.AccountConfig.Code) {
+		if !backend.accountHasNonZeroBalance(accountViews, account.AccountConfig.Code) {
 			continue
 		}
 		switch account.AccountCoin.Code() {
@@ -259,9 +263,6 @@ func (backend *Backend) swapDefaultSellAccount(sellAccounts []SwapAccount) (*Swa
 	}
 	if firstBTCAccount != nil {
 		return firstBTCAccount, &firstBTCAccount.AccountConfig.Code
-	}
-	if len(sellAccounts) == 0 {
-		return nil, nil
 	}
 	return &sellAccounts[0], &sellAccounts[0].AccountConfig.Code
 }
@@ -294,12 +295,15 @@ func swapDefaultBuyAccount(
 	return nil
 }
 
-func (backend *Backend) accountHasNonZeroBalance(accountCode accountsTypes.Code) bool {
-	account := backend.Accounts().lookup(accountCode)
-	if account == nil {
+func (backend *Backend) accountHasNonZeroBalance(
+	accountViews AccountViews,
+	accountCode accountsTypes.Code,
+) bool {
+	accountView := accountViews.lookup(accountCode)
+	if accountView == nil {
 		return false
 	}
-	balance, err := account.Account.Balance()
+	balance, err := accountView.Account.Balance()
 	if err != nil {
 		backend.log.WithField("code", accountCode).WithError(err).Error("could not get account balance")
 		return false
