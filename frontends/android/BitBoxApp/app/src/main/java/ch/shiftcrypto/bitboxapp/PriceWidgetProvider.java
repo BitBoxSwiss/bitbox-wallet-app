@@ -84,13 +84,30 @@ public class PriceWidgetProvider extends AppWidgetProvider {
     }
 
     @Override
+    @SuppressLint("ApplySharedPref") // Persist cleanup on WIDGET_EXECUTOR before finishing the broadcast.
     public void onDisabled(Context context) {
+        PendingResult result = goAsync();
         Context app = context.getApplicationContext();
         WIDGET_EXECUTOR.execute(() -> {
-            WorkManager manager = WorkManager.getInstance(app);
-            manager.cancelUniqueWork(REFRESH_WORK);
-            manager.cancelUniqueWork(PERIODIC_WORK);
-            preferences(app).edit().remove(PUBLISHED_STATE).apply();
+            try {
+                WorkManager manager = WorkManager.getInstance(app);
+                Future<?> periodic = manager.cancelUniqueWork(PERIODIC_WORK).getResult();
+                Future<?> refresh = manager.cancelUniqueWork(REFRESH_WORK).getResult();
+                periodic.get();
+                refresh.get();
+                if (!preferences(app).edit().remove(PUBLISHED_STATE).commit()) {
+                    Log.w("bitboxapp", "Could not clear price widget state");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                Log.w("bitboxapp", "Price widget cleanup interrupted", e);
+            } catch (Exception e) {
+                Log.w("bitboxapp", "Could not clean up price widget", e);
+            } finally {
+                if (result != null) {
+                    result.finish();
+                }
+            }
         });
     }
 
