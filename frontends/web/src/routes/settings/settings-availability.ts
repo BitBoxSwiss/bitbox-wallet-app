@@ -35,7 +35,7 @@ export const isBluetoothToggleSettingVisible = (deviceInfo?: DeviceInfo) => (
 
 export const isDeviceLanguageSupported = (
   deviceInfo?: DeviceInfo,
-): deviceInfo is TDeviceInfoWithLanguage => !!deviceInfo?.language && !!deviceInfo.supportedLanguages?.length;
+): deviceInfo is TDeviceInfoWithLanguage => !!deviceInfo?.language && (deviceInfo.supportedLanguages?.length ?? 0) >= 2;
 
 export const isScreenLockSettingVisible = () => runningInAndroid() || runningInIOS();
 
