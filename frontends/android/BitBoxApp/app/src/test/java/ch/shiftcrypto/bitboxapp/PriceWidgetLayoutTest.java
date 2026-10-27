@@ -22,6 +22,8 @@ import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -36,11 +38,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 35, application = Application.class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 public class PriceWidgetLayoutTest {
+    private TimeZone originalTimeZone;
+
+    @Before
+    public void useFixedTimeZone() {
+        originalTimeZone = TimeZone.getDefault();
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+    }
+
+    @After
+    public void restoreTimeZone() {
+        TimeZone.setDefault(originalTimeZone);
+    }
+
     // At the compact minimum, a single timestamp row preserves the chart and full quote on dense screens.
     @Test
     @Config(qualifiers = "xxhdpi")
@@ -63,16 +79,20 @@ public class PriceWidgetLayoutTest {
         }
     }
 
-    // When one timestamp row is too wide, date and time remain readable on separate rows.
+    // A two-digit hour or larger fonts need separate timestamp rows; the chart yields to the price and date.
     @Test
     public void timestampUsesTwoRowsWhenNeeded() throws Exception {
         Locale original = Locale.getDefault();
         try {
             Locale.setDefault(Locale.US);
-            View view = render(context(Locale.US, 1.3f), quote("USD", 100.00), 110, 160);
-            assertFits(view.findViewById(R.id.widget_price));
-            assertFits(view.findViewById(R.id.widget_updated_at));
-            assertFits(view.findViewById(R.id.widget_updated_time));
+            JSONObject state = quote("USD", 100.00).put("updatedAt", 1791804600000L); // 11:30 UTC
+            for (float fontScale : new float[]{1, 1.3f}) {
+                View view = render(context(Locale.US, fontScale), state, 110, 160);
+                assertFits(view.findViewById(R.id.widget_price));
+                assertFits(view.findViewById(R.id.widget_updated_at));
+                assertFits(view.findViewById(R.id.widget_updated_time));
+                assertEquals(View.GONE, view.findViewById(R.id.widget_chart).getVisibility());
+            }
         } finally {
             Locale.setDefault(original);
         }
@@ -276,7 +296,7 @@ public class PriceWidgetLayoutTest {
 
     private JSONObject quote(String currency, double price) throws Exception {
         return new JSONObject().put("coinCode", "btc").put("currency", currency).put("price", price)
-                .put("updatedAt", 1791804600000L)
+                .put("updatedAt", 1791811800000L) // 13:30 UTC (1:30 PM in the US locale)
                 .put("change24h", 2.34).put("chart", new JSONArray("[0,0.5,0.25,1]"))
                 .put("coins", new JSONArray("[\"btc\",\"eth\",\"ltc\"]"));
     }
