@@ -5,10 +5,12 @@ import { ChildProcess } from 'child_process';
 import { deleteAccountsFile, deleteConfigFile } from './helpers/fs';
 import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
+import { launchRegtest, setupRegtestWallet, cleanupRegtest } from './helpers/regtest';
 import { assertFieldsCount } from './helpers/dom';
 import { cleanFakeMemoryFiles, completeWalletSetupFlow, startSimulator, stopSimulator } from './helpers/simulator';
 
 let servewallet: ServeWallet | undefined;
+let regtest: ChildProcess | undefined;
 let simulatorProc: ChildProcess | undefined;
 
 const getSimulatorPath = (): string => {
@@ -78,6 +80,7 @@ const getPortfolioPercentageType = async (
   return config.frontend?.portfolioPercentageType;
 };
 
+// A local regtest wallet and fixed chart data isolate the percentage preference from remote chain sync.
 test('Portfolio percentage can switch between value over time and performance', async ({
   page,
   request,
@@ -95,8 +98,13 @@ test('Portfolio percentage can switch between value over time and performance', 
     });
   });
 
+  await test.step('Start regtest and init wallet', async () => {
+    regtest = await launchRegtest();
+    await setupRegtestWallet();
+  });
+
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
     await servewallet.start();
   });
 
@@ -109,7 +117,7 @@ test('Portfolio percentage can switch between value over time and performance', 
   });
 
   await test.step('Wait for accounts to load', async () => {
-    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 1);
   });
 
   await test.step('Show value over time by default', async () => {
@@ -160,6 +168,8 @@ test.afterEach(async () => {
   }
   await servewallet?.stop();
   servewallet = undefined;
+  await cleanupRegtest(regtest);
+  regtest = undefined;
   deleteConfigFile();
   deleteAccountsFile();
   cleanFakeMemoryFiles();
