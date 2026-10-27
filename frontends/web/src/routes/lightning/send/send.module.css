@@ -65,6 +65,15 @@
     color: var(--color-default);
 }
 
+.addContact {
+    color: var(--color-primary);
+    margin-top: var(--space-half);
+}
+
+.addContact strong {
+    font-weight: 600;
+}
+
 .camera video {
     margin-bottom: var(--space-default);
 }

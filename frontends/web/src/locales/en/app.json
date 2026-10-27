@@ -1784,6 +1784,29 @@
       },
       "viewTransaction": "View transaction"
     },
+    "contacts": {
+      "add": "Add contact",
+      "addAfterPayment": "Add <strong>{{address}}</strong> to your contacts",
+      "addressPlaceholder": "satoshi@bitbox.cash",
+      "delete": "Delete contact",
+      "deleteAction": "Delete",
+      "deleteConfirmation": "Are you sure you want to delete this contact?",
+      "deleteError": "Could not delete contact. Please try again.",
+      "details": "Contact details",
+      "duplicateAddress": "This Lightning address is already in your contacts.",
+      "empty": "No contacts yet",
+      "invalidAddress": "Enter a valid Lightning address.",
+      "loadError": "Could not load contacts. Please try again.",
+      "myAccounts": "My accounts",
+      "name": "Name",
+      "namePlaceholder": "Enter a name",
+      "notFound": "Contact not found.",
+      "optional": "optional",
+      "saveError": "Could not save contact. Please try again.",
+      "saved": "Contact saved",
+      "sendTo": "Send to",
+      "title": "Contacts"
+    },
     "deactivate": {
       "intro": {
         "content": "Shutting down your Lightning wallet will disconnect you from the server and you will no longer be able to use your Lightning wallet to send and receive.\nFunds on your Lightning wallet are not affected, you can still access them again by enabling Lightning in the settings and connecting the BitBox used to make that wallet."

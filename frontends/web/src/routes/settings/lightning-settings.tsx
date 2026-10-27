@@ -14,6 +14,7 @@ import { Checked } from '@/components/icon';
 import { getKeystoreName } from '@/api/keystores';
 import { useLoad, useSubscribe } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
+import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SettingsItem } from './components/settingsItem/settingsItem';
 import styles from './lightning-settings.module.css';
 
@@ -75,41 +76,72 @@ export const LightningSettings = () => {
           : lightningAccount.rootFingerprint
     );
 
-    return (
-      <>
-        <SettingsItem
-          settingName={t('lightning.settings.status')}
-          displayedValue={t('lightning.settings.statusConnected')}
-          extraComponent={<Checked className={styles.statusIcon} />}
-        />
-        <SettingsItem
-          settingName={t('lightning.settings.serviceProvider')}
-          displayedValue={serviceProvider}
-        />
-        <SettingsItem
-          settingName={t('lightning.settings.wallet')}
-          displayedValue={keystoreDisplayName}
-        />
-        <SettingsItem
-          settingName={t('lightning.settings.setLightningAddress')}
-          displayedValue={lightningAddress}
-          onClick={() => navigate('/lightning/set-lnurl-address/')}
-        />
-        <SettingsItem
-          settingName={t('lightning.disclaimer.title')}
-          onClick={() => navigate('/lightning/disclaimer/')}
-        />
-        <SettingsItem
-          settingName={<span>{t('lightning.settings.disableWallet')}</span>}
-          onClick={() => navigate('/lightning/deactivate/')}
-        />
-        <SettingsItem
-          disabled={!lightningBalance?.hasAvailable}
-          settingName={<span className={styles.danger}>{t('lightning.settings.closeAndWithdrawFunds')}</span>}
-          onClick={() => navigate('/lightning/close-withdraw-funds/')}
-        />
-      </>
-    );
+    const sections: TSettingsContentSection[] = [{
+      id: 'lightning-settings',
+      items: [
+        {
+          id: 'lightning-status',
+          content: <SettingsItem
+            settingName={t('lightning.settings.status')}
+            displayedValue={t('lightning.settings.statusConnected')}
+            extraComponent={<Checked className={styles.statusIcon} />}
+          />,
+        },
+        {
+          id: 'lightning-service-provider',
+          content: <SettingsItem
+            settingName={t('lightning.settings.serviceProvider')}
+            displayedValue={serviceProvider}
+          />,
+        },
+        {
+          id: 'lightning-wallet',
+          content: <SettingsItem
+            settingName={t('lightning.settings.wallet')}
+            displayedValue={keystoreDisplayName}
+          />,
+        },
+        {
+          id: 'lightning-address',
+          content: <SettingsItem
+            settingName={t('lightning.settings.setLightningAddress')}
+            displayedValue={lightningAddress}
+            onClick={() => navigate('/lightning/set-lnurl-address/')}
+          />,
+        },
+        {
+          id: 'lightning-contacts',
+          content: <SettingsItem
+            settingName={t('lightning.contacts.title')}
+            onClick={() => navigate('/lightning/contacts')}
+          />,
+        },
+        {
+          id: 'lightning-disclaimer',
+          content: <SettingsItem
+            settingName={t('lightning.disclaimer.title')}
+            onClick={() => navigate('/lightning/disclaimer/')}
+          />,
+        },
+        {
+          id: 'lightning-disable-wallet',
+          content: <SettingsItem
+            settingName={<span>{t('lightning.settings.disableWallet')}</span>}
+            onClick={() => navigate('/lightning/deactivate/')}
+          />,
+        },
+        {
+          id: 'lightning-close-withdraw-funds',
+          content: <SettingsItem
+            disabled={!lightningBalance?.hasAvailable}
+            settingName={<span className={styles.danger}>{t('lightning.settings.closeAndWithdrawFunds')}</span>}
+            onClick={() => navigate('/lightning/close-withdraw-funds/')}
+          />,
+        },
+      ],
+    }];
+
+    return <SettingsContent sections={sections} />;
   };
 
   return (
