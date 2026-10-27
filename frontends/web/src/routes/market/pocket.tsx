@@ -53,8 +53,17 @@ export const Pocket = ({ action }: TProps) => {
   const accountInfoResponse = useLoad(getInfo(code));
   const accountInfo = accountInfoResponse?.success ? accountInfoResponse.info : undefined;
 
-  const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipPocketDisclaimer ?? false);
+  const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad, resetIframeLoaded } = useVendorIframeResizeHeight();
+  const skipDisclaimer = config?.frontend.skipPocketDisclaimer ?? false;
+  const { agreedTerms, setAgreedTerms } = useVendorTerms(skipDisclaimer);
+  const onBack = (
+    agreedTerms && !skipDisclaimer && accountInfoResponse?.success !== false
+      ? () => {
+        resetIframeLoaded();
+        setAgreedTerms(false);
+      }
+      : undefined
+  );
   const signingRef = useRef(false);
 
   const pocketInfo = useAccountSynced(code, useCallback(() => getPocketURL(action), [action]));
@@ -296,7 +305,7 @@ export const Pocket = ({ action }: TProps) => {
     <div className="contentWithGuide">
       <div className="container">
         <div className={style.header}>
-          <Header variant="navigation" mobileBackButton title={title} />
+          <Header variant="navigation" mobileBackButton onBack={onBack} title={title} />
         </div>
         <div ref={containerRef} className={style.container}>
           { accountInfoResponse && !accountInfoResponse.success ? (
