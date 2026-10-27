@@ -164,17 +164,20 @@ func (hook goLogHook) Fire(entry *logrus.Entry) error {
 	return nil
 }
 
-// Serve serves the BitBoxApp API for use in a mobile client. It is called when the application
-// is started or wakes up from sleep.
-func Serve(dataDir string, testnet bool, environment GoEnvironmentInterface, goAPI GoAPIInterface) {
+// initialize configures shared process state before either a widget or the wallet uses it.
+func initialize(dataDir string) {
 	once.Do(func() {
-		// SetAppDir can only be called once, but this is okay, since the data dir does not change
-		// between during sleep between Shutdown and Serve.
 		config.SetAppDir(dataDir)
 
 		// log via builtin log package, as that is redirected to Android's logcat.
 		logging.Get().AddHook(goLogHook{})
 	})
+}
+
+// Serve serves the BitBoxApp API for use in a mobile client. It is called when the application
+// is started or wakes up from sleep.
+func Serve(dataDir string, testnet bool, environment GoEnvironmentInterface, goAPI GoAPIInterface) {
+	initialize(dataDir)
 
 	bridgecommon.Serve(
 		testnet,

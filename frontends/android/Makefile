@@ -2,7 +2,7 @@ include ../../android-env.mk.inc
 
 apk-debug:
 	${MAKE} prepare-android
-	cd BitBoxApp && ./gradlew assembleDebug
+	cd BitBoxApp && ./gradlew assembleDebug testDebugUnitTest
 # Creates signed release .apk and .aab.
 assemble-release:
 	./assemble_release.sh
