@@ -15,11 +15,9 @@ import (
 	"os"
 	"runtime/debug"
 	"slices"
-	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
-	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/banners"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bitsurance"
@@ -70,6 +68,7 @@ type Backend interface {
 	Coin(coinpkg.Code) (coinpkg.Coin, error)
 	Testing() bool
 	Accounts() backend.AccountViews
+	SwapQuote(sellAccountCode accountsTypes.Code, buyCoinCode, sellAmount string) (backend.SwapQuoteResult, *swapkit.APIError)
 	PrepareSwap(buyAccountCode, sellAccountCode accountsTypes.Code, routeID, sellAmount string) (*backend.SwapPreparation, error)
 	SwapAccounts() (backend.SwapAccounts, error)
 	SwapStatus() backend.SwapStatus
@@ -2105,82 +2104,30 @@ func (handlers *Handlers) postSwapkitQuote(r *http.Request) interface{} {
 		ValidationErrorCode errp.ErrorCode         `json:"validationErrorCode,omitempty"`
 		Quote               *swapkit.QuoteResponse `json:"quote,omitempty"`
 	}
-	errorResult := func(code errp.ErrorCode, message string, data *swapkit.APIErrorData) result {
-		return result{
-			Success:        false,
-			QuoteErrorCode: code,
-			ErrorMessage:   message,
-			ErrorData:      data,
-		}
-	}
-
 	var request struct {
 		SellAccountCode accountsTypes.Code `json:"sellAccountCode"`
-		SellCoinCode    string             `json:"sellCoinCode"`
 		BuyCoinCode     string             `json:"buyCoinCode"`
 		SellAmount      string             `json:"sellAmount"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return errorResult(swapkit.ErrInvalidRequest, "Request body is required and must be a valid JSON object.", nil)
-	}
-	sellCoinCode := coinpkg.Code(strings.TrimSpace(request.SellCoinCode))
-	if sellCoinCode == "" {
-		return errorResult(swapkit.ErrInvalidRequest, "Missing sellCoinCode.", nil)
-	}
-	buyCoinCode := coinpkg.Code(strings.TrimSpace(request.BuyCoinCode))
-	if buyCoinCode == "" {
-		return errorResult(swapkit.ErrInvalidRequest, "Missing buyCoinCode.", nil)
-	}
-	sellCoin, err := handlers.backend.Coin(sellCoinCode)
-	if err != nil {
-		return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
-	}
-	buyCoin, err := handlers.backend.Coin(buyCoinCode)
-	if err != nil {
-		return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
-	}
-	sellAmount := request.SellAmount
-	var validationErrorCode errp.ErrorCode
-	if request.SellAccountCode != "" {
-		account, err := handlers.backend.GetAccountFromCode(request.SellAccountCode)
-		if err != nil {
-			return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
-		}
-		parsedAmount, err := account.Coin().ParseAmount(request.SellAmount)
-		if err != nil {
-			return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
-		}
-		if err := swapkit.ValidateSwapSellAmount(account, parsedAmount); err != nil {
-			if validationErr, ok := errp.Cause(err).(accountErrors.TxValidationError); ok {
-				if validationErr != accountErrors.ErrInsufficientFunds {
-					return errorResult(errp.ErrorCode(validationErr.Error()), validationErr.Error(), nil)
-				}
-				validationErrorCode = errp.ErrorCode(validationErr.Error())
-			} else {
-				return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
-			}
-		}
-		sellAmount, err = swapkit.FormatAmount(account.Coin(), request.SellAmount)
-		if err != nil {
-			return errorResult(swapkit.ErrInvalidRequest, err.Error(), nil)
+		return result{
+			QuoteErrorCode: swapkit.ErrInvalidRequest,
+			ErrorMessage:   "Request body is required and must be a valid JSON object.",
 		}
 	}
-	quoteResponse, quoteError := swapkit.NewQuoteFromCoinCode(
-		context.Background(),
-		handlers.backend.HTTPClient(),
-		sellCoin,
-		buyCoin,
-		sellAmount,
+	quoteResult, quoteError := handlers.backend.SwapQuote(
+		request.SellAccountCode, request.BuyCoinCode, request.SellAmount,
 	)
+	response := result{
+		Success:             quoteError == nil,
+		Quote:               quoteResult.Quote,
+		ValidationErrorCode: quoteResult.ValidationErrorCode,
+	}
 	if quoteError != nil {
-		response := errorResult(quoteError.ErrorCode, quoteError.Message, quoteError.Data)
-		response.ValidationErrorCode = validationErrorCode
-		return response
+		response.QuoteErrorCode = quoteError.ErrorCode
+		response.ErrorMessage = quoteError.Message
+		response.ErrorData = quoteError.Data
 	}
-	return result{
-		Success:             true,
-		ValidationErrorCode: validationErrorCode,
-		Quote:               quoteResponse,
-	}
+	return response
 }

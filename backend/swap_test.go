@@ -3,7 +3,11 @@
 package backend
 
 import (
+	"encoding/json"
+	"io"
+	"net/http"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
@@ -15,12 +19,176 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
 	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
 )
+
+type swapQuoteTransport func(*http.Request) (*http.Response, error)
+
+func (transport swapQuoteTransport) RoundTrip(request *http.Request) (*http.Response, error) {
+	return transport(request)
+}
+
+// Quotes use the sell account's coin, and balance validation stays separate from quote retrieval errors.
+func TestSwapQuoteBalanceValidation(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+	b.registerKeystore(makeBitBox02Multi())
+	accountCode := accountsTypes.Code("v0-55555555-btc-0")
+
+	for _, test := range []struct {
+		name           string
+		balance        int64
+		body           string
+		errorCode      errp.ErrorCode
+		validationCode errp.ErrorCode
+		hasQuote       bool
+	}{
+		{name: "funded", balance: 100000000, body: `{"routes":[{"routeId":"route"}]}`, hasQuote: true},
+		{name: "insufficient funds with routes", body: `{"routes":[{"routeId":"route"}]}`, validationCode: "insufficientFunds", hasQuote: true},
+		{name: "no routes", balance: 100000000, body: `{"routes":[]}`, errorCode: swapkit.ErrNoRoutesFound},
+		{name: "insufficient funds and no routes", body: `{"routes":[]}`, errorCode: swapkit.ErrNoRoutesFound, validationCode: "insufficientFunds"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			setAccountBalance(t, b, accountCode, test.balance)
+			b.httpClient = &http.Client{Transport: swapQuoteTransport(func(request *http.Request) (*http.Response, error) {
+				body := test.body
+				if request.URL.Path == "/providers" {
+					body = `[{"enabledChainIds":["bitcoin"]}]`
+				} else {
+					var quoteRequest swapkit.QuoteRequest
+					require.NoError(t, json.NewDecoder(request.Body).Decode(&quoteRequest))
+					require.Equal(t, "BTC.BTC", quoteRequest.SellAsset)
+				}
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(body)),
+					Header:     make(http.Header),
+				}, nil
+			})}
+			result, quoteError := b.SwapQuote(accountCode, "eth", "1")
+			require.Equal(t, test.validationCode, result.ValidationErrorCode)
+			if test.errorCode == "" {
+				require.Nil(t, quoteError)
+			} else {
+				require.NotNil(t, quoteError)
+				require.Equal(t, test.errorCode, quoteError.ErrorCode)
+				if test.errorCode == swapkit.ErrNoRoutesFound {
+					require.Equal(t, &swapkit.APIErrorData{SellCoin: "BTC", BuyCoin: "ETH"}, quoteError.Data)
+				}
+			}
+			if test.hasQuote {
+				require.NotNil(t, result.Quote)
+				require.Len(t, result.Quote.Routes, 1)
+			} else {
+				require.Nil(t, result.Quote)
+			}
+		})
+	}
+}
+
+// Missing accounts and unavailable balances fail before requesting a provider quote.
+func TestSwapQuoteInvalidAccountOrBalance(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+	b.registerKeystore(makeBitBox02Multi())
+	accountCode := accountsTypes.Code("v0-55555555-btc-0")
+	account := b.Accounts().lookup(accountCode).Account.(*accountsMocks.InterfaceMock)
+	account.BalanceFunc = func() (*accounts.Balance, error) { return nil, accounts.ErrSyncInProgress }
+	b.httpClient = &http.Client{Transport: swapQuoteTransport(func(*http.Request) (*http.Response, error) {
+		t.Fatal("invalid account or balance must not request a quote")
+		return nil, nil
+	})}
+
+	for _, test := range []struct {
+		name        string
+		accountCode accountsTypes.Code
+		message     string
+	}{
+		{name: "missing account", message: `unknown account code ""`},
+		{name: "unknown account", accountCode: "unknown", message: `unknown account code "unknown"`},
+		{name: "balance unavailable", accountCode: accountCode, message: accounts.ErrSyncInProgress.Error()},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			result, quoteError := b.SwapQuote(test.accountCode, "eth", "1")
+			require.Nil(t, result.Quote)
+			require.Empty(t, result.ValidationErrorCode)
+			require.NotNil(t, quoteError)
+			require.Equal(t, swapkit.ErrInvalidRequest, quoteError.ErrorCode)
+			require.Equal(t, test.message, quoteError.Message)
+		})
+	}
+}
+
+// Gas eligibility uses the token's parent account, even when token funds are insufficient,
+// and unavailable parent balances preserve the independent token balance validation.
+func TestCheckSwapQuoteGasFunds(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) { return rootFingerprint1, nil }
+	b.registerKeystore(ks)
+	parentCode, err := b.CreateAndPersistAccountConfig(coinpkg.CodeETH, "Ethereum 2", ks)
+	require.NoError(t, err)
+	require.NoError(t, b.SetTokenActive(parentCode, "eth-erc20-usdc", true))
+	tokenCode := Erc20AccountCode(parentCode, "eth-erc20-usdc")
+	zeroAllAccountBalances(t, b)
+	setAccountBalance(t, b, "v0-55555555-eth-0", 2000000000000000)
+	setAccountBalance(t, b, parentCode, 999999999999999)
+	setAccountBalance(t, b, tokenCode, 1000000)
+	quote := &swapkit.QuoteResponse{Routes: []swapkit.QuoteRoute{{
+		Fees: []swapkit.Fee{{Type: "inbound", Asset: "ETH.ETH", Amount: "0.001"}},
+	}}}
+
+	// Funds in a different ETH account cannot pay this token's gas fee.
+	require.NoError(t, b.checkSwapQuoteGasFunds(tokenCode, quote))
+	require.True(t, quote.Routes[0].InsufficientGasFunds)
+	setAccountBalance(t, b, parentCode, 1000000000000000)
+	require.NoError(t, b.checkSwapQuoteGasFunds(tokenCode, quote))
+	require.False(t, quote.Routes[0].InsufficientGasFunds)
+
+	parent := b.Accounts().lookup(parentCode).Account.(*accountsMocks.InterfaceMock)
+	parent.BalanceFunc = func() (*accounts.Balance, error) { return nil, accounts.ErrSyncInProgress }
+	require.Equal(t, accounts.ErrSyncInProgress, errp.Cause(b.checkSwapQuoteGasFunds(tokenCode, quote)))
+
+	// Native assets do not need the ERC20 gas check.
+	for _, code := range []accountsTypes.Code{parentCode, "v0-55555555-btc-0"} {
+		require.NoError(t, b.checkSwapQuoteGasFunds(code, quote))
+		require.False(t, quote.Routes[0].InsufficientGasFunds)
+	}
+
+	b.httpClient = &http.Client{Transport: swapQuoteTransport(func(*http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(strings.NewReader(`{"routes":[{"routeId":"route"}]}`)),
+			Header:     make(http.Header),
+		}, nil
+	})}
+	for _, unavailable := range []bool{false, true} {
+		setAccountBalance(t, b, parentCode, 0)
+		if unavailable {
+			parent.BalanceFunc = func() (*accounts.Balance, error) { return nil, accounts.ErrSyncInProgress }
+		}
+		result, quoteError := b.SwapQuote(tokenCode, "btc", "2")
+		require.Equal(t, errp.ErrorCode("insufficientFunds"), result.ValidationErrorCode)
+		if unavailable {
+			require.Nil(t, result.Quote)
+			require.NotNil(t, quoteError)
+			require.Equal(t, errp.ErrorCode("unexpectedError"), quoteError.ErrorCode)
+			require.Equal(t, accounts.ErrSyncInProgress.Error(), quoteError.Message)
+		} else {
+			require.Nil(t, quoteError)
+			require.NotNil(t, result.Quote)
+			require.Len(t, result.Quote.Routes, 1)
+			require.True(t, result.Quote.Routes[0].InsufficientGasFunds)
+		}
+	}
+}
 
 func TestSwapBuyAccountsRequireConnectedKeystore(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)

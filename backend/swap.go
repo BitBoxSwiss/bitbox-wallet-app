@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	btcaddresses "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
@@ -66,6 +67,80 @@ const (
 type SwapStatus struct {
 	Available         bool                  `json:"available"`
 	ConnectedKeystore SwapConnectedKeystore `json:"connectedKeystore"`
+}
+
+// SwapQuoteResult can include routes even when the sell amount exceeds the balance.
+type SwapQuoteResult struct {
+	Quote *swapkit.QuoteResponse
+	// ValidationErrorCode reports a balance error independently of quote retrieval.
+	ValidationErrorCode errp.ErrorCode
+}
+
+// SwapQuote validates the sell amount, fetches routes, and checks the parent account's gas funds.
+// Amount validation is reported independently of quote retrieval errors.
+func (backend *Backend) SwapQuote(
+	sellAccountCode accountsTypes.Code,
+	buyCoinCode, sellAmount string,
+) (SwapQuoteResult, *swapkit.APIError) {
+	errorResult := func(code errp.ErrorCode, message string) (SwapQuoteResult, *swapkit.APIError) {
+		return SwapQuoteResult{}, &swapkit.APIError{ErrorCode: code, Message: message}
+	}
+	sellAccount, err := backend.GetAccountFromCode(sellAccountCode)
+	if err != nil {
+		return errorResult(swapkit.ErrInvalidRequest, err.Error())
+	}
+	buyCoin, err := backend.Coin(coinpkg.Code(buyCoinCode))
+	if err != nil {
+		return errorResult(swapkit.ErrInvalidRequest, err.Error())
+	}
+	var validationErrorCode errp.ErrorCode
+	sellCoin := sellAccount.Coin()
+	parsedAmount, err := sellCoin.ParseAmount(sellAmount)
+	if err != nil {
+		return errorResult(swapkit.ErrInvalidRequest, err.Error())
+	}
+	if err := swapkit.ValidateSwapSellAmount(sellAccount, parsedAmount); err != nil {
+		if errp.Cause(err) != accountErrors.ErrInsufficientFunds {
+			return errorResult(swapkit.ErrInvalidRequest, err.Error())
+		}
+		validationErrorCode = errp.ErrorCode(accountErrors.ErrInsufficientFunds)
+	}
+	sellAmount, err = swapkit.FormatAmount(sellCoin, sellAmount)
+	if err != nil {
+		return errorResult(swapkit.ErrInvalidRequest, err.Error())
+	}
+	quote, quoteError := swapkit.NewQuoteFromCoinCode(
+		context.Background(), backend.httpClient, sellCoin, buyCoin, sellAmount,
+	)
+	result := SwapQuoteResult{ValidationErrorCode: validationErrorCode}
+	if quoteError != nil {
+		return result, quoteError
+	}
+	if err := backend.checkSwapQuoteGasFunds(sellAccountCode, quote); err != nil {
+		return result, &swapkit.APIError{ErrorCode: errp.ErrorCode("unexpectedError"), Message: err.Error()}
+	}
+	result.Quote = quote
+	return result, nil
+}
+
+// checkSwapQuoteGasFunds checks ERC20 quote fees against the token's parent ETH account.
+func (backend *Backend) checkSwapQuoteGasFunds(sellAccountCode accountsTypes.Code, quote *swapkit.QuoteResponse) error {
+	sellAccount := backend.Accounts().lookup(sellAccountCode)
+	if sellAccount == nil {
+		return errp.Newf("Unknown swap sell account %s", sellAccountCode)
+	}
+	if sellAccount.ParentCode == nil {
+		return nil
+	}
+	parentAccount, err := backend.GetAccountFromCode(*sellAccount.ParentCode)
+	if err != nil {
+		return err
+	}
+	balance, err := parentAccount.Balance()
+	if err != nil {
+		return err
+	}
+	return quote.CheckGasBalance(balance.Available())
 }
 
 // SwapAccounts returns the accounts that can be selected in the swap screen.
