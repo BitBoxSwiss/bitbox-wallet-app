@@ -95,17 +95,22 @@ public class PriceWidgetProvider extends AppWidgetProvider {
                 Future<?> refresh = manager.cancelUniqueWork(REFRESH_WORK).getResult();
                 periodic.get();
                 refresh.get();
-                if (!preferences(app).edit().remove(PUBLISHED_STATE).commit()) {
-                    Log.w("bitboxapp", "Could not clear price widget state");
-                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 Log.w("bitboxapp", "Price widget cleanup interrupted", e);
             } catch (Exception e) {
                 Log.w("bitboxapp", "Could not clean up price widget", e);
             } finally {
-                if (result != null) {
-                    result.finish();
+                try {
+                    if (!preferences(app).edit().remove(PUBLISHED_STATE).commit()) {
+                        Log.w("bitboxapp", "Could not clear price widget state");
+                    }
+                } catch (Exception e) {
+                    Log.w("bitboxapp", "Could not clear price widget state", e);
+                } finally {
+                    if (result != null) {
+                        result.finish();
+                    }
                 }
             }
         });

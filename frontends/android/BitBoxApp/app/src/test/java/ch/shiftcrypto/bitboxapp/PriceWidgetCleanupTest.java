@@ -84,13 +84,25 @@ public class PriceWidgetCleanupTest {
         assertFalse(context.getSharedPreferences("price-widget", Context.MODE_PRIVATE).contains("publishedState"));
     }
 
-    // A failed cancellation must still release the pending broadcast instead of leaving it to time out.
+    // A failed periodic cancellation must still clear the saved display and release the pending broadcast.
     @Test
-    public void finishesBroadcastWhenCancellationFails() throws Exception {
+    public void clearsStateAndFinishesBroadcastWhenPeriodicCancellationFails() throws Exception {
         disableWidget();
         assertTrue(ShadowWorkManager.periodic.awaiting.await(5, TimeUnit.SECONDS));
         ShadowWorkManager.periodic.result.setException(new IllegalStateException("failed"));
         finished.get(5, TimeUnit.SECONDS);
+        assertFalse(context.getSharedPreferences("price-widget", Context.MODE_PRIVATE).contains("publishedState"));
+    }
+
+    // A failed refresh cancellation must not skip display cleanup after periodic cancellation succeeds.
+    @Test
+    public void clearsStateAndFinishesBroadcastWhenRefreshCancellationFails() throws Exception {
+        disableWidget();
+        ShadowWorkManager.periodic.result.set(Operation.SUCCESS);
+        assertTrue(ShadowWorkManager.refresh.awaiting.await(5, TimeUnit.SECONDS));
+        ShadowWorkManager.refresh.result.setException(new IllegalStateException("failed"));
+        finished.get(5, TimeUnit.SECONDS);
+        assertFalse(context.getSharedPreferences("price-widget", Context.MODE_PRIVATE).contains("publishedState"));
     }
 
     private void disableWidget() {
