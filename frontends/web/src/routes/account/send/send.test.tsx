@@ -3,7 +3,7 @@
 import i18n from '../../../../__mocks__/i18n';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
 import { convertToCurrency } from '@/api/coins';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
