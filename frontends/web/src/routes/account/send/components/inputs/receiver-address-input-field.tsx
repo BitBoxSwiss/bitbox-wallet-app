@@ -23,7 +23,7 @@ type TProps = {
   labelSection?: JSX.Element;
   onAccountChange?: (account: TAccount | null) => void;
   onInputChange: (value: string) => void;
-  onScanQR: () => void;
+  onScanQR: (onReset?: () => void) => void;
   recipientAddress: string;
   requireSendToSelfSupport?: boolean;
 };
@@ -62,13 +62,14 @@ export const ReceiverAddressInputField = ({
 }: TProps) => {
   const showPasteButton = canReadClipboard();
 
-  const handlePaste = async () => {
+  const handlePaste = async (onReset?: () => void) => {
     if (!navigator.clipboard?.readText) {
       return;
     }
     try {
       const value = (await navigator.clipboard.readText()).trim();
       if (value) {
+        onReset?.();
         onInputChange(value);
       }
     } catch (error) {
@@ -76,10 +77,10 @@ export const ReceiverAddressInputField = ({
     }
   };
 
-  const inputActions = (
+  const renderInputActions = (onReset?: () => void) => (
     <>
-      <ScanQRButton onClick={onScanQR} />
-      {showPasteButton && <PasteButton onClick={handlePaste} />}
+      <ScanQRButton onClick={() => onScanQR(onReset)} />
+      {showPasteButton && <PasteButton onClick={() => handlePaste(onReset)} />}
     </>
   );
 
@@ -97,9 +98,8 @@ export const ReceiverAddressInputField = ({
         onAccountChange={onAccountChange}
         recipientAddress={recipientAddress}
         requireSendToSelfSupport={requireSendToSelfSupport}
-      >
-        {inputActions}
-      </ReceiverAddressWrapper>
+        renderActions={renderInputActions}
+      />
     );
   }
 
@@ -116,7 +116,7 @@ export const ReceiverAddressInputField = ({
       classNameInputField={`${styles.inputFieldWithIcon || ''} ${!showPasteButton ? styles.inputFieldWithoutPaste || '' : ''}`}
       labelSection={labelSection}
     >
-      {inputActions}
+      {renderInputActions()}
     </Input>
   );
 };

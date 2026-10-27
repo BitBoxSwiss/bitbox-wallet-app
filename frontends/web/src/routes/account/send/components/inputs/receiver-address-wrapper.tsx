@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, useCallback, useState, useEffect } from 'react';
+import { ChangeEvent, useCallback, useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertUser } from '@/components/alert/Alert';
 import { TGroupedOption, TOption } from '@/components/dropdown/dropdown';
@@ -40,7 +40,7 @@ type TReceiverAddressWrapperProps = {
   onAccountChange?: (account: TAccount | null) => void;
   recipientAddress: string;
   requireSendToSelfSupport?: boolean;
-  children?: React.ReactNode;
+  renderActions?: (onReset: () => void) => React.ReactNode;
 };
 
 const AccountOption = ({ option, isSelectedValue }: Props) => {
@@ -72,13 +72,14 @@ export const ReceiverAddressWrapper = ({
   onAccountChange,
   recipientAddress,
   requireSendToSelfSupport = true,
-  children,
+  renderActions,
 }: TReceiverAddressWrapperProps) => {
   const { t } = useTranslation();
   const [showFirmwareUpgradeDialog, setShowFirmwareUpgradeDialog] = useState(false);
   const mounted = useMountedRef();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [selectedAccount, setSelectedAccount] = useState<TOption<TAccount | null> | null>(null);
+  const accountSelectionRequest = useRef(0);
   const [accountSyncStatus, setAccountSyncStatus] = useState<{ [code: string]: accountApi.TStatus }>({});
 
   const toAccountOption = (account: TAccount): TAccountOption => {
@@ -127,13 +128,17 @@ export const ReceiverAddressWrapper = ({
       return;
     }
     const selectedAccountValue = selectedOption.value;
+    const request = ++accountSelectionRequest.current;
 
     const supported = await checkFirmwareSupport(selectedAccountValue);
-    if (!supported) {
+    if (!supported || !mounted.current || request !== accountSelectionRequest.current) {
       return;
     }
     try {
       const result = await getReceiveAddressList(selectedAccountValue.code)();
+      if (!mounted.current || request !== accountSelectionRequest.current) {
+        return;
+      }
       if (!result.success) {
         console.error(result.errorMessage);
         return;
@@ -148,13 +153,16 @@ export const ReceiverAddressWrapper = ({
     } catch (e) {
       console.error(e);
     }
-  }, [onInputChange, onAccountChange, checkFirmwareSupport]);
+  }, [onInputChange, onAccountChange, checkFirmwareSupport, mounted]);
 
   const handleReset = useCallback(() => {
+    accountSelectionRequest.current++;
     setSelectedAccount(null);
-    onInputChange('');
+    if (selectedAccount !== null) {
+      onInputChange('');
+    }
     onAccountChange?.(null);
-  }, [onInputChange, onAccountChange]);
+  }, [onInputChange, onAccountChange, selectedAccount]);
 
   const checkAccountStatus = useCallback(async (accountCode: accountApi.AccountCode) => {
     if (!mounted.current) {
@@ -215,7 +223,7 @@ export const ReceiverAddressWrapper = ({
           </span>
         ) : undefined}
       >
-        {children}
+        {renderActions?.(handleReset)}
       </InputWithDropdown>
       <FirmwareUpgradeRequiredDialog
         open={showFirmwareUpgradeDialog}

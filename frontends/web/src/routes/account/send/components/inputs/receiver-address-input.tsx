@@ -17,7 +17,7 @@ type TReceiverAddressInputProps = {
   addressError?: string;
   onInputChange: (value: string) => void;
   onAccountChange?: (account: accountApi.TAccount | null) => void;
-  parseQRResult: (uri: string) => void;
+  parseQRResult: (uri: string, onReset?: () => void) => void;
   recipientAddress: string;
 };
 
@@ -45,6 +45,7 @@ export const ReceiverAddressInput = ({
 
   const parseQRResultRef = useRef(parseQRResult);
   parseQRResultRef.current = parseQRResult;
+  const resetAccountRef = useRef<(() => void) | undefined>(undefined);
 
   const handleSendToSelf = useCallback(async () => {
     if (!accountCode) {
@@ -65,12 +66,13 @@ export const ReceiverAddressInput = ({
     }
   }, [accountCode, onInputChange]);
 
-  const toggleScanQR = useCallback(() => {
-    setActiveScanQR(prev => !prev);
+  const showScanQR = useCallback((onReset?: () => void) => {
+    resetAccountRef.current = onReset;
+    setActiveScanQR(true);
   }, []);
 
   const handleParseQRResult = useCallback((result: string) => {
-    parseQRResultRef.current(result);
+    parseQRResultRef.current(result, resetAccountRef.current);
   }, []);
 
   return (
@@ -95,7 +97,7 @@ export const ReceiverAddressInput = ({
         ) : undefined}
         onInputChange={onInputChange}
         onAccountChange={onAccountChange}
-        onScanQR={toggleScanQR}
+        onScanQR={showScanQR}
         recipientAddress={recipientAddress}
       />
     </>
