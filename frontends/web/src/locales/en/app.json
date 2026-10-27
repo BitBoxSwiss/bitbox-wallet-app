@@ -318,7 +318,7 @@
       "unpaired": "An unpaired BitBox has been detected. Please verify the pairing code matches what is shown on your BitBox."
     },
     "passphrase": {
-      "confirmHostEntry": "Confirm on the BitBox to enter the passphrase on the host",
+      "confirmHostEntry": "Confirm on the BitBox to enter the passphrase in the app",
       "confirmTitle": "Confirm passphrase on BitBox",
       "dialogTitle": "Enter passphrase",
       "enter": "Enter BitBox passphrase",
