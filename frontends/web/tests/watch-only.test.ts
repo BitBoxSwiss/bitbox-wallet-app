@@ -4,11 +4,13 @@ import { expect, Locator, Page } from '@playwright/test';
 import { deleteAccountsFile, deleteConfigFile } from './helpers/fs';
 import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
+import { launchRegtest, setupRegtestWallet, cleanupRegtest } from './helpers/regtest';
 import { startSimulator, stopSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
 import { assertFieldsCount, clickButtonWithText } from './helpers/dom';
 import { ChildProcess } from 'child_process';
 
 let servewallet: ServeWallet | undefined;
+let regtest: ChildProcess | undefined;
 let simulatorProc : ChildProcess | undefined;
 
 const INITIAL_WALLET_NAME = 'Initial';
@@ -126,7 +128,7 @@ const renameConnectedDevice = async (page: Page, newName: string, expectedSideba
 /**
  * Test scenario 1:
  * - Unlock BB02 with no passphrase.
- * - Wait for accounts to load
+ * - Wait for the local regtest account to load
  * - Disconnect BB02 (kill the simulator)
  * - Check that accounts disappear
  * - Restart app (kill and restart servewallet)
@@ -134,7 +136,7 @@ const renameConnectedDevice = async (page: Page, newName: string, expectedSideba
  */
 test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
     await servewallet.start();
   });
 
@@ -146,9 +148,8 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
     await completeWalletSetupFlow(page);
   });
 
-  await test.step('Check that three accounts show up', async () => {
-    // Wait for the three accounts to show up
-    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
+  await test.step('Check that the regtest account shows up', async () => {
+    await assertFieldsCount(page, 'data-testid', 'account-name', 1);
   });
 
   await test.step('Kill simulator', async () => {
@@ -173,7 +174,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
 /**
  * Test scenario 2:
  * - Unlock BB02 with no passphrase.
- * - Wait for accounts to load
+ * - Wait for the local regtest account to load
  * - Enable "Remember wallet" (watch-only)
  * - Disconnect BB02 (kill the simulator)
  * - Check that watch-only accounts show up
@@ -182,7 +183,7 @@ test('Test #1 - No passphrase and no watch-only', async ({ page, host, frontendP
  */
 test('Test #2 - No passphrase - Watch-only account', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
     await servewallet.start();
   });
 
@@ -195,8 +196,8 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
     await completeWalletSetupFlow(page);
   });
 
-  await test.step('Check that three accounts show up', async () => {
-    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
+  await test.step('Check that the regtest account shows up', async () => {
+    await assertFieldsCount(page, 'data-testid', 'account-name', 1);
   });
 
   await test.step('Enable watch-only account', async () => {
@@ -213,7 +214,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
 
   await test.step('Check that watch-only accounts shows up', async () => {
     await page.getByRole('link', { name: 'My portfolio' }).click();
-    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 1);
   });
 
 
@@ -222,14 +223,14 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
   });
 
   await test.step('Check that accounts still show up', async () => {
-    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 1);
   });
 });
 
 /**
  * Test scenario 3:
  * - Unlock BB02 with no passphrase.
- * - Wait for accounts to load
+ * - Wait for the local regtest account to load
  * - Enable "Remember wallet" (watch-only)
  * - Disconnect BB02 (kill the simulator)
  * - Go to Manage accounts -> Add account
@@ -237,7 +238,7 @@ test('Test #2 - No passphrase - Watch-only account', async ({ page, host, fronte
  */
 test('Test #3 - Watch-only add account prompts for keystore', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
     await servewallet.start();
   });
 
@@ -290,11 +291,12 @@ test('Test #3 - Watch-only add account prompts for keystore', async ({ page, hos
   });
 });
 
+// Two local regtest wallets must reorder consistently when the connected device is renamed.
 test('Test #4 - Keystore rename updates and reorders watch-only wallets', async ({ page, host, frontendPort, servewalletPort }, testInfo) => {
   const desktopViewport = page.viewportSize() ?? { width: 1280, height: 720 };
 
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
     await servewallet.start();
   });
 
@@ -305,7 +307,7 @@ test('Test #4 - Keystore rename updates and reorders watch-only wallets', async 
 
   await test.step('Initialize first wallet', async () => {
     await completeWalletSetupFlow(page, INITIAL_WALLET_NAME);
-    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 1);
     await assertSidebarKeystoreOrder(page, [INITIAL_WALLET_NAME]);
   });
 
@@ -325,14 +327,14 @@ test('Test #4 - Keystore rename updates and reorders watch-only wallets', async 
     simulatorProc = undefined;
     await page.goto('/#/account-summary');
     await assertSidebarKeystoreConnectionStates(page, ['false']);
-    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 1);
     await assertSidebarKeystoreOrder(page, [FIRST_RENAMED_WALLET_NAME]);
   });
 
   await test.step('Start a fresh simulator without fake memory and initialize a wallet that sorts before the first', async () => {
     startTestSimulator(testInfo.outputDir);
     await completeWalletSetupFlow(page, SECOND_INITIAL_WALLET_NAME);
-    await assertFieldsCount(page, 'data-testid', 'account-name', 6);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 2);
   });
 
   await test.step('Verify the new wallet is sorted before the watch-only wallet everywhere relevant', async () => {
@@ -362,12 +364,13 @@ test('Test #4 - Keystore rename updates and reorders watch-only wallets', async 
 });
 
 
-// Ensure a clean state before each test, as these scenarios intentionally mutate persisted
-// watch-only and frontend config state.
-test.beforeEach(() => {
+// Use a fresh local chain and wallet state for every watch-only scenario.
+test.beforeEach(async () => {
   deleteAccountsFile();
   deleteConfigFile();
   cleanFakeMemoryFiles();
+  regtest = await launchRegtest();
+  await setupRegtestWallet();
 });
 
 // Kill the simulator and stop the servewallet after each run.
@@ -379,4 +382,6 @@ test.afterEach(async () => {
   }
   await servewallet?.stop();
   servewallet = undefined;
+  await cleanupRegtest(regtest);
+  regtest = undefined;
 });

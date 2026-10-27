@@ -53,6 +53,14 @@ Method that might be helpful in more than one test should reside here; this is a
   this fixture to avoid depending on the public rates service. BTC is worth USD 50,000, so
   funding 10 RBTC crosses the USD 1,000 backup threshold. Historical prices are empty;
   the backend still computes balances and backup eligibility from real wallet state.
+- [regtest.ts](./helpers/regtest.ts) starts and cleans up local Bitcoin and Electrum
+  containers. Use `launchRegtest()` and `setupRegtestWallet()` before starting
+  `ServeWallet` with `{ regtest: true, testnet: false }`, and call `cleanupRegtest()`
+  after stopping the app. Add `simulator: true` for hardware-wallet scenarios.
+  Regtest creates one Bitcoin account per new wallet. The hide-amounts, portfolio
+  percentage, and watch-only tests use this setup to avoid remote testnet servers;
+  the hide-amounts test also uses fixed rates. The testnet-restart test deliberately
+  retains mainnet/testnet mode switching.
 
 ### Caveats
 There are a few things that should be kept in mind when writing tests, due to the nature of the test environment.

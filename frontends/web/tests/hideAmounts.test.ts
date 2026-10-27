@@ -4,11 +4,13 @@ import { expect } from '@playwright/test';
 import { deleteAccountsFile, deleteConfigFile } from './helpers/fs';
 import { test } from './helpers/fixtures';
 import { ServeWallet } from './helpers/servewallet';
+import { launchRegtest, setupRegtestWallet, cleanupRegtest } from './helpers/regtest';
 import { startSimulator, stopSimulator, completeWalletSetupFlow, cleanFakeMemoryFiles } from './helpers/simulator';
 import { assertFieldsCount } from './helpers/dom';
 import { ChildProcess } from 'child_process';
 
 let servewallet: ServeWallet | undefined;
+let regtest: ChildProcess | undefined;
 let simulatorProc: ChildProcess | undefined;
 
 const getSimulatorPath = (): string => {
@@ -19,12 +21,17 @@ const getSimulatorPath = (): string => {
   return simulatorPath;
 };
 
-// With fixed rates, hiding balances must preserve every loaded unit price.
+// With a local regtest account and fixed rates, hiding balances must preserve its unit price.
 test('Unit prices remain visible when amounts are hidden', async ({ page, host, frontendPort, servewalletPort, ratesURL }, testInfo) => {
   let visibleUnitPrices: string[];
 
+  await test.step('Start regtest and init wallet', async () => {
+    regtest = await launchRegtest();
+    await setupRegtestWallet();
+  });
+
   await test.step('Start servewallet', async () => {
-    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { simulator: true });
+    servewallet = new ServeWallet(page, servewalletPort, frontendPort, host, testInfo.outputDir, { regtest: true, testnet: false, simulator: true });
     await servewallet.start({ extraFlags: { coingeckoURL: ratesURL } });
   });
 
@@ -37,13 +44,13 @@ test('Unit prices remain visible when amounts are hidden', async ({ page, host, 
   });
 
   await test.step('Wait for accounts to load', async () => {
-    await assertFieldsCount(page, 'data-testid', 'account-name', 3);
+    await assertFieldsCount(page, 'data-testid', 'account-name', 1);
   });
 
   await test.step('Navigate to account summary and wait for unit prices', async () => {
     await page.goto('/#/account-summary');
     const unitPrices = page.locator('[data-testid="unit-price-amount"]');
-    await expect(unitPrices).toHaveCount(3, { timeout: 30000 });
+    await expect(unitPrices).toHaveCount(1, { timeout: 30000 });
     for (const unitPrice of await unitPrices.all()) {
       await expect(unitPrice).toBeVisible({ timeout: 30000 });
       await expect(unitPrice).toContainText(/\d/, { timeout: 30000 });
@@ -57,7 +64,7 @@ test('Unit prices remain visible when amounts are hidden', async ({ page, host, 
 
   await test.step('Verify fiat balances are hidden', async () => {
     const fiatBalances = page.locator('[data-testid="fiat-balance"]');
-    await expect(fiatBalances).toHaveCount(3);
+    await expect(fiatBalances).toHaveCount(1);
     for (const balance of await fiatBalances.all()) {
       await expect(balance).toContainText('***');
     }
@@ -82,6 +89,8 @@ test.afterEach(async () => {
   }
   await servewallet?.stop();
   servewallet = undefined;
+  await cleanupRegtest(regtest);
+  regtest = undefined;
   deleteConfigFile();
   deleteAccountsFile();
   cleanFakeMemoryFiles();
