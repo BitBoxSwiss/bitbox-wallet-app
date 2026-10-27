@@ -26,8 +26,8 @@
     justify-content: center;
 }
 
-/* Fullscreen views cover the app banners, so keep genuine-check failures visible here too. */
-.attestationWarnings {
+/* Keep banners visible above fullscreen content. */
+.banners {
     background: var(--background);
     flex-shrink: 0;
     padding: var(--space-half);
@@ -36,16 +36,16 @@
     z-index: 1;
 }
 
-.attestationWarnings:empty {
+.banners:empty {
     display: none;
 }
 
-.attestationWarnings > div {
+.banners > div {
     margin: 0 auto;
     max-width: var(--content-width);
 }
 
-.attestationWarnings > div:last-child > div {
+.banners > div:last-child > div {
     margin-bottom: 0;
 }
 

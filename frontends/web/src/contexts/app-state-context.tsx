@@ -5,11 +5,18 @@ import type { TAccount } from '@/api/account';
 import type { TDevices } from '@/api/devices';
 import type { TLightningAccount } from '@/api/lightning';
 
+export type TAppMode = 'waiting' | 'unlock' | 'aopp' | 'setup' | 'running';
+
 export type TAppState = {
   accounts: TAccount[];
   activeAccounts: TAccount[];
   deviceIDs: string[];
   devices: TDevices;
+  mode?: TAppMode;
+  unlock?: {
+    deviceID: string;
+    attestation: boolean | null | undefined;
+  };
   hasAccounts: boolean;
   hasBottomNavigation: boolean;
   hasDevices: boolean;

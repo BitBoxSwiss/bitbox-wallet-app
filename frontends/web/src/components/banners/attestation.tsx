@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { attestationCheckDone, verifyAttestation } from '@/api/bitbox02';
 import type { TDevices } from '@/api/devices';
 import { AppContext } from '@/contexts/AppContext';
+import { AppStateContext } from '@/contexts/app-state-context';
 import { useSync } from '@/hooks/api';
 import { SessionStatus } from '@/components/status/status-session';
 
@@ -36,12 +37,18 @@ const DeviceAttestationWarning = ({ deviceID }: TDeviceProps) => {
 
 type TProps = {
   devices: TDevices;
-  excludeDeviceID?: string;
 };
 
 // Device state and transport must not determine whether a failed genuine check is shown.
-export const AttestationWarnings = ({ devices, excludeDeviceID }: TProps) => {
+export const AttestationWarnings = ({ devices }: TProps) => {
   const { updateSessionConfig } = useContext(AppContext);
+  const appState = useContext(AppStateContext);
+  // Suppress only the device whose non-dismissible warning is already visible.
+  const excludeDeviceID = (
+    appState?.mode === 'unlock' && appState.unlock?.attestation === false
+      ? appState.unlock.deviceID
+      : undefined
+  );
   const previousDevices = useRef(devices);
 
   useEffect(() => {

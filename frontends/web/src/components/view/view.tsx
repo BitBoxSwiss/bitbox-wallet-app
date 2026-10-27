@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ReactNode, useContext } from 'react';
-import { AppStateContext } from '@/contexts/app-state-context';
-import { AttestationWarnings } from '@/components/banners/attestation';
+import { ReactNode } from 'react';
+import { FullscreenBanners } from '@/components/banners/fullscreen';
 import { useDarkmode } from '@/hooks/darkmode';
 import { LanguageSwitch } from '@/components/language/language';
 import { Version } from '@/components/layout/version';
@@ -15,7 +14,6 @@ type TViewProps = {
   dialog?: boolean;
   fitContent?: boolean;
   fullscreen?: boolean;
-  hideAttestationWarningFor?: string;
   children: ReactNode;
   minHeight?: string;
   onClose?: () => void;
@@ -32,7 +30,6 @@ type TViewProps = {
  * @param dialog wether to render the view as a dialog
  * @param fitContent tries to squeeze the whole view into the visible area, if true the icon specified through ViewContent withIcon will shrink if the visible area is bigger than the window height
  * @param fullscreen wether the View container should cover the whole window
- * @param hideAttestationWarningFor device whose genuine-check warning is already rendered by this view
  * @param minHeight optional minimum height, useful for keeping content area same size through multiple views
  * @param onClose if a callback is provided it will render a close button that triggers the callback
  * @param scrollableContent keeps the view within the visible area so that a scrollable element in the content area scrolls instead of the page, which keeps the buttons in view, implies fitContent
@@ -46,7 +43,6 @@ export const View = ({
   dialog = false,
   fitContent = false,
   fullscreen,
-  hideAttestationWarningFor,
   children,
   minHeight,
   onClose,
@@ -58,7 +54,6 @@ export const View = ({
   withMobileSafetyMargin = false,
 }: TViewProps) => {
   const { isDarkMode } = useDarkmode();
-  const appState = useContext(AppStateContext);
   const containerClasses = `
     ${style[fullscreen ? 'fullscreen' : 'fill'] || ''}
     ${scrollableContent && style.scrollableContent || ''}
@@ -79,9 +74,9 @@ export const View = ({
   };
   return (
     <div className={containerClasses}>
-      {fullscreen && appState && (
-        <div className={style.attestationWarnings}>
-          <AttestationWarnings devices={appState.devices} excludeDeviceID={hideAttestationWarningFor} />
+      {fullscreen && (
+        <div className={style.banners}>
+          <FullscreenBanners />
         </div>
       )}
       <div

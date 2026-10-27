@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { type ReactNode, useContext, useMemo } from 'react';
-import { AppStateContext } from './app-state-context';
+import { AppStateContext, type TAppMode, type TAppState } from './app-state-context';
 import { useSync } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
 import { getAccounts } from '@/api/account';
@@ -44,6 +44,7 @@ export const AppStateProvider = ({ children }: TProps) => {
   const { vendorIframeActive } = useContext(AppContext);
 
   const hasAccounts = activeAccounts.length > 0;
+  const mode: TAppMode = hasDevices || hasAccounts || hasLightningAccount ? 'running' : 'waiting';
 
   const hasBottomNavigation = (
     !vendorIframeActive
@@ -60,6 +61,7 @@ export const AppStateProvider = ({ children }: TProps) => {
     activeAccounts,
     deviceIDs,
     devices,
+    mode,
     hasAccounts,
     hasBottomNavigation,
     hasDevices,
@@ -70,6 +72,7 @@ export const AppStateProvider = ({ children }: TProps) => {
     activeAccounts,
     deviceIDs,
     devices,
+    mode,
     hasAccounts,
     hasBottomNavigation,
     hasDevices,
@@ -78,9 +81,21 @@ export const AppStateProvider = ({ children }: TProps) => {
   ]);
 
   return (
-    <AppStateContext.Provider
-      value={value}>
+    <AppStateContext.Provider value={value}>
       {children}
     </AppStateContext.Provider>
   );
+};
+
+type TAppModeProps = {
+  children: ReactNode;
+  mode: TAppMode;
+  unlock?: TAppState['unlock'];
+};
+
+export const AppModeProvider = ({ children, mode, unlock }: TAppModeProps) => {
+  const appState = useContext(AppStateContext);
+  const value = useMemo(() => appState && ({ ...appState, mode, unlock }), [appState, mode, unlock]);
+
+  return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
 };
