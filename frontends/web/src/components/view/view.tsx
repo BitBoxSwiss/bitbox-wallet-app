@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode } from 'react';
+import { FullscreenBanners } from '@/components/banners/fullscreen';
 import { useDarkmode } from '@/hooks/darkmode';
 import { LanguageSwitch } from '@/components/language/language';
 import { Version } from '@/components/layout/version';
@@ -73,6 +74,11 @@ export const View = ({
   };
   return (
     <div className={containerClasses}>
+      {fullscreen && (
+        <div className={style.banners}>
+          <FullscreenBanners />
+        </div>
+      )}
       <div
         className={classNames}
         style={inlineStyles}>

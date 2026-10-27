@@ -26,6 +26,29 @@
     justify-content: center;
 }
 
+/* Keep banners visible above fullscreen content. */
+.banners {
+    background: var(--background);
+    flex-shrink: 0;
+    padding: var(--space-half);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.banners:empty {
+    display: none;
+}
+
+.banners > div {
+    margin: 0 auto;
+    max-width: var(--content-width);
+}
+
+.banners > div:last-child > div {
+    margin-bottom: 0;
+}
+
 /* this will be applied if fullscreen is false */
 .fill {
     align-self: center;

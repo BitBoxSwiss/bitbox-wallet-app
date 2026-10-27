@@ -9,6 +9,7 @@ import { Banner } from './banner';
 import { MobileDataWarning } from './mobiledatawarning';
 import { Offline } from './offline';
 import { SDCardWarning } from './sdcard';
+import { AttestationWarnings } from './attestation';
 
 type Props = {
   devices: TDevices;
@@ -22,6 +23,7 @@ export const GlobalBanners = ({
 
   return (
     <>
+      <AttestationWarnings devices={devices} />
       <Testing />
       <Update />
       <FirmwareUpdateBanner devices={devices} />

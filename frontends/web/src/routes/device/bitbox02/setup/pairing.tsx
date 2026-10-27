@@ -10,13 +10,11 @@ import { Button } from '@/components/forms';
 import style from './pairing.module.css';
 
 type Props = {
-  attestation: boolean | null | undefined;
   deviceID: string;
   pairingFailed: boolean;
 };
 
 export const Pairing = ({
-  attestation,
   deviceID,
   pairingFailed,
 }: Props) => {
@@ -64,11 +62,6 @@ export const Pairing = ({
         )}
       </ViewHeader>
       <ViewContent>
-        { (attestation === false && !pairingFailed) && (
-          <Message type="warning" className="m-bottom-half">
-            {t('bitbox02Wizard.attestationFailed')}
-          </Message>
-        )}
         { !pairingFailed && (
           <>
             <pre className={style.hash}>{hash}</pre>

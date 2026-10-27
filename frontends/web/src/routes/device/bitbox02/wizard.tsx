@@ -93,7 +93,6 @@ export const Wizard = ({ deviceID }: TProps) => {
         <Pairing
           key="pairing"
           deviceID={deviceID}
-          attestation={attestation}
           pairingFailed={status === 'pairingFailed'} />
       )}
 

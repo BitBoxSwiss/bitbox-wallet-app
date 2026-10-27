@@ -8,6 +8,7 @@ import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { Message } from '@/components/message/message';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { useSync } from '@/hooks/api';
+import { AppModeProvider } from '@/contexts/app-state-provider';
 import { PasswordEntry } from './components/password-entry/password-entry';
 import { ForgotPasswordInfo } from './components/forgot-password-info/forgot-password-info';
 import { PassphraseDialog } from './components/passphrase-dialog';
@@ -18,6 +19,14 @@ type TProps = {
 };
 
 export const Unlock = ({ deviceID, attestation }: TProps) => {
+  return (
+    <AppModeProvider mode="unlock" unlock={{ deviceID, attestation }}>
+      <UnlockContent deviceID={deviceID} attestation={attestation} />
+    </AppModeProvider>
+  );
+};
+
+const UnlockContent = ({ deviceID, attestation }: TProps) => {
   const { t } = useTranslation();
   const passphrase = useSync(
     () => getPassphraseState(deviceID),
