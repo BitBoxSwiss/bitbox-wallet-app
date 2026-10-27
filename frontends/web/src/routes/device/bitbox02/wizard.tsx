@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
 import { useLoad, useSync } from '@/hooks/api';
-import { attestationCheckDone, getStatus, getVersion, verifyAttestation, statusChanged } from '@/api/bitbox02';
+import { attestationCheckDone, getDeviceInfo, getStatus, getVersion, setDeviceLanguage, verifyAttestation, statusChanged } from '@/api/bitbox02';
 import { AppUpgradeRequired } from '@/components/appupgraderequired';
+import { Button } from '@/components/forms';
 import { FirmwareUpgradeRequired } from '@/routes/device/upgrade-firmware-required';
 import { Main } from '@/components/layout';
+import { Spinner } from '@/components/spinner/Spinner';
+import { View, ViewButtons, ViewHeader } from '@/components/view/view';
 import { Unlock } from './unlock';
 import { Pairing } from './setup/pairing';
 import { SetupOptions, TWalletCreateOptions, TWalletSetupChoices } from './setup/choose';
@@ -19,6 +23,7 @@ type TProps = {
 };
 
 export const Wizard = ({ deviceID }: TProps) => {
+  const { t, i18n } = useTranslation();
   const [, navigate] = useLocation();
   const versionInfo = useLoad(() => getVersion(deviceID));
   const attestation = useSync(
@@ -27,7 +32,8 @@ export const Wizard = ({ deviceID }: TProps) => {
       verifyAttestation(deviceID).then(cb);
     })
   );
-  const [setupChoice, setSetupChoice] = useState<'' | TWalletSetupChoices>('');
+  const [setupChoice, setSetupChoice] = useState<'' | TWalletSetupChoices>();
+  const [setupFailed, setSetupFailed] = useState(false);
   const [createOptions, setCreateOptions] = useState<TWalletCreateOptions>();
   const [showWizard, setShowWizard] = useState<boolean>(false);
   // If true, we just pair and unlock, so we can hide some steps.
@@ -36,6 +42,8 @@ export const Wizard = ({ deviceID }: TProps) => {
     () => getStatus(deviceID),
     cb => statusChanged(deviceID, cb)
   );
+  const inSetup = status === 'uninitialized' || status === 'seeded';
+  const language = i18n.resolvedLanguage;
   const handleGetStarted = () => {
     setShowWizard(false);
     navigate('/account-summary?with-chart-animation=true');
@@ -52,6 +60,47 @@ export const Wizard = ({ deviceID }: TProps) => {
       setUnlockOnly(false);
     }
   }, [status, showWizard, unlockOnly]);
+
+  useEffect(() => {
+    if (!inSetup || setupChoice !== undefined || setupFailed) {
+      return;
+    }
+    let cancelled = false;
+    const prepareSetup = async () => {
+      try {
+        const result = await getDeviceInfo(deviceID);
+        if (cancelled) {
+          return;
+        }
+        if (!result.success) {
+          throw new Error(result.message);
+        }
+        const { deviceInfo } = result;
+        if (deviceInfo.initialized) {
+          return;
+        }
+        const targetLanguage = language && deviceInfo.supportedLanguages?.includes(language) ? language : 'en';
+        if (deviceInfo.supportedLanguages?.includes(targetLanguage) && deviceInfo.language !== targetLanguage) {
+          const result = await setDeviceLanguage(deviceID, targetLanguage);
+          if (!result.success) {
+            throw new Error(result.message);
+          }
+        }
+        if (!cancelled) {
+          setSetupChoice('');
+        }
+      } catch (error) {
+        console.error(error);
+        if (!cancelled) {
+          setSetupFailed(true);
+        }
+      }
+    };
+    prepareSetup();
+    return () => {
+      cancelled = true;
+    };
+  }, [deviceID, inSetup, setupChoice, setupFailed, language]);
 
   const handleAbort = () => {
     setSetupChoice('');
@@ -77,8 +126,24 @@ export const Wizard = ({ deviceID }: TProps) => {
     return null;
   }
   // fixes empty main element, happens when after unlocking the device, reason wizard is now always mounted in app.tsx
-  if (setupChoice === '' && status === 'initialized') {
+  if (!setupChoice && status === 'initialized') {
     return null;
+  }
+  if (inSetup && setupChoice === undefined) {
+    return (
+      <Main>
+        {setupFailed ? (
+          <View fullscreen textCenter verticallyCentered width="720px" withMobileSafetyMargin>
+            <ViewHeader title={t('genericError')} />
+            <ViewButtons>
+              <Button primary onClick={() => setSetupFailed(false)}>
+                {t('generic.retry')}
+              </Button>
+            </ViewButtons>
+          </View>
+        ) : <Spinner text={t('loading')} />}
+      </Main>
+    );
   }
   return (
     <Main>
