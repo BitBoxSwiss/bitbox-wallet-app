@@ -59,6 +59,11 @@
     margin: 0;
 }
 
+.highFeeWarning {
+    font-size: var(--size-small);
+    line-height: 1.8;
+}
+
 .rowCustomFee .priority :global(.react-select__control) {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;

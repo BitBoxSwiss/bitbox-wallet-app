@@ -4,6 +4,7 @@
 - Add option for percentage on portfolio to reflect performance
 - Mobile: add copy and open actions when touching and holding transaction explorer links, without loading a preview on iOS
 - Lightning: show the estimated claim fee before sending a top-up
+- Send: warn when transaction fees are 10% or more of the send amount
 - Lightning: preserve invoice details when going back to edit an invoice
 - Lightning: add "Send all" for Bitcoin addresses, Lightning addresses, and amountless invoices
 - Rename "Factory reset" to "Delete wallet from BitBox" (settings)
