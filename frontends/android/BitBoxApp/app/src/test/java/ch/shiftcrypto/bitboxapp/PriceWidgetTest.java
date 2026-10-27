@@ -253,8 +253,14 @@ public class PriceWidgetTest {
         assertEquals("BTC/USD", ((TextView) widgets.getViewFor(WIDGET_ID).findViewById(R.id.widget_pair)).getText().toString());
     }
 
+    // A roomy widget preserves the published quote, chart and timestamp throughout app and resize refreshes.
     @Test
     public void appAndResizeRefreshesKeepExpiredPublishedQuoteUntilFetchCompletes() throws Exception {
+        AppWidgetManager manager = AppWidgetManager.getInstance(context);
+        Bundle options = new Bundle();
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250);
+        options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 220);
+        manager.updateAppWidgetOptions(WIDGET_ID, options);
         setOnline(true);
         ShadowMobileserver.price = 100.0;
         PriceWidgetProvider.refresh(context, false).get();
@@ -266,8 +272,6 @@ public class PriceWidgetTest {
         assertEquals(updated, widgetText(R.id.widget_updated_at));
         assertEquals(View.VISIBLE, widgets.getViewFor(WIDGET_ID).findViewById(R.id.widget_chart).getVisibility());
 
-        AppWidgetManager manager = AppWidgetManager.getInstance(context);
-        Bundle options = new Bundle();
         options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 320);
         options.putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 220);
         manager.updateAppWidgetOptions(WIDGET_ID, options);
@@ -358,7 +362,8 @@ public class PriceWidgetTest {
         assertEquals(View.VISIBLE, view.findViewById(R.id.widget_unavailable).getVisibility());
         assertEquals(context.getString(message), widgetText(R.id.widget_unavailable));
         assertEquals(View.INVISIBLE, view.findViewById(R.id.widget_chart).getVisibility());
-        assertEquals(View.INVISIBLE, view.findViewById(R.id.widget_updated_at).getVisibility());
+        assertEquals(View.GONE, view.findViewById(R.id.widget_updated_at).getVisibility());
+        assertEquals(View.GONE, view.findViewById(R.id.widget_updated_time).getVisibility());
     }
 
     private PriceWidgetWorker fetchWorker() {

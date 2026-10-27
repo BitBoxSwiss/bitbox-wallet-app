@@ -13,12 +13,13 @@
         android:layout_height="wrap_content"
         android:minHeight="20dp"
         android:gravity="center_vertical"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp">
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
         <ImageView
             android:id="@+id/widget_coin"
             android:layout_width="16dp"
             android:layout_height="16dp"
+            android:layout_marginEnd="4dp"
             android:importantForAccessibility="no"
             android:src="@drawable/widget_btc" />
         <TextView
@@ -26,7 +27,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="4dp"
             android:gravity="center_vertical"
             android:maxLines="1"
             android:text="@string/price_widget_empty"
@@ -47,9 +47,8 @@
         android:id="@+id/widget_change_compact"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="20dp"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
         android:gravity="end|center_vertical"
         android:maxLines="1"
         android:text="@string/price_widget_empty"
@@ -93,17 +92,28 @@
         android:contentDescription="@string/price_widget_chart"
         android:scaleType="fitXY" />
     <TextView
-        android:id="@+id/widget_updated_at"
+        android:id="@+id/widget_updated_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="16dp"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
         android:gravity="center"
-        android:maxLines="2"
+        android:maxLines="1"
+        android:importantForAccessibility="no"
         android:textColor="@color/widget_secondary"
         android:textSize="12sp"
-        android:visibility="invisible" />
+        android:visibility="gone" />
+    <TextView
+        android:id="@+id/widget_updated_at"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textColor="@color/widget_secondary"
+        android:textSize="12sp"
+        android:visibility="gone" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"

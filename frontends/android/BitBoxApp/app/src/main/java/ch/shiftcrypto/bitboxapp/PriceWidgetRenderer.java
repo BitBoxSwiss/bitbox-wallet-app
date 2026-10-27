@@ -53,8 +53,8 @@ final class PriceWidgetRenderer {
                 return new RemoteViews(views);
             }
         }
-        int minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 250);
-        int minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 220);
+        int minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 110);
+        int minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 160);
         int maxWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, minWidth);
         int maxHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, minHeight);
         RemoteViews portrait = createViews(context, base, minWidth, maxHeight);
@@ -73,7 +73,7 @@ final class PriceWidgetRenderer {
         // Copies share the chart bitmap to keep multi-size updates within the binder limit.
         RemoteViews views = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ? new RemoteViews(base) : base.clone();
         if (!fitLayout(context, views, widthDp, heightDp)) {
-            // Existing widgets can retain dimensions below the current supported minimum.
+            // Long prices and accessibility fonts can require more than the minimum dimensions.
             views = new RemoteViews(context.getPackageName(), R.layout.price_widget_resize);
             views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context));
         }
@@ -103,13 +103,17 @@ final class PriceWidgetRenderer {
         }
         long updatedAt = state.optLong("updatedAt", 0);
         boolean showUpdatedAt = available && updatedAt > 0;
-        views.setViewVisibility(R.id.widget_updated_at, showUpdatedAt ? View.VISIBLE : View.INVISIBLE);
+        views.setViewVisibility(R.id.widget_updated_at, showUpdatedAt ? View.VISIBLE : View.GONE);
+        views.setViewVisibility(R.id.widget_updated_time, showUpdatedAt ? View.VISIBLE : View.GONE);
         if (showUpdatedAt) {
             Date updated = new Date(updatedAt);
             String time = DateFormat.getTimeInstance(DateFormat.SHORT).format(updated);
             String date = DateFormat.getDateInstance(DateFormat.SHORT).format(updated);
-            views.setTextViewText(R.id.widget_updated_at,
-                    context.getString(R.string.price_widget_updated_at, time) + "\n" + date);
+            views.setTextViewText(R.id.widget_updated_time, time);
+            views.setTextViewText(R.id.widget_updated_at, date);
+            views.setContentDescription(R.id.widget_updated_at,
+                    context.getString(R.string.price_widget_updated_at,
+                            context.getString(R.string.price_widget_timestamp, date, time)));
         }
         double change = state.optDouble("change24h", 0);
         int color = ContextCompat.getColor(context, !available || change == 0 ? R.color.widget_secondary
@@ -144,6 +148,55 @@ final class PriceWidgetRenderer {
         int width = Math.max(1, (int) (widthDp * density));
         int height = Math.max(1, (int) (heightDp * density));
         View layout = views.apply(context, new FrameLayout(context));
+        boolean fits = fitHeader(views, layout, width, height);
+        fits &= fitTimestamp(views, layout, width, height);
+
+        TextView price = layout.findViewById(R.id.widget_price);
+        TextView value = price.getVisibility() == View.VISIBLE ? price : layout.findViewById(R.id.widget_unavailable);
+        measure(layout, width, height);
+        boolean valueFits = fitText(views, value);
+        // Keep the full price, currency and date. Optional rows give up space before text becomes unreadable.
+        for (int optional : new int[]{R.id.widget_chart, R.id.widget_change_compact, R.id.widget_updated_time}) {
+            if (valueFits) {
+                break;
+            }
+            hide(views, layout.findViewById(optional));
+            measure(layout, width, height);
+            valueFits = fitText(views, value);
+        }
+        return fits && valueFits;
+    }
+
+    private static boolean fitTimestamp(RemoteViews views, View layout, int width, int height) {
+        TextView date = layout.findViewById(R.id.widget_updated_at);
+        if (date.getVisibility() != View.VISIBLE) {
+            return true;
+        }
+        TextView time = layout.findViewById(R.id.widget_updated_time);
+        CharSequence dateText = date.getText();
+        float textSize = date.getTextSize();
+        // A single timestamp row leaves more room for the price and chart in compact widgets.
+        date.setText(date.getContext().getString(R.string.price_widget_timestamp, dateText, time.getText()));
+        views.setTextViewText(date.getId(), date.getText());
+        hide(views, time);
+        measure(layout, width, height);
+        if (fitText(views, date)) {
+            return true;
+        }
+
+        date.setText(dateText);
+        views.setTextViewText(date.getId(), dateText);
+        date.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        time.setVisibility(View.VISIBLE);
+        views.setViewVisibility(time.getId(), View.VISIBLE);
+        measure(layout, width, height);
+        if (!fitText(views, time)) {
+            hide(views, time);
+        }
+        return fitText(views, date);
+    }
+
+    private static boolean fitHeader(RemoteViews views, View layout, int width, int height) {
         TextView pair = layout.findViewById(R.id.widget_pair);
         TextView inlineChange = layout.findViewById(R.id.widget_change);
         TextView compactChange = layout.findViewById(R.id.widget_change_compact);
@@ -151,8 +204,17 @@ final class PriceWidgetRenderer {
         inlineChange.setVisibility(View.GONE);
         compactChange.setVisibility(View.VISIBLE);
         measure(layout, width, height);
-        boolean fits = fitText(views, pair);
-        fits &= fitText(views, compactChange);
+        boolean pairFits = fitText(views, pair);
+        if (!pairFits) {
+            hide(views, layout.findViewById(R.id.widget_coin));
+            measure(layout, width, height);
+            pairFits = fitText(views, pair);
+        }
+        if (!fitText(views, compactChange)) {
+            hide(views, inlineChange);
+            hide(views, compactChange);
+            return pairFits;
+        }
         float gap = ((ViewGroup.MarginLayoutParams) inlineChange.getLayoutParams()).getMarginStart();
         boolean compact = Math.ceil(pair.getPaint().measureText(pair.getText().toString()))
                 + Math.ceil(compactChange.getPaint().measureText(compactChange.getText().toString())) + gap
@@ -164,20 +226,12 @@ final class PriceWidgetRenderer {
         views.setViewVisibility(R.id.widget_change, inlineChange.getVisibility());
         views.setViewVisibility(R.id.widget_change_compact, compactChange.getVisibility());
 
-        measure(layout, width, height);
-        TextView price = layout.findViewById(R.id.widget_price);
-        TextView value = price.getVisibility() == View.VISIBLE ? price : layout.findViewById(R.id.widget_unavailable);
-        boolean valueFits = fitText(views, value);
-        if (!valueFits) {
-            // Large accessibility fonts take priority over the decorative chart.
-            layout.findViewById(R.id.widget_chart).setVisibility(View.GONE);
-            views.setViewVisibility(R.id.widget_chart, View.GONE);
-            measure(layout, width, height);
-            valueFits = fitText(views, value);
-        }
-        fits &= valueFits;
-        fits &= fitText(views, layout.findViewById(R.id.widget_updated_at));
-        return fits;
+        return pairFits;
+    }
+
+    private static void hide(RemoteViews views, View view) {
+        view.setVisibility(View.GONE);
+        views.setViewVisibility(view.getId(), View.GONE);
     }
 
     private static void measure(View layout, int width, int height) {

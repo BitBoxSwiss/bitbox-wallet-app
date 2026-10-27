@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Gallery-only samples. The runtime initialLayout always keeps its loading placeholders. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:padding="12dp"
+    android:orientation="vertical" android:padding="8dp"
     android:background="@drawable/price_widget_background">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:gravity="center_vertical">
-        <ImageView android:layout_width="16dp" android:layout_height="16dp"
-            android:src="@drawable/widget_btc" android:importantForAccessibility="no" />
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-            android:layout_marginStart="4dp" android:text="@string/price_widget_preview_pair"
-            android:textSize="12sp" android:textColor="@color/widget_secondary" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/price_widget_preview_change" android:textSize="12sp"
-            android:textColor="@color/widget_positive" />
-    </LinearLayout>
+    <!-- Launchers inflate framework views, so artwork uses framework drawable attributes. -->
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="center_vertical" android:drawableStart="@drawable/widget_btc" android:drawablePadding="4dp"
+        android:text="@string/price_widget_preview_pair" android:maxLines="1"
+        android:textSize="12sp" android:textColor="@color/widget_secondary" tools:ignore="UseCompatTextViewDrawableXml" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:gravity="end" android:text="@string/price_widget_preview_change" android:textSize="12sp"
+        android:textColor="@color/widget_positive" />
+    <!-- Gallery previewLayout is used on Android 12+, where framework autosizing is available. -->
     <TextView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
         android:gravity="center" android:text="@string/price_widget_preview_price"
-        android:textSize="30sp" android:textStyle="bold" android:textColor="@color/widget_text" />
-    <ImageView android:layout_width="match_parent" android:layout_height="32dp"
+        android:textSize="14sp" android:maxLines="1"
+        android:autoSizeTextType="uniform" android:autoSizeMinTextSize="14sp"
+        android:autoSizeMaxTextSize="30sp" android:autoSizeStepGranularity="1sp"
+        android:textStyle="bold" android:textColor="@color/widget_text" tools:ignore="UnusedAttribute" />
+    <ImageView android:layout_width="match_parent" android:layout_height="24dp"
         android:src="@drawable/widget_preview_chart" android:scaleType="fitXY"
         android:contentDescription="@string/price_widget_chart" />
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
