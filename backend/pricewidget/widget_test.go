@@ -5,6 +5,8 @@ package pricewidget
 import (
 	"context"
 	"errors"
+	"io"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -244,18 +246,44 @@ func TestFreshQuoteSurvivesCacheWriteFailure(t *testing.T) {
 	assert.Empty(t, expired.Chart)
 }
 
+// Requests must negotiate SOCKS5 with the configured proxy regardless of the transport's dial API.
 func TestWidgetHonorsProxy(t *testing.T) {
+	proxy, err := net.ListenTCP("tcp", &net.TCPAddr{IP: net.ParseIP("127.0.0.1")})
+	require.NoError(t, err)
+	defer proxy.Close()
+	require.NoError(t, proxy.SetDeadline(time.Now().Add(5*time.Second)))
+	greeting := make(chan []byte, 1)
+	go func() {
+		conn, err := proxy.Accept()
+		if !assert.NoError(t, err) {
+			greeting <- nil
+			return
+		}
+		defer conn.Close()
+		assert.NoError(t, conn.SetReadDeadline(time.Now().Add(5*time.Second)))
+		data := make([]byte, 3)
+		_, err = io.ReadFull(conn, data)
+		assert.NoError(t, err)
+		greeting <- data
+	}()
+
 	dir := t.TempDir()
-	writeFixture(t, dir, "config.json", `{"backend":{"proxy":{"useProxy":true,"proxyAddress":"127.0.0.1:9050"}}}`)
+	writeFixture(t, dir, "config.json", `{"backend":{"proxy":{"useProxy":true,"proxyAddress":"`+proxy.Addr().String()+`"}}}`)
 	service := New()
-	service.fetch = func(_ context.Context, client *http.Client, _, _ string) (rates.WidgetData, error) {
-		transport, ok := client.Transport.(*http.Transport)
-		require.True(t, ok)
-		require.NotNil(t, transport.Dial, "must use the configured SOCKS dialer") //nolint:staticcheck // SA1019: socksproxy.GetHTTPClient configures only Dial.
+	service.fetch = func(ctx context.Context, client *http.Client, _, _ string) (rates.WidgetData, error) {
+		// Use the local listener as the destination too: bypassing the proxy sends HTTP instead of SOCKS5.
+		request, err := http.NewRequestWithContext(ctx, http.MethodGet, "http://"+proxy.Addr().String(), nil)
+		require.NoError(t, err)
+		response, err := client.Do(request)
+		if response != nil {
+			response.Body.Close()
+		}
+		require.Error(t, err, "the test proxy closes the connection after receiving the greeting")
 		return rates.WidgetData{}, errors.New("offline")
 	}
 	state, err := service.Load(dir, 0, true, false)
 	require.NoError(t, err)
+	assert.Equal(t, []byte{5, 1, 0}, <-greeting, "must start SOCKS5 negotiation with the configured proxy")
 	assert.Nil(t, state.Price)
 	assert.True(t, state.Retry)
 }
