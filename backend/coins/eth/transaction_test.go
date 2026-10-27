@@ -4,7 +4,9 @@ package eth
 
 import (
 	"context"
+	"io"
 	"math/big"
+	"net/http"
 	"strings"
 	"testing"
 
@@ -12,6 +14,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	ethdb "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
@@ -24,8 +27,43 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/time/rate"
 )
+
+// Fractional oracle prices retain all priorities without an unnecessary eth_gasPrice fallback.
+func TestFeeTargetsForChainFractionalOracleSkipsFallback(t *testing.T) {
+	var actions []string
+	httpClient := &http.Client{
+		Transport: chainClientRoundTripFunc(func(req *http.Request) (*http.Response, error) {
+			action := req.URL.Query().Get("action")
+			actions = append(actions, action)
+			var body string
+			switch action {
+			case "gasoracle":
+				body = `{"status":"1","message":"OK","result":{"LastBlock":"26247334","SafeGasPrice":"0.103629362","ProposeGasPrice":"0.104629362","FastGasPrice":"0.115092298","suggestBaseFee":"0.103629362"}}`
+			case "eth_gasPrice":
+				body = `{"jsonrpc":"2.0","id":1,"result":"0x1"}`
+			default:
+				t.Fatalf("unexpected action: %s", action)
+			}
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Body:       io.NopCloser(strings.NewReader(body)),
+			}, nil
+		}),
+	}
+	client := etherscan.NewEtherScan("1", httpClient, rate.NewLimiter(rate.Inf, 1))
+
+	targets := feeTargetsForChain(1, client, logrus.NewEntry(logrus.New()))
+
+	require.Equal(t, []string{"gasoracle"}, actions)
+	require.Len(t, targets, 3)
+	require.Equal(t, accounts.FeeTargetCodeHigh, targets[0].TargetCode)
+	require.Equal(t, accounts.FeeTargetCodeNormal, targets[1].TargetCode)
+	require.Equal(t, accounts.FeeTargetCodeLow, targets[2].TargetCode)
+}
 
 func TestSignTransactionNonce(t *testing.T) {
 	zero, supplied := uint64(0), uint64(7)
