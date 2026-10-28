@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TPayload } from './utils/transport-common';
+import type { TQRCommand, TQREvent } from './utils/native-qr';
 import 'react';
 
 declare module 'react' {
@@ -11,6 +12,8 @@ declare module 'react' {
 
 export declare global {
   interface Window {
+    nativeQRScanner?: { postMessage: (command: TQRCommand) => void };
+    onNativeQRScannerEvent?: (event: TQREvent) => void;
     qt?: { webChannelTransport: unknown };
     android?: {
       call: (queryID: number, query: string) => void;
