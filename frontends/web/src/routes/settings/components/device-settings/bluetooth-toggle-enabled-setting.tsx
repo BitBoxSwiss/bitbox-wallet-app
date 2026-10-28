@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PointToBitBox02 } from '@/components/icon';
 import { bluetoothToggleEnabled, errUserAbort, getDeviceInfo } from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
-import { StyledSkeleton } from '@/routes/settings/bb02-settings';
 
 type TBluetoothToggleEnabledSettingProps = {
   deviceID: string;
+  enabled: boolean;
 };
 
 type TToggleEnabledWaitDialogProps = {
@@ -34,12 +34,12 @@ const ToggleEnabledWaitDialog = ({ show, enabled }: TToggleEnabledWaitDialogProp
   );
 };
 
-const BluetoothToggleEnabledSetting = ({ deviceID }: TBluetoothToggleEnabledSettingProps) => {
+const BluetoothToggleEnabledSetting = ({ deviceID, enabled: initialEnabled }: TBluetoothToggleEnabledSettingProps) => {
   const { t } = useTranslation();
   const [show, setShow] = useState(false);
-  const [enabled, setEnabled] = useState<undefined | boolean>(undefined);
+  const [enabled, setEnabled] = useState(initialEnabled);
 
-  const updateEnabled = useCallback(async () => {
+  const updateEnabled = async () => {
     const deviceInfoResult = await getDeviceInfo(deviceID);
     if (!deviceInfoResult.success) {
       console.error(deviceInfoResult.message);
@@ -52,11 +52,7 @@ const BluetoothToggleEnabledSetting = ({ deviceID }: TBluetoothToggleEnabledSett
     }
     setEnabled(bluetooth.enabled);
     return bluetooth.enabled;
-  }, [deviceID, t]);
-
-  useEffect(() => {
-    updateEnabled();
-  }, [updateEnabled]);
+  };
 
   const handleBluetoothToggleEnabled = async () => {
     setShow(true);
@@ -80,9 +76,6 @@ const BluetoothToggleEnabledSetting = ({ deviceID }: TBluetoothToggleEnabledSett
       alertUser(t('bitbox02Settings.bluetoothToggleEnabled.alertDisabled'));
     }
   };
-  if (enabled === undefined) {
-    return <StyledSkeleton />;
-  }
   return (
     <>
       <SettingsItem

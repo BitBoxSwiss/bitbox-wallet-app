@@ -27,6 +27,7 @@ import { Bip85Setting } from './components/device-settings/bip85-setting';
 import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
+import { runningInIOS } from '@/utils/env';
 import {
   isBluetoothToggleSettingVisible,
   isDeviceBluetoothSupported,
@@ -130,10 +131,16 @@ export const ManageDeviceSettingsContent = ({
               supportedLanguages={deviceInfo.supportedLanguages}
             />
           ),
+        }] : deviceInfo === undefined ? [{
+          id: 'device-language',
+          content: <StyledSkeleton />,
         }] : []),
         ...(isBluetoothToggleSettingVisible(deviceInfo) ? [{
           id: 'bluetooth',
-          content: <BluetoothToggleEnabledSetting deviceID={deviceID} />,
+          content: <BluetoothToggleEnabledSetting deviceID={deviceID} enabled={deviceInfo.bluetooth.enabled} />,
+        }] : deviceInfo === undefined && !runningInIOS() ? [{
+          id: 'bluetooth',
+          content: <StyledSkeleton />,
         }] : []),
         {
           id: 'device-password',

@@ -29,7 +29,9 @@ export const isDeviceBluetoothSupported = (
   deviceInfo?: DeviceInfo,
 ): deviceInfo is TDeviceInfoWithBluetooth => !!deviceInfo?.bluetooth;
 
-export const isBluetoothToggleSettingVisible = (deviceInfo?: DeviceInfo) => (
+export const isBluetoothToggleSettingVisible = (
+  deviceInfo?: DeviceInfo,
+): deviceInfo is TDeviceInfoWithBluetooth => (
   isDeviceBluetoothSupported(deviceInfo) && !runningInIOS()
 );
 
