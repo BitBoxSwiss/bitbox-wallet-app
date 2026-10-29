@@ -501,7 +501,24 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*pendingTxProposal
 		return nil, errp.WithStack(errors.TxValidationError(err.Error()))
 	}
 
-	fee := new(big.Int).Mul(new(big.Int).SetUint64(gasLimit), suggestedGasFeeCap)
+	keystore, err := account.Config().ConnectKeystore()
+	if err != nil {
+		return nil, err
+	}
+	supportsEIP1559 := keystore.SupportsEIP1559()
+
+	gasTipCap := suggestedGasTipCap
+	if args.Amount.SendAll() && account.coin.erc20Token == nil {
+		// A fixed price spends exactly the reserved fee, so nothing is left behind.
+		gasTipCap = suggestedGasFeeCap
+	}
+	gasFeeCap := suggestedGasFeeCap
+	if supportsEIP1559 {
+		// 2 * base fee + tip lets the base fee double before the tx gets stuck. Adds nothing when
+		// the tip is the whole fee cap (custom fee, eth_gasPrice fallback, send-all), as it would be paid.
+		gasFeeCap = new(big.Int).Sub(new(big.Int).Mul(suggestedGasFeeCap, big.NewInt(2)), gasTipCap)
+	}
+	fee := new(big.Int).Mul(new(big.Int).SetUint64(gasLimit), gasFeeCap)
 
 	// Adjust amount with fee
 	if account.coin.erc20Token != nil {
@@ -528,19 +545,14 @@ func (account *Account) newTx(args *accounts.TxProposalArgs) (*pendingTxProposal
 		}
 	}
 
-	keystore, err := account.Config().ConnectKeystore()
-	if err != nil {
-		return nil, err
-	}
-
 	var txData types.TxData
 
 	// The final nonce is assigned under the sender lock before signing.
-	if keystore.SupportsEIP1559() {
+	if supportsEIP1559 {
 		txData = &types.DynamicFeeTx{
 			ChainID:   new(big.Int).SetUint64(account.coin.ChainID()),
-			GasTipCap: suggestedGasTipCap,
-			GasFeeCap: suggestedGasFeeCap,
+			GasTipCap: gasTipCap,
+			GasFeeCap: gasFeeCap,
 			Gas:       gasLimit,
 			To:        message.To,
 			Value:     message.Value,

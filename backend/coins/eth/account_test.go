@@ -190,6 +190,61 @@ func TestTxProposal(t *testing.T) {
 	})
 }
 
+// EIP-1559 proposals add base fee headroom, except send-all, which pays a fixed price to spend exactly the balance.
+func TestTxProposalFeeCap(t *testing.T) {
+	for _, test := range []struct {
+		name       string
+		eip1559    bool
+		sendAll    bool
+		oracleTip  int64
+		wantFeeCap int64
+		wantTipCap int64
+	}{
+		{"legacy send-all", false, true, 2, 10, 10},
+		{"EIP-1559", true, false, 2, 18, 2},
+		{"EIP-1559 tip is whole fee cap", true, false, 10, 10, 10},
+		{"EIP-1559 send-all", true, true, 2, 10, 10},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			account := newAccount(t)
+			defer account.Close()
+			// Sepolia has no gas oracle.
+			account.coin.net = params.MainnetChainConfig
+			client := newTransactionRPCClient(0, 21000, big.NewInt(1), nil)
+			client.FeeTargetsFunc = func(context.Context) ([]*ethtypes.FeeTarget, error) {
+				return []*ethtypes.FeeTarget{{
+					TargetCode: accounts.FeeTargetCodeNormal,
+					GasFeeCap:  big.NewInt(10),
+					GasTipCap:  big.NewInt(test.oracleTip),
+				}}, nil
+			}
+			account.coin.client = client
+			require.NoError(t, account.Update(big.NewInt(1000000), big.NewInt(100), nil, outgoingTxs(t, account)))
+			require.Eventually(t, account.Synced, time.Second, time.Millisecond*200)
+			account.Config().ConnectKeystore = func() (keystore.Keystore, error) {
+				return &keystoremock.KeystoreMock{SupportsEIP1559Func: func() bool { return test.eip1559 }}, nil
+			}
+			sendAmount, wantAmount := coin.NewSendAmount("0.0000000000001"), int64(100000)
+			if test.sendAll {
+				sendAmount, wantAmount = coin.NewSendAmountAll(), 1000000-21000*test.wantFeeCap
+			}
+			amount, fee, total, err := account.TxProposal(&accounts.TxProposalArgs{
+				RecipientAddress: "0xa29163852021BF4C139D03Dff59ae763AC73e84e",
+				Amount:           sendAmount,
+				FeeTargetCode:    accounts.FeeTargetCodeNormal,
+			})
+			require.NoError(t, err)
+			tx := gethtypes.NewTx(account.activeTxProposal.txData)
+			require.Equal(t, big.NewInt(test.wantFeeCap), tx.GasFeeCap())
+			require.Equal(t, big.NewInt(test.wantTipCap), tx.GasTipCap())
+			require.Equal(t, coin.NewAmountFromInt64(21000*test.wantFeeCap), fee)
+			require.Equal(t, coin.NewAmountFromInt64(wantAmount), amount)
+			require.Equal(t, amount.BigInt(), tx.Value())
+			require.Equal(t, coin.NewAmountFromInt64(wantAmount+21000*test.wantFeeCap), total)
+		})
+	}
+}
+
 func TestIsValidEthAddress(t *testing.T) {
 	for _, address := range []string{
 		"0xa29163852021BF4C139D03Dff59ae763AC73e84e",
