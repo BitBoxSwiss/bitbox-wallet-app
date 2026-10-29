@@ -24,7 +24,8 @@
     margin: 0 auto 0 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) {
     .footer {
         padding: 0 var(--space-half);
         margin: var(--space-half) 0;

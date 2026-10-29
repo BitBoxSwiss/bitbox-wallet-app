@@ -33,6 +33,9 @@
     position: fixed;
     right: 0;
     top: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
     z-index: 4000; /* covers feetargets and the mobile bottom navigation */
 }
 

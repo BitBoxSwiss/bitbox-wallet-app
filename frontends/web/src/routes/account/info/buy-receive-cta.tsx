@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
 import type { AccountCode, CoinUnit, TAccount, TBalance } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { Button, ButtonLink } from '@/components/forms';
 import { Balances } from '@/routes/account/summary/accountssummary';
 import { isBitcoinCoin, isEthereumBased } from '@/utils/coin';
@@ -30,7 +30,7 @@ export const BuyReceiveCTA = ({
   const { t } = useTranslation();
   const [, navigate] = useLocation();
   const isBitcoin = isBitcoinCoin(unit);
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const receiveLabel = (
     isMobile ? t('generic.receiveWithoutCoinCode') : t('generic.receive', {
       context: isBitcoin ? 'bitcoin' : (unit ? '' : 'crypto'),

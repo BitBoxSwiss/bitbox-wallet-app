@@ -282,15 +282,13 @@ struct WebView: UIViewRepresentable {
             webView.isInspectable = false
         }
         
+        context.coordinator.updateFontSize(webView, baseFontSizePercentage: baseFontSizePercentage)
+        webView.load(URLRequest(url: URL(string: scheme + ":/index.html")!))
         return webView
     }
     
     func updateUIView(_ uiView: UIViewType, context: Context) {
         context.coordinator.updateFontSize(uiView, baseFontSizePercentage: baseFontSizePercentage)
-        guard uiView.url == nil else {
-            return
-        }
-        uiView.load(URLRequest(url: URL(string: scheme + ":/index.html")!))
     }
     
     func makeCoordinator() -> Coordinator {

@@ -11,7 +11,7 @@ import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/vi
 import { Button, Checkbox } from '@/components/forms';
 import { Phone, PointToBitBox02 } from '@/components/icon';
 import { Message } from '@/components/message/message';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import styles from './recovery-words.module.css';
 
 const CONTENT_MIN_HEIGHT = 'min(56rem, 100vh)';
@@ -30,7 +30,7 @@ export const RecoveryWords = () => {
   const [status, setStatus] = useState<TStatus>('info');
   const [agree, setAgree] = useState<boolean>(false);
   const [secondsRemaining, setSecondsRemaining] = useState(WARNING_DELAY_SECONDS);
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   useEffect(() => {
     if (!agree) {

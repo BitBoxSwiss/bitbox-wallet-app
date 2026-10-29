@@ -39,7 +39,8 @@
   gap: .4ch;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (orientation: landscape) and (max-height: 600px) {
 
   .balance {
     font-size: var(--size-header);

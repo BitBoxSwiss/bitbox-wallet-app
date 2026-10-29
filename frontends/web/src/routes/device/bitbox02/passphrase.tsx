@@ -14,7 +14,7 @@ import { PointToBitBox02 } from '@/components/icon';
 import { Message } from '@/components/message/message';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Header } from '@/components/layout';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 
 // The enable wizard has five steps that can be navigated by clicking
 // 'back' or 'continue'. On the last step the passphrase will be enabled.
@@ -150,7 +150,7 @@ type TInfoProps = {
 
 const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   const [infoStep, setInfoStep] = useState(0);
   const [understood, setUnderstood] = useState(false);
@@ -238,7 +238,7 @@ const EnableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
 
 const DisableInfo = ({ handleAbort, setPassphrase }: TInfoProps) => {
   const { t } = useTranslation();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   return (
     <View
