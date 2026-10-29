@@ -1634,9 +1634,9 @@ func testUnclaimedDeposit(requiredFeeSat uint64) breez_sdk_spark.DepositInfo {
 	}
 }
 
-// TestClaimTopUp checks the approved fee ceiling and uses the returned payment status to determine
-// the outcome. The SDK's Settled variant can contain a pending or failed payment, so the variant
-// alone must not cause the app to report that funds are available.
+// TestClaimTopUp checks the approved fee ceiling without a proportional allowance and uses the
+// returned payment status to determine the outcome. The SDK's Settled variant can contain a pending
+// or failed payment, so the variant alone must not cause the app to report that funds are available.
 func TestClaimTopUp(t *testing.T) {
 	t.Parallel()
 
@@ -1677,7 +1677,8 @@ func TestClaimTopUp(t *testing.T) {
 				require.Equal(t, "deposit-txid", request.Txid)
 				require.Equal(t, uint32(1), request.Vout)
 				require.NotNil(t, request.MaxFee)
-				maxFee, ok := (*request.MaxFee).(breez_sdk_spark.MaxFeeFixed)
+				require.Nil(t, request.MaxFee.ProportionalPpm)
+				maxFee, ok := request.MaxFee.Onchain.(breez_sdk_spark.MaxOnchainFeeFixed)
 				require.True(t, ok)
 				require.Equal(t, uint64(123), maxFee.Amount)
 				details := breez_sdk_spark.PaymentDetails(breez_sdk_spark.PaymentDetailsDeposit{TxId: "claim-txid"})
@@ -1769,6 +1770,55 @@ func TestClaimTopUpRejectsIncreasedFee(t *testing.T) {
 
 	require.Nil(t, result)
 	require.Equal(t, errPaymentApprovalRequired, errp.Cause(err))
+}
+
+// TestTopUpTooSmallToClaim keeps undersized deposits unclaimable without blocking a refund.
+// The payment must omit a claim fee so the UI disables claiming, and direct claim requests must
+// also be rejected before reaching the SDK.
+func TestTopUpTooSmallToClaim(t *testing.T) {
+	t.Parallel()
+
+	claimError := breez_sdk_spark.DepositClaimError(breez_sdk_spark.DepositClaimErrorDepositTooSmall{
+		Tx:   "deposit-txid",
+		Vout: 1,
+	})
+	deposit := testUnclaimedDeposit(0)
+	deposit.ClaimError = &claimError
+	deposit.AmountSats = 1000
+	sdk := &testPaymentSDK{}
+	sdk.listUnclaimedDeposits = func(breez_sdk_spark.ListUnclaimedDepositsRequest) (breez_sdk_spark.ListUnclaimedDepositsResponse, error) {
+		return breez_sdk_spark.ListUnclaimedDepositsResponse{
+			Deposits: []breez_sdk_spark.DepositInfo{deposit},
+		}, nil
+	}
+	sdk.claimDeposit = func(breez_sdk_spark.ClaimDepositRequest) (breez_sdk_spark.ClaimDepositResponse, error) {
+		t.Fatal("undersized deposit must not be claimed")
+		return breez_sdk_spark.ClaimDepositResponse{}, nil
+	}
+	sdk.recommendedFees = func() (breez_sdk_spark.RecommendedFees, error) {
+		return breez_sdk_spark.RecommendedFees{FastestFee: 2}, nil
+	}
+	sdk.refundDeposit = func(request breez_sdk_spark.RefundDepositRequest) (breez_sdk_spark.RefundDepositResponse, error) {
+		require.Equal(t, deposit.Txid, request.Txid)
+		require.Equal(t, deposit.Vout, request.Vout)
+		require.Equal(t, testP2TRAddress, request.DestinationAddress)
+		return breez_sdk_spark.RefundDepositResponse{TxId: "refund-txid"}, nil
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+
+	payment := lightning.toBitcoinDepositPayment(deposit)
+	require.Equal(t, accounts.TxStatusFailed, payment.Status)
+	require.Equal(t, bitcoinDepositStateUnclaimed, payment.BitcoinDeposit.State)
+	require.Nil(t, payment.BitcoinDeposit.ClaimFee)
+	require.Nil(t, payment.BitcoinDeposit.ClaimFeeSat)
+
+	result, err := lightning.ClaimTopUp(payment.ID, 0)
+	require.Nil(t, result)
+	require.ErrorContains(t, err, "Deposit too small to claim")
+
+	result, err = lightning.RefundTopUp(payment.ID, testCloseWithdrawDestinationAccountCode, 2)
+	require.NoError(t, err)
+	require.Equal(t, "refund-txid", result.TxID)
 }
 
 func TestClaimTopUpRejectsMissingDeposit(t *testing.T) {
