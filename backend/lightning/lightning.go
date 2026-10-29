@@ -478,9 +478,9 @@ func (lightning *Lightning) connect() (returnErr error) {
 		config.PrivateEnabledDefault = true
 		// Set the maximum fee to the fastest network recommended fee at the time of claim
 		// with a leeway of 1 sats/vbyte.
-		maxDepositClaimFee := breez_sdk_spark.MaxFee(
-			breez_sdk_spark.MaxFeeNetworkRecommended{LeewaySatPerVbyte: 1},
-		)
+		maxDepositClaimFee := breez_sdk_spark.MaxFee{
+			Onchain: breez_sdk_spark.MaxOnchainFeeNetworkRecommended{LeewaySatPerVbyte: 1},
+		}
 		config.MaxDepositClaimFee = &maxDepositClaimFee
 
 		connectRequest := breez_sdk_spark.ConnectRequest{
