@@ -282,7 +282,7 @@ func main() {
 	gapLimitsChange := flag.Uint("gapLimitChange", 0, "gap limit for change addresses")
 	simulatorPort := flag.Int("simulatorPort", 15423, "port for the BitBox02 simulator")
 	useSimulator := flag.Bool("simulator", false, "use the BitBox02 simulator")
-	aoppUrl := flag.String("aoppUrl", "", "AOPP URL for testing AOPP flow")
+	uri := flag.String("uri", "", "URI to handle on startup (aopp: or lightning:)")
 	coingeckoURL := flag.String("coingeckoURL", "", "CoinGecko API URL for testing exchange rates")
 
 	flag.Parse()
@@ -342,8 +342,8 @@ func main() {
 		simulator.Init(*simulatorPort)
 	}
 
-	if *aoppUrl != "" {
-		backend.HandleURI(*aoppUrl)
+	if *uri != "" {
+		backend.HandleURI(*uri)
 	}
 
 	if err := http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router); err != nil {

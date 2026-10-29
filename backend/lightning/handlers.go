@@ -64,6 +64,8 @@ func NewHandlers(
 	handleNoError("/list-payments", lightning.GetListPayments).Methods("GET")
 	handleNoError("/notes/tx", lightning.PostSetTxNote).Methods("POST")
 	handleNoError("/parse-payment-input", lightning.GetParsePaymentInput).Methods("GET")
+	handleNoError("/uri", lightning.GetURI).Methods("GET")
+	handleNoError("/uri/clear", lightning.PostClearURI).Methods("POST")
 	handleNoError("/prepare-payment", lightning.PostPreparePayment).Methods("POST")
 	handleNoError("/claim-top-up", lightning.PostClaimTopUp).Methods("POST")
 	handleNoError("/refund-top-up", lightning.PostRefundTopUp).Methods("POST")
@@ -108,6 +110,23 @@ func (contacts *Contacts) PostDeleteContact(r *http.Request) interface{} {
 		return contactError(err)
 	}
 	return contactResponse{Success: true}
+}
+
+// GetURI returns the pending external payment link.
+func (lightning *Lightning) GetURI(r *http.Request) interface{} {
+	return lightning.URI()
+}
+
+// PostClearURI acknowledges an external payment link.
+func (lightning *Lightning) PostClearURI(r *http.Request) interface{} {
+	var request struct {
+		Revision uint64 `json:"revision"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return errorResponse(err)
+	}
+	lightning.ClearURI(request.Revision)
+	return responseDto{Success: true}
 }
 
 // PostPrepareTopUp handles the POST request to validate and prepare a Lightning top-up.

@@ -1916,6 +1916,7 @@
       "title": "Receive Lightning"
     },
     "send": {
+      "activationRequired": "Activate Lightning before paying. After setup, open the payment link again.",
       "confirm": {
         "amount": "Amount",
         "note": "Note",

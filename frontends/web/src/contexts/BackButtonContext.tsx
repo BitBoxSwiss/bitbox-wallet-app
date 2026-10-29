@@ -24,6 +24,11 @@ export const BackButtonProvider = ({ children }: TProviderProps) => {
   const { handleSystemBack } = useBackNavigation();
 
   const callTopHandler = useCallback(() => {
+    // The lock takes precedence over handlers registered by views opened underneath it.
+    if (document.querySelector('[data-app-lock]')) {
+      return false;
+    }
+
     // On mobile, the guide covers the whole screen.
     // Make the back button remove the guide first.
     // On desktop the guide does not cover everything and one can keep navigating while it is visible.

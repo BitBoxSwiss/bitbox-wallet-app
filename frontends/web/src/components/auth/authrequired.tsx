@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TAuthEventObject, authenticate, subscribeAuth } from '@/api/backend';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Button } from '@/components/forms';
 import style from './authrequired.module.css';
-import { UseDisableBackButton } from '@/hooks/backbutton';
 
 export const AuthRequired = () => {
   const { t } = useTranslation();
@@ -17,6 +16,27 @@ export const AuthRequired = () => {
   // missing auth means that there is no authentication method setup on the device.
   const [missingAuth, setMissingAuth] = useState(false);
   const authForced = useRef(false);
+
+  useLayoutEffect(() => {
+    if (!authRequired) {
+      return;
+    }
+
+    // Capture before background controls and shortcuts, even if focus is behind the lock screen.
+    const blockKeyboard = (event: KeyboardEvent) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    };
+    const events = ['keydown', 'keyup', 'keypress'] as const;
+    for (const event of events) {
+      window.addEventListener(event, blockKeyboard, true);
+    }
+    return () => {
+      for (const event of events) {
+        window.removeEventListener(event, blockKeyboard, true);
+      }
+    };
+  }, [authRequired]);
 
   // newAuthentication fires a new authentication flow.
   const newAuthentication = () => {
@@ -85,8 +105,7 @@ export const AuthRequired = () => {
   }
 
   return (
-    <div className={style.auth}>
-      <UseDisableBackButton/>
+    <div className={style.auth} data-app-lock>
       <View
         fullscreen
         textCenter
