@@ -199,8 +199,12 @@ type DeviceInfoResponse struct {
 	// From v9.25.0. This together with `securechip_model` determines the password stretching
 	// algorithm.
 	PasswordStretchingAlgo string `protobuf:"bytes,8,opt,name=password_stretching_algo,json=passwordStretchingAlgo,proto3" json:"password_stretching_algo,omitempty"`
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	// Current UI language code, e.g. "en" or "de". Empty on firmware without language support.
+	Language string `protobuf:"bytes,10,opt,name=language,proto3" json:"language,omitempty"`
+	// Empty on firmware without supported-language reporting.
+	SupportedLanguages []string `protobuf:"bytes,11,rep,name=supported_languages,json=supportedLanguages,proto3" json:"supported_languages,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *DeviceInfoResponse) Reset() {
@@ -287,6 +291,20 @@ func (x *DeviceInfoResponse) GetPasswordStretchingAlgo() string {
 		return x.PasswordStretchingAlgo
 	}
 	return ""
+}
+
+func (x *DeviceInfoResponse) GetLanguage() string {
+	if x != nil {
+		return x.Language
+	}
+	return ""
+}
+
+func (x *DeviceInfoResponse) GetSupportedLanguages() []string {
+	if x != nil {
+		return x.SupportedLanguages
+	}
+	return nil
 }
 
 type InsertRemoveSDCardRequest struct {
@@ -608,7 +626,7 @@ const file_bitbox02_system_proto_rawDesc = "" +
 	"\x12CheckSDCardRequest\"1\n" +
 	"\x13CheckSDCardResponse\x12\x1a\n" +
 	"\binserted\x18\x01 \x01(\bR\binserted\"\x13\n" +
-	"\x11DeviceInfoRequest\"\xab\x04\n" +
+	"\x11DeviceInfoRequest\"\xf8\x04\n" +
 	"\x12DeviceInfoResponse\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\vinitialized\x18\x02 \x01(\bR\vinitialized\x12\x18\n" +
@@ -617,7 +635,10 @@ const file_bitbox02_system_proto_rawDesc = "" +
 	"\x1emonotonic_increments_remaining\x18\x05 \x01(\rR\x1cmonotonicIncrementsRemaining\x12)\n" +
 	"\x10securechip_model\x18\x06 \x01(\tR\x0fsecurechipModel\x12U\n" +
 	"\tbluetooth\x18\a \x01(\v22.shiftcrypto.bitbox02.DeviceInfoResponse.BluetoothH\x00R\tbluetooth\x88\x01\x01\x128\n" +
-	"\x18password_stretching_algo\x18\b \x01(\tR\x16passwordStretchingAlgo\x1au\n" +
+	"\x18password_stretching_algo\x18\b \x01(\tR\x16passwordStretchingAlgo\x12\x1a\n" +
+	"\blanguage\x18\n" +
+	" \x01(\tR\blanguage\x12/\n" +
+	"\x13supported_languages\x18\v \x03(\tR\x12supportedLanguages\x1au\n" +
 	"\tBluetooth\x12#\n" +
 	"\rfirmware_hash\x18\x01 \x01(\fR\ffirmwareHash\x12)\n" +
 	"\x10firmware_version\x18\x02 \x01(\tR\x0ffirmwareVersion\x12\x18\n" +

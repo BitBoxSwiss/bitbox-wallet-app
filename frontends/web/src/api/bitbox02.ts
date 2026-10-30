@@ -12,6 +12,8 @@ export type DeviceInfo = {
   initialized: boolean;
   mnemonicPassphraseEnabled: boolean;
   name: string;
+  language?: string;
+  supportedLanguages?: string[];
   securechipModel: string;
   version: string;
   bluetooth: null | {
@@ -53,6 +55,13 @@ export const setDeviceName = (
   return apiPost(`devices/bitbox02/${deviceID}/set-device-name`, {
     name: newDeviceName
   });
+};
+
+export const setDeviceLanguage = (
+  deviceID: string,
+  language: string,
+): Promise<SuccessResponse | FailResponse> => {
+  return apiPost(`devices/bitbox02/${deviceID}/set-device-language`, { language });
 };
 
 type VersionInfoCommon = {

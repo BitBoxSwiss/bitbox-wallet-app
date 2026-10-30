@@ -31,6 +31,7 @@ type BitBox02 interface {
 	SubmitHostPassphrase(id string, passphrase *string) error
 	DeviceInfo() (*firmware.DeviceInfo, error)
 	SetDeviceName(deviceName string) error
+	SetDeviceLanguage(language string) error
 	SetPassword(seedLen int) error
 	ChangePassword() error
 	CreateBackup() error
@@ -74,6 +75,7 @@ func NewHandlers(
 	handleFunc("/passphrase/submit", handlers.postSubmitHostPassphrase).Methods("POST")
 	handleFunc("/info", handlers.getDeviceInfo).Methods("GET")
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
+	handleFunc("/set-device-language", handlers.postSetDeviceLanguage).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
 	handleFunc("/change-password", handlers.postChangePassword).Methods("POST")
 	handleFunc("/backups/create", handlers.postCreateBackup).Methods("POST")
@@ -194,6 +196,19 @@ func (handlers *Handlers) postSetDeviceName(r *http.Request) interface{} {
 	}
 	deviceName := jsonBody["name"]
 	if err := handlers.device.SetDeviceName(strings.TrimSpace(deviceName)); err != nil {
+		return maybeBB02Err(err, handlers.log)
+	}
+	return bitbox02Response{Success: true}
+}
+
+func (handlers *Handlers) postSetDeviceLanguage(r *http.Request) interface{} {
+	var request struct {
+		Language string `json:"language"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return bitbox02Response{Success: false}
+	}
+	if err := handlers.device.SetDeviceLanguage(request.Language); err != nil {
 		return maybeBB02Err(err, handlers.log)
 	}
 	return bitbox02Response{Success: true}

@@ -36,6 +36,22 @@ func (device *Device) SetDeviceName(deviceName string) error {
 	return nil
 }
 
+// SetDeviceLanguage asks the user to confirm a change to the device language.
+func (device *Device) SetDeviceLanguage(language string) error {
+	response, err := device.query(&messages.Request{
+		Request: &messages.Request_DeviceLanguage{
+			DeviceLanguage: &messages.SetDeviceLanguageRequest{Language: language},
+		},
+	})
+	if err != nil {
+		return err
+	}
+	if _, ok := response.Response.(*messages.Response_Success); !ok {
+		return errp.New("unexpected response")
+	}
+	return nil
+}
+
 // DeviceInfo retrieves the current device info from the bitbox.
 func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 	request := &messages.Request{
@@ -65,6 +81,8 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 
 	deviceInfo := &DeviceInfo{
 		Name:                      deviceInfoResponse.DeviceInfo.Name,
+		Language:                  deviceInfoResponse.DeviceInfo.Language,
+		SupportedLanguages:        deviceInfoResponse.DeviceInfo.SupportedLanguages,
 		Version:                   deviceInfoResponse.DeviceInfo.Version,
 		Initialized:               deviceInfoResponse.DeviceInfo.Initialized,
 		MnemonicPassphraseEnabled: deviceInfoResponse.DeviceInfo.MnemonicPassphraseEnabled,

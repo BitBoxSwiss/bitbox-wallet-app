@@ -20,15 +20,18 @@ import { BluetoothToggleEnabledSetting } from './components/device-settings/blue
 import { ChangeDevicePasswordSetting } from './components/device-settings/change-password-setting';
 import { SecureChipSetting } from './components/device-settings/secure-chip-setting';
 import { DeviceNameSetting } from './components/device-settings/device-name-setting';
+import { DeviceLanguageSetting } from './components/device-settings/device-language-setting';
 import { FactoryResetSetting } from './components/device-settings/factory-reset-setting';
 import { RootFingerprintSetting } from './components/device-settings/root-fingerprint-setting';
 import { Bip85Setting } from './components/device-settings/bip85-setting';
 import { ManageDeviceGuide } from '@/routes/device/bitbox02/settings-guide';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';
 import { SubTitle } from '@/components/title';
+import { runningInIOS } from '@/utils/env';
 import {
   isBluetoothToggleSettingVisible,
   isDeviceBluetoothSupported,
+  isDeviceLanguageSupported,
 } from './settings-availability';
 import styles from './bb02-settings.module.css';
 
@@ -118,9 +121,26 @@ export const ManageDeviceSettingsContent = ({
             <StyledSkeleton />
           ),
         },
+        ...(isDeviceLanguageSupported(deviceInfo) ? [{
+          id: 'device-language',
+          content: (
+            <DeviceLanguageSetting
+              key={deviceID}
+              deviceID={deviceID}
+              language={deviceInfo.language}
+              supportedLanguages={deviceInfo.supportedLanguages}
+            />
+          ),
+        }] : deviceInfo === undefined ? [{
+          id: 'device-language',
+          content: <StyledSkeleton />,
+        }] : []),
         ...(isBluetoothToggleSettingVisible(deviceInfo) ? [{
           id: 'bluetooth',
-          content: <BluetoothToggleEnabledSetting deviceID={deviceID} />,
+          content: <BluetoothToggleEnabledSetting deviceID={deviceID} enabled={deviceInfo.bluetooth.enabled} />,
+        }] : deviceInfo === undefined && !runningInIOS() ? [{
+          id: 'bluetooth',
+          content: <StyledSkeleton />,
         }] : []),
         {
           id: 'device-password',

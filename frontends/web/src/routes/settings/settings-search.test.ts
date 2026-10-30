@@ -51,6 +51,39 @@ describe('settings search', () => {
     isLightningFeatureAvailableMock.mockReturnValue(true);
   });
 
+  // Show the device-language setting only with a current language and at least two choices.
+  it.each([
+    { language: undefined, supportedLanguages: undefined, visible: false },
+    { language: undefined, supportedLanguages: ['en', 'de'], visible: false },
+    { language: '', supportedLanguages: ['en', 'de'], visible: false },
+    { language: 'en', supportedLanguages: undefined, visible: false },
+    { language: 'en', supportedLanguages: [], visible: false },
+    { language: 'en', supportedLanguages: ['en'], visible: false },
+    { language: 'en', supportedLanguages: ['en', 'de'], visible: true },
+    { language: 'en', supportedLanguages: ['en', 'de', 'it', 'es'], visible: true },
+  ])('shows device language only when at least two languages are reported: $visible', ({ language, supportedLanguages, visible }) => {
+    const items = getSettingsSearchItems({
+      devices: { 'device-1': 'bitbox02' },
+      deviceInfo: {
+        name: 'BitBox',
+        language,
+        supportedLanguages,
+        initialized: true,
+        mnemonicPassphraseEnabled: false,
+        securechipModel: 'ATECC608B',
+        version: '9.26.0',
+        bluetooth: null,
+      },
+      hasAccounts: true,
+      hasSoftwareKeystore: false,
+      isLightningEnabled: false,
+      isTesting: true,
+      t,
+    });
+
+    expect(items.some(item => item.id === 'device-language')).toBe(visible);
+  });
+
   it.each([
     { isTesting: undefined, title: undefined },
     { isTesting: false, title: 'Activate testnet', description: 'Explore and test features by using testnet.' },
