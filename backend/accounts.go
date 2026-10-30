@@ -839,16 +839,19 @@ func (backend *Backend) ConnectKeystore(rootFingerprint []byte) (keystore.Keysto
 	timeout := 20 * time.Minute
 outerLoop:
 	for {
-		backend.Notify(observable.Event{
-			Subject: "connect-keystore",
-			Action:  action.Replace,
-			Object: data{
-				Type:         "connect",
-				KeystoreName: keystoreName,
-			},
-		})
+		currentKeystore := backend.Keystore()
+		if currentKeystore == nil {
+			backend.Notify(observable.Event{
+				Subject: "connect-keystore",
+				Action:  action.Replace,
+				Object: data{
+					Type:         "connect",
+					KeystoreName: keystoreName,
+				},
+			})
+		}
 		ks, err = backend.connectKeystore.connect(
-			backend.Keystore(),
+			currentKeystore,
 			rootFingerprint,
 			timeout,
 		)
@@ -887,9 +890,7 @@ outerLoop:
 	}
 	switch {
 	case errp.Cause(err) == errReplaced:
-		// If a previous connect-keystore request is in progress, the previous request is
-		// failed, but we don't dismiss the prompt, as the new prompt has already been shown
-		// by the above "connect" notification.
+		// The replacing request controls the prompt, so don't dismiss it here.
 	case err == nil || errp.Cause(err) == errp.ErrUserAbort:
 		// Dismiss prompt after success or upon user abort.
 		backend.Notify(observable.Event{
