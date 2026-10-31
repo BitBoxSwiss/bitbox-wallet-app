@@ -1955,6 +1955,7 @@
     "settings": {
       "closeAndWithdrawFunds": "Close and withdraw funds",
       "disableWallet": "Disable Lightning wallet",
+      "enableDebugLogs": "Enable Lightning debug logs",
       "enableWallet": "Enable Lightning wallet",
       "enableWalletDescription": "Lightning enables instant and low fee payments.",
       "expert": "Expert",

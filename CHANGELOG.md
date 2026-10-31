@@ -4,6 +4,7 @@
 - Android: price widget for BTC, ETH, and LTC with 24-hour charts
 - Lightning: add contact list for Lightning addresses
 - Mobile: open `lightning:` payment links in BitBoxApp
+- Lightning: default Breez SDK logs to warnings and add a setting to enable debug logs
 - Add option for percentage on portfolio to reflect performance
 - Mobile: add copy and open actions when touching and holding transaction explorer links, without loading a preview on iOS
 - Lightning: show the estimated claim fee before sending a top-up

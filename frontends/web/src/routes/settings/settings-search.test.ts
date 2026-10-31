@@ -17,6 +17,7 @@ vi.mock('@/utils/env', () => ({
 }));
 
 const translations: Record<string, string> = {
+  'lightning.settings.enableDebugLogs': 'Enable Lightning debug logs',
   'lightning.settings.enableWallet': 'Enable lightning wallet',
   'lightning.settings.title': 'Lightning settings',
   'testnet.activate.title': 'Activate testnet',
@@ -149,6 +150,16 @@ describe('settings search', () => {
       title: 'Enable lightning wallet',
       description: 'Enable lightning wallet description',
     });
+    expect(filterSettingsSearchItems(getItems(false, false), 'debug')).toEqual([]);
+  });
+
+  it.each(['debug', 'Enable Lightning debug logs'])('finds the debug logging toggle with "%s"', query => {
+    expect(filterSettingsSearchItems(getItems(false, true), query)).toEqual([{
+      id: 'lightning-debug-logs',
+      page: 'lightning',
+      title: 'Enable Lightning debug logs',
+      description: '',
+    }]);
   });
 
   it('hides the lightning setting while its state is loading', () => {

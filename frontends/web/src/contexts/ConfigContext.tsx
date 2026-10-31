@@ -6,6 +6,7 @@ import type { TConfigUpdate } from '@/utils/config';
 
 export type TConfigContext = {
   config: TConfig | undefined;
+  initialLightningDebugLogs?: boolean;
   setConfig: (object: TConfigUpdate) => Promise<TConfig>;
 };
 
