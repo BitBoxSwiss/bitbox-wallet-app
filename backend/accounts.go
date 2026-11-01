@@ -721,6 +721,7 @@ func (backend *Backend) reconcileAccountWriteLocked(accountCode accountsTypes.Co
 		accountsConfig,
 		accountCode,
 		accountLoadOptions{},
+		backend.keystore,
 	)
 	// Newly initialized ETH accounts enqueue their own initial update.
 	backend.applyAccountReconcileEffectsLocked(membershipChanged, false)
@@ -1070,6 +1071,7 @@ func (backend *Backend) createAndAddAccount(
 func (backend *Backend) accountLoadableLocked(
 	accountsConfig config.AccountsConfig,
 	account *config.Account,
+	keystore keystore.Keystore,
 ) (coinpkg.Coin, bool) {
 	if !backend.coinPolicy().coinEnabled(account.CoinCode) {
 		return nil, false
@@ -1090,10 +1092,10 @@ func (backend *Backend) accountLoadableLocked(
 	if isWatchonly {
 		return accountCoin, true
 	}
-	if backend.keystore == nil {
+	if keystore == nil {
 		return nil, false
 	}
-	rootFingerprint, err := backend.keystore.RootFingerprint()
+	rootFingerprint, err := keystore.RootFingerprint()
 	if err != nil {
 		backend.log.WithError(err).Error("could not retrieve keystore fingerprint")
 		return nil, false
@@ -1110,13 +1112,13 @@ func (backend *Backend) accountLoadableLocked(
 		// Load the account if at least one signing configuration is supported, retaining all
 		// configurations for complete balances and history on older firmware.
 		for _, signingConfig := range account.SigningConfigurations {
-			if backend.keystore.SupportsAccount(accountCoin, signingConfig.ScriptType()) {
+			if keystore.SupportsAccount(accountCoin, signingConfig.ScriptType()) {
 				return accountCoin, true
 			}
 		}
 		return nil, false
 	default:
-		if !backend.keystore.SupportsAccount(accountCoin, nil) {
+		if !keystore.SupportsAccount(accountCoin, nil) {
 			return nil, false
 		}
 	}
@@ -1149,13 +1151,14 @@ func (backend *Backend) reconcileAccountFamilyLocked(
 	accountsConfig config.AccountsConfig,
 	accountCode accountsTypes.Code,
 	options accountLoadOptions,
+	keystore keystore.Keystore,
 ) (membershipChanged bool, ethAccountsAdded bool) {
 	record := accountsConfig.Lookup(accountCode)
 	if record == nil {
 		return false, false
 	}
 
-	accountCoin, loadable := backend.accountLoadableLocked(accountsConfig, record)
+	accountCoin, loadable := backend.accountLoadableLocked(accountsConfig, record, keystore)
 	if !loadable {
 		return backend.removeAccountFamilyLocked(accountCode), false
 	}
@@ -1230,6 +1233,7 @@ func (backend *Backend) reconcileAccountsLocked(
 			accountsConfig,
 			record.Code,
 			accountLoadOptions{skipETHInitialSync: true},
+			backend.keystore,
 		)
 		membershipChanged = membershipChanged || changed
 		ethAccountsAdded = ethAccountsAdded || ethAdded
@@ -1505,158 +1509,6 @@ func (backend *Backend) enqueueETHInitialSyncLocked() {
 			return
 		}
 	}
-}
-
-// maybeAddHiddenUnusedAccounts adds a hidden account for scanning to facilitate accounts discovery.
-// A hidden account is added per coin if:
-//   - the highest account is used (so another one needs to be scanned) OR
-//   - there are less than 5 accounts: we need to always scan the first 5 accounts because we used
-//     to allow adding up to 5 accounts before we added the accounts discovery feature in v4.38.
-//
-// For now this only happens for btc/ltc, not for ETH.
-// Supporting ETH needs more care as we currently use Etherscan with a rate limit as the ETH backend.
-//
-// See https://github.com/bitcoin/bips/blob/3db736243cd01389a4dfd98738204df1856dc5b9/bip-0044.mediawiki#user-content-Account_discovery.
-//
-// We deviate from BIP-44 significantly in two ways:
-//
-//   - we always scan the first 5 accounts, as historically we allowed
-//     users to add that many accounts even if all of them were empty. We
-//     need to scan these as such gaps probably exist in the wild.
-//   - the accounts scan in BIP-44 is per script type (per purpose field in
-//     the BIP-44 keypath). Since we support unified accounts, we consider
-//     them together. This means that someone could have many accounts that
-//     all have coins on e.g. a P2WPKH address and none on a P2TR address,
-//     and still be able to receive to P2TR in the highest account. Such a P2TR
-//     account would not be discovered by other BIP44-compatible software.
-func (backend *Backend) maybeAddHiddenUnusedAccounts() {
-	if backend.tstMaybeAddHiddenUnusedAccounts != nil {
-		defer backend.tstMaybeAddHiddenUnusedAccounts()
-	}
-	defer backend.accountsAndKeystoreLock.Lock()()
-	if backend.keystore == nil {
-		return
-	}
-	// Only load accounts which belong to connected keystores.
-	rootFingerprint, err := backend.keystore.RootFingerprint()
-	if err != nil {
-		backend.log.WithError(err).Error("Could not retrieve root fingerprint")
-		return
-	}
-
-	// Enable accounts discovery for these coins.
-	for _, coinCode := range backend.coinPolicy().discoveryCoins() {
-		log := backend.log.
-			WithField("rootFingerprint", hex.EncodeToString(rootFingerprint)).
-			WithField("coinCode", coinCode)
-		coin, err := backend.Coin(coinCode)
-		if err != nil {
-			backend.log.Errorf("could not find coin %s", coinCode)
-			continue
-		}
-		if !backend.keystore.SupportsCoin(coin) {
-			continue
-		}
-		accountsConfig, err := backend.accountsDB.Snapshot()
-		if err != nil {
-			log.WithError(err).Error("could not load account records")
-			continue
-		}
-		nextAccountNumber, ok := nextDiscoveryAccountNumber(
-			coinCode,
-			accountCandidates(&accountsConfig, rootFingerprint, coinCode),
-		)
-		if !ok {
-			continue
-		}
-		accountCode, account, err := backend.buildAccountConfig(
-			coinCode,
-			nextAccountNumber,
-			true,
-			"",
-			backend.keystore,
-			nil,
-		)
-		if err != nil {
-			log.WithError(err).Error("adding hidden account failed")
-			continue
-		}
-		if account == nil {
-			continue
-		}
-		if err := backend.accountsDB.Update(func(cfg *config.AccountsConfig) error {
-			return backend.persistAccount(*account, cfg)
-		}); err != nil {
-			log.WithError(err).Error("maybeAddHiddenUnusedAccounts failed")
-			continue
-		}
-		log.
-			WithField("accountCode", accountCode).
-			WithField("accountNumber", nextAccountNumber).
-			Info("automatically created hidden account")
-		accountsConfig, err = backend.accountsDB.Snapshot()
-		if err != nil {
-			log.WithError(err).Error("could not load account records")
-			continue
-		}
-		backend.reconcileAccountFamilyLocked(accountsConfig, accountCode, accountLoadOptions{})
-		// Discovery adds scanning accounts without restarting historical exchange-rate updates.
-		backend.emitAccountsStatusChanged()
-	}
-}
-
-func (backend *Backend) checkAccountUsed(account accounts.Interface) {
-	if backend.tstCheckAccountUsed != nil {
-		if !backend.tstCheckAccountUsed(account) {
-			return
-		}
-	}
-
-	log := backend.log.WithField("accountCode", account.Config().Code)
-	accountsConfig, err := backend.accountsDB.Snapshot()
-	if err != nil {
-		log.WithError(err).Error("checkAccountUsed")
-		return
-	}
-	accountRecord := accountsConfig.Lookup(account.Config().Code)
-	if accountRecord == nil {
-		log.Error("could not find account")
-		return
-	}
-	if !accountRecord.Used {
-		txs, err := account.Transactions()
-		if err != nil {
-			log.WithError(err).Error("discoverAccount")
-			return
-		}
-
-		if len(txs) == 0 {
-			// Invoke this here too because even if an account is unused, we scan up to 5 accounts.
-			backend.maybeAddHiddenUnusedAccounts()
-			return
-		}
-	}
-	log.Info("marking account as used")
-	var emitUpdate bool
-	err = backend.accountsDB.Update(func(accountsConfig *config.AccountsConfig) error {
-		acct := accountsConfig.Lookup(account.Config().Code)
-		if acct == nil {
-			return errp.Newf("could not find account")
-		}
-		emitUpdate = !acct.Used || acct.HiddenBecauseUnused
-		acct.Used = true
-		acct.HiddenBecauseUnused = false
-
-		return nil
-	})
-	if err != nil {
-		log.WithError(err).Error("checkAccountUsed")
-		return
-	}
-	if emitUpdate {
-		backend.emitAccountsStatusChanged()
-	}
-	backend.maybeAddHiddenUnusedAccounts()
 }
 
 // LookupEthAccountCode takes an Ethereum address and returns the corresponding account code and account name
