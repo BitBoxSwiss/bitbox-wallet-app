@@ -500,8 +500,13 @@ func (backend *Backend) handleAccountRegistryEvent(event observable.Event) {
 		backend.log.WithField("subject", event.Subject).Error("account registry event missing account")
 		return
 	}
+	subject := event.Subject
+	if subject == string(accountsTypes.EventRatesChanged) {
+		// The frontend's sync-done subscription refreshes both synced account data and fiat amounts.
+		subject = string(accountsTypes.EventSyncDone)
+	}
 	backend.Notify(observable.Event{
-		Subject: fmt.Sprintf("account/%s/%s", registryEvent.account.Config().Code, event.Subject),
+		Subject: fmt.Sprintf("account/%s/%s", registryEvent.account.Config().Code, subject),
 		Action:  event.Action,
 		Object:  registryEvent.object,
 	})

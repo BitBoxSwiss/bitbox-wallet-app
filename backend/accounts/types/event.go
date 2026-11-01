@@ -13,6 +13,9 @@ const (
 	// transactions, confirmations, etc.).
 	EventSyncDone Event = "sync-done"
 
+	// EventRatesChanged is emitted when fiat exchange rates change.
+	EventRatesChanged Event = "rates"
+
 	// EventTransactionsChanged is fired when the transaction list should be reloaded.
 	EventTransactionsChanged Event = "transactions"
 
