@@ -84,7 +84,9 @@ func (lightning *Lightning) ClaimTopUp(paymentID string, approvedFeeSat uint64) 
 	if err := checkApprovedPaymentFee(feeSat, approvedFeeSat); err != nil {
 		return nil, err
 	}
-	maxFee := breez_sdk_spark.MaxFee(breez_sdk_spark.MaxFeeFixed{Amount: feeSat})
+	maxFee := breez_sdk_spark.MaxFee{
+		Onchain: breez_sdk_spark.MaxOnchainFeeFixed{Amount: feeSat},
+	}
 	response, err := lightning.sdkService.ClaimDeposit(breez_sdk_spark.ClaimDepositRequest{
 		Txid:   deposit.Txid,
 		Vout:   deposit.Vout,

@@ -470,10 +470,11 @@ func bitcoinDepositClaimError(claimError *breez_sdk_spark.DepositClaimError) str
 	switch err := (*claimError).(type) {
 	case breez_sdk_spark.DepositClaimErrorMaxDepositClaimFeeExceeded:
 		return fmt.Sprintf(
-			"Claim fee too high: required %d sats at %d sat/vbyte",
+			"Claim fee too high: required %d sats",
 			err.RequiredFeeSats,
-			err.RequiredFeeRateSatPerVbyte,
 		)
+	case breez_sdk_spark.DepositClaimErrorDepositTooSmall:
+		return "Deposit too small to claim"
 	case breez_sdk_spark.DepositClaimErrorMissingUtxo:
 		return "Deposit output could not be found"
 	case breez_sdk_spark.DepositClaimErrorGeneric:
