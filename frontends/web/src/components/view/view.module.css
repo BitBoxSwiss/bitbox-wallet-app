@@ -1,5 +1,6 @@
 .fullscreen {
     background: var(--background);
+    border-top: var(--window-titlebar-height, 0px) solid transparent;
     bottom: 0;
     display: flex;
     flex-grow: 1;

@@ -30,6 +30,7 @@
 
 .guide {
     background-color: var(--color-lightblue);
+    border-top: var(--window-titlebar-height, 0px) solid var(--color-blue);
     color: white;
     display: flex;
     flex-direction: column;
