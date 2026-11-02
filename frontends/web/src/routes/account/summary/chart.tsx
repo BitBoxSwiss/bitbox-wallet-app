@@ -19,6 +19,7 @@ import { calculateChartValueDifference, getChartVisibleRange } from './chart-ran
 import { Arrow } from '@/components/transactions/components/arrows';
 import type { TChartMarkerData, TMarkerSource } from './chart-markers';
 import { buildChartMarkers } from './chart-markers';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import styles from './chart.module.css';
 
 type TProps = {
@@ -195,7 +196,7 @@ export const Chart = ({
   const source = chartDisplay === 'week' ? 'hourly' : 'daily';
   const rangeStartTimestamp = data.chartPerformance[chartDisplay].startTimestamp;
   const [valueDifference, setValueDifference] = useState<number>();
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const isMobile = useMobileLayout();
   const [isSwitchedBadgeVisible, setIsSwitchedBadgeVisible] = useState(false);
   const [switchedToType, setSwitchedToType] = useState<TPortfolioPercentageType>();
   const [tooltipData, setTooltipData] = useState<TTooltipData>(hiddenTooltipData);
@@ -521,8 +522,6 @@ export const Chart = ({
   };
 
   const onResize = useCallback(() => {
-    const isMobile = window.innerWidth <= 768;
-    setIsMobile(isMobile);
     clearMarkerSnap();
     hideTooltip();
     if (!chart.current || !ref.current) {
@@ -546,9 +545,10 @@ export const Chart = ({
     });
     updateRange(chart, chartDisplay, rangeStartTimestamp);
     requestAnimationFrame(() => setChartMarkers(source));
-  }, [chartDisplay, clearMarkerSnap, hideAmounts, hideTooltip, rangeStartTimestamp, setChartMarkers, source]);
+  }, [chartDisplay, clearMarkerSnap, hideAmounts, hideTooltip, isMobile, rangeStartTimestamp, setChartMarkers, source]);
 
   useEffect(() => {
+    onResize();
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, [onResize]);

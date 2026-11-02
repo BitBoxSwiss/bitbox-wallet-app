@@ -15,7 +15,7 @@
     margin-top: 0;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 769px) and (min-height: 601px) {
     .sendHeader {
         margin-top: 0;
     }

@@ -37,7 +37,7 @@ import { SubTitle } from '@/components/title';
 import { TransactionHistorySkeleton } from '@/routes/account/transaction-history-skeleton';
 import { RatesContext } from '@/contexts/RatesContext';
 import { OfflineError } from '@/components/banners/offline-error';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import style from './account.module.css';
 
 type TRouteParams = {
@@ -82,7 +82,7 @@ const RemountAccount = ({
 
   const account = activeAccounts.find(acct => acct.code === code);
 
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   const { btcUnit } = useContext(RatesContext);
 
   const [balance, setBalance] = useState<accountApi.TBalance>();

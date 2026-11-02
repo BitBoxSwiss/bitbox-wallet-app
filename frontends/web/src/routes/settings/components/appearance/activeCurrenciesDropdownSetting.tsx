@@ -2,7 +2,7 @@
 
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLocalizedFormattedCurrencies } from '@/hooks/localized';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
@@ -13,7 +13,7 @@ const ActiveCurrenciesDropdownSetting = () => {
   const { activeCurrencies, defaultCurrency } = useContext(RatesContext);
   const { formattedCurrencies } = useLocalizedFormattedCurrencies(i18n.language);
   const [isMobileSelectorOpen, setIsMobileSelectorOpen] = useState(false);
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
 
   return (
     <SettingsItem

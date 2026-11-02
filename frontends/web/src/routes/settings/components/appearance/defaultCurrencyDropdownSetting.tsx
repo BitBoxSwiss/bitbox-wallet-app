@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useContext, useState } from 'react';
-import { useMediaQuery } from '@/hooks/mediaquery';
+import { useMobileLayout } from '@/hooks/mobile-layout';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useLocalizedFormattedCurrencies } from '@/hooks/localized';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
@@ -18,7 +18,7 @@ export const DefaultCurrencyDropdownSetting = () => {
   const valueLabel = currenciesWithDisplayName.find(fiat => fiat.currency === defaultCurrency)?.displayName;
   const currencyNameOfDefaultCurrency = currencyName.of(defaultCurrency) || '';
   const defaultValueLabel = valueLabel ? `${currencyNameOfDefaultCurrency} (${defaultCurrency})` : defaultCurrency;
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const isMobile = useMobileLayout();
   return (
     <SettingsItem
       settingName={t('newSettings.appearance.defaultCurrency.title')}
