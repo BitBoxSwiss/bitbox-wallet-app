@@ -35,7 +35,7 @@ export const AppNavigation = () => {
       navigate('/');
       return;
     }
-    // if no accounts are registered on specified views route to /
+    // Leave views that require regular accounts when none remain.
     const canNavigateWithLightningAccount = (
       currentURL.startsWith('/account-summary')
       || currentURL === '/accounts/all'
@@ -51,7 +51,7 @@ export const AppNavigation = () => {
       || !hasLightningAccount
     );
     if (accounts.length === 0 && requiresRegularAccount && shouldRedirectNoRegularAccount) {
-      navigate('/');
+      navigate(hasLightningAccount ? '/account-summary' : '/');
       return;
     }
     // if no devices are registered on specified views route to /
