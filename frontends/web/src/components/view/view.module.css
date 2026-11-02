@@ -98,7 +98,12 @@
     text-align: left;
 }
 @media (max-width: 768px) {
-    .fill.withMobileSafetyMargin,
+    .fill.withMobileSafetyMargin {
+        /* The app container already accounts for the safe area. */
+        padding-left: var(--space-quarter);
+        padding-right: var(--space-quarter);
+    }
+
     .fullscreen.withMobileSafetyMargin {
         padding-left: calc(var(--space-quarter) + env(safe-area-inset-left, 0px));
         padding-right: calc(var(--space-quarter) + env(safe-area-inset-right, 0px));
