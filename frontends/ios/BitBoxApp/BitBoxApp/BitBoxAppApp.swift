@@ -37,6 +37,9 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
     }
 
     func auth() {
+        DispatchQueue.main.async {
+            AppPrivacyScreen.shared.authenticationStarted()
+        }
         let context = LAContext()
         var error: NSError?
 
@@ -55,12 +58,14 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
                             MobileserverAuthResult(MobileserverAuthResultErr);
                         }
                     }
+                    AppPrivacyScreen.shared.authenticationFinished(success: success)
                 }
             }
         } else {
             // Biometric authentication not available
             DispatchQueue.main.async {
                 MobileserverAuthResult(MobileserverAuthResultMissing);
+                AppPrivacyScreen.shared.authenticationFinished(success: false)
             }
         }
     }
@@ -101,8 +106,10 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
     func notifyUser(_ p0: String?) {
     }
 
-    func onAuthSettingChanged(_ p0: Bool) {
-        // TODO: hide app window contents in app switcher, maybe always not just when auth is on.
+    func onAuthSettingChanged(_ enabled: Bool) {
+        DispatchQueue.main.async {
+            AppPrivacyScreen.shared.authenticationEnabled = enabled
+        }
     }
 
     func canEncryptLightningMnemonic() -> Bool {
@@ -222,10 +229,132 @@ class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersPro
 final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        AppPrivacyScreen.shared.startObserving()
+        return true
+    }
+
+    func application(
+        _ application: UIApplication,
         shouldAllowExtensionPointIdentifier extensionPointIdentifier: UIApplication.ExtensionPointIdentifier
     ) -> Bool {
         // Revealed passwords use text inputs, which otherwise allow third-party keyboards.
         extensionPointIdentifier != .keyboard
+    }
+}
+
+/// Covers the entire scene, including presented sheets, before iOS captures its preview.
+@MainActor
+final class AppPrivacyScreen: NSObject {
+    static let shared = AppPrivacyScreen()
+
+    var authenticationEnabled = true {
+        didSet {
+            if !authenticationEnabled {
+                authenticationFinished(success: true)
+            }
+        }
+    }
+    private var waitingForAuthentication = false
+    private var authenticationScreenVisible = false
+    private var windows: [UIWindowScene: UIWindow] = [:]
+
+    func startObserving(center: NotificationCenter = .default) {
+        center.addObserver(self, selector: #selector(sceneWillDeactivate), name: UIScene.willDeactivateNotification, object: nil)
+        center.addObserver(self, selector: #selector(sceneDidEnterBackground), name: UIScene.didEnterBackgroundNotification, object: nil)
+        center.addObserver(self, selector: #selector(sceneWillEnterForeground), name: UIScene.willEnterForegroundNotification, object: nil)
+        center.addObserver(self, selector: #selector(sceneDidActivate), name: UIScene.didActivateNotification, object: nil)
+        center.addObserver(self, selector: #selector(sceneDidDisconnect), name: UIScene.didDisconnectNotification, object: nil)
+    }
+
+    @objc private func sceneWillDeactivate(_ notification: Notification) {
+        guard let scene = notification.object as? UIWindowScene else { return }
+        cover(scene, animated: true)
+    }
+
+    @objc private func sceneDidEnterBackground(_ notification: Notification) {
+        guard let scene = notification.object as? UIWindowScene else { return }
+        // iOS captures the preview immediately: finish any fade before returning.
+        cover(scene)
+    }
+
+    @objc private func sceneWillEnterForeground(_ notification: Notification) {
+        guard let scene = notification.object as? UIWindowScene else { return }
+        // A cancelled authentication leaves the web lock visible with a retry button.
+        waitingForAuthentication = authenticationEnabled && !authenticationScreenVisible
+        cover(scene)
+    }
+
+    @objc private func sceneDidActivate(_ notification: Notification) {
+        guard let scene = notification.object as? UIWindowScene else { return }
+        revealIfReady(scene)
+    }
+
+    @objc private func sceneDidDisconnect(_ notification: Notification) {
+        guard let scene = notification.object as? UIWindowScene else { return }
+        windows.removeValue(forKey: scene)?.isHidden = true
+    }
+
+    func cover(_ scene: UIWindowScene, animated: Bool = false) {
+        let shouldAnimate = animated && !UIAccessibility.isReduceMotionEnabled
+        let window: UIWindow
+        if let existing = windows[scene] {
+            window = existing
+        } else {
+            window = UIWindow(windowScene: scene)
+            window.windowLevel = .alert + 1
+            // Reuse the launch storyboard so the logo, colors and layout stay identical.
+            window.rootViewController = UIStoryboard(name: "Launch Screen", bundle: nil).instantiateInitialViewController()
+            window.backgroundColor = .systemBackground
+            window.accessibilityIdentifier = "app-privacy-screen"
+            window.alpha = shouldAnimate ? 0 : 1
+            windows[scene] = window
+            // Do not make this window key: system authentication must retain its focus.
+            window.isHidden = false
+            window.layoutIfNeeded()
+        }
+        if shouldAnimate {
+            UIView.animate(withDuration: 0.15, delay: 0, options: [.beginFromCurrentState, .curveEaseInOut, .allowUserInteraction]) {
+                window.alpha = 1
+            }
+        } else {
+            UIView.performWithoutAnimation {
+                window.alpha = 1
+                window.layer.removeAllAnimations()
+            }
+        }
+    }
+
+    func authenticationStarted() {
+        authenticationScreenVisible = true
+    }
+
+    func authenticationFinished(success: Bool) {
+        authenticationScreenVisible = !success
+        waitingForAuthentication = false
+        for scene in Array(windows.keys) {
+            revealIfReady(scene)
+        }
+    }
+
+    private func revealIfReady(_ scene: UIWindowScene) {
+        guard scene.activationState == .foregroundActive, !waitingForAuthentication,
+              let window = windows[scene], window.alpha != 0 else { return }
+        // On failure or cancellation the existing web authentication screen provides retry.
+        UIView.animate(
+            withDuration: UIAccessibility.isReduceMotionEnabled ? 0 : 0.2,
+            delay: 0,
+            options: [.beginFromCurrentState, .curveEaseInOut, .allowUserInteraction]
+        ) {
+            window.alpha = 0
+        } completion: { [weak self] finished in
+            // A new background transition can interrupt this fade and reuse the same cover.
+            guard let self, finished, window.alpha == 0,
+                  scene.activationState == .foregroundActive, !self.waitingForAuthentication,
+                  self.windows[scene] === window else { return }
+            self.windows.removeValue(forKey: scene)?.isHidden = true
+        }
     }
 }
 
