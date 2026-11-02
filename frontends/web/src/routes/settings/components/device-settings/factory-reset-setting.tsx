@@ -57,7 +57,7 @@ export const FactoryResetSetting = ({ deviceID }: TProps) => {
       />
       <Dialog
         open={activeDialog}
-        title={t('reset.title')}
+        title={t('deviceSettings.expert.factoryReset.title')}
         onClose={abort}
         small>
         <DialogScrollContent>
@@ -70,13 +70,13 @@ export const FactoryResetSetting = ({ deviceID }: TProps) => {
         </DialogScrollContent>
         <DialogButtons>
           <Button danger disabled={!understand} onClick={reset}>
-            {t('reset.title')}
+            {t('deviceSettings.expert.factoryReset.title')}
           </Button>
         </DialogButtons>
       </Dialog>
       {isConfirming && (
         <WaitDialog
-          title={t('reset.title')} >
+          title={t('deviceSettings.expert.factoryReset.title')} >
           {t('bitbox02Interact.followInstructions')}
           <PointToBitBox02 />
         </WaitDialog>
