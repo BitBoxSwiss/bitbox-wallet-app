@@ -1798,6 +1798,7 @@
     "contacts": {
       "add": "Add contact",
       "addAfterPayment": "Add <strong>{{address}}</strong> to your contacts",
+      "addressNotFound": "This Lightning address was not found. Please check the address.",
       "addressPlaceholder": "satoshi@bitbox.cash",
       "delete": "Delete contact",
       "deleteAction": "Delete",

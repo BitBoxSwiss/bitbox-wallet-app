@@ -3,13 +3,18 @@
 package lightning
 
 import (
+	"context"
 	"encoding/json"
+	"io"
+	"net/http"
 	"net/mail"
+	"net/url"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
+	"time"
 	"unicode"
 
 	utilconfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
@@ -19,9 +24,10 @@ import (
 
 // Contact error codes identify invalid addresses, duplicates and missing contacts.
 const (
-	ErrContactInvalidAddress errp.ErrorCode = "lightningContactInvalidAddress"
-	ErrContactDuplicate      errp.ErrorCode = "lightningContactDuplicate"
-	ErrContactNotFound       errp.ErrorCode = "lightningContactNotFound"
+	ErrContactInvalidAddress  errp.ErrorCode = "lightningContactInvalidAddress"
+	ErrContactAddressNotFound errp.ErrorCode = "lightningContactAddressNotFound"
+	ErrContactDuplicate       errp.ErrorCode = "lightningContactDuplicate"
+	ErrContactNotFound        errp.ErrorCode = "lightningContactNotFound"
 )
 
 // Contact is a locally stored Lightning address and optional display name.
@@ -156,8 +162,55 @@ func normalizeContactAddress(address string) (string, error) {
 	return local + "@" + strings.ToLower(domain), nil
 }
 
+// validateContactAddress rejects HTTP 404 and provider errors, and allows inconclusive lookups.
+func (lightning *Lightning) validateContactAddress(address string) error {
+	username, domain, _ := strings.Cut(strings.ToLower(address), "@")
+	scheme := "https"
+	if strings.HasSuffix(domain, ".onion") {
+		scheme = "http"
+	}
+	endpoint := url.URL{Scheme: scheme, Host: domain, Path: "/.well-known/lnurlp/"}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String()+url.PathEscape(username), nil)
+	if err != nil {
+		return nil
+	}
+	response, err := lightning.httpClient.Do(request)
+	if err != nil {
+		return nil
+	}
+	defer func() {
+		_ = response.Body.Close()
+	}()
+	if response.StatusCode == http.StatusNotFound {
+		return ErrContactAddressNotFound
+	}
+	// Read one byte past the 64 KiB limit to detect oversized responses.
+	body, err := io.ReadAll(io.LimitReader(response.Body, 64*1024+1))
+	if err != nil || len(body) > 64*1024 {
+		return nil
+	}
+	var result struct {
+		Status string `json:"status"`
+	}
+	if json.Unmarshal(body, &result) == nil && strings.EqualFold(result.Status, "ERROR") {
+		return ErrContactAddressNotFound
+	}
+	return nil
+}
+
+// SaveContact checks new or changed addresses before saving a contact.
+func (lightning *Lightning) SaveContact(contact Contact) (*Contact, error) {
+	return lightning.contacts.save(contact, lightning.validateContactAddress)
+}
+
 // Save creates a contact when ID is empty, or updates an existing contact.
 func (contacts *Contacts) Save(contact Contact) (*Contact, error) {
+	return contacts.save(contact, nil)
+}
+
+func (contacts *Contacts) save(contact Contact, validateAddress func(string) error) (*Contact, error) {
 	address, err := normalizeContactAddress(contact.Address)
 	if err != nil {
 		return nil, err
@@ -180,13 +233,18 @@ func (contacts *Contacts) Save(contact Contact) (*Contact, error) {
 			return nil, ErrContactDuplicate
 		}
 	}
+	if contact.ID != "" && index == -1 {
+		return nil, ErrContactNotFound
+	}
+	if validateAddress != nil && (index == -1 || entries[index].Address != contact.Address) {
+		if err := validateAddress(contact.Address); err != nil {
+			return nil, err
+		}
+	}
 	if contact.ID == "" {
 		contact.ID = uuid.NewString()
 		entries = append(entries, contact)
 	} else {
-		if index == -1 {
-			return nil, ErrContactNotFound
-		}
 		entries[index] = contact
 	}
 	if err := contacts.file.WriteJSON(entries); err != nil {
