@@ -341,7 +341,17 @@ func (device *Device) Erased() (bool, error) {
 		return false, err
 	}
 
-	emptyFirmwareHash := HashFirmware(firmwareVersion, []byte{})
+	// A bootloader upgrade changes the hash scheme without changing the firmware counter.
+	scheme := firmwareHashLegacy
+	if device.version.AtLeast(semver.NewSemVer(1, 2, 3)) {
+		scheme = firmwareHashVersioned
+	} else if device.version.AtLeast(semver.NewSemVer(1, 2, 0)) {
+		scheme = firmwareHashProduct
+	}
+	emptyFirmwareHash, err := hashFirmware(device.product, firmwareVersion, nil, scheme)
+	if err != nil {
+		return false, err
+	}
 
 	firmwareHash, _, err := device.GetHashes(false, false)
 	if err != nil {

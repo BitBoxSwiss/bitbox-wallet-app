@@ -4,7 +4,7 @@ go 1.26.10
 
 require (
 	codeberg.org/go-pdf/fpdf v0.12.0
-	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261026145529-c7dc76beb56a
+	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261103140118-bdd3532428a5
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d
 	github.com/breez/breez-sdk-spark-go v0.27.2
 	github.com/btcsuite/btcd v0.26.2

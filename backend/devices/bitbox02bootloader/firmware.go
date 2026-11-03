@@ -28,15 +28,21 @@ var intermediateFirmwareBinaryBTCOnly_9_26_2 []byte
 //go:embed assets/firmware-bitbox02-multi.v9.26.2.signed.bin.gz
 var intermediateFirmwareBinaryMulti_9_26_2 []byte
 
-//go:embed assets/firmware-bitbox02-btconly.v9.27.1.signed.bin.gz
-var firmwareBinaryBTCOnly []byte
-var firmwareVersionBTCOnly = semver.NewSemVer(9, 27, 1)
-var firmwareMonotonicVersionBtcOnly uint32 = 55
+//go:embed assets/firmware-bitbox02-btconly.v9.27.2.signed.bin.gz
+var intermediateFirmwareBinaryBTCOnly_9_27_2 []byte
 
-//go:embed assets/firmware-bitbox02-multi.v9.27.1.signed.bin.gz
+//go:embed assets/firmware-bitbox02-multi.v9.27.2.signed.bin.gz
+var intermediateFirmwareBinaryMulti_9_27_2 []byte
+
+//go:embed assets/firmware-bitbox02-btconly.v9.28.0.signed.bin.gz
+var firmwareBinaryBTCOnly []byte
+var firmwareVersionBTCOnly = semver.NewSemVer(9, 28, 0)
+var firmwareMonotonicVersionBtcOnly uint32 = 57
+
+//go:embed assets/firmware-bitbox02-multi.v9.28.0.signed.bin.gz
 var firmwareBinaryMulti []byte
-var firmwareVersionMulti = semver.NewSemVer(9, 27, 1)
-var firmwareMonotonicVersionMulti uint32 = 55
+var firmwareVersionMulti = semver.NewSemVer(9, 28, 0)
+var firmwareMonotonicVersionMulti uint32 = 57
 
 // BitBox02 Nova.
 
@@ -46,15 +52,21 @@ var intermediateFirmwareBB02PlusBinaryBTCOnly_9_26_2 []byte
 //go:embed assets/firmware-bitbox02nova-multi.v9.26.2.signed.bin.gz
 var intermediateFirmwareBB02PlusBinaryMulti_9_26_2 []byte
 
-//go:embed assets/firmware-bitbox02nova-btconly.v9.27.1.signed.bin.gz
-var firmwareBB02PlusBinaryBTCOnly []byte
-var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 27, 1)
-var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 55
+//go:embed assets/firmware-bitbox02nova-btconly.v9.27.2.signed.bin.gz
+var intermediateFirmwareBB02PlusBinaryBTCOnly_9_27_2 []byte
 
-//go:embed assets/firmware-bitbox02nova-multi.v9.27.1.signed.bin.gz
+//go:embed assets/firmware-bitbox02nova-multi.v9.27.2.signed.bin.gz
+var intermediateFirmwareBB02PlusBinaryMulti_9_27_2 []byte
+
+//go:embed assets/firmware-bitbox02nova-btconly.v9.28.0.signed.bin.gz
+var firmwareBB02PlusBinaryBTCOnly []byte
+var firmwareBB02PlusVersionBTCOnly = semver.NewSemVer(9, 28, 0)
+var firmwareBB02PlusMonotonicVersionBtcOnly uint32 = 57
+
+//go:embed assets/firmware-bitbox02nova-multi.v9.28.0.signed.bin.gz
 var firmwareBB02PlusBinaryMulti []byte
-var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 27, 1)
-var firmwareBB02PlusMonotonicVersionMulti uint32 = 55
+var firmwareBB02PlusVersionMulti = semver.NewSemVer(9, 28, 0)
+var firmwareBB02PlusMonotonicVersionMulti uint32 = 57
 
 type firmwareInfo struct {
 	version                     *semver.SemVer
@@ -77,11 +89,11 @@ func (fi firmwareInfo) firmwareHash() ([]byte, error) {
 		return nil, err
 	}
 
-	_, _, binary, err := bootloader.ParseSignedFirmware(signedBinary)
+	product, _, binary, err := bootloader.ParseSignedFirmware(signedBinary)
 	if err != nil {
 		return nil, err
 	}
-	return bootloader.HashFirmware(fi.monotonicVersion, binary), nil
+	return bootloader.HashFirmware(product, fi.monotonicVersion, binary)
 }
 
 // The last entry in the slice is the latest firmware update to which one can upgrade.
@@ -105,6 +117,12 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 			binaryGzip:                  intermediateFirmwareBinaryMulti_9_26_2,
 		},
 		{
+			version:                     semver.NewSemVer(9, 27, 2),
+			monotonicVersion:            56,
+			completionBootloaderVersion: semver.NewSemVer(1, 2, 3),
+			binaryGzip:                  intermediateFirmwareBinaryMulti_9_27_2,
+		},
+		{
 			version:          firmwareVersionMulti,
 			monotonicVersion: firmwareMonotonicVersionMulti,
 			binaryGzip:       firmwareBinaryMulti,
@@ -123,6 +141,12 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 			binaryGzip:                  intermediateFirmwareBinaryBTCOnly_9_26_2,
 		},
 		{
+			version:                     semver.NewSemVer(9, 27, 2),
+			monotonicVersion:            56,
+			completionBootloaderVersion: semver.NewSemVer(1, 2, 3),
+			binaryGzip:                  intermediateFirmwareBinaryBTCOnly_9_27_2,
+		},
+		{
 			version:          firmwareVersionBTCOnly,
 			monotonicVersion: firmwareMonotonicVersionBtcOnly,
 			binaryGzip:       firmwareBinaryBTCOnly,
@@ -137,6 +161,12 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 			binaryGzip:                  intermediateFirmwareBB02PlusBinaryMulti_9_26_2,
 		},
 		{
+			version:                     semver.NewSemVer(9, 27, 2),
+			monotonicVersion:            56,
+			completionBootloaderVersion: semver.NewSemVer(1, 2, 3),
+			binaryGzip:                  intermediateFirmwareBB02PlusBinaryMulti_9_27_2,
+		},
+		{
 			version:          firmwareBB02PlusVersionMulti,
 			monotonicVersion: firmwareBB02PlusMonotonicVersionMulti,
 			binaryGzip:       firmwareBB02PlusBinaryMulti,
@@ -148,6 +178,12 @@ var bundledFirmwares = map[bitbox02common.Product][]firmwareInfo{
 			monotonicVersion:            50,
 			completionBootloaderVersion: semver.NewSemVer(1, 2, 2),
 			binaryGzip:                  intermediateFirmwareBB02PlusBinaryBTCOnly_9_26_2,
+		},
+		{
+			version:                     semver.NewSemVer(9, 27, 2),
+			monotonicVersion:            56,
+			completionBootloaderVersion: semver.NewSemVer(1, 2, 3),
+			binaryGzip:                  intermediateFirmwareBB02PlusBinaryBTCOnly_9_27_2,
 		},
 		{
 			version:          firmwareBB02PlusVersionBTCOnly,
