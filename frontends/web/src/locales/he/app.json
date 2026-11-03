@@ -276,6 +276,11 @@
     "confirm": "אשר",
     "confirmTitle": "אישור"
   },
+  "externalLinkPrompt": {
+    "confirm": "המשך",
+    "message": "אתם עומדים לפתוח את הכתובת {{url}} בדפדפן המערכת. להמשיך?",
+    "title": "פתיחת קישור חיצוני"
+  },
   "fiat": {
     "default": "ברירת מחדל",
     "setDefault": "הגדר {{code}} כברירת מחדל",

@@ -1,2 +1,2 @@
 LIBRARY LIBSERVER
-EXPORTS serve backendCall handleURI systemOpen goLog setOnline backendShutdown
+EXPORTS serve backendCall handleURI externalLinkRequested systemOpen goLog setOnline backendShutdown
