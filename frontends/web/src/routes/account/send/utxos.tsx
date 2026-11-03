@@ -19,7 +19,7 @@ import { Amount } from '@/components/amount/amount';
 import { getScriptName } from '@/routes/account/utils';
 import { Message } from '@/components/message/message';
 import { Badge } from '@/components/badge/badge';
-import { parseTimeShort } from '@/utils/date';
+import { convertDateToLocaleString } from '@/utils/date';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import style from './utxos.module.css';
 
@@ -123,7 +123,7 @@ export const UTXOs = ({
                       </span>
                       <span className={style.shrink}>
                         {utxo.headerTimestamp
-                          ? parseTimeShort(utxo.headerTimestamp, i18n.language)
+                          ? convertDateToLocaleString(utxo.headerTimestamp, i18n.language)
                           : t('transaction.status.pending')}
                       </span>
                     </div>
