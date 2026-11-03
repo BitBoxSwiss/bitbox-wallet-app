@@ -1,7 +1,7 @@
 codeberg.org/go-pdf/fpdf v0.12.0 h1:g8E/1VqGqB2lZUUaqQrrTnA0IEJLPTTX1DZ0qS/ZmhU=
 codeberg.org/go-pdf/fpdf v0.12.0/go.mod h1:WJNJ2bvCj81rZBdhOf7lKOGoSl+OKMXcIcXqDcP8r5Y=
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261026145529-c7dc76beb56a h1:FR0Xx9iGc7Zb32B+sCx0dnK1gce3QJvhpUnfZtgoyH0=
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261026145529-c7dc76beb56a/go.mod h1:WecGvMKpH5eEqW7xgASQF4eg/dmyueh4sE7Td6aKMVs=
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261103140118-bdd3532428a5 h1:AotE2P8qtv3qOaQXoX3TjO/MRGogEJJCDZNetwpJSgE=
+github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261103140118-bdd3532428a5/go.mod h1:WecGvMKpH5eEqW7xgASQF4eg/dmyueh4sE7Td6aKMVs=
 github.com/BitBoxSwiss/bitboxsync-client-go v0.0.0-20260701061324-f7e835814680 h1:yGUYDddOzTmUdyBUX4FDGUW+O3VX2g2OfjtdZGIuRZ4=
 github.com/BitBoxSwiss/bitboxsync-client-go v0.0.0-20260701061324-f7e835814680/go.mod h1:NlTH3nCt38trIQH357yq7ugzI61WbZ+SFeq6B0bK/EU=
 github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d h1:HdoIlaUcNyEBajUoQgsxZtDMyCFyE7qv1kpeFe/u7nQ=

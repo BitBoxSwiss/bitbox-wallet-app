@@ -108,7 +108,7 @@ func TestNextFirmware(t *testing.T) {
 
 			fwInfo, err = nextFirmware(product, fwInfo.monotonicVersion)
 			require.NoError(t, err)
-			require.Equal(t, &firmwares[len(firmwares)-1], fwInfo)
+			require.Equal(t, uint32(56), fwInfo.monotonicVersion)
 		case bitbox02common.ProductBitBox02PlusMulti, bitbox02common.ProductBitBox02PlusBTCOnly:
 			fwInfo, err := nextFirmware(product, 1)
 			require.NoError(t, err)
@@ -116,10 +116,32 @@ func TestNextFirmware(t *testing.T) {
 
 			fwInfo, err = nextFirmware(product, fwInfo.monotonicVersion)
 			require.NoError(t, err)
-			require.Equal(t, &firmwares[len(firmwares)-1], fwInfo)
+			require.Equal(t, uint32(56), fwInfo.monotonicVersion)
 		default:
 			require.Fail(t, "unknown product")
 		}
+		fwInfo, err := nextFirmware(product, 56)
+		require.NoError(t, err)
+		require.Equal(t, &firmwares[len(firmwares)-1], fwInfo)
+		require.Equal(t, uint32(57), fwInfo.monotonicVersion)
+	}
+}
+
+// The v9.27.2 intermediate must finish installing bootloader v1.2.3 before continuing.
+func TestStage0UpgradeIntermediate(t *testing.T) {
+	for product := range bundledFirmwares {
+		t.Run(string(product), func(t *testing.T) {
+			intermediate, err := nextFirmware(product, 54)
+			require.NoError(t, err)
+			require.Equal(t, "9.27.2", intermediate.version.String())
+			require.Equal(t, uint32(56), intermediate.monotonicVersion)
+			for _, counter := range []uint32{55, 56, 57} {
+				require.Equal(t, counter == 56, intermediate.bootRequired(counter, semver.NewSemVer(1, 2, 2)))
+				require.False(t, intermediate.continuesUpgrade(counter, semver.NewSemVer(1, 2, 2)))
+				require.False(t, intermediate.bootRequired(counter, semver.NewSemVer(1, 2, 3)))
+				require.Equal(t, counter == 56, intermediate.continuesUpgrade(counter, semver.NewSemVer(1, 2, 3)))
+			}
+		})
 	}
 }
 

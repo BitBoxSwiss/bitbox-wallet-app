@@ -11,20 +11,64 @@ import (
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/errp"
 )
 
-// HashFirmware returns the hash of `<firmware version><firmware>`, as computed by the bootloader to
-// check the firmware signature.
-func HashFirmware(firmwareVersion uint32, unsignedFirmware []byte) []byte {
-	doubleHash := func(b []byte) []byte {
-		first := sha256.Sum256(b)
-		second := sha256.Sum256(first[:])
-		return second[:]
-	}
-	firmwareVersionLE := make([]byte, 4)
-	binary.LittleEndian.PutUint32(firmwareVersionLE, firmwareVersion)
+type firmwareHashScheme int
 
-	padded := bytes.Repeat([]byte{0xFF}, maxFirmwareSize)
-	copy(padded, unsignedFirmware)
-	return doubleHash(append(firmwareVersionLE, padded...))
+const (
+	firmwareHashLegacy firmwareHashScheme = iota
+	firmwareHashProduct
+	firmwareHashVersioned
+)
+
+// HashFirmware returns the expected device-reported hash of a released firmware.
+// The monotonic firmware version determines the hash format used to sign the release.
+func HashFirmware(product common.Product, firmwareVersion uint32, unsignedFirmware []byte) ([]byte, error) {
+	scheme := firmwareHashLegacy
+	if firmwareVersion >= 57 {
+		scheme = firmwareHashVersioned
+	} else if firmwareVersion >= 51 {
+		scheme = firmwareHashProduct
+	}
+	return hashFirmware(product, firmwareVersion, unsignedFirmware, scheme)
+}
+
+func hashFirmware(
+	product common.Product,
+	version uint32,
+	firmware []byte,
+	scheme firmwareHashScheme,
+) ([]byte, error) {
+	if len(firmware) > maxFirmwareSize {
+		return nil, errp.New("firmware too big")
+	}
+	var productID uint16
+	switch product {
+	case common.ProductBitBox02Multi:
+		productID = 1
+	case common.ProductBitBox02BTCOnly:
+		productID = 2
+	case common.ProductBitBox02PlusMulti:
+		productID = 3
+	case common.ProductBitBox02PlusBTCOnly:
+		productID = 4
+	default:
+		return nil, errp.New("unrecognized product")
+	}
+
+	preimage := make([]byte, 0, 1+2+4+maxFirmwareSize)
+	if scheme == firmwareHashVersioned {
+		preimage = append(preimage, 0x01)
+	}
+	if scheme != firmwareHashLegacy {
+		preimage = binary.LittleEndian.AppendUint16(preimage, productID)
+	}
+	preimage = binary.LittleEndian.AppendUint32(preimage, version)
+	preimage = append(preimage, firmware...)
+	preimage = append(preimage, bytes.Repeat([]byte{0xFF}, maxFirmwareSize-len(firmware))...)
+	hash := sha256.Sum256(preimage)
+	if scheme == firmwareHashLegacy {
+		hash = sha256.Sum256(hash[:])
+	}
+	return hash[:], nil
 }
 
 // ParseSignedFirmware parses a signed firmware file and returns (sigdata, firmware). Errors if the

@@ -3,7 +3,7 @@
 Update BitBox02 bundled firmware binaries in this folder.
 
 This replaces the 4 "current" bundled firmwares (BitBox02 + BitBox02 Nova, Multi + BTC-only)
-while keeping the fixed v9.17.1 and v9.26.2 files intact.
+while keeping the fixed v9.17.1, v9.26.2 and v9.27.2 files intact.
 
 Expected input directory layout:
   firmware-bitbox02-btconly.v<version>.signed.bin
@@ -29,7 +29,7 @@ from pathlib import Path
 
 
 ASSETS_DIR = Path(__file__).resolve().parent
-FIXED_VERSIONS = ("9.17.1", "9.26.2")
+FIXED_VERSIONS = ("9.17.1", "9.26.2", "9.27.2")
 
 VARIANTS = (
     "firmware-bitbox02-btconly",
