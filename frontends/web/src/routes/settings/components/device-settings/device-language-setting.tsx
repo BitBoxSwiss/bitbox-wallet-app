@@ -15,11 +15,11 @@ import settingsDropdownStyles from '../appearance/settingsdropdown.module.css';
 
 type TProps = {
   deviceID: string;
-  language: string;
-  supportedLanguages: string[];
+  language?: string;
+  supportedLanguages?: string[];
 };
 
-export const DeviceLanguageSetting = ({ deviceID, language, supportedLanguages }: TProps) => {
+export const DeviceLanguageSetting = ({ deviceID, language, supportedLanguages = [] }: TProps) => {
   const { t } = useTranslation();
   const mounted = useMountedRef();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -62,6 +62,16 @@ export const DeviceLanguageSetting = ({ deviceID, language, supportedLanguages }
       }
     }
   };
+
+  if (!language) {
+    return (
+      <SettingsItem
+        settingName={t('deviceSettings.deviceLanguage.title')}
+        secondaryText={t('deviceSettings.deviceLanguage.description')}
+        displayedValue={t('bitbox02Wizard.advanced.outOfDate')}
+      />
+    );
+  }
 
   return (
     <>

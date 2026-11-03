@@ -7,7 +7,6 @@ import {
   isBalanceStatementSettingVisible,
   isBluetoothToggleSettingVisible,
   isDeviceBluetoothSupported,
-  isDeviceLanguageSupported,
   isDeviceSettingsVisible,
   isExportLogsSettingVisible,
   isLightningSettingVisible,
@@ -239,7 +238,7 @@ const SETTINGS_SEARCH_DESCRIPTORS: TSettingsSearchDescriptor[] = [
   },
   {
     id: 'device-language',
-    isAvailable: ({ deviceInfo }) => isDeviceLanguageSupported(deviceInfo),
+    isAvailable: ({ devices }) => Object.values(devices)[0] === 'bitbox02',
     getTitle: ({ t }) => t('deviceSettings.deviceLanguage.title'),
     getDescription: ({ t }) => t('deviceSettings.deviceLanguage.description'),
     page: 'device',

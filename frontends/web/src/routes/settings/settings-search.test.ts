@@ -51,29 +51,16 @@ describe('settings search', () => {
     isLightningFeatureAvailableMock.mockReturnValue(true);
   });
 
-  // Show the device-language setting only with a current language and at least two choices.
+  // Search targets the first device and includes its language setting before device info is loaded.
   it.each([
-    { language: undefined, supportedLanguages: undefined, visible: false },
-    { language: undefined, supportedLanguages: ['en', 'de'], visible: false },
-    { language: '', supportedLanguages: ['en', 'de'], visible: false },
-    { language: 'en', supportedLanguages: undefined, visible: false },
-    { language: 'en', supportedLanguages: [], visible: false },
-    { language: 'en', supportedLanguages: ['en'], visible: false },
-    { language: 'en', supportedLanguages: ['en', 'de'], visible: true },
-    { language: 'en', supportedLanguages: ['en', 'de', 'it', 'es'], visible: true },
-  ])('shows device language only when at least two languages are reported: $visible', ({ language, supportedLanguages, visible }) => {
+    { platforms: [], visible: false },
+    { platforms: ['bitbox'], visible: false },
+    { platforms: ['bitbox02-bootloader'], visible: false },
+    { platforms: ['bitbox02'], visible: true },
+    { platforms: ['bitbox', 'bitbox02'], visible: false },
+  ] as const)('shows device language for platforms $platforms: $visible', ({ platforms, visible }) => {
     const items = getSettingsSearchItems({
-      devices: { 'device-1': 'bitbox02' },
-      deviceInfo: {
-        name: 'BitBox',
-        language,
-        supportedLanguages,
-        initialized: true,
-        mnemonicPassphraseEnabled: false,
-        securechipModel: 'ATECC608B',
-        version: '9.26.0',
-        bluetooth: null,
-      },
+      devices: Object.fromEntries(platforms.map((platform, index) => [`device-${index}`, platform])),
       hasAccounts: true,
       hasSoftwareKeystore: false,
       isLightningEnabled: false,

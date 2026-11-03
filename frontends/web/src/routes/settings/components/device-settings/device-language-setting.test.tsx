@@ -34,6 +34,15 @@ describe('DeviceLanguageSetting', () => {
     vi.mocked(setDeviceLanguage).mockResolvedValue({ success: true });
   });
 
+  // Older firmware keeps an upgrade note without offering or sending a language change.
+  it('shows an upgrade note when the device does not report a language', () => {
+    render(<DeviceLanguageSetting deviceID="device-1" />);
+
+    expect(screen.getByText('bitbox02Wizard.advanced.outOfDate')).toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(setDeviceLanguage).not.toHaveBeenCalled();
+  });
+
   it('shows the current language and offers the languages reported by the device', async () => {
     const user = userEvent.setup();
     renderSetting('de');
@@ -49,20 +58,17 @@ describe('DeviceLanguageSetting', () => {
     await waitFor(() => expect(screen.getByText('English')).toBeInTheDocument());
   });
 
-  it.each([
-    { code: 'es', label: 'Español' },
-    { code: 'it', label: 'Italiano' },
-    { code: 'sw', label: 'sw' },
-  ])('can select a reported language ($code) without offering unsupported languages', async ({ code, label }) => {
+  // Languages unknown to the app remain selectable using the code reported by the device.
+  it('uses the language code when the app has no translated label', async () => {
     const user = userEvent.setup();
-    renderSetting('en', ['en', code]);
+    renderSetting('en', ['en', 'sw']);
 
     await user.click(screen.getByRole('combobox'));
-    expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual(['English', label]);
-    await user.click(screen.getByRole('option', { name: label }));
+    expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual(['English', 'sw']);
+    await user.click(screen.getByRole('option', { name: 'sw' }));
 
-    expect(setDeviceLanguage).toHaveBeenCalledWith('device-1', code);
-    await waitFor(() => expect(screen.getByText(label)).toBeInTheDocument());
+    expect(setDeviceLanguage).toHaveBeenCalledWith('device-1', 'sw');
+    await waitFor(() => expect(screen.getByText('sw')).toBeInTheDocument());
   });
 
   it('keeps the previous selection until confirmation on the device succeeds', async () => {

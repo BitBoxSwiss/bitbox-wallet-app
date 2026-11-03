@@ -13,11 +13,6 @@ type TDeviceInfoWithBluetooth = DeviceInfo & {
   bluetooth: NonNullable<DeviceInfo['bluetooth']>;
 };
 
-type TDeviceInfoWithLanguage = DeviceInfo & {
-  language: string;
-  supportedLanguages: string[];
-};
-
 export const isNotesSettingsVisible = (
   hasAccounts: boolean,
   isLightningEnabled: boolean | undefined,
@@ -36,10 +31,6 @@ export const isBluetoothToggleSettingVisible = (
 ): deviceInfo is TDeviceInfoWithBluetooth => (
   isDeviceBluetoothSupported(deviceInfo) && !runningInIOS()
 );
-
-export const isDeviceLanguageSupported = (
-  deviceInfo?: DeviceInfo,
-): deviceInfo is TDeviceInfoWithLanguage => !!deviceInfo?.language && (deviceInfo.supportedLanguages?.length ?? 0) >= 2;
 
 export const isScreenLockSettingVisible = () => runningInAndroid() || runningInIOS();
 
