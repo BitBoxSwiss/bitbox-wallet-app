@@ -118,10 +118,8 @@ func joinAccountView(
 	}
 }
 
-func joinAccountViews(
-	runtimeAccounts AccountsList,
-	accountsConfig config.AccountsConfig,
-) AccountViews {
+// joinAccountViews joins loaded accounts with one authoritative, caller-owned snapshot.
+func joinAccountViews(runtimeAccounts AccountsList, accountsConfig config.AccountsConfig) AccountViews {
 	views := make(AccountViews, 0, len(runtimeAccounts))
 	for _, account := range runtimeAccounts {
 		if view := joinAccountView(account, accountsConfig); view != nil {
