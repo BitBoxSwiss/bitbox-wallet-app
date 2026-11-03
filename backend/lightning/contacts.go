@@ -3,13 +3,21 @@
 package lightning
 
 import (
+	"context"
 	"encoding/json"
+	"io"
+	"net"
+	"net/http"
 	"net/mail"
+	"net/netip"
+	"net/url"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
+	"syscall"
+	"time"
 	"unicode"
 
 	utilconfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
@@ -17,11 +25,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// Contact error codes identify invalid addresses, duplicates and missing contacts.
+// Contact error codes identify invalid addresses, lookup failures, duplicates and missing contacts.
 const (
-	ErrContactInvalidAddress errp.ErrorCode = "lightningContactInvalidAddress"
-	ErrContactDuplicate      errp.ErrorCode = "lightningContactDuplicate"
-	ErrContactNotFound       errp.ErrorCode = "lightningContactNotFound"
+	ErrContactInvalidAddress      errp.ErrorCode = "lightningContactInvalidAddress"
+	ErrContactAddressLookupFailed errp.ErrorCode = "lightningContactAddressLookupFailed"
+	ErrContactAddressNotFound     errp.ErrorCode = "lightningContactAddressNotFound"
+	ErrContactDuplicate           errp.ErrorCode = "lightningContactDuplicate"
+	ErrContactNotFound            errp.ErrorCode = "lightningContactNotFound"
 )
 
 // Contact is a locally stored Lightning address and optional display name.
@@ -156,8 +166,136 @@ func normalizeContactAddress(address string) (string, error) {
 	return local + "@" + strings.ToLower(domain), nil
 }
 
+func isPublicContactAddressIP(ip netip.Addr) bool {
+	ip = ip.Unmap()
+	if !ip.IsGlobalUnicast() || ip.IsPrivate() || ip.IsLoopback() {
+		return false
+	}
+	if ip.Is6() {
+		// NAT64 destinations must also contain a public IPv4 address.
+		if netip.MustParsePrefix("64:ff9b::/96").Contains(ip) {
+			bytes := ip.As16()
+			return isPublicContactAddressIP(netip.AddrFrom4([4]byte{bytes[12], bytes[13], bytes[14], bytes[15]}))
+		}
+		if !netip.MustParsePrefix("2000::/3").Contains(ip) {
+			return false
+		}
+	}
+	for _, network := range []string{
+		"0.0.0.0/8", "100.64.0.0/10", "192.0.0.0/24", "192.0.2.0/24",
+		"198.18.0.0/15", "198.51.100.0/24", "203.0.113.0/24", "240.0.0.0/4",
+		"2001::/23", "2001:db8::/32", "2002::/16", "3fff::/20",
+	} {
+		if netip.MustParsePrefix(network).Contains(ip) {
+			return false
+		}
+	}
+	return true
+}
+
+// contactAddressDialControl checks the resolved socket address, avoiding a second DNS lookup.
+func contactAddressDialControl(_, address string, _ syscall.RawConn) error {
+	host, _, err := net.SplitHostPort(address)
+	if err != nil {
+		return err
+	}
+	ip, err := netip.ParseAddr(host)
+	if err != nil || !isPublicContactAddressIP(ip) {
+		return errp.New("contact lookup destination is not public")
+	}
+	return nil
+}
+
+// validateContactAddress rejects HTTP 404 as not found and provider errors as lookup failures.
+// Inconclusive lookups, including redirects, do not prevent saving a contact.
+func (lightning *Lightning) validateContactAddress(address string) error {
+	username, domain, _ := strings.Cut(strings.ToLower(address), "@")
+	scheme := "https"
+	if strings.HasSuffix(domain, ".onion") {
+		scheme = "http"
+	}
+	endpoint := url.URL{Scheme: scheme, Host: domain, Path: "/.well-known/lnurlp/"}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String()+url.PathEscape(username), nil)
+	if err != nil {
+		return nil
+	}
+	client := *lightning.httpClient
+	useProxy := lightning.socksProxy.GetProxyAddress() != ""
+	host := request.URL.Hostname()
+	// Skip hosts whose transport normalization could change the checked destination.
+	if strings.ContainsFunc(host, func(r rune) bool { return r > unicode.MaxASCII }) {
+		return nil
+	}
+	host = strings.TrimSuffix(host, ".")
+	if strings.HasSuffix(host, ".onion") && !useProxy {
+		return nil
+	}
+	if ip, err := netip.ParseAddr(host); err == nil && !isPublicContactAddressIP(ip) {
+		return nil
+	}
+	client.CheckRedirect = func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }
+	if !useProxy {
+		transport := client.Transport
+		if transport == nil {
+			transport = http.DefaultTransport
+		}
+		if transport, ok := transport.(*http.Transport); ok {
+			if proxy := transport.Proxy; proxy != nil {
+				proxyURL, err := proxy(request)
+				if err != nil || proxyURL != nil {
+					return nil
+				}
+			}
+			transport := transport.Clone()
+			transport.Proxy = nil
+			transport.DialContext = (&net.Dialer{Control: contactAddressDialControl}).DialContext
+			transport.DialTLS = nil //nolint:staticcheck // Legacy TLS dialers must not bypass the destination check.
+			transport.DialTLSContext = nil
+			client.Transport = transport
+			defer transport.CloseIdleConnections()
+		}
+	}
+	response, err := client.Do(request)
+	if err != nil {
+		return nil
+	}
+	defer func() {
+		_ = response.Body.Close()
+	}()
+	// Redirects are inconclusive, even if their response body contains a provider error.
+	if response.StatusCode >= http.StatusMultipleChoices && response.StatusCode < http.StatusBadRequest {
+		return nil
+	}
+	if response.StatusCode == http.StatusNotFound {
+		return ErrContactAddressNotFound
+	}
+	// Read one byte past the 64 KiB limit to detect oversized responses.
+	body, err := io.ReadAll(io.LimitReader(response.Body, 64*1024+1))
+	if err != nil || len(body) > 64*1024 {
+		return nil
+	}
+	var result struct {
+		Status string `json:"status"`
+	}
+	if json.Unmarshal(body, &result) == nil && strings.EqualFold(result.Status, "ERROR") {
+		return ErrContactAddressLookupFailed
+	}
+	return nil
+}
+
+// SaveContact checks new or changed addresses before saving a contact.
+func (lightning *Lightning) SaveContact(contact Contact) (*Contact, error) {
+	return lightning.contacts.save(contact, lightning.validateContactAddress)
+}
+
 // Save creates a contact when ID is empty, or updates an existing contact.
 func (contacts *Contacts) Save(contact Contact) (*Contact, error) {
+	return contacts.save(contact, nil)
+}
+
+func (contacts *Contacts) save(contact Contact, validateAddress func(string) error) (*Contact, error) {
 	address, err := normalizeContactAddress(contact.Address)
 	if err != nil {
 		return nil, err
@@ -180,13 +318,18 @@ func (contacts *Contacts) Save(contact Contact) (*Contact, error) {
 			return nil, ErrContactDuplicate
 		}
 	}
+	if contact.ID != "" && index == -1 {
+		return nil, ErrContactNotFound
+	}
+	if validateAddress != nil && (index == -1 || entries[index].Address != contact.Address) {
+		if err := validateAddress(contact.Address); err != nil {
+			return nil, err
+		}
+	}
 	if contact.ID == "" {
 		contact.ID = uuid.NewString()
 		entries = append(entries, contact)
 	} else {
-		if index == -1 {
-			return nil, ErrContactNotFound
-		}
 		entries[index] = contact
 	}
 	if err := contacts.file.WriteJSON(entries); err != nil {

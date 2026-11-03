@@ -3,15 +3,87 @@
 package lightning
 
 import (
+	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
+
+// TestSaveContactLookup checks new or changed addresses and preserves contacts after an empty JSON 404 response.
+func TestSaveContactLookup(t *testing.T) {
+	lightning := newTestLightning(t, nil)
+	var lookedUp []string
+	lightning.httpClient.Transport = contactAddressTransport(func(request *http.Request) (*http.Response, error) {
+		lookedUp = append(lookedUp, request.URL.String())
+		status := http.StatusOK
+		body := `{"tag":"payRequest"}`
+		if request.URL.Path == "/.well-known/lnurlp/missing" {
+			status = http.StatusNotFound
+			body = `""`
+		}
+		return &http.Response{StatusCode: status, Body: io.NopCloser(strings.NewReader(body))}, nil
+	})
+	contact, err := lightning.SaveContact(Contact{Name: "Nora", Address: " Nora@EXAMPLE.COM "})
+	require.NoError(t, err)
+	require.Equal(t, []string{"https://example.com/.well-known/lnurlp/nora"}, lookedUp)
+	require.Equal(t, "Nora@example.com", contact.Address)
+	contact.Name = "Nora Smith"
+	_, err = lightning.SaveContact(*contact)
+	require.NoError(t, err)
+	_, err = lightning.SaveContact(Contact{Address: contact.Address})
+	require.ErrorIs(t, err, ErrContactDuplicate)
+	_, err = lightning.SaveContact(Contact{Address: "invalid"})
+	require.ErrorIs(t, err, ErrContactInvalidAddress)
+	_, err = lightning.SaveContact(Contact{ID: "missing-contact", Address: "other@example.com"})
+	require.ErrorIs(t, err, ErrContactNotFound)
+	require.Len(t, lookedUp, 1)
+
+	changed := *contact
+	changed.Address = "missing@example.com"
+	_, err = lightning.SaveContact(changed)
+	require.ErrorIs(t, err, ErrContactAddressNotFound)
+	_, err = lightning.SaveContact(Contact{Address: changed.Address})
+	require.ErrorIs(t, err, ErrContactAddressNotFound)
+	list, err := lightning.Contacts().List("")
+	require.NoError(t, err)
+	require.Equal(t, []Contact{*contact}, list.Contacts)
+	changed.Address = "alice@example.com"
+	updated, err := lightning.SaveContact(changed)
+	require.NoError(t, err)
+	require.Equal(t, changed, *updated)
+	require.Equal(t, []string{
+		"https://example.com/.well-known/lnurlp/nora",
+		"https://example.com/.well-known/lnurlp/missing",
+		"https://example.com/.well-known/lnurlp/missing",
+		"https://example.com/.well-known/lnurlp/alice",
+	}, lookedUp)
+}
+
+// TestSaveContactWithoutLookupResult silently persists contacts when the provider cannot be checked.
+func TestSaveContactWithoutLookupResult(t *testing.T) {
+	for _, lookupError := range []error{context.DeadlineExceeded, errors.New("network is unreachable")} {
+		t.Run(lookupError.Error(), func(t *testing.T) {
+			lightning := newTestLightning(t, nil)
+			lightning.httpClient.Transport = contactAddressTransport(func(*http.Request) (*http.Response, error) {
+				return nil, lookupError
+			})
+			contact, err := lightning.SaveContact(Contact{Address: "nora@example.com"})
+			require.NoError(t, err)
+			list, err := lightning.Contacts().List("")
+			require.NoError(t, err)
+			require.Equal(t, []Contact{*contact}, list.Contacts)
+			require.Nil(t, lightning.sdkService)
+		})
+	}
+}
 
 func TestContacts(t *testing.T) {
 	dir := t.TempDir()
