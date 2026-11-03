@@ -55,6 +55,7 @@ func newTestEtherScan(handler func(*http.Request) *http.Response) *EtherScan {
 		}),
 	}, rate.NewLimiter(rate.Inf, 1))
 	etherScan.url = "https://example.test/v2/api"
+	etherScan.historicalBalanceLimiter = rate.NewLimiter(rate.Inf, 1)
 	return etherScan
 }
 
