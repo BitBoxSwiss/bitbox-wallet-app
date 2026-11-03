@@ -21,7 +21,6 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
-import os
 import re
 import struct
 import sys
@@ -144,18 +143,14 @@ def main(argv: list[str]) -> int:
         _sha256_firmware_payload(src_bin, variant=variant)
 
     # Resolve current bundled firmware files to delete (excluding fixed assets).
-    current_assets_gz: list[Path] = []
-    current_assets_sha: list[Path] = []
-    for variant in VARIANTS:
-        current_assets_gz.append(_find_single(f"{variant}.v*.signed.bin.gz"))
-        current_assets_sha.append(_find_single(f"{variant}.v*.signed.bin.sha256"))
+    planned_deletes = [_find_single(f"{variant}.v*.signed.bin.gz") for variant in VARIANTS]
+    planned_deletes += [_find_single(f"{variant}.v*.signed.bin.sha256") for variant in VARIANTS]
 
     # Ensure we don't touch the fixed files.
-    for p in current_assets_gz + current_assets_sha:
+    for p in planned_deletes:
         if any(f".v{version}." in p.name for version in FIXED_VERSIONS):
             raise RuntimeError(f"refusing to touch fixed asset: {p}")
 
-    planned_deletes = current_assets_gz + current_assets_sha
     planned_adds: list[tuple[Path, Path]] = []  # (src_bin, dst_gz)
     for src_bin in expected_src_bins:
         planned_adds.append((src_bin, ASSETS_DIR / (src_bin.name + ".gz")))
