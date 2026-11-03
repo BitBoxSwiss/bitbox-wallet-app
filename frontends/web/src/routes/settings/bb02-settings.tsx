@@ -31,7 +31,6 @@ import { runningInIOS } from '@/utils/env';
 import {
   isBluetoothToggleSettingVisible,
   isDeviceBluetoothSupported,
-  isDeviceLanguageSupported,
 } from './settings-availability';
 import styles from './bb02-settings.module.css';
 
@@ -121,20 +120,19 @@ export const ManageDeviceSettingsContent = ({
             <StyledSkeleton />
           ),
         },
-        ...(isDeviceLanguageSupported(deviceInfo) ? [{
+        {
           id: 'device-language',
-          content: (
+          content: deviceInfo ? (
             <DeviceLanguageSetting
               key={deviceID}
               deviceID={deviceID}
               language={deviceInfo.language}
               supportedLanguages={deviceInfo.supportedLanguages}
             />
+          ) : (
+            <StyledSkeleton />
           ),
-        }] : deviceInfo === undefined ? [{
-          id: 'device-language',
-          content: <StyledSkeleton />,
-        }] : []),
+        },
         ...(isBluetoothToggleSettingVisible(deviceInfo) ? [{
           id: 'bluetooth',
           content: <BluetoothToggleEnabledSetting deviceID={deviceID} enabled={deviceInfo.bluetooth.enabled} />,
