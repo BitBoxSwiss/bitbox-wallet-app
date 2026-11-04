@@ -11,7 +11,7 @@ vi.mock('@/utils/request', () => ({
     }
     return Promise.resolve('en'); // default native locale
   }),
-  apiPost: vi.fn().mockResolvedValue({}),
+  apiPost: vi.fn().mockResolvedValue({ success: true }),
 }));
 
 

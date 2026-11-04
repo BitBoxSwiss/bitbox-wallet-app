@@ -46,8 +46,8 @@ import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
 import { RatesContext } from '@/contexts/RatesContext';
 import { useConfig } from '@/contexts/ConfigProvider';
-import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { SwapkitTerms } from '@/components/terms/swapkit-terms';
+import { TermsLink } from '@/components/terms/terms-link';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import style from './swap.module.css';
 
@@ -173,7 +173,7 @@ export const Swap = () => {
   );
 
   const { config } = useConfig();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipSwapkitDisclaimer ?? false);
+  const agreedTerms = config?.frontend.skipSwapkitDisclaimer ?? false;
 
   const isSameCoinAccount = (
     candidate: TSwapAccount,
@@ -512,9 +512,7 @@ export const Swap = () => {
               mobileBackButton
               title={t('generic.swap')}
             />
-            <SwapkitTerms
-              onAgreedTerms={() => setAgreedTerms(true)}
-            />
+            <SwapkitTerms />
           </Main>
         </GuidedContent>
       </GuideWrapper>
@@ -689,6 +687,7 @@ export const Swap = () => {
         </Main>
       </GuidedContent>
       <Guide>
+        <TermsLink provider="Swapkit"><SwapkitTerms readOnly /></TermsLink>
         <Entry
           key="guide.settings.servers"
           entry={{

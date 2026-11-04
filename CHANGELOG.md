@@ -34,6 +34,7 @@
 - Ethereum: add a safety margin to suggested transaction fees to reduce delays when network fees rise
 - iOS: Hide wallet information in app-switcher previews.
 - Add PDF export of assets balance on chosen date
+- Marketplace: remember disclaimer acceptance and allow rereading disclaimers from the guide
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1

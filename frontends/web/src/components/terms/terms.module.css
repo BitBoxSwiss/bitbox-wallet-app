@@ -46,6 +46,25 @@
   white-space: nowrap;
 }
 
+.readOnly .disclaimer {
+  margin: 0;
+  max-width: none;
+  overflow: visible;
+  padding: 0;
+}
+
+.guideLinkContainer {
+  margin-top: var(--space-default);
+}
+
+.guideLink,
+.guideLink:not([disabled]):hover,
+.guideLink:not([disabled]):focus {
+  color: inherit;
+  font-size: inherit;
+  text-align: left;
+}
+
 
 @media (max-width: 768px) {
   .disclaimerContainer {

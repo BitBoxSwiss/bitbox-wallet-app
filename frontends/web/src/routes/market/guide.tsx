@@ -1,17 +1,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TVendorName } from '@/api/market';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
-import { getBTCDirectPrivacyLink } from '@/components/terms/btcdirect-otc-terms';
+import { BTCDirectOTCTerms, getBTCDirectPrivacyLink } from '@/components/terms/btcdirect-otc-terms';
 import { getBitrefillPrivacyLink } from '@/components/terms/bitrefill-terms';
-import { getPocketPrivacyLink } from '@/components/terms/pocket-otc-terms';
+import { PocketOTCTerms, getPocketPrivacyLink } from '@/components/terms/pocket-otc-terms';
+import { TermsLink } from '@/components/terms/terms-link';
 import { BitrefillGuide } from './bitrefill-guide';
 
 type BuyGuideProps = {
   vendor?: TVendorName;
   translationContext: 'bitcoin' | 'crypto';
+  terms?: ReactNode;
+  showOTC?: boolean;
 };
 
 const usePrivacyLink = (vendor?: TVendorName) => {
@@ -69,7 +73,7 @@ const useServiceLink = (vendor?: TVendorName) => {
   }
 };
 
-export const MarketGuide = ({ vendor, translationContext }: BuyGuideProps) => {
+export const MarketGuide = ({ vendor, translationContext, terms, showOTC = false }: BuyGuideProps) => {
   const { t } = useTranslation();
   const link = usePrivacyLink(vendor);
   const serviceLink = useServiceLink(vendor);
@@ -96,6 +100,13 @@ export const MarketGuide = ({ vendor, translationContext }: BuyGuideProps) => {
         />
       )}
       {vendor === 'bitrefill' && <BitrefillGuide />}
+      {terms && serviceLink && <TermsLink provider={serviceLink.name}>{terms}</TermsLink>}
+      {showOTC && (
+        <>
+          <TermsLink provider="BTC Direct OTC"><BTCDirectOTCTerms readOnly /></TermsLink>
+          <TermsLink provider="Pocket OTC"><PocketOTCTerms readOnly /></TermsLink>
+        </>
+      )}
     </Guide>
   );
 };

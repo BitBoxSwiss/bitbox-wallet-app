@@ -21,7 +21,6 @@ import { ConfirmBitrefill } from './bitrefill-confirm';
 import { AppContext } from '@/contexts/AppContext';
 import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
 import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
-import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import {
   getVendorIframeMessageTarget,
   postMessageToVendorIframe,
@@ -66,7 +65,7 @@ export const Bitrefill = () => {
   const fetchBitrefillInfo = useCallback(() => getBitrefillInfo('spend', code), [code]);
   const bitrefillInfo = useAccountSynced(code, fetchBitrefillInfo);
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitrefillWidgetDisclaimer ?? false);
+  const agreedTerms = config?.frontend.skipBitrefillWidgetDisclaimer ?? false;
 
   const [pendingPayment, setPendingPayment] = useState<boolean>(false);
   const [lightningPaymentInput, setLightningPaymentInput] = useState<string>();
@@ -254,7 +253,6 @@ export const Bitrefill = () => {
               { !agreedTerms ? (
                 <BitrefillTerms
                   coinCode={coinCode}
-                  onAgreedTerms={() => setAgreedTerms(true)}
                 />
               ) : (
                 <div style={{ height }}>
@@ -290,7 +288,7 @@ export const Bitrefill = () => {
             </div>
           </div>
         </div>
-        {!lightningPaymentInput && <MarketGuide vendor="bitrefill" translationContext={translationContext} />}
+        {!lightningPaymentInput && <MarketGuide vendor="bitrefill" translationContext={translationContext} terms={<BitrefillTerms coinCode={coinCode} readOnly />} />}
       </div>
       {lightningPaymentInput && (
         <LightningTestnetGuard active onCancel={closeLightningPayment}>

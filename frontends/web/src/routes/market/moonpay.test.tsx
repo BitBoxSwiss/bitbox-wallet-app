@@ -28,12 +28,6 @@ vi.mock('@/hooks/vendor-iframe-resize-height', () => ({
     onIframeLoad: vi.fn(),
   }),
 }));
-vi.mock('@/hooks/vendor-iframe-terms', () => ({
-  useVendorTerms: () => ({
-    agreedTerms: true,
-    setAgreedTerms: vi.fn(),
-  }),
-}));
 vi.mock('./guide', () => ({
   MarketGuide: () => null,
 }));

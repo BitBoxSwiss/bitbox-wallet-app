@@ -21,7 +21,6 @@ import { convertScriptType } from '@/utils/request-addess';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
 import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
-import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import {
   getVendorIframeMessageTarget,
   postMessageToVendorIframe,
@@ -53,17 +52,8 @@ export const Pocket = ({ action }: TProps) => {
   const accountInfoResponse = useLoad(getInfo(code));
   const accountInfo = accountInfoResponse?.success ? accountInfoResponse.info : undefined;
 
-  const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad, resetIframeLoaded } = useVendorIframeResizeHeight();
-  const skipDisclaimer = config?.frontend.skipPocketDisclaimer ?? false;
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(skipDisclaimer);
-  const onBack = (
-    agreedTerms && !skipDisclaimer && accountInfoResponse?.success !== false
-      ? () => {
-        resetIframeLoaded();
-        setAgreedTerms(false);
-      }
-      : undefined
-  );
+  const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
+  const agreedTerms = config?.frontend.skipPocketDisclaimer ?? false;
   const signingRef = useRef(false);
 
   const pocketInfo = useAccountSynced(code, useCallback(() => getPocketURL(action), [action]));
@@ -305,7 +295,7 @@ export const Pocket = ({ action }: TProps) => {
     <div className="contentWithGuide">
       <div className="container">
         <div className={style.header}>
-          <Header variant="navigation" mobileBackButton onBack={onBack} title={title} />
+          <Header variant="navigation" mobileBackButton title={title} />
         </div>
         <div ref={containerRef} className={style.container}>
           { accountInfoResponse && !accountInfoResponse.success ? (
@@ -314,9 +304,7 @@ export const Pocket = ({ action }: TProps) => {
               <DesktopBackButton enableEsc>{t('button.back')}</DesktopBackButton>
             </div>
           ) : !agreedTerms ? (
-            <PocketTerms
-              onAgreedTerms={() => setAgreedTerms(true)}
-            />
+            <PocketTerms />
           ) : (
             <div style={{ height }}>
               <UseDisableBackButton />
@@ -360,7 +348,7 @@ export const Pocket = ({ action }: TProps) => {
           </Dialog>
         </div>
       </div>
-      <MarketGuide vendor="pocket" translationContext="bitcoin" />
+      <MarketGuide vendor="pocket" translationContext="bitcoin" terms={<PocketTerms readOnly />} />
     </div>
   );
 };

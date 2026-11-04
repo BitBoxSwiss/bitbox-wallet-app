@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { i18n } from '@/i18n/i18n';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
+import { BitsuranceTerms } from '@/components/terms/bitsurance-terms';
+import { TermsLink } from '@/components/terms/terms-link';
 
 const getLink = () => {
   switch (i18n.resolvedLanguage) {
@@ -75,6 +77,7 @@ export const BitsuranceGuide = () => {
           },
         }}
       />
+      <TermsLink provider="Bitsurance"><BitsuranceTerms readOnly /></TermsLink>
     </Guide>
   );
 };
