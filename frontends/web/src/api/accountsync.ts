@@ -41,7 +41,7 @@ export const statusChanged = (
 };
 
 /**
- * Fired when the account is fully synced.
+ * Fired after account synchronization or exchange-rate updates.
  * Returns a method to unsubscribe.
  */
 export const syncdone = (

@@ -162,12 +162,15 @@ func (account *BaseAccount) Initialize(accountIdentifier string) error {
 		return err
 	}
 
-	// An account syncdone event is generated when new rates are available. This allows the frontend
-	// to reload the relevant data.
+	// Refresh fiat amounts when exchange rates change.
 	if account.config.RateUpdater != nil {
 		account.config.RateUpdater.Observe(func(e observable.Event) {
 			if e.Subject == rates.RatesEventSubject {
-				account.notifySyncDone()
+				account.Notify(observable.Event{
+					Subject: string(types.EventRatesChanged),
+					Action:  action.Replace,
+					Object:  nil,
+				})
 			}
 		})
 	}
