@@ -38,6 +38,7 @@ describe('LightningLogLevelSetting', () => {
     ));
     vi.mocked(setConfig).mockImplementation(async nextConfig => {
       savedConfig = nextConfig;
+      return { success: true };
     });
   });
 
@@ -83,10 +84,10 @@ describe('LightningLogLevelSetting', () => {
   // Pending saves must not change the toggle or request a restart before persistence succeeds.
   it('shows the restart banner only after the change is saved', async () => {
     let finishSave!: () => void;
-    vi.mocked(setConfig).mockImplementationOnce(nextConfig => new Promise<void>(resolve => {
+    vi.mocked(setConfig).mockImplementationOnce(nextConfig => new Promise(resolve => {
       finishSave = () => {
         savedConfig = nextConfig;
-        resolve();
+        resolve({ success: true });
       };
     }));
     const user = userEvent.setup();
@@ -138,10 +139,10 @@ describe('LightningLogLevelSetting', () => {
   // A save completing after unmount still shows its restart notice when settings reopen.
   it('keeps the restart banner when saving finishes after leaving settings', async () => {
     let finishSave!: () => void;
-    vi.mocked(setConfig).mockImplementationOnce(nextConfig => new Promise<void>(resolve => {
+    vi.mocked(setConfig).mockImplementationOnce(nextConfig => new Promise(resolve => {
       finishSave = () => {
         savedConfig = nextConfig;
-        resolve();
+        resolve({ success: true });
       };
     }));
     const user = userEvent.setup();
