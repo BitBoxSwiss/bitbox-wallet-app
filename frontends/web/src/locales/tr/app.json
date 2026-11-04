@@ -123,8 +123,6 @@
       "understand": "Yanlış kurtarma şifresinin farklı bir cüzdan yaratacağını onaylıyorum"
     },
     "showMnemonic": {
-      "checkboxLabel": "Üstteki bilgilendirmeyi okudum",
-      "description": "Cüzdanınızın yedeğini oluşturan 24 kelimeyi size sunacağız. Onları kağıda yazın.\n\n<strong>Bunları dijital olarak saklamayın veya fotoğraflarını çekmeyin.</strong>\n\n<strong>Kelimeleri yüksek sesle söyleme.</strong>\n\n<strong>Bu yedekleme şifre korumalı değildir.</strong>\n\nSonrasında, her bir kelimeyi tek tek onaylamanız istenecektir.",
       "title": "BIP39 Anımsatıcısını Göster"
     },
     "title": "Yedeklemeleri Yönet"
@@ -651,7 +649,6 @@
     },
     "button": "İmzala ve Gönder",
     "coincontrol": {
-      "address": "Adres",
       "outpoint": "Çıktı",
       "title": "Çıktıdan Gönder"
     },

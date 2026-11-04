@@ -81,7 +81,6 @@
       "understand": "אני מבין שסיסמת שחזור שגויה תיצור ארנק שונה"
     },
     "showMnemonic": {
-      "description": ".כעת יוצגו 24 מילים, המייצגות גיבוי לארנק. רשום אותם על דף נייר\n\n<strong>אל תאחסן אותם ברשת או תצלם אותם</strong>\n<strong>אל תאמר מילים אלו בקול</strong>\n<strong>הגיבוי אינו מאובטח בסיסמה</strong>\n\n.לאחר מכן, תתבקש לאשר כל מילה",
       "title": "mnemonic seed -הצג"
     },
     "title": "נהל גיבויים"
@@ -688,7 +687,6 @@
     "availableBalance": "יתרה זמינה",
     "button": "סקירה",
     "coincontrol": {
-      "address": "כתובת",
       "outpoint": "נקודת יציאה",
       "title": "שלח מהפלט"
     },

@@ -193,8 +193,6 @@
       "understand": "Je comprends qu'un mot de passe de récupération incorrect créera un portefeuille différent"
     },
     "showMnemonic": {
-      "checkboxLabel": "J'ai lu les informations ci-dessus",
-      "description": "Les mots de récupération vont s’afficher sur l’appareil ; ils constituent une sauvegarde de votre portefeuille. Notez-les sur papier.\n\n<strong>Ne les stockez pas sur un support numérique et ne les prenez pas en photo.</strong>\n\n<strong>Ne prononcez pas les mots à haute voix.</strong>\n\n<strong>Cette sauvegarde n'est pas protégée par un mot de passe.</strong>\n\nIl vous sera ensuite demandé de confirmer chacun de ces mots.",
       "title": "Montrer les mots de récupération",
       "warning": "<strong>Ne partagez jamais vos mots de récupération avec qui que ce soit.</strong> Vos mots de récupération permettent un accès intégral à votre portefeuille. Si on vous demande vos mots de récupération, il s’agit d’une escroquerie, ne les partagez jamais !"
     },
@@ -1623,7 +1621,6 @@
         "title": "Connectez votre BitBox"
       },
       "disclaimer": {
-        "checkboxLabel": "J’ai lu les informations ci-dessus",
         "content": "Votre portefeuille Lightning sera créé à l’aide d’une clé dérivée de votre BitBox. Vous pourrez ainsi toujours restaurer votre portefeuille Lightning avec votre BitBox ou votre sauvegarde.\n\nCependant, contrairement au BitBox, le portefeuille Lightning est un <strong>hot wallet</strong>. Cela signifie que les clés de votre portefeuille Lightning sont stockées dans la BitBoxApp et non sur le BitBox. N’utilisez donc pas le portefeuille Lightning pour conserver un montant important de fonds ou pour du stockage à long terme.\n\nDe plus, la fonctionnalité Lightning est actuellement en bêta. Vous pouvez donc rencontrer des bugs, des problèmes de fiabilité ou elle peut cesser complètement de fonctionner.",
         "title": "Comment cela fonctionne-t-il avec la BitBoxApp ?"
       },
@@ -1683,8 +1680,6 @@
       "refundFee": "Taux de frais du remboursement",
       "refundUnavailable": "Remboursement indisponible",
       "success": {
-        "claimMessage": "Transaction de réclamation créée",
-        "claimNote": "Les fonds du dépôt apparaîtront dans votre portefeuille une fois la transaction confirmée.",
         "claimTitle": "Réclamer le dépôt",
         "refundMessage": "Transaction de remboursement créée",
         "refundNote": "Le remboursement réapparaîtra dans votre portefeuille on-chain une fois la transaction confirmée.",
@@ -1893,8 +1888,7 @@
       },
       "title": "Déposer sur le portefeuille Lightning",
       "to": "Vers"
-    },
-    "torProxyWarning": "Lightning n’utilise pas le proxy Tor. Lightning continuera à fonctionner via votre connexion Internet habituelle."
+    }
   },
   "loading": "chargement en cours…",
   "logo": {
@@ -2191,7 +2185,6 @@
     "button": "Revoir",
     "buyEth": "Achetez de l'ETH",
     "coincontrol": {
-      "address": "Adresse",
       "addressReused": "Adresse réutilisée",
       "change": "Changer",
       "outpoint": "Point de sortie",

@@ -193,8 +193,6 @@
       "understand": "Rozumím, že nesprávné heslo pro obnovení vytvoří jinou peněženku."
     },
     "showMnemonic": {
-      "checkboxLabel": "Přečetl jsem si výše uvedené informace",
-      "description": "Zobrazí se vám slova pro obnovení - obnovovací seed, ten tvoří zálohu vaší peněženky. Napište si je na papír.\n\n<strong>Neukládejte je digitálně ani je nefoťte.</strong>\n\n<strong>Neříkejte tato slova nahlas.</strong>\n\n<strong>Tato záloha není chráněna heslem.</strong>\n\nPoté budete vyzváni k potvrzení každého slova.",
       "title": "Zobrazit slova pro obnovení",
       "warning": "<strong> Nikdy nikomu nesdělujte svá slova pro obnovení.</strong> Vaše slova pro obnovení poskytují plný přístup k vaší peněžence. Pokud vás někdo žádá o vaše slova pro obnovení, jedná se o podvodníka, nesdílejte je!"
     },
@@ -1623,7 +1621,6 @@
         "title": "Připojte své zařízení"
       },
       "disclaimer": {
-        "checkboxLabel": "Přečetl(a) jsem si výše uvedené informace",
         "content": "Vaše Lightning peněženka bude vytvořena pomocí klíče odvozeného z vašeho BitBoxu. Díky tomu ji můžete kdykoli obnovit pomocí BitBoxu nebo zálohy.\n\nNa rozdíl od BitBoxu je však Lightning peněženka <strong>hot wallet</strong>. To znamená, že klíče k Lightning peněžence jsou uloženy v BitBoxApp, nikoli v BitBoxu. Lightning peněženku byste neměli používat k uchovávání větších částek ani k dlouhodobému ukládání prostředků.\n\nLightning je navíc momentálně ve fázi beta, takže se můžete setkat s chybami či problémy se spolehlivostí nebo může zcela přestat fungovat.",
         "title": "Jak to funguje s BitBoxApp?"
       },
@@ -1683,8 +1680,6 @@
       "refundFee": "Sazba poplatku za vrácení peněz",
       "refundUnavailable": "Vrácení peněz není k dispozici",
       "success": {
-        "claimMessage": "Transakce pro nárokování vytvořena",
-        "claimNote": "Dobité prostředky se ve vaší peněžence objeví po potvrzení transakce.",
         "claimTitle": "Nárokovat dobití",
         "refundMessage": "Transakce pro vrácení peněz vytvořena",
         "refundNote": "Vrácené prostředky se ve vaší on-chain peněžence objeví po potvrzení transakce.",
@@ -1893,8 +1888,7 @@
       },
       "title": "Dobít Lightning peněženku",
       "to": "Na"
-    },
-    "torProxyWarning": "Lightning nepoužívá Tor proxy. Lightning bude nadále fungovat přes vaše běžné internetové připojení."
+    }
   },
   "loading": "načítání…",
   "logo": {
@@ -2191,7 +2185,6 @@
     "button": "Kontrola",
     "buyEth": "Koupit ETH",
     "coincontrol": {
-      "address": "Adresa",
       "addressReused": "Opakovaně použitá adresa",
       "change": "Change",
       "outpoint": "Outpoint",

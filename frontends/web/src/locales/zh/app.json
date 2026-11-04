@@ -77,7 +77,6 @@
       "understand": "我知道输入错误的恢复密码会创建出另一个不同的钱包"
     },
     "showMnemonic": {
-      "description": "系统将为您提供最多24个单词，构成您的钱包(助记词)备份。请把它们用抄写到纸上。\n\n<strong>请勿将其数字化存储或对其进行拍照。</strong>\n\n<strong>不要大声说出这些单词。</strong>\n\n<strong>此备份不受密码加密保护。</strong>\n\n抄写完成后，您将需要再次核对每个单词。",
       "title": "显示助记词"
     },
     "title": "管理备份"
@@ -606,7 +605,6 @@
     },
     "button": "签名并发送",
     "coincontrol": {
-      "address": "地址",
       "title": "从输出发送"
     },
     "confirm": {

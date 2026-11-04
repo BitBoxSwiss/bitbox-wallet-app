@@ -149,8 +149,6 @@
       "understand": "Eu entendo que uma senha de recuperação incorreta criará uma carteira diferente"
     },
     "showMnemonic": {
-      "checkboxLabel": "Eu li as informações acima",
-      "description": "O dispositivo exibirá as palavras de recuperação, que formam um backup da sua carteira. Anote-as em um papel.\n\n<strong>Não as armazene digitalmente nem tire fotos delas.</strong>\n\n<strong>Não diga as palavras em voz alta.</strong>\n\n<strong>Este backup não é protegido por senha.</strong>\n\nDepois, você será solicitado a confirmar cada palavra.",
       "title": "Mostrar frase de recuperação",
       "warning": "<strong>Nunca compartilhe suas palavras de recuperação com ninguém.</strong> Suas palavras de recuperação dão acesso total à sua carteira. Se alguém está pedindo suas palavras de recuperação, é um golpista, não as compartilhe!"
     },
@@ -1617,7 +1615,6 @@
     "button": "Revisar",
     "buyEth": "Comprar ETH",
     "coincontrol": {
-      "address": "Endereço",
       "addressReused": "Endereço reutilizado",
       "change": "Mudar",
       "outpoint": "Outpoint",

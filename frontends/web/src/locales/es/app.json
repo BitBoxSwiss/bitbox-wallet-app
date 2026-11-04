@@ -193,8 +193,6 @@
       "understand": "Entiendo que una contraseña de recuperación incorrecta creará una billetera diferente"
     },
     "showMnemonic": {
-      "checkboxLabel": "He leído la información anterior",
-      "description": "A continuación se te presentarán tus palabras de recuperación, que constituyen una copia de seguridad de tu billetera. Escríbelas en un papel.\n\n<strong>No las almacenes digitalmente ni les tomes fotos.</strong>\n\n<strong>No las diga en voz alta.</strong>\n\n<strong>Esta copia de seguridad no está protegida por una contraseña.</strong>\n\nA continuación, se te pedirá que confirmes cada palabra.",
       "title": "Mostrar palabras de recuperación",
       "warning": "<strong>Nunca compartas tus palabras de recuperación con nadie.</strong> Tus palabras de recuperación dan acceso completo a tu billetera. Si alguien te pide tus palabras de recuperación, es un estafador, ¡no las compartas!"
     },
@@ -442,7 +440,7 @@
     "changepin": "Cambiar contraseña del dispositivo",
     "check": "Verificar copia de seguridad",
     "continue": "Continuar",
-    "copy": "Copia",
+    "copy": "Copiar",
     "copyAddress": "Copiar dirección",
     "create": "Crear",
     "dismiss": "Descartar",
@@ -771,6 +769,12 @@
     "dataMissing": "Recopilando tus datos históricos. Espera un momento.",
     "dataOldTimestamp": "Actualización de los tipos de cambio históricos. El gráfico no muestra datos después de {{time}}.",
     "dataUpdating": "actualizando datos…",
+    "displayMode": {
+      "performance": "Rendimiento",
+      "switchTo": "Cambiar a {{displayMode}}",
+      "totalValue": "Evolución del valor",
+      "unavailableSwitchTo": "{{displayMode}} no disponible. Cambiar a {{nextDisplayMode}}"
+    },
     "filter": {
       "all": "Todo",
       "month": "Mes",
@@ -838,7 +842,7 @@
         "description": "Genera llaves hijas desde tu BitBox.",
         "disclaimer": "Entiendo como funcionan las llaves hijas y sus consideraciones de seguridad",
         "how": {
-          "description": "Las llaves hijas se muestran como su propias frases de recuperación (frase mnemonica) en tu BitBox. Puedes crear tantas llaves hijas como quieras. Para mostrar una llave hija, se te pedirá el número de esta (es decir, 1.º, 2.º, 3.º, etc.) y la longitud deseada de la frase mnemónica (12, 18 o 24 palabras de recuperación). Recuerda que debes realizar un seguimiento del <strong>número de la llave hija y número de palabras</strong> para poder mostrar la misma frase mnemónica más tarde.",
+          "description": "Las llaves hijas se muestran como una frase mnemónica en tu BitBox. Puedes crear tantas llaves hijas como quieras. Para mostrar una llave hija, se te pedirá el número (p. ej., 1, 2, 3, etc.) y la longitud deseada de la frase mnemónica (12 o 24 palabras). Recuerda que debes conservar el <strong>número de índice y el número de palabras</strong> para mostrar la misma frase mnemónica más adelante.",
           "title": "¿Cómo funciona?"
         },
         "recover": {
@@ -857,8 +861,8 @@
         }
       },
       "factoryReset": {
-        "description": "Restablece tu dispositivo a los valores de fábrica. ¡Esto borrará la billetera de tu BitBox!",
-        "title": "Restablecimiento de fábrica"
+        "description": "Elimina la billetera y sus datos de la BitBox",
+        "title": "Eliminar billetera de la BitBox"
       },
       "goToStartupSettings": {
         "description": "Entra en el gestor de arranque de tu BitBox. Puedes activar el hash del firmware desde aquí."
@@ -936,6 +940,18 @@
     "paymentApprovalRequired": "La comisión de pago ha aumentado. Por favor, revisa y aprueba de nuevo.",
     "wrongKeystore": "Se ha conectado una billetera incorrecta. Por favor, asegúrese de insertar el dispositivo correcto que coincida con esta cuenta.",
     "wrongKeystore2": " Si utilizas la passphrase opcional, asegúrate de haber introducido la fpassphrase correcta para la cuenta."
+  },
+  "evmChains": {
+    "arbitrumOne": "Arbitrum One",
+    "base": "Base",
+    "bnbSmartChain": "BNB Smart Chain",
+    "ethereumMainnet": "Red principal de Ethereum",
+    "ethereumSepoliaTestnet": "Red de prueba Sepolia de Ethereum",
+    "gnosis": "Gnosis",
+    "hyperEVM": "HyperEVM",
+    "optimism": "Optimism",
+    "polygon": "Polygon",
+    "sonic": "Sonic"
   },
   "exchange": {
     "btcdirect": {
@@ -1042,6 +1058,7 @@
     "enable": "Habilitar",
     "enabled_false": "Desactivado",
     "enabled_true": "Activado",
+    "iHaveReadTheInformation": "He leído la información anterior",
     "insure": "Asegurar",
     "max": "Máx.",
     "new": "Nuevo",
@@ -1067,6 +1084,7 @@
     "spend_bitcoin": "Gastar bitcoin",
     "spend_crypto": "Gastar criptomonedas",
     "swap": "Intercambiar",
+    "unavailable": "No disponible",
     "unknown": "Desconocido"
   },
   "genericError": "Ocurrió un error. Si observa algún problema, por favor reinicie la aplicación.",
@@ -1152,8 +1170,17 @@
       "title": "¿Cómo se calcula la suma total?"
     },
     "accountSummaryDescription": {
-      "text": "Aquí puede ver el rendimiento de tu billetera a lo largo del tiempo. Debajo del gráfico se muestra un resumen de sus cuentas criptográficas individuales.",
+      "text": "Aquí puedes ver el rendimiento de tu billetera a lo largo del tiempo. Debajo del gráfico se muestra un resumen de tus cuentas de criptomonedas individuales.",
       "title": "¿Qué me muestra esta página?"
+    },
+    "accountSummaryPercentageMeaning": {
+      "listOptions": [
+        "Evolución del valor: Muestra la variación del valor de tu cartera a lo largo del tiempo, incluidos depósitos y retiros.",
+        "Rendimiento: Este es la rentabilidad ponderada por dinero (MWR). Tiene en cuenta los depósitos y retiros, por lo que refleja el rendimiento de tu cartera."
+      ],
+      "outro": "Puedes cambiar entre rendimiento y evolución del valor haciendo clic en el porcentaje, o en Configuración > Apariencia. Por defecto, la app muestra evolución del valor.",
+      "text": "El porcentaje en el gráfico de tu cartera muestra una de estas dos opciones para el rango de tiempo seleccionado:",
+      "title": "¿Qué significa el porcentaje?"
     },
     "accountTransactionAttributesBTC": {
       "text": "Tamaño virtual: se utiliza para determinar la tarifa de la red. Habrás ahorrado con éxito en comisiones si son más pequeñas que la transacción.\nTamaño: Tamaño real de la transacción en bytes cuando se presenta por entregas de acuerdo con la blockchain por debajo.\nPeso: Introducido con Segwit, es una nueva métrica para evaluar los tamaños de transacción y bloque. Cada byte testigo segregado cuenta como uno, todo lo demás como cuatro unidades de peso. En lugar de un megabyte en tamaño real, el límite de tamaño de bloque ahora es de cuatro millones de unidades de peso.",
@@ -1216,6 +1243,14 @@
         "title": "¿Porqué es esto útil?"
       }
     },
+    "appearancePortfolioPercentageOptions": {
+      "listOptions": [
+        "Evolución del valor: Muestra la variación del valor de tu cartera a lo largo del tiempo, incluidos depósitos y retiros.",
+        "Rendimiento: Esta es la rentabilidad ponderada por dinero (MWR). Tiene en cuenta los depósitos y retiros, por lo que refleja el rendimiento de tu cartera."
+      ],
+      "text": "El porcentaje en el gráfico de tu cartera muestra una de dos opciones:",
+      "title": "¿Qué significan las opciones de porcentaje de la cartera?"
+    },
     "appendix": {
       "feedback": {
         "link": "Haznoslo saber.",
@@ -1240,7 +1275,7 @@
         "title": "¿Con qué frecuencia tengo que hacer una copia de seguridad?"
       },
       "whatIsABackup": {
-        "text": "Esto es una copia de la semilla en una tarjeta micro SD. La semilla junto con tu contraseña de recuperación genera tu monedero.",
+        "text": "Esto es una copia de la semilla en una tarjeta micro SD. La semilla junto con tu contraseña de recuperación genera tu billetera.",
         "title": "¿Qué es una copia de seguridad?"
       }
     },
@@ -1623,7 +1658,6 @@
         "title": "Conecta tu dispositivo"
       },
       "disclaimer": {
-        "checkboxLabel": "He leído la información anterior",
         "content": "La billetera Lightning se creará usando una clave derivada de tu BitBox. De ese modo siempre podrás restaurar tu billetera de Lightning usando tu BitBox o tu copia de seguridad.\n\nSin embargo, a diferencia de la BitBox, la billetera de Lightning es una <strong>billetera caliente</strong>. Esto significa que las claves de tu billetera Lightning se almacenan en la BitBoxApp, no en la BitBox. No deberías usar la billetera de Lightning para grandes cantidades de fondos ni para almacenamiento a largo plazo.\n\n          Además, la función de Lightning se encuentra actualmente en fase beta, lo que significa que se pueden encontrar errores, problemas de fiabilidad o que podría dejar de funcionar por completo.",
         "title": "¿Cómo funciona con la BitBoxApp?"
       },
@@ -1641,7 +1675,7 @@
         "title": "Crear billetera de Lightning"
       }
     },
-    "betaWarning": "Lightning es una función beta destinada a vista previa y pruebas. ¡Utiliza Lightning solo con una pequeña cantidad de fondos!",
+    "betaWarning": "Lightning está en Beta. Úsala solo con una pequeña cantidad de fondos.",
     "bitcoinDeposit": {
       "claim": "Reclamar recarga o reembolso",
       "label": "Recarga de Bitcoin",
@@ -1683,8 +1717,6 @@
       "refundFee": "Tasa de comisión de reembolso",
       "refundUnavailable": "Reembolso no disponible",
       "success": {
-        "claimMessage": "Transacción de reclamación realizada",
-        "claimNote": "Las monedas de la recarga aparecerán en tu billetera una vez que se confirme la transacción.",
         "claimTitle": "Reclamar recarga",
         "refundMessage": "Transacción de reembolso realizada",
         "refundNote": "El reembolso aparecerá de nuevo en tu billetera on-chain una vez que se confirme la transacción.",
@@ -1762,6 +1794,7 @@
         "title": "Modelo de confianza"
       }
     },
+    "initializationFailed": "Algo salió mal al inicializar Lightning. Reinicia la BitBoxApp para intentarlo de nuevo.",
     "initializing": "Inicializando cuenta de Lightning...",
     "limit": {
       "accountWarning": "El saldo de la billetera supera el límite de {{limit}} en {{excess}}. Recomendamos mover algunas monedas a tu billetera BitBox para mayor seguridad.",
@@ -1834,7 +1867,7 @@
       "enterInvoice": "Introducir dirección o factura",
       "invoice": {
         "label": "Introducir detalles de pago",
-        "placeholder": "Dirección o factura"
+        "placeholder": "Información de pago"
       },
       "lnurlPay": {
         "invalidAmount": "Introduce una cantidad entre {{minAmount}} y {{maxAmount}} sats."
@@ -1861,7 +1894,7 @@
       "enableWalletDescription": "Lightning permite pagos instantáneos y de bajas comisiones.",
       "expert": "Experto",
       "serviceProvider": "Proveedor de servicios",
-      "setLightningAddress": "Establecer dirección de Lightning",
+      "setLightningAddress": "Dirección de Lightning",
       "status": "Estado",
       "statusConnected": "Conectado",
       "title": "Configuración de Lightning",
@@ -1872,6 +1905,10 @@
       "major": "La red Spark está experimentando una interrupción importante. Los pago por Lightning pueden no estar disponibles.",
       "partial": "La red Spark está parcialmente fuera de servicio. Los pagos por Lightning pueden no estar disponibles.",
       "unknown": "El estado de la red Spark es desconocido. Los pagos por Lightning pueden no estar disponibles."
+    },
+    "testnetWarning": {
+      "message": "Las monedas Lightning tienen valor real, incluso al usar la app en modo testnet. ¿Continuar?",
+      "title": "Advertencia"
     },
     "topUp": {
       "action": "Recargar",
@@ -1893,8 +1930,7 @@
       },
       "title": "Recargar billetera de Lightning",
       "to": "A"
-    },
-    "torProxyWarning": "Lightning no utiliza el proxy Tor. Lightning seguirá funcionando a través de tu conexión a Internet habitual."
+    }
   },
   "loading": "cargando…",
   "logo": {
@@ -1975,6 +2011,14 @@
       "language": {
         "description": "Qué idioma quieres que utilice la BitBoxApp.",
         "title": "Idioma"
+      },
+      "portfolioPerformance": {
+        "description": "Elige cómo se calcula el porcentaje de la cartera.",
+        "options": {
+          "moneyWeightedReturn": "Rendimiento",
+          "value": "Evolución del valor"
+        },
+        "title": "Porcentaje de cartera"
       },
       "remebmerWallet": {
         "enable": {
@@ -2191,7 +2235,6 @@
     "button": "Revisar",
     "buyEth": "Comprar ETH",
     "coincontrol": {
-      "address": "Dirección",
       "addressReused": "Dirección reutilizada",
       "change": "Cambio",
       "outpoint": "Anotar",
@@ -2214,7 +2257,7 @@
       "invalidAddress": "dirección inválida",
       "invalidAmount": "Cantidad inválida",
       "invalidData": "Datos inválidos",
-      "paymentRequestAccountMismatch": "Esta solicitud de pago corresponde a un activo diferente. Abre la cuenta correspondiente e inténtalo de nuevo.",
+      "paymentRequestAccountMismatch": "Esta solicitud de pago corresponde a un activo o red diferentes. Abre la cuenta correspondiente e inténtalo de nuevo.",
       "syncInProgress": "La cuenta aún se está sincronizando. Espera a que la sincronización se complete e inténtalo de nuevo."
     },
     "fee": {
@@ -2432,6 +2475,11 @@
     },
     "prompt": {
       "button": "Desbloquear",
+      "info": [
+        "La billetera de prueba usa un almacén de claves de software en la app.",
+        "Contraseñas diferentes desbloquean billeteras diferentes. Es lo mismo que usar una passphrase.",
+        "Puedes desbloquear sin contraseña para acceder a la billetera de prueba predeterminada."
+      ],
       "passwordLabel": "Contraseña de prueba",
       "title": "Desbloquear billetera de prueba"
     }
@@ -2560,8 +2608,12 @@
     },
     "pairingRequest": {
       "approve": "Aprobar conexión",
+      "chains": "Cadenas de bloques",
+      "readOnly": "Esta conexión puede ver tu dirección pero no puede solicitar firmas ni transacciones.",
       "reject": "Rechazar",
-      "title": "Nueva solicitud de conexión de"
+      "rejectionFailed": "No se pudo rechazar la solicitud, pero no se creó ninguna sesión.",
+      "title": "Nueva solicitud de conexión de",
+      "unsupported": "Esta solicitud de conexión no es compatible."
     },
     "pairingSuccess": "Dapp conectada con éxito. Puedes continuar en el sitio web de la dapp.",
     "signingRequest": {
