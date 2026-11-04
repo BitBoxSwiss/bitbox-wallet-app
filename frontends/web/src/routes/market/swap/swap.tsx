@@ -37,8 +37,9 @@ import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { ArrowSwap } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { findAccount } from '@/routes/account/utils';
-import { getDisplayedCoinUnit, isBitcoinOnly } from '@/utils/coin';
+import { getDisplayedCoinUnit, isBitcoinBased, isBitcoinOnly } from '@/utils/coin';
 import { useLoad } from '@/hooks/api';
+import { useAccountStatuses } from '@/hooks/account-status';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { ConfirmSwap } from './components/swap-confirm';
@@ -99,6 +100,18 @@ export const Swap = () => {
   const sellAccounts = swapAccounts?.success ? swapAccounts.sellAccounts : undefined;
   const buyAccounts = swapAccounts?.success ? swapAccounts.buyAccounts : undefined;
 
+  // BTC/LTC need sync to identify unused addresses. ETH/token addresses only need initialization,
+  // and inactive tokens do not have a live account until swap preparation activates them.
+  const syncAccountCodes = useMemo(
+    () => buyAccounts?.filter(account => isBitcoinBased(account.coinCode)).map(account => account.code) ?? [],
+    [buyAccounts],
+  );
+  const accountStatuses = useAccountStatuses(syncAccountCodes);
+  const isBuyAccountSyncing = useCallback(
+    (account: TSwapAccount) => isBitcoinBased(account.coinCode) && !accountStatuses[account.code]?.synced,
+    [accountStatuses],
+  );
+
   // Send
   const [sellAccountCode, setSellAccountCode] = useState<AccountCode | undefined>();
   const [sellAmount, setSellAmount] = useState<string>('');
@@ -140,6 +153,7 @@ export const Swap = () => {
       : undefined,
     [buyAccounts, buyAccountCode],
   );
+  const buyAccountSyncing = !!buyAccount && isBuyAccountSyncing(buyAccount);
 
   const selectedRoute = useMemo(
     () => routes.find(route => route.routeId === selectedRouteId),
@@ -370,7 +384,7 @@ export const Swap = () => {
   }, [btcUnit, buyAccount, selectedRoute]);
 
   const handleConfirm = async () => {
-    if (confirmInFlightRef.current) {
+    if (confirmInFlightRef.current || buyAccountSyncing) {
       return;
     }
 
@@ -393,7 +407,9 @@ export const Swap = () => {
         sellAmount,
       });
       if (!response.success) {
-        alertUser(response.errorMessage || t('genericError'));
+        alertUser(response.errorCode
+          ? t(`send.error.${response.errorCode}`)
+          : response.errorMessage || t('genericError'));
         return;
       }
 
@@ -598,6 +614,7 @@ export const Swap = () => {
                   id="swapGetAmount"
                   accountCode={buyAccountCode}
                   isAccountDisabled={account => isSameCoinAccount(account, sellAccount)}
+                  isAccountSyncing={isBuyAccountSyncing}
                   onChangeAccountCode={setBuyAccountCode}
                   value={!isFetchingRoutes ? expectedOutput : undefined}
                   placeholder={!isFetchingRoutes ? '0' : t('generic.calculating')}
@@ -629,15 +646,15 @@ export const Swap = () => {
             <ViewButtons>
               <Button
                 primary
-                disabled={!selectedRoute || isConfirmInFlight || validationErrorCode === INSUFFICIENT_FUNDS_ERROR || insufficientGasFunds}
+                disabled={!selectedRoute || buyAccountSyncing || isConfirmInFlight || validationErrorCode === INSUFFICIENT_FUNDS_ERROR || insufficientGasFunds}
                 onClick={handleConfirm}>
                 <span className={style.swapButtonContent}>
-                  {isConfirmInFlight && (
+                  {(isConfirmInFlight || buyAccountSyncing) && (
                     <span className={style.swapButtonSpinner}>
                       <SpinnerRingAnimated />
                     </span>
                   )}
-                  {isConfirmInFlight ? t('loading') : t('generic.swap')}
+                  {isConfirmInFlight ? t('loading') : buyAccountSyncing ? t('account.syncing') : t('generic.swap')}
                 </span>
               </Button>
               <DesktopBackButton>

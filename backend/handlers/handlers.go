@@ -2085,6 +2085,7 @@ func (handlers *Handlers) postConnectKeystore(r *http.Request) interface{} {
 func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 	type result struct {
 		Success           bool                     `json:"success"`
+		ErrorCode         errp.ErrorCode           `json:"errorCode,omitempty"`
 		ErrorMessage      string                   `json:"errorMessage,omitempty"`
 		ExpectedBuyAmount string                   `json:"expectedBuyAmount,omitempty"`
 		SwapID            string                   `json:"swapId,omitempty"`
@@ -2120,6 +2121,9 @@ func (handlers *Handlers) postSwapSign(r *http.Request) interface{} {
 		request.SellAmount,
 	)
 	if err != nil {
+		if errp.Cause(err) == accounts.ErrSyncInProgress {
+			return result{Success: false, ErrorCode: accounts.ErrSyncInProgress, ErrorMessage: err.Error()}
+		}
 		return result{Success: false, ErrorMessage: err.Error()}
 	}
 

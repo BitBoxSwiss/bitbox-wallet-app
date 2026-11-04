@@ -9,6 +9,7 @@ import { Button } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
 import { USBSuccess, ChevronDownDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
+import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { InsuredShield } from '@/routes/account/components/insuredtag';
 import { RatesContext } from '@/contexts/RatesContext';
 import { getAccountsByKeystore } from '@/routes/account/utils';
@@ -30,6 +31,7 @@ export type TKeystoreGroupHeader = {
 
 type TOptionAccountSelector = {
   disabled: boolean;
+  syncing?: boolean;
   active?: boolean;
   coinCode?: CoinCode;
   coinUnit?: CoinUnit;
@@ -69,12 +71,17 @@ const TriggerContent = ({
           ) : option.label}
         </span>
         {option.insured && <InsuredShield />}
+        {option.syncing && (
+          <span className={styles.syncing} role="status" aria-label={t('account.syncing')}>
+            <SpinnerRingAnimated />
+          </span>
+        )}
         {stackedLayout ? (
           <span className={styles.triggerAccountName}>
             {option.label}
           </span>
         ) : (
-          option.coinCode && (
+          !option.syncing && option.coinCode && (
             <span className={styles.triggerBalance}>
               {option.balance ? (
                 <AmountWithUnit
@@ -110,6 +117,7 @@ type TAccountSelector<T extends TAccountBase> = {
   title?: string;
   disabled?: boolean;
   isAccountDisabled?: (account: T) => boolean;
+  isAccountSyncing?: (account: T) => boolean;
   selected?: string;
   onChange: (value: string) => void;
   onProceed?: () => void;
@@ -123,6 +131,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
   title,
   disabled,
   isAccountDisabled,
+  isAccountSyncing,
   selected,
   onChange,
   onProceed,
@@ -140,7 +149,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
     let balanceRequest = 0;
     //setting options without balance
     const accountsByKeystore = getAccountsByKeystore(accounts);
-    const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore, isAccountDisabled);
+    const groupedOpts: TGroupedOption[] = createGroupedOptions(accountsByKeystore, isAccountDisabled, isAccountSyncing);
     if (lightningAccount) {
       groupedOpts.push({
         label: t('lightning.accountLabel'),
@@ -181,7 +190,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
       cancelled = true;
       unsubscribe(subscriptions);
     };
-  }, [accounts, isAccountDisabled, lightningAccount, t]);
+  }, [accounts, isAccountDisabled, isAccountSyncing, lightningAccount, t]);
 
   if (!options) {
     return null;
