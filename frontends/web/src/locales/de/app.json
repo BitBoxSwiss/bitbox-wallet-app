@@ -193,8 +193,6 @@
       "understand": "Ich habe verstanden, dass ein falsches Wiederherstellungspasswort eine neue/andere Wallet erstellt."
     },
     "showMnemonic": {
-      "checkboxLabel": "Ich habe die Informationen oben gelesen",
-      "description": "Die BitBox wird Wiederherstellungswörter (\"recovery words\") anzeigen, die ein Backup deiner Wallet darstellen. Schreibe diese auf ein Stück Papier. \n\n<strong>Bewahre die Wörter nicht digital auf und mache kein Foto von ihnen.</strong>\n\n<strong>Sprich die Wörter nicht laut aus.</strong>\n\n<strong>Dieses Backup ist nicht passwortgeschützt.</strong>\n\nNachdem du die Wörter aufgeschrieben hast, wirst du aufgefordert, sie nochmals zu bestätigen.\n",
       "title": "Wiederherstellungswörter anzeigen",
       "warning": "<strong>Teile deine Wiederherstellungswörter niemals mit irgendjemandem.</strong> Die Wiederherstellungswörter ermöglichen vollen Zugriff zu deiner Wallet. Wenn dich jemand nach deinen Wiederherstellungswörtern fragt, handelt es sich um einen Betrüger. Gib die Wörter nicht weiter!"
     },
@@ -239,7 +237,7 @@
       "alertEnabled": "Bluetooth ist jetzt aktiviert.",
       "description": "Bluetooth wird zum Verbinden mit iPhone verwendet.",
       "error_104": "Änderung der Bluetooth-Einstellungen wurde abgebrochen.",
-      "titleDisabled": "Bluetooth aktvieren",
+      "titleDisabled": "Bluetooth aktivieren",
       "titleEnabled": "Bluetooth deaktivieren"
     },
     "changePassword": {
@@ -1623,7 +1621,6 @@
         "title": "Verbinde dein Gerät"
       },
       "disclaimer": {
-        "checkboxLabel": "Ich habe die Informationen oben gelesen",
         "content": "Deine Lightning-Wallet wird mit einem Schlüssel erstellt, der aus deiner BitBox abgeleitet wird. So kannst du deine Lightning-Wallet jederzeit mit deiner BitBox oder deinem Backup wiederherstellen.\n\nIm Gegensatz zur BitBox ist die Lightning-Wallet jedoch eine <strong>Hot-Wallet</strong>. Das bedeutet, dass die Schlüssel für deine Lightning-Wallet in der BitBoxApp und nicht auf der BitBox gespeichert werden. Du solltest die Lightning-Wallet daher nicht für große Beträge oder zur langfristigen Aufbewahrung verwenden.\n\nAußerdem befindet sich die Lightning-Funktion derzeit in der Beta, das heißt, du kannst auf Fehler oder Zuverlässigkeitsprobleme stoßen oder sie kann ganz ausfallen.",
         "title": "Wie funktioniert das mit der BitBoxApp?"
       },
@@ -1683,8 +1680,6 @@
       "refundFee": "Gebührenrate für Rückerstattung",
       "refundUnavailable": "Rückerstattung nicht verfügbar",
       "success": {
-        "claimMessage": "Transaktion zum Beanspruchen erstellt",
-        "claimNote": "Die aufgeladenen Coins erscheinen in deiner Wallet, sobald die Transaktion bestätigt ist.",
         "claimTitle": "Aufladung einfordern",
         "refundMessage": "Rückerstattungs-Transaktion gesendet",
         "refundNote": "Die Rückerstattung wird in deiner On-Chain Wallet erscheinen, sobald die Transaktion bestätigt ist.",
@@ -1893,8 +1888,7 @@
       },
       "title": "Lightning-Wallet aufladen",
       "to": "An"
-    },
-    "torProxyWarning": "Lightning verwendet keine Tor-Proxy. Lightning funktioniert weiterhin über deine normale Internetverbindung."
+    }
   },
   "loading": "laden...",
   "logo": {
@@ -2075,7 +2069,7 @@
     },
     "what": {
       "button": "Verstehe, wie es funktioniert",
-      "message": "Ein Wallet wird aus einer sehr großen Zufallszahl (Seed) abgeleitet, die bei der ersten Einrichtung deiner BitBox erstellt und mit der microSD-Karte oder den Wiederherstellungswörtern gesichert wird. Wer Zugriff auf den Seed hat, kontrolliert das Wallet vollständig.\n\nEine Passphrase ist ein <strong>optionales Geheimnis<strong>, das zum Seed hinzugefügt wird. Jede Passphrase erzeugt ein neues Wallet aus Seed + Passphrase. Die Passphrase kann beliebige Zeichen enthalten – Buchstaben, Wörter, Sonderzeichen oder leer bleiben. Das Standard-Wallet entsteht aus Seed + leerer Passphrase.\n\nDie Passphrase basiert auf dem BIP39-Standard und ist mit allen Wallets kompatibel, die diesen Standard unterstützen.",
+      "message": "Ein Wallet wird aus einer sehr großen Zufallszahl (Seed) abgeleitet, die bei der ersten Einrichtung deiner BitBox erstellt und mit der microSD-Karte oder den Wiederherstellungswörtern gesichert wird. Wer Zugriff auf den Seed hat, kontrolliert das Wallet vollständig.\n\nEine Passphrase ist ein <strong>optionales Geheimnis</strong>, das zum Seed hinzugefügt wird. Jede Passphrase erzeugt ein neues Wallet aus Seed + Passphrase. Die Passphrase kann beliebige Zeichen enthalten – Buchstaben, Wörter, Sonderzeichen oder leer bleiben. Das Standard-Wallet entsteht aus Seed + leerer Passphrase.\n\nDie Passphrase basiert auf dem BIP39-Standard und ist mit allen Wallets kompatibel, die diesen Standard unterstützen.",
       "title": "Was ist eine Passphrase?"
     },
     "why": {
@@ -2190,7 +2184,6 @@
     "button": "Prüfen",
     "buyEth": "ETH kaufen",
     "coincontrol": {
-      "address": "Adresse",
       "addressReused": "Adresse mehrmals verwendet",
       "change": "Wechselgeld",
       "outpoint": "ID",

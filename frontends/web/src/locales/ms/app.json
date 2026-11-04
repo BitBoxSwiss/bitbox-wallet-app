@@ -150,8 +150,6 @@
       "understand": "Saya faham bahawa kata laluan pemulihan yang salah akan membuat dompet yang berbeza"
     },
     "showMnemonic": {
-      "checkboxLabel": "Saya telah membaca maklumat di atas",
-      "description": "Peranti akan memaparkan perkataan pemulihan, yang membentuk sandaran dompet anda. Tulis mereka di atas kertas.\n\n<strong>Jangan simpannya secara digital atau ambil gambarnya.</strong>\n\n<strong>Jangan sebut perkataan dengan kuat.</strong>\n\n<strong>Sandaran ini tidak dilindungi kata laluan.</strong>\n\nSelepas itu, anda akan diminta untuk mengesahkan setiap perkataan.",
       "title": "Tunjukkan perkataan pemulihan",
       "warning": "<strong>Jangan sekali-kali berkongsi kata-kata pemulihan anda dengan sesiapa pun.</strong> Perkataan pemulihan anda memberikan akses penuh kepada dompet anda. Jika seseorang meminta anda untuk kata-kata pemulihan anda, ia adalah penipu, jangan kongsikannya!"
     },
@@ -1658,7 +1656,6 @@
     "button": "Semakan",
     "buyEth": "Beli ETH",
     "coincontrol": {
-      "address": "Alamat",
       "addressReused": "Alamat digunakan semula",
       "change": "Berubah",
       "outpoint": "Outpoint",

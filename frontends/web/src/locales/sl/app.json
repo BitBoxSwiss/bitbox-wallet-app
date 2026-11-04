@@ -148,8 +148,6 @@
       "understand": "Razumem, da bo nepravilno geslo za obnovitev ustvarilo drugo, novo denarnico"
     },
     "showMnemonic": {
-      "checkboxLabel": "Prebral-a sem zgornje informacije",
-      "description": "Na BitBox02 se bodo izpisale besede, ki tvorijo varnostno kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in jih ne fotografirajte!</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta varnostna kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi na napravi.",
       "title": "Prikaži seznam besed",
       "warning": "<strong>Nikoli ne delite obnovitvenih besed z nikomer.</strong> Te besede omogočajo popoln dostop do vaše denarnice. Če vas kdo sprašuje po teh besedah, gre zelo verjetno za prevaro. Ne delite jih z neznanci!"
     },
@@ -1597,7 +1595,6 @@
     "button": "Podpiši in pošlji",
     "buyEth": "Kupi ETH",
     "coincontrol": {
-      "address": "Naslov",
       "addressReused": "Naslov je bil že uporabljen",
       "change": "Drobiž",
       "title": "Pošlji iz (output):"

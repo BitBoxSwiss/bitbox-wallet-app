@@ -193,10 +193,20 @@
       "understand": "Capisco che una password di recupero errata creerà un wallet diverso"
     },
     "showMnemonic": {
-      "checkboxLabel": "Ho letto le informazioni",
-      "description": "Il dispositivo ti mostrerà le parole di recupero, che costituiscono il backup del tuo wallet. Scrivile su carta.\n\n<strong>Non custodirle digitalmente e non fotografarle.</strong>\n\n<strong>Non pronunciare le parole ad alta voce.</strong>\n\n<strong>Questo backup non è protetto da password.</strong>\n\nIn seguito ti sarà richiesto di confermare ogni parola.",
+      "availableIn_many": "Disponibile tra {{count}} secondi",
+      "availableIn_one": "Disponibile tra {{count}} secondo",
+      "availableIn_other": "Disponibile tra {{count}} secondi",
+      "instructions": "Il BitBox mostrerà le tue parole di recupero. <strong>Annotale su carta.</strong>",
+      "safetyWarnings": {
+        "noAppsOrWebsites": "Non inserirle mai in un'app o in un sito web",
+        "noDigitalCopies": "Non fotografarle o salvarle in formato digitale",
+        "noSharing": "Il supporto BitBox o qualsiasi altra azienda non ti chiederà mai di condividere le tue parole di recupero.",
+        "noSpeaking": "Non pronunciarle ad alta voce",
+        "safeStorage": "Non sono protette da password. Conservale in un luogo sicuro."
+      },
+      "scamWarning": "Se qualcuno ti chiede di farlo, riattacca. È una truffa.",
       "title": "Mostra le parole di recupero",
-      "warning": "<strong>Non condividere le tue parole di recupero con nessuno.</strong> Le parole di recupero danno pieno accesso al tuo wallet. Se qualcuno ti chiede le tue parole di recupero, vuole truffarti. Non condividerle!"
+      "warning": "<strong>Non condividere mai le tue parole di recupero. </strong>Chiunque le abbia può accedere al tuo portafoglio."
     },
     "title": "Gestisci i backup"
   },
@@ -308,8 +318,19 @@
       "title": "Verifica il codice di abbinamento",
       "unpaired": "È stato rilevato un nuovo BitBox. Per favore, verifica che il codice di abbinamento corrisponda a quello mostrato sul tuo Bitbox."
     },
+    "passphrase": {
+      "confirmHostEntry": "Conferma sul BitBox per inserire la passphrase dall'app",
+      "confirmTitle": "Conferma la passphrase sul BitBox",
+      "dialogTitle": "Inserisci passphrase",
+      "enter": "Inserisci passphrase BitBox",
+      "enterInApp": "Inserisci la passphrase dall'app",
+      "error": {
+        "invalidChars": "La passphrase contiene caratteri che non possono essere inseriti sul BitBox.",
+        "tooLong": "La passphrase deve contenere al massimo 149 caratteri."
+      }
+    },
     "restoreFromMnemonic": {
-      "e104": "Il ripristino tramite parole di recupero è stato cancellato.",
+      "e104": "Il ripristino tramite le parole di recupero è stato cancellato.",
       "failed": "Ripristino con parole di recupero non riuscito. Riprovare.",
       "securityNotice": "Stai ripristinando un wallet che non è stato creato su un BitBox? Un wallet creato altrove potrebbe non offrire lo stesso livello di sicurezza di uno creato direttamente sul tuo BitBox. Se hai dubbi, ti consigliamo di creare qui un nuovo wallet e trasferirvi i tuoi fondi."
     },
@@ -450,6 +471,7 @@
     "download": "Scarica",
     "next": "Avanti",
     "ok": "OK",
+    "openInBrowser": "Apri nel browser",
     "previous": "Precedente",
     "proceedOnBitBox": "Procedi sul tuo BitBox",
     "restore": "Ripristina",
@@ -771,12 +793,21 @@
     "dataMissing": "Grafico in caricamento, torna più tardi...",
     "dataOldTimestamp": "Aggiornamento dei tassi di cambio storici. Il grafico non visualizza dati posteriori al {{time}}.",
     "dataUpdating": "aggiornamento dei dati…",
+    "displayMode": {
+      "performance": "Performance",
+      "switchTo": "Passa a {{displayMode}}",
+      "totalValue": "Valore nel tempo",
+      "unavailableSwitchTo": "{{displayMode}} non disponibile. Passa a {{nextDisplayMode}}"
+    },
     "filter": {
       "all": "Tutto",
       "month": "Mese",
       "week": "Settimana",
       "year": "Anno"
-    }
+    },
+    "transactions_many": "{{count}} transazioni",
+    "transactions_one": "{{count}} transazione",
+    "transactions_other": "{{count}} transazioni"
   },
   "checkSDcard": "verifica della scheda microSD",
   "clickHere": "Clicca qui.",
@@ -838,7 +869,7 @@
         "description": "Genera child keys dal tuo wallet BitBox.",
         "disclaimer": "Ho compreso il funzionamento delle child keys e le considerazioni di sicurezza",
         "how": {
-          "description": "Le child keys sono visualizzate come liste di parole sul tuo BitBox. Puoi creare quante child keys vuoi. Per mostrare una child key, ti verranno chiesti il numero ordinale della chiave (prima, seconda, terza ecc) e la lunghezza desiderata (12, 18 o 24 parole di recupero). Ricordati di tenere traccia del <strong>numero ordinale e della lunghezza della chiave</strong> per poterla visualizzare nuovamente in futuro.",
+          "description": "Le child keys sono visualizzate come liste di parole sul tuo BitBox. Puoi creare quante child keys vuoi. Per mostrare una child key, ti verranno chiesti il numero ordinale della chiave (prima, seconda, terza ecc) e la lunghezza desiderata (12 o 24 parole di recupero). Ricordati di tenere traccia del <strong>numero ordinale e della lunghezza della chiave</strong> per poterla visualizzare nuovamente in futuro.",
           "title": "Come funziona?"
         },
         "recover": {
@@ -857,8 +888,8 @@
         }
       },
       "factoryReset": {
-        "description": "Ripristina il dispositivo alle impostazioni di fabbrica. Questo cancella il wallet dal tuo BitBox!",
-        "title": "Ripristino alle impostazioni di fabbrica"
+        "description": "Elimina il wallet e i suoi dati dal BitBox",
+        "title": "Elimina wallet dal BitBox"
       },
       "goToStartupSettings": {
         "description": "Entra nel bootloader del BitBox. Da qui puoi abilitare l'hash del firmware."
@@ -936,6 +967,18 @@
     "paymentApprovalRequired": "La commissione di pagamento è aumentata. Controlla e approva di nuovo.",
     "wrongKeystore": "Wallet connesso errato. Assicurati di inserire il dispositivo corretto per questo account.",
     "wrongKeystore2": " Se stai utilizzando la passphrase opzionale, assicurati di avere inserito quella corretta per questo account."
+  },
+  "evmChains": {
+    "arbitrumOne": "Arbitrum One",
+    "base": "Base",
+    "bnbSmartChain": "BNB Smart Chain",
+    "ethereumMainnet": "Mainnet Ethereum",
+    "ethereumSepoliaTestnet": "Sepolia (testnet di Ethereum)",
+    "gnosis": "Gnosis",
+    "hyperEVM": "HyperEVM",
+    "optimism": "Optimism",
+    "polygon": "Polygon",
+    "sonic": "Sonic"
   },
   "exchange": {
     "btcdirect": {
@@ -1042,6 +1085,7 @@
     "enable": "Abilita",
     "enabled_false": "Disabilitato",
     "enabled_true": "Abilitato",
+    "iHaveReadTheInformation": "Ho letto le informazioni riportate sopra",
     "insure": "Assicura",
     "max": "Massimo",
     "new": "Nuovo",
@@ -1067,6 +1111,7 @@
     "spend_bitcoin": "Spendi bitcoin",
     "spend_crypto": "Spendi crypto",
     "swap": "Swap",
+    "unavailable": "Non disponibile",
     "unknown": "Sconosciuto"
   },
   "genericError": "Si è verificato un errore. Se noti qualche problema, riavvia l'applicazione.",
@@ -1152,8 +1197,17 @@
       "title": "Come viene calcolato l'importo totale?"
     },
     "accountSummaryDescription": {
-      "text": "Qui pui vedere la performance del tuo portafogli nel tempo. Sotto il grafico viene visualizzato un riepilogo dei diversi account.",
+      "text": "Qui puoi vedere il valore e l'andamento del tuo portafoglio nel tempo. Un riepilogo dei tuoi singoli account crypto è visualizzato sotto il grafico.",
       "title": "Cosa contiene questa pagina?"
+    },
+    "accountSummaryPercentageMeaning": {
+      "listOptions": [
+        "Valore nel tempo: Questa è la variazione del valore del tuo portafoglio, inclusi depositi e prelievi.",
+        "Performance: questo è il rendimento ponderato per il capitale (MWR). Tiene conto di depositi e prelievi, quindi riflette la performance del tuo portafoglio."
+      ],
+      "outro": "Puoi passare da performance a valore nel tempo cliccando sulla percentuale, oppure in Impostazioni > Aspetto. Per impostazione predefinita, l'app mostra il valore nel tempo.",
+      "text": "La percentuale nel grafico del tuo portafoglio mostra una delle due opzioni per l'intervallo di tempo selezionato:",
+      "title": "Che cosa indica la percentuale?"
     },
     "accountTransactionAttributesBTC": {
       "text": "Dimensione virtuale: Determina la tassa di rete. Si risparmia sulle commissioni se è più piccola della dimensione della transazione.\nDimensione: Dimensione effettiva della transazione in byte quando serializzata secondo la blockchain sottostante.\nPeso: Una nuova metrica introdotta con Segwit per valutare le dimensioni delle transazioni e dei blocchi. Ogni byte del \"segregated witness\" conta come uno, tutto il resto come quattro unità di peso. Invece di un megabyte di dimensione effettiva, il limite della dimensione del blocco è ora di quattro milioni di unità di peso.",
@@ -1215,6 +1269,14 @@
         "text": "Gli account sono ottimi per gestire fondi per persone o scopi diversi, perché sono separati. È inoltre possibile condividere la \"chiave pubblica estesa\" di un account senza rivelare nulla degli altri account. Ciò consente di ricevere ripetutamente fondi senza riutilizzare gli indirizzi, ad esempio per ricevere lo stipendio o per acquistare regolarmente criptovalute.",
         "title": "Perchè è utile?"
       }
+    },
+    "appearancePortfolioPercentageOptions": {
+      "listOptions": [
+        "Valore nel tempo: Questa è la variazione del valore del tuo portafoglio, inclusi depositi e prelievi.",
+        "Performance: questo è il rendimento ponderato per il capitale (MWR). Tiene conto di depositi e prelievi, quindi riflette la performance del tuo portafoglio."
+      ],
+      "text": "La percentuale nel grafico del tuo portafoglio mostra una delle due opzioni:",
+      "title": "Cosa significano le opzioni percentuali del portafoglio?"
     },
     "appendix": {
       "feedback": {
@@ -1623,7 +1685,6 @@
         "title": "Collega il tuo dispositivo"
       },
       "disclaimer": {
-        "checkboxLabel": "Ho letto le informazioni riportate sopra",
         "content": "Il tuo portafoglio Lightning verrà creato usando una chiave derivata dal tuo BitBox. In questo modo potrai sempre ripristinare il wallet Lightning usando il tuo BitBox o il backup.\n\nTuttavia, a differenza del BitBox, il wallet Lightning è un <strong>hot wallet</strong>. Questo significa che le chiavi del tuo portafoglio Lightning sono memorizzate nella BitBoxApp, non sul BitBox. Non dovresti usare il portafoglio Lightning per importi elevati o per la conservazione a lungo termine.\n\n          Inoltre, la funzionalità Lightning è attualmente in beta, quindi potresti riscontrare bug, problemi di affidabilità o potrebbe smettere di funzionare del tutto.",
         "title": "Come funziona con la BitBoxApp?"
       },
@@ -1641,18 +1702,20 @@
         "title": "Crea wallet Lightning"
       }
     },
-    "betaWarning": "Lightning è una funzionalità beta pensata per l'anteprima e i test. Usa Lightning solo con una piccola quantità di fondi!",
+    "betaWarning": "Lightning è in beta. Usalo solo con importi ridotti.",
     "bitcoinDeposit": {
       "claim": "Richiedi ricarica o rimborso",
       "label": "Ricarica Bitcoin",
       "state": {
         "claiming": "Riscossione del deposito",
         "confirming": "In attesa delle conferme",
+        "refundPending": "Rimborso in attesa di trasmissione",
         "unclaimed": "Riscossione richiesta"
       },
       "stateShort": {
         "claiming": "Riscattando",
         "confirming": "Confermando",
+        "refundPending": "Rimborso in sospeso",
         "unclaimed": "Riscossione richiesta"
       }
     },
@@ -1670,7 +1733,7 @@
         "refundDestination": "Destinazione rimborso",
         "refundTitle": "Conferma rimborso ricarica"
       },
-      "description": "Devi creare una transazione per riscattare l'importo bloccato.",
+      "description": "Riscatta questa ricarica per aggiungere i fondi al tuo wallet Lightning.",
       "empty": "Nessuna ricarica da riscattare trovata.",
       "failure": {
         "claimFailedMessage": "Il riscatto della ricarica non è riuscito.",
@@ -1681,14 +1744,19 @@
       "feeRate": "{{feeRate}} sat/vByte",
       "refundButton": "Rimborsa ricarica",
       "refundFee": "Tasso di commissione per il rimborso",
+      "refundPending": "Il rimborso non è stato inviato alla rete Bitcoin. Verrà ritentato automaticamente. Puoi anche ritentare con la fee corrente.",
       "refundUnavailable": "Rimborso non disponibile",
       "success": {
-        "claimMessage": "Transazione di riscatto effettuata",
-        "claimNote": "La ricarica apparirà nel tuo wallet una volta confermata la transazione.",
         "claimTitle": "Riscatta ricarica",
-        "refundMessage": "Transazione di rimborso effettuata",
+        "deferredMessage": "Richiesta di ricarica programmata",
+        "deferredNote": "La ricarica non è stata ancora reclamata. Verrà riprovata automaticamente quando rientrerà nel limite delle commissioni.",
+        "refundMessage": "Rimborso richiesto",
         "refundNote": "Il rimborso apparirà sul tuo wallet on-chain non appena la transazione verrà confermata.",
-        "refundTitle": "Rimborsa ricarica"
+        "refundTitle": "Rimborsa ricarica",
+        "settledMessage": "Ricarica completata",
+        "settledNote": "I fondi sono ora disponibili nel tuo portafoglio Lightning.",
+        "submittedMessage": "Richiesta di ricarica inviata",
+        "submittedNote": "La richiesta è in elaborazione. I fondi appariranno nel tuo portafoglio Lightning una volta completata."
       },
       "title": "Riscatta ricarica",
       "topUp": "Ricarica non riscattata",
@@ -1717,6 +1785,29 @@
         "note": "I tuoi fondi appariranno nel tuo wallet non appena la transazione verrà confermata."
       },
       "viewTransaction": "Vedi transazione"
+    },
+    "contacts": {
+      "add": "Aggiungi contatto",
+      "addAfterPayment": "Aggiungi <strong>{{address}}</strong> ai tuoi contatti",
+      "addressPlaceholder": "satoshi@bitbox.cash",
+      "delete": "Elimina contatto",
+      "deleteAction": "Elimina",
+      "deleteConfirmation": "Sei sicuro di voler eliminare questo contatto?",
+      "deleteError": "Impossibile eliminare il contatto. Riprova.",
+      "details": "Informazioni di contatto",
+      "duplicateAddress": "Questo indirizzo Lightning è già tra i tuoi contatti.",
+      "empty": "Ancora nessun contatto",
+      "invalidAddress": "Inserisci un indirizzo Lightning valido.",
+      "loadError": "Impossibile caricare i contatti. Riprova.",
+      "myAccounts": "I miei account",
+      "name": "Nome",
+      "namePlaceholder": "Inserisci un nome",
+      "notFound": "Contatto non trovato.",
+      "optional": "facoltativo",
+      "saveError": "Impossibile memorizzare il contatto. Riprova.",
+      "saved": "Contatto memorizzato",
+      "sendTo": "Invia a",
+      "title": "Contatti"
     },
     "deactivate": {
       "intro": {
@@ -1754,7 +1845,7 @@
         "content": "Il portafoglio Lightning è un <strong>hot wallet</strong>. Ciò significa che le chiavi sono memorizzate nell'app e quindi non sono protette dal BitBox. Questo ti permette di usare il tuo portafoglio Lightning senza bisogno di un BitBox. Conserva solo una piccola quantità di fondi nel tuo portafoglio Lightning.",
         "title": "Modello di sicurezza"
       },
-      "title": "Avviso per Lightning",
+      "title": "Disclaimer Lightning",
       "trustModel": {
         "breezLink": "Scopri Breez SDK",
         "content": "L'integrazione Lightning nella BitBoxApp utilizza l'infrastruttura Spark e il Breez SDK. Tieni presente che, al momento, l'uscita unilaterale dei tuoi fondi non è possibile, perché il Breez SDK non la supporta. Di conseguenza, l'uscita dei fondi dal tuo portafoglio Lightning dipende dall'infrastruttura Spark: deve essere online e collaborativa.",
@@ -1762,6 +1853,7 @@
         "title": "Modello di fiducia"
       }
     },
+    "initializationFailed": "Si è verificato un errore durante l'inizializzazione di Lightning. Riavvia BitBoxApp per riprovare.",
     "initializing": "Inizializzazione account Lightning...",
     "limit": {
       "accountWarning": "Il saldo del wallet supera il limite di {{limit}} di {{excess}}. Ti consigliamo di spostare alcuni fondi sul tuo wallet BitBox per una maggiore sicurezza.",
@@ -1785,6 +1877,7 @@
       },
       "title": "Imposta indirizzo LNURL"
     },
+    "paymentDescription": "Descrizione invoice",
     "payments": {
       "header": {
         "amount": "Importo",
@@ -1834,7 +1927,7 @@
       "enterInvoice": "Inserisci indirizzo o invoice",
       "invoice": {
         "label": "Inserisci dettagli pagamento",
-        "placeholder": "Indirizzo o invoice"
+        "placeholder": "Info pagamento"
       },
       "lnurlPay": {
         "invalidAmount": "Inserisci un importo tra {{minAmount}} e {{maxAmount}} sats."
@@ -1861,7 +1954,7 @@
       "enableWalletDescription": "Lightning abilita pagamenti istantanei e con commissioni basse.",
       "expert": "Avanzate",
       "serviceProvider": "Service provider",
-      "setLightningAddress": "Importa indirizzo Lightning",
+      "setLightningAddress": "Indirizzo Lightning",
       "status": "Stato",
       "statusConnected": "Connesso",
       "title": "Impostazioni Lightning",
@@ -1873,9 +1966,14 @@
       "partial": "La rete Spark è parzialmente non disponibile. I pagamenti Lightning potrebbero non funzionare.",
       "unknown": "Lo stato della rete Spark è sconosciuto. I pagamenti Lightning potrebbero non essere disponibili."
     },
+    "testnetWarning": {
+      "message": "Le monete Lightning hanno valore reale, anche quando l'app è in modalità testnet. Procedere?",
+      "title": "Attenzione"
+    },
     "topUp": {
       "action": "Ricarica",
       "available": "Disponibile",
+      "claimFeeInfo": "Detratto dall'importo della tua ricarica. La commissione effettiva può variare in base alle condizioni della rete Bitcoin al momento della richiesta.",
       "confirm": {
         "amount": "Importo",
         "continue": "Continua sul tuo BitBox.",
@@ -1884,17 +1982,17 @@
         "title": "Conferma ed invia transazione",
         "total": "Totale"
       },
+      "estimatedClaimFee": "Commissione stimata per la richiesta",
       "from": "Da",
       "noBitcoinAccounts": "Nessun account Bitcoin attivo. Attiva un account Bitcoin.",
       "note": "Ricarica Lightning",
       "success": {
         "message": "Ricarica creata!",
-        "note": "La transazione di ricarica apparirà dopo una conferma e sarà completa dopo tre conferme. Ciò richiede solitamente oltre 30 minuti."
+        "note": "La transazione di ricarica apparirà come pending nell'elenco dei pagamenti fino alla prima conferma. Viene riscossa automaticamente quando conferme e commissioni lo permettono. Le riscossioni standard richiedono tre conferme; quelle anticipate possono completarsi prima."
       },
       "title": "Ricarica wallet Lightning",
       "to": "A"
-    },
-    "torProxyWarning": "Lightning non utilizza il proxy Tor. Lightning continuerà a funzionare tramite la tua normale connessione Internet."
+    }
   },
   "loading": "caricamento…",
   "logo": {
@@ -1926,6 +2024,13 @@
       "feedbackLink": {
         "description": "Se hai dei feedback generali",
         "title": "Feedback"
+      },
+      "licenses": {
+        "description": "Visualizza le licenze delle librerie e delle dipendenze open source usate in questa app",
+        "error": "Impossibile caricare le licenze.",
+        "packagesInfo": "Questa applicazione utilizza le seguenti dipendenze open source ({{packageCount}} pacchetti).",
+        "title": "Licenze",
+        "unavailableLicenseText": "Testo della licenza non disponibile."
       },
       "supportLink": {
         "description": "Se riscontri un problema o hai bisogno di aiuto",
@@ -1975,6 +2080,14 @@
       "language": {
         "description": "In che lingua preferisci visualizzare la BitBoxApp.",
         "title": "Lingua"
+      },
+      "portfolioPerformance": {
+        "description": "Scegli come calcolare la percentuale del portafoglio.",
+        "options": {
+          "moneyWeightedReturn": "Performance",
+          "value": "Valore nel tempo"
+        },
+        "title": "Percentuale del portafoglio"
       },
       "remebmerWallet": {
         "enable": {
@@ -2191,7 +2304,6 @@
     "button": "Controlla",
     "buyEth": "Compra ETH",
     "coincontrol": {
-      "address": "Indirizzo",
       "addressReused": "Indirizzo riutilizzato",
       "change": "Resto",
       "outpoint": "Outpoint",
@@ -2207,6 +2319,7 @@
     "edit": "Modifica la transazione",
     "error": {
       "accountNotSynced": "L'account non è ancora sincronizzato. Attendi il completamento della sincronizzazione e riprova.",
+      "broadcastUncertain": "La transazione potrebbe comunque andare a buon fine. L'app continuerà a tentare di inviarla. Controlla la cronologia delle transazioni prima di inviare di nuovo per evitare di pagare due volte.",
       "erc20InsufficientGasFunds": "Sembra che tu non abbia abbastanza Ether per pagare questa transazione ERC20. Per favore, assicurati di avere abbastanza Ether nel tuo wallet e prova di nuovo.",
       "feeTooLow": "commissione troppo bassa",
       "feesNotAvailable": "Impossibile stimare le commissioni",
@@ -2214,11 +2327,13 @@
       "invalidAddress": "indirizzo non valido",
       "invalidAmount": "importo non valido",
       "invalidData": "dati non validi",
-      "paymentRequestAccountMismatch": "Questa richiesta di pagamento è un asset diverso. Apri l'account corrispondente e prova di nuovo.",
+      "paymentRequestAccountMismatch": "Questa richiesta di pagamento riguarda una rete o un asset diverso. Apri l'account corrispondente e riprova.",
       "syncInProgress": "L'account è ancora in fase di sincronizzazione. Attendere che la sincronizzazione sia completata e riprovare."
     },
     "fee": {
       "customPlaceholder": "Inserisci importo",
+      "highFee": "Commissione elevata",
+      "highFeeWarning": "La commissione equivale al {{percentage}}% dell'importo da inviare. Procedere?",
       "label": "Commissioni di rete",
       "placeholder": "Non disponibile"
     },
@@ -2314,6 +2429,7 @@
           "note": "I nomi degli account, le note e i wallet non sono interessati.",
           "primaryCTA": "Svuota Cache"
         },
+        "success": "Cache svuotata con successo",
         "title": "Svuota cache"
       },
       "coinControl": "Abilita \"coin control\"",
@@ -2412,10 +2528,12 @@
     "fastest": "Più veloce",
     "fetchQuotesError": "Impossibile recuperare le quotazioni in questo momento. Riprova.",
     "fetchingRoutes": "Recupero percorsi...",
+    "insufficientGasFunds": "Hai bisogno di più ETH nel tuo account <strong>{{accountName}}</strong> per pagare le commissioni di rete. <buyLink>Acquista ETH ora</buyLink>",
     "new": "Nuovo swap",
     "noRouteFound": "Nessun percorso trovato",
     "noRouteFoundForPair": "Nessun percorso trovato da {{sellCoin}} a {{buyCoin}}. Prova a inserire un importo maggiore. Oppure riprova più tardi.",
     "oneRouteAvailable": "Un percorso disponibile",
+    "providersUnavailable": "Gli swap provider non sono al momento disponibili per l'asset selezionato da vendere. Riprova più tardi.",
     "recommended": "Consigliato",
     "route": "Percorso swap",
     "routesPlaceholder": "I percorsi appariranno qui dopo aver inserito un importo",
@@ -2432,6 +2550,11 @@
     },
     "prompt": {
       "button": "Sblocca",
+      "info": [
+        "Il wallet di test usa un keystore software nell'app.",
+        "Password diverse sbloccano portafogli diversi. È come usare una passphrase.",
+        "Puoi sbloccare senza password per accedere al wallet di test predefinito."
+      ],
       "passwordLabel": "Password di test",
       "title": "Sblocca il wallet di test"
     }
@@ -2465,6 +2588,7 @@
       "type": "Tipo"
     },
     "explorer": "ID della transazione",
+    "explorerError": "Impossibile aprire il browser.",
     "explorerTitle": "Apri in un esploratore di blocchi esterno",
     "fee": "Commissione",
     "feeRate": "Tasso di commissione",
@@ -2560,8 +2684,12 @@
     },
     "pairingRequest": {
       "approve": "Approva Connessione",
+      "chains": "Reti",
+      "readOnly": "Questa connessione può visualizzare il tuo indirizzo, ma non può richiedere firme o transazioni.",
       "reject": "Rifiuta",
-      "title": "Nuova richista di connessione da"
+      "rejectionFailed": "Non è stato possibile rifiutare la richiesta, ma non è stata creata alcuna sessione.",
+      "title": "Nuova richista di connessione da",
+      "unsupported": "Questa richiesta di connessione non è supportata."
     },
     "pairingSuccess": "DApp connessa. Puoi continuare sul sito della DApp.",
     "signingRequest": {

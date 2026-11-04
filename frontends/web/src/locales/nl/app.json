@@ -148,8 +148,6 @@
       "title": "Herstellen"
     },
     "showMnemonic": {
-      "checkboxLabel": "Ik heb bovenstaande informatie gelezen",
-      "description": "Je ziet zometeen de 24 herstelwoorden die de backup van je wallet vormen. Schrijf ze op papier op.\n<strong>Sla ze niet digitaal op en neem er geen foto's van</strong>\n<strong>Zeg de woorden niet hardop</strong>\n<strong>Deze backup is niet beschermd met een wachtwoord</strong>\nAchteraf word je gevraagd ieder woord te bevestigen.",
       "title": "Herstelwoorden tonen",
       "warning": "<strong>Deel je herstelwoorden nooit, met wie dan ook!</strong> Met je herstelwoorden kan iemand volledige toegang tot je wallet krijgen. Als iemand je om je herstelwoorden vraagt, is dit vrijwel altijd een oplichter."
     },
@@ -1614,7 +1612,6 @@
     "button": "Controle",
     "buyEth": "Koop ETH",
     "coincontrol": {
-      "address": "Adres",
       "addressReused": "Adres hergebruikt",
       "change": "Wisselgeld",
       "outpoint": "Output",
