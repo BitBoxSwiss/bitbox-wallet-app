@@ -122,8 +122,11 @@ describe('swap destination synchronization', () => {
       resolveStatus = resolve;
     }));
     renderSwap(eth, target);
-    await user.type(await screen.findByLabelText(/Send/), '1');
-    expect(screen.getByLabelText(/Send/)).toHaveValue(1);
+    const sendInput = await screen.findByLabelText(/Send/);
+    // The input stays disabled until its selected account is initialized.
+    await waitFor(() => expect(sendInput).toBeEnabled());
+    await user.type(sendInput, '1');
+    expect(sendInput).toHaveValue(1);
     await screen.findByText('THORChain');
     expect(screen.getByRole('button', { name: syncingLabel })).toBeDisabled();
 
@@ -157,7 +160,9 @@ describe('swap destination synchronization', () => {
   it.each([eth, token])('allows $coinCode without a live destination status', async target => {
     const user = userEvent.setup();
     renderSwap(btc, target, [ltc]);
-    await user.type(await screen.findByLabelText(/Send/), '1');
+    const sendInput = await screen.findByLabelText(/Send/);
+    await waitFor(() => expect(sendInput).toBeEnabled());
+    await user.type(sendInput, '1');
     await screen.findByText('THORChain');
     expect(accountApi.getStatus).not.toHaveBeenCalledWith(target.code);
     expect(statusChanged).not.toHaveBeenCalledWith(target.code, expect.any(Function));
@@ -176,7 +181,9 @@ describe('swap destination synchronization', () => {
       success: false, errorCode: 'syncInProgress', errorMessage: 'syncInProgress',
     });
     renderSwap(btc, eth);
-    await user.type(await screen.findByLabelText(/Send/), '1');
+    const sendInput = await screen.findByLabelText(/Send/);
+    await waitFor(() => expect(sendInput).toBeEnabled());
+    await user.type(sendInput, '1');
     await screen.findByText('THORChain');
     await user.click(screen.getByRole('button', { name: 'Swap' }));
     expect(alertUser).toHaveBeenCalledWith('The account is still syncing. Please wait until syncing is complete and try again.');
