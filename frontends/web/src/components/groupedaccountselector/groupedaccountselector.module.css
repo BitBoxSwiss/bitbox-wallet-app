@@ -186,6 +186,17 @@
     text-transform: uppercase;
     white-space: nowrap;
 }
+
+.syncing {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.syncing img {
+    height: 14px;
+    width: 14px;
+}
+
 .trigger .triggerBalance {
     padding-right: var(--space-quarter);
 }

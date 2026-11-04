@@ -9,6 +9,7 @@ import { TGroupedOption, TOption } from './groupedaccountselector';
 export const createGroupedOptions = <T extends TAccountBase>(
   accountsByKeystore: TAccountsByKeystore<T>[],
   isAccountDisabled?: (account: T) => boolean,
+  isAccountSyncing?: (account: T) => boolean,
 ) => {
   return accountsByKeystore.map(({ keystore, accounts }) => ({
     label: `${keystore.name} ${isAmbiguousName(keystore.name, accountsByKeystore) ? `(${keystore.rootFingerprint})` : ''}`,
@@ -19,7 +20,8 @@ export const createGroupedOptions = <T extends TAccountBase>(
       coinCode: account.coinCode,
       coinUnit: account.coinUnit,
       active: account.active,
-      disabled: isAccountDisabled ? isAccountDisabled(account) : false,
+      disabled: !!isAccountDisabled?.(account) || !!isAccountSyncing?.(account),
+      syncing: !!isAccountSyncing?.(account),
     })) as TOption[]
   }));
 };

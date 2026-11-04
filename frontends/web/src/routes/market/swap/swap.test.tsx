@@ -76,10 +76,15 @@ vi.mock('@/api/account', async (importOriginal) => {
   return {
     ...actual,
     getBalance: vi.fn(),
+    getStatus: vi.fn(),
     proposeTx: vi.fn(),
     sendTx: vi.fn(),
   };
 });
+vi.mock('@/api/accountsync', () => ({
+  statusChanged: vi.fn(() => () => {}),
+  syncdone: vi.fn(() => () => {}),
+}));
 vi.mock('@/api/coins', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/api/coins')>();
   return {
@@ -204,6 +209,9 @@ describe('routes/market/swap', () => {
     });
 
     vi.mocked(accountApi.getBalance).mockResolvedValue({ success: false });
+    vi.mocked(accountApi.getStatus).mockResolvedValue({
+      disabled: false, fatalError: false, offlineError: null, synced: true,
+    });
     vi.mocked(coinsApi.parseExternalBtcAmount).mockResolvedValue({ success: false, amount: '' });
     vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
       success: true,

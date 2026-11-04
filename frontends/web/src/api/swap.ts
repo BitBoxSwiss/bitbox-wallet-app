@@ -86,6 +86,7 @@ export type TSwapSignResponse = {
   txInput: TTxInput;
 } | {
   success: false;
+  errorCode?: 'syncInProgress';
   errorMessage: string;
 };
 

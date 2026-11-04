@@ -2,8 +2,10 @@
 
 import '../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import type { TAccountBase } from '@/api/account';
+import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { GroupedAccountSelector } from './groupedaccountselector';
 
 const account: TAccountBase = {
@@ -98,5 +100,37 @@ describe('components/groupedaccountselector', () => {
     );
 
     expect(await screen.findByRole('button')).toBeDisabled();
+  });
+
+  // Both selectors disable syncing accounts and show a spinner only for that reason, not for other restrictions.
+  it.each([false, true])('distinguishes syncing from disabled accounts on mobile=%s', async isMobile => {
+    const user = userEvent.setup();
+    vi.mocked(window.matchMedia).mockReturnValue({
+      ...window.matchMedia('(max-width: 768px)'),
+      matches: isMobile,
+    });
+    render(
+      <BackButtonProvider>
+        <GroupedAccountSelector
+          accounts={[account, { ...account, code: 'disabled', name: 'Disabled account' }]}
+          isAccountDisabled={candidate => candidate.code === 'disabled'}
+          isAccountSyncing={candidate => candidate.code === account.code}
+          onChange={vi.fn()}
+        />
+      </BackButtonProvider>,
+    );
+
+    await user.click(await screen.findByRole(isMobile ? 'button' : 'combobox'));
+    const syncing = await screen.findByRole(isMobile ? 'button' : 'option', { name: /Bitcoin account/ });
+    const disabled = screen.getByRole(isMobile ? 'button' : 'option', { name: /Disabled account/ });
+    expect(within(syncing).getByRole('status')).toBeInTheDocument();
+    expect(within(disabled).queryByRole('status')).not.toBeInTheDocument();
+    if (isMobile) {
+      expect(syncing).toBeDisabled();
+      expect(disabled).toBeDisabled();
+    } else {
+      expect(syncing).toHaveAttribute('aria-disabled', 'true');
+      expect(disabled).toHaveAttribute('aria-disabled', 'true');
+    }
   });
 });
