@@ -1052,6 +1052,7 @@
           "title": "Security"
         },
         "slippage": {
+          "review": "Receive amounts shown before review are estimates and may change when preparing your swap. Check the updated amount in the review screen and on your BitBox before confirming.",
           "text": "Slippage is the difference between the price you expect when you start a swap and the price you actually receive when the swap is completed. Because cryptocurrency prices can move quickly and liquidity can change during the transaction, the final amount you receive may be lower than estimated.",
           "title": "Slippage"
         }
@@ -2551,6 +2552,7 @@
     "fastest": "Fastest",
     "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
     "fetchingRoutes": "Fetching routes...",
+    "flashnetQuoteWarning": "The Flashnet quote may differ slightly when confirming the swap.",
     "insufficientGasFunds": "You need more ETH in your <strong>{{accountName}}</strong> account to pay for the network fees. <buyLink>Buy ETH now</buyLink>",
     "new": "New swap",
     "noRouteFound": "No route found",

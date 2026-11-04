@@ -41,6 +41,9 @@ export const SwapkitTerms = ({ onAgreedTerms }: TProps) => {
           {t('exchange.swapkit.disclaimer.slippage.title')}
         </h2>
         <p>
+          {t('exchange.swapkit.disclaimer.slippage.review')}
+        </p>
+        <p>
           {t('exchange.swapkit.disclaimer.slippage.text')}
         </p>
 

@@ -3,6 +3,7 @@
 package backend
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -187,6 +188,114 @@ func TestCheckSwapQuoteGasFunds(t *testing.T) {
 			require.Len(t, result.Quote.Routes, 1)
 			require.True(t, result.Quote.Routes[0].InsufficientGasFunds)
 		}
+	}
+}
+
+type swapRoundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f swapRoundTripFunc) RoundTrip(request *http.Request) (*http.Response, error) {
+	return f(request)
+}
+
+// Preparation must expose the signed receive amount even when the upstream estimate differs,
+// and reject a malformed signed amount instead of falling back to that estimate.
+func TestPrepareSwapUsesSignedReceiveAmount(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+	ks := makeBitBox02Multi()
+	ks.RootFingerprintFunc = func() ([]byte, error) { return rootFingerprint1, nil }
+	b.registerKeystore(ks)
+
+	for _, signedAmount := range []string{"0.002930890 BTC", "invalid BTC"} {
+		t.Run(signedAmount, func(t *testing.T) {
+			paymentRequest := &paymentrequest.Slip24{
+				RecipientName: "SWAPKIT (FLASHNET)",
+				Memos: []paymentrequest.Slip24Memo{{
+					Type: "coinPurchase",
+					CoinPurchase: &paymentrequest.Slip24CoinPurchase{
+						Amount: signedAmount, CoinType: 0, Address: "receive-address",
+					},
+				}},
+				Outputs: []paymentrequest.Slip24Out{{
+					Amount: "100000000000000000", Address: "deposit-address",
+				}},
+				Signature: "signed-payload",
+			}
+			body, err := json.Marshal(swapkit.SwapResponse{
+				ExpectedBuyAmount: "0.00292978",
+				Meta:              swapkit.SwapMeta{Slip24: paymentRequest},
+			})
+			require.NoError(t, err)
+			b.httpClient = &http.Client{Transport: swapRoundTripFunc(func(request *http.Request) (*http.Response, error) {
+				require.Equal(t, "/v3/swap", request.URL.Path)
+				return &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(bytes.NewReader(body))}, nil
+			})}
+
+			prepared, err := b.PrepareSwap("v0-55555555-btc-0", "v0-55555555-eth-0", "route-1", "0.1")
+			if signedAmount == "invalid BTC" {
+				require.Error(t, err)
+				require.Nil(t, prepared)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, "0.00293089", prepared.ExpectedBuyAmount)
+			require.Equal(t, signedAmount, prepared.TxInput.PaymentRequest.Memos[0].CoinPurchase.Amount)
+			require.Equal(t, paymentRequest.Signature, prepared.TxInput.PaymentRequest.Signature)
+		})
+	}
+}
+
+// Receive amounts retain exact asset precision and reject ambiguous or unusable purchase memos.
+func TestSwapReceiveAmount(t *testing.T) {
+	for _, test := range []struct {
+		name     string
+		unit     string
+		decimals uint
+		amount   string
+		want     string
+	}{
+		{"BTC", "BTC", 8, "0.002930890 BTC", "0.00293089"},
+		{"ETH precision", "ETH", 18, "31.994750750127981419 ETH", "31.994750750127981419"},
+		{"ERC20 precision", "USDC", 6, "9007199254740993.123456 USDC", "9007199254740993.123456"},
+		{"zero decimals", "TOKEN", 0, "100 TOKEN", "100"},
+		{"wrong unit", "BTC", 8, "1 ETH", ""},
+		{"missing unit", "BTC", 8, "1", ""},
+		{"invalid number", "BTC", 8, "invalid BTC", ""},
+		{"excess precision", "BTC", 8, "0.000000001 BTC", ""},
+		{"zero", "BTC", 8, "0 BTC", ""},
+		{"negative", "BTC", 8, "-1 BTC", ""},
+		{"fraction", "BTC", 8, "1/2 BTC", ""},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			buyCoin := &coinMocks.CoinMock{
+				UnitFunc:     func(bool) string { return test.unit },
+				DecimalsFunc: func(bool) uint { return test.decimals },
+			}
+			request := &paymentrequest.Slip24{Memos: []paymentrequest.Slip24Memo{{
+				Type: "coinPurchase", CoinPurchase: &paymentrequest.Slip24CoinPurchase{Amount: test.amount},
+			}}}
+			amount, err := swapReceiveAmount(request, buyCoin)
+			if test.want == "" {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			require.Equal(t, test.want, amount)
+			require.Equal(t, test.amount, request.Memos[0].CoinPurchase.Amount)
+		})
+	}
+
+	for _, memos := range [][]paymentrequest.Slip24Memo{
+		nil,
+		{{Type: "coinPurchase"}},
+		{{Type: "text", CoinPurchase: &paymentrequest.Slip24CoinPurchase{Amount: "1 BTC"}}},
+		{
+			{Type: "coinPurchase", CoinPurchase: &paymentrequest.Slip24CoinPurchase{Amount: "1 BTC"}},
+			{Type: "coinPurchase", CoinPurchase: &paymentrequest.Slip24CoinPurchase{Amount: "2 BTC"}},
+		},
+	} {
+		_, err := swapReceiveAmount(&paymentrequest.Slip24{Memos: memos}, nil)
+		require.Error(t, err)
 	}
 }
 
