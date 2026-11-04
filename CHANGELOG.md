@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## v4.53.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.28.0 and intermediate version v9.27.2
 - Support changing the BitBox device language in the app
 - Android: price widget for BTC, ETH, and LTC with 24-hour charts
