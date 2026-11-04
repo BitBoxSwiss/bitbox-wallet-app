@@ -123,6 +123,7 @@ describe('swap destination synchronization', () => {
     }));
     renderSwap(eth, target);
     await user.type(await screen.findByLabelText(/Send/), '1');
+    expect(screen.getByLabelText(/Send/)).toHaveValue(1);
     await screen.findByText('THORChain');
     expect(screen.getByRole('button', { name: syncingLabel })).toBeDisabled();
 
