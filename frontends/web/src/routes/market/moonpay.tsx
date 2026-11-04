@@ -18,7 +18,6 @@ import { isBitcoinOnly } from '@/utils/coin';
 import { MoonpayTerms } from '@/components/terms/moonpay-terms';
 import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
 import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
-import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import style from './iframe.module.css';
 
 
@@ -37,7 +36,7 @@ export const Moonpay = () => {
 
   const account = findAccount(activeAccounts, code);
   const { containerRef, height, iframeLoaded, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipMoonpayDisclaimer ?? false);
+  const agreedTerms = config?.frontend.skipMoonpayDisclaimer ?? false;
   useMarketIframeActive(!!account && !!config && agreedTerms && moonpay?.success === true);
 
   if (!account || !config) {
@@ -60,7 +59,6 @@ export const Moonpay = () => {
             { !agreedTerms ? (
               <MoonpayTerms
                 account={account}
-                onAgreedTerms={() => setAgreedTerms(true)}
               />
             ) : (
               <div style={{ height }}>
@@ -90,7 +88,7 @@ export const Moonpay = () => {
           </div>
         </div>
       </div>
-      <MarketGuide vendor="moonpay" translationContext={translationContext} />
+      <MarketGuide vendor="moonpay" translationContext={translationContext} terms={<MoonpayTerms account={account} readOnly />} />
     </div>
   );
 };

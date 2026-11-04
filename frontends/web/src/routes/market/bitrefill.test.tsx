@@ -52,11 +52,8 @@ vi.mock('@/routes/lightning/send/send', () => ({
   ),
 }));
 vi.mock('@/hooks/vendor-iframe-active', () => ({ useMarketIframeActive: vi.fn() }));
-vi.mock('@/hooks/vendor-iframe-terms', () => ({
-  useVendorTerms: () => ({ agreedTerms: true, setAgreedTerms: vi.fn() }),
-}));
 vi.mock('@/contexts/ConfigProvider', () => ({
-  useConfig: () => ({ config: { frontend: {} } }),
+  useConfig: () => ({ config: { frontend: { skipBitrefillWidgetDisclaimer: true } } }),
 }));
 vi.mock('@/api/account', () => ({ proposeTx: vi.fn(), sendTx: vi.fn() }));
 vi.mock('@/api/coins', () => ({ parseExternalBtcAmount: vi.fn() }));

@@ -40,9 +40,16 @@ export const setConfig = (object: TConfigUpdate): Promise<TConfig> => {
       };
       pendingConfig = nextConfig;
       return apiSetConfig(nextConfig)
-        .then(() => {
-          pendingConfig = {};
+        .then(response => {
+          if (!response.success) {
+            throw new Error(response.errorMessage || 'Failed to save configuration');
+          }
           return nextConfig;
+        })
+        .finally(() => {
+          if (pendingConfig === nextConfig) {
+            pendingConfig = {};
+          }
         });
     });
 };

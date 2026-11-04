@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../__mocks__/i18n';
-import type { ComponentProps, ReactNode } from 'react';
+import { type ComponentProps, type ReactNode, useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/api/keystores', () => ({
   connectAnyKeystore: vi.fn(),
   connectKeystore: vi.fn(),
 }));
+vi.mock('@/components/alert/Alert', () => ({ alertUser: vi.fn() }));
 vi.mock('@/components/dialog/dialog', () => ({
   Dialog: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
@@ -44,23 +45,35 @@ vi.mock('@/components/view/view', () => ({
   ViewContent: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 vi.mock('@/contexts/ConfigProvider', () => ({
-  useConfig: () => ({ config: { frontend: {} }, setConfig: vi.fn() }),
+  useConfig: vi.fn(),
 }));
+vi.mock('@/api/system', () => ({ open: vi.fn() }));
 vi.mock('@/hooks/api', () => ({
   useLoad: () => undefined,
 }));
 vi.mock('@/hooks/lightning', () => ({
   useLightning: vi.fn(),
 }));
-vi.mock('@/hooks/vendor-iframe-terms', () => ({
-  useVendorTerms: () => ({ agreedTerms: true }),
-}));
 vi.mock('./components/countryselect', () => ({
-  CountrySelect: () => null,
+  CountrySelect: ({ onChangeRegion, regions, selectedRegion }: ComponentProps<typeof CountrySelect>) => (
+    <select aria-label="region" value={selectedRegion} onChange={event => {
+      onChangeRegion(regions.find(region => region.value === event.target.value) ?? null);
+    }}>
+      {regions.map(region => <option key={region.value} value={region.value}>{region.label}</option>)}
+    </select>
+  ),
 }));
 vi.mock('./components/deals', () => ({
-  Deals: ({ goToVendor }: { goToVendor: (vendor: 'bitrefill') => void }) => (
-    <button onClick={() => goToVendor('bitrefill')}>enter Bitrefill</button>
+  Deals: ({ goToVendor, action }: { goToVendor: (vendor: 'bitrefill' | 'btcdirect-otc' | 'pocket-otc') => void; action: string }) => (
+    <>
+      <button onClick={() => goToVendor('bitrefill')}>enter Bitrefill</button>
+      {action === 'otc' && (
+        <>
+          <button onClick={() => goToVendor('btcdirect-otc')}>enter BTC Direct OTC</button>
+          <button onClick={() => goToVendor('pocket-otc')}>enter Pocket OTC</button>
+        </>
+      )}
+    </>
   ),
 }));
 vi.mock('./components/infocontent', () => ({
@@ -72,19 +85,28 @@ vi.mock('./guide', () => ({
   MarketGuide: () => null,
 }));
 vi.mock('./market-context', () => ({
-  useMarketContext: () => ({
-    regions: [{ code: 'CH', name: 'Switzerland' }],
-    selectedRegion: 'CH',
-    setSelectedRegion: vi.fn(),
-    showSwap: true,
-  }),
+  useMarketContext: () => {
+    const [selectedRegion, setSelectedRegion] = useState('CH');
+    return {
+      regions: [{ value: 'CH', label: 'Switzerland' }, { value: 'DE', label: 'Germany' }],
+      selectedRegion,
+      setSelectedRegion,
+      showSwap: true,
+    };
+  },
 }));
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Route, Switch, useLocation } from 'wouter';
 import { useSearch } from '@/utils/router-compatability';
 import { MemoryRouter } from '@/utils/test-helpers';
 import type { TAccount } from '@/api/account';
+import type { TConfig } from '@/api/config';
+import { open } from '@/api/system';
+import { alertUser } from '@/components/alert/Alert';
+import { useConfig } from '@/contexts/ConfigProvider';
+import { CountrySelect } from './components/countryselect';
+import { getBTCDirectOTCLink, getPocketOTCLink } from './components/infocontent';
 import type { TLightningAccount } from '@/api/lightning';
 import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
@@ -175,7 +197,73 @@ const renderMarket = (accounts: TAccount[], code = account.code, tab = 'spend') 
 describe('routes/market/market', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useConfig).mockReturnValue({ config: { frontend: {}, backend: {} } as TConfig, setConfig: vi.fn() });
+    vi.mocked(getBTCDirectOTCLink).mockReturnValue('https://start.btcdirect.eu/private-trading-bitbox');
+    vi.mocked(getPocketOTCLink).mockReturnValue('https://pocketbitcoin.com/private?ref=bitbox');
     setLightningAccount(null);
+  });
+
+  // Keep the current region selected until the preference has been saved.
+  it('changes the region only after saving succeeds', async () => {
+    const config = { frontend: {}, backend: {} } as TConfig;
+    let resolveSave!: (config: TConfig) => void;
+    const setConfig = vi.fn(() => new Promise<TConfig>(resolve => {
+      resolveSave = resolve;
+    }));
+    vi.mocked(useConfig).mockReturnValue({ config, setConfig });
+    renderMarket([account]);
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'region' }), { target: { value: 'DE' } });
+
+    expect(setConfig).toHaveBeenCalledExactlyOnceWith({ frontend: { selectedExchangeRegion: 'DE' } });
+    expect(screen.getByRole('combobox', { name: 'region' })).toHaveValue('CH');
+    await act(async () => resolveSave(config));
+    expect(screen.getByRole('combobox', { name: 'region' })).toHaveValue('DE');
+    expect(alertUser).not.toHaveBeenCalled();
+  });
+
+  // A rejected save must leave the previous region selected, report the error, and allow retrying.
+  it('keeps the previous region after a failed save and allows retrying', async () => {
+    const config = { frontend: {}, backend: {} } as TConfig;
+    const setConfig = vi.fn().mockRejectedValueOnce(new Error('Failed to save configuration')).mockResolvedValue(config);
+    vi.mocked(useConfig).mockReturnValue({ config, setConfig });
+    renderMarket([account]);
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'region' }), { target: { value: 'DE' } });
+
+    await waitFor(() => expect(alertUser).toHaveBeenCalledExactlyOnceWith('genericError'));
+    expect(screen.getByRole('combobox', { name: 'region' })).toHaveValue('CH');
+
+    fireEvent.change(screen.getByRole('combobox', { name: 'region' }), { target: { value: 'DE' } });
+
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'region' })).toHaveValue('DE'));
+    expect(setConfig).toHaveBeenCalledTimes(2);
+    expect(alertUser).toHaveBeenCalledTimes(1);
+  });
+
+  // Each OTC offer must consult its own saved flag, especially BTC Direct versus Bitsurance.
+  it.each([
+    ['BTC Direct OTC', 'btcdirect-otc', 'skipBTCDirectOTCDisclaimer', 'skipBitsuranceDisclaimer', 'https://start.btcdirect.eu/private-trading-bitbox'],
+    ['Pocket OTC', 'pocket-otc', 'skipPocketOTCDisclaimer', 'skipBTCDirectOTCDisclaimer', 'https://pocketbitcoin.com/private?ref=bitbox'],
+  ] as const)('requires independent acceptance for %s', async (label, vendor, key, otherKey, url) => {
+    vi.mocked(useConfig).mockReturnValue({
+      config: { ...({ frontend: {}, backend: {} } as TConfig), frontend: { [otherKey]: true } },
+      setConfig: vi.fn(),
+    });
+    const { unmount } = renderMarket([account], account.code, 'otc');
+    fireEvent.click(screen.getByRole('button', { name: `enter ${label}` }));
+    expect(await screen.findByText(`/market/${vendor}`)).toBeInTheDocument();
+    expect(open).not.toHaveBeenCalled();
+    unmount();
+
+    vi.mocked(useConfig).mockReturnValue({
+      config: { ...({ frontend: {}, backend: {} } as TConfig), frontend: { [key]: true } },
+      setConfig: vi.fn(),
+    });
+    renderMarket([account], account.code, 'otc');
+    fireEvent.click(screen.getByRole('button', { name: `enter ${label}` }));
+    expect(open).toHaveBeenCalledExactlyOnceWith(url);
+    expect(screen.getByText(`/market/select/${account.code}?tab=otc`)).toBeInTheDocument();
   });
 
   // Losing the last on-chain account must leave its checkout even if Lightning remains available.

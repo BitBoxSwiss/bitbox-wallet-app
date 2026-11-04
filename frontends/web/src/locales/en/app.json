@@ -1414,6 +1414,10 @@
         "title": "Why show the secure chip model?"
       }
     },
+    "disclaimer": {
+      "link": "View {{provider}} disclaimer",
+      "title": "{{provider}} disclaimer"
+    },
     "guideTitle": {
       "account": "Account guide",
       "accountInformation": "Account information guide",

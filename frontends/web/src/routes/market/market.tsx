@@ -15,7 +15,6 @@ import { View, ViewContent } from '@/components/view/view';
 import { isBitcoinOnly } from '@/utils/coin';
 import { useLoad } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
-import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { MarketTab } from './components/markettab';
 import { getFallbackMarketAccountCode, getRequiredKeystoreFeature, getVendorFormattedName } from './utils';
@@ -98,13 +97,8 @@ const MarketContent = ({
     firmwareUpgradeRequired,
   } = useFeatureConnect();
 
-  const {
-    agreedTerms: agreedBTCDirectOTCTerms,
-  } = useVendorTerms(config?.frontend.skipBitsuranceDisclaimer ?? false);
-
-  const {
-    agreedTerms: agreedPocketOTCTerms,
-  } = useVendorTerms(config?.frontend.skipPocketOTCDisclaimer ?? false);
+  const agreedBTCDirectOTCTerms = config?.frontend.skipBTCDirectOTCDisclaimer ?? false;
+  const agreedPocketOTCTerms = config?.frontend.skipPocketOTCDisclaimer ?? false;
 
   // keep URLs normalized to include the selected account.
   useEffect(() => {
@@ -224,11 +218,14 @@ const MarketContent = ({
     navigate(`/market/${vendor}/${activeTab}/${selectedAccount}/${selectedRegion}`);
   };
 
-  const handleChangeRegion = (newValue: SingleValue<TOption>) => {
+  const handleChangeRegion = async (newValue: SingleValue<TOption>) => {
     if (newValue) {
-      const selectedRegion = newValue.value;
-      setSelectedRegion(selectedRegion);
-      setConfig({ frontend: { selectedExchangeRegion: selectedRegion } });
+      try {
+        await setConfig({ frontend: { selectedExchangeRegion: newValue.value } });
+        setSelectedRegion(newValue.value);
+      } catch {
+        alertUser(t('genericError'));
+      }
     }
   };
 
@@ -328,7 +325,7 @@ const MarketContent = ({
           </View>
         </Main>
       </GuidedContent>
-      <MarketGuide translationContext={translationContext} />
+      <MarketGuide translationContext={translationContext} showOTC={activeTab === 'otc'} />
     </GuideWrapper>
   );
 };

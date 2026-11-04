@@ -104,7 +104,7 @@ vi.mock('@/api/swap', async (importOriginal) => {
 });
 vi.mock('@/contexts/ConfigProvider', () => ({
   useConfig: vi.fn(() => ({
-    config: { frontend: {}, backend: {} } as TConfig,
+    config: { frontend: { skipSwapkitDisclaimer: true }, backend: {} } as TConfig,
     setConfig: vi.fn(),
   })),
 }));
@@ -231,7 +231,7 @@ describe('routes/market/swap', () => {
       },
     });
     mockUseConfig.mockReturnValue({
-      config: { frontend: {}, backend: {} } as TConfig,
+      config: { frontend: { skipSwapkitDisclaimer: true }, backend: {} } as TConfig,
       setConfig: vi.fn(),
     });
   });
@@ -273,9 +273,6 @@ describe('routes/market/swap', () => {
         </RatesContext.Provider>
       </BackButtonProvider>
     );
-
-    const agreeButton = await screen.findByTestId('agree-swap-terms');
-    await user.click(agreeButton);
 
     await user.type(await screen.findByLabelText('swapSendAmount'), '1');
 
@@ -343,7 +340,6 @@ describe('routes/market/swap', () => {
       </BackButtonProvider>
     );
 
-    await user.click(await screen.findByTestId('agree-swap-terms'));
     await user.type(await screen.findByLabelText('swapSendAmount'), '1');
 
     expect(await screen.findByText('No route found from ETH to USDC. Try entering a larger amount. Otherwise try again later.')).toBeInTheDocument();
@@ -399,7 +395,6 @@ describe('routes/market/swap', () => {
       </BackButtonProvider>
     );
 
-    await user.click(await screen.findByTestId('agree-swap-terms'));
     await user.type(await screen.findByLabelText('swapSendAmount'), '2');
 
     expect(await screen.findByText('No route found from BTC to ETH. Try entering a larger amount. Otherwise try again later.')).toBeInTheDocument();
@@ -453,7 +448,6 @@ describe('routes/market/swap', () => {
         </BackButtonProvider>
       );
 
-      await user.click(await screen.findByTestId('agree-swap-terms'));
       const sellAmountInput = await screen.findByLabelText('swapSendAmount');
       await user.type(sellAmountInput, '1');
 
@@ -525,7 +519,6 @@ describe('routes/market/swap', () => {
       </BackButtonProvider>
     );
 
-    await user.click(await screen.findByTestId('agree-swap-terms'));
     const sellAmountInput = await screen.findByLabelText('swapSendAmount');
     await user.type(sellAmountInput, '2');
 
@@ -606,7 +599,6 @@ describe('routes/market/swap', () => {
       </BackButtonProvider>
     );
 
-    await user.click(await screen.findByTestId('agree-swap-terms'));
     const amountInput = await screen.findByLabelText('swapSendAmount');
     await user.type(amountInput, '2');
 
@@ -686,8 +678,6 @@ describe('routes/market/swap', () => {
         </RatesContext.Provider>
       </BackButtonProvider>
     );
-
-    await user.click(await screen.findByTestId('agree-swap-terms'));
 
     const sellAmountInput = await screen.findByLabelText('swapSendAmount');
     const swapButton = screen.getByRole('button', { name: 'Swap' });

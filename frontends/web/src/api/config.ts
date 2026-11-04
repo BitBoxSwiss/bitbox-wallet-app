@@ -129,6 +129,6 @@ export const getConfig = (): Promise<TConfig> => apiGet('config');
 /**
  * Post a config object to the backend.
  */
-export const setConfig = (config: TConfig): Promise<void> => {
+export const setConfig = (config: TConfig): Promise<{ success: boolean; errorMessage?: string }> => {
   return apiPost('config', config);
 };

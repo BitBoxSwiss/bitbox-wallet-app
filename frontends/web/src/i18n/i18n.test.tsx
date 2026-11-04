@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { waitFor } from '@testing-library/react';
 
 vi.mock('@/utils/request', () => ({
-  apiPost: vi.fn().mockImplementation(() => Promise.resolve()),
+  apiPost: vi.fn().mockResolvedValue({ success: true }),
   apiGet: vi.fn().mockImplementation((endpoint: string) => {
     if (endpoint === 'config') {
       return Promise.resolve({ backend: { userLanguage: '' }, frontend: {} } as TConfig);

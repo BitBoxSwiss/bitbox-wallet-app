@@ -17,7 +17,6 @@ import { getBitsuranceURL } from '@/api/bitsurance';
 import { convertScriptType } from '@/utils/request-addess';
 import { useVendorIframeActive } from '@/hooks/vendor-iframe-active';
 import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
-import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import {
   getVendorIframeMessageTarget,
   postMessageToVendorIframe,
@@ -41,7 +40,7 @@ export const BitsuranceWidget = () => {
   const accountInfo = accountInfoResponse?.success ? accountInfoResponse.info : undefined;
 
   const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(config?.frontend.skipBitsuranceDisclaimer ?? false);
+  const agreedTerms = config?.frontend.skipBitsuranceDisclaimer ?? false;
   useVendorIframeActive(agreedTerms && !!iframeURL && accountInfoResponse?.success !== false);
   const signingRef = useRef(false);
   const onBack = () => {
@@ -165,9 +164,7 @@ export const BitsuranceWidget = () => {
                 <BackButton enableEsc onClick={onBack}>{t('button.back')}</BackButton>
               </div>
             ) : !agreedTerms ? (
-              <BitsuranceTerms
-                onAgreedTerms={() => setAgreedTerms(true)}
-              />
+              <BitsuranceTerms />
             ) : (
               <div style={{ height }}>
                 {!iframeLoaded && <Spinner text={t('loading')} /> }

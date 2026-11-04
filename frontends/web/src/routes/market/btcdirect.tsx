@@ -22,7 +22,6 @@ import { MarketGuide } from './guide';
 import { alertUser } from '@/components/alert/Alert';
 import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
 import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
-import { useVendorTerms } from '@/hooks/vendor-iframe-terms';
 import {
   getVendorIframeMessageTarget,
   postMessageToVendorIframe,
@@ -64,17 +63,8 @@ export const BTCDirect = ({
 
   const [blocking, setBlocking] = useState(false);
   const account = findAccount(activeAccounts, code);
-  const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad, resetIframeLoaded } = useVendorIframeResizeHeight();
-  const skipDisclaimer = config?.frontend.skipBTCDirectWidgetDisclaimer ?? false;
-  const { agreedTerms, setAgreedTerms } = useVendorTerms(skipDisclaimer);
-  const onBack = (
-    agreedTerms && !skipDisclaimer
-      ? () => {
-        resetIframeLoaded();
-        setAgreedTerms(false);
-      }
-      : undefined
-  );
+  const { containerRef, height, iframeLoaded, iframeRef, onIframeLoad } = useVendorIframeResizeHeight();
+  const agreedTerms = config?.frontend.skipBTCDirectWidgetDisclaimer ?? false;
   useMarketIframeActive(!!account && !!config && agreedTerms && btcdirectInfo?.success === true);
 
   const handlePaymentRequest = useCallback(async (
@@ -239,13 +229,12 @@ export const BTCDirect = ({
       <div className="container">
         <div className="innerContainer">
           <div className={style.header}>
-            <Header variant="navigation" mobileBackButton onBack={onBack} title={title} />
+            <Header variant="navigation" mobileBackButton title={title} />
           </div>
           <div ref={containerRef} className={style.container}>
             { !agreedTerms ? (
               <BTCDirectTerms
                 account={account}
-                onAgreedTerms={() => setAgreedTerms(true)}
               />
             ) : (
               <div style={{ height }}>
@@ -288,7 +277,7 @@ export const BTCDirect = ({
           </div>
         </div>
       </div>
-      <MarketGuide vendor="btcdirect" translationContext={translationContext} />
+      <MarketGuide vendor="btcdirect" translationContext={translationContext} terms={<BTCDirectTerms account={account} readOnly />} />
     </div>
   );
 };
