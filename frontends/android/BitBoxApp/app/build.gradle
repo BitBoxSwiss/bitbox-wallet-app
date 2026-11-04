@@ -17,7 +17,7 @@ android {
         // minSdkVersion should match the `-androidapi` gomobile bind flag
         // in backend/mobileserver/Makefile
         targetSdkVersion 36
-        versionCode 73
+        versionCode 74
         versionName "${appVersion}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
