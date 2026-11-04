@@ -5,10 +5,10 @@ package bitbox02bootloader
 import (
 	"crypto/sha256"
 	"encoding/binary"
-	"encoding/hex"
 	"fmt"
+	"maps"
 	"os"
-	"strings"
+	"slices"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
@@ -17,52 +17,46 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func testHash(t *testing.T, info firmwareInfo, expectedProduct bitbox02common.Product, hashFile string) {
-	t.Helper()
-
-	signedBinary, err := info.signedBinary()
-	require.NoError(t, err)
-	product, _, binary, err := bootloader.ParseSignedFirmware(signedBinary)
-	require.NoError(t, err)
-	require.Equal(t, expectedProduct, product)
-	hash := sha256.Sum256(binary)
-	expectedHash, err := os.ReadFile(hashFile)
-	require.NoError(t, err)
-	require.Equal(t, strings.TrimSpace(string(expectedHash)), hex.EncodeToString(hash[:]), hashFile)
-}
-
+// Every bundled firmware must have the expected product, and the manifest must exactly match the
+// unsigned payload hashes sorted by filename, including formatting and completeness.
 func TestBundledFirmware(t *testing.T) {
-	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02Multi] {
-		t.Run("bitbox02-multi/"+fw.version.String(), func(t *testing.T) {
-			filename := fmt.Sprintf("assets/firmware-bitbox02-multi.v%s.signed.bin.sha256", fw.version)
+	manifest, err := os.ReadFile("assets/unsigned-firmware.sha256")
+	require.NoError(t, err)
+	checksums := map[string][sha256.Size]byte{}
+	prefixes := map[bitbox02common.Product]string{
+		bitbox02common.ProductBitBox02Multi:       "firmware-bitbox02-multi",
+		bitbox02common.ProductBitBox02BTCOnly:     "firmware-bitbox02-btconly",
+		bitbox02common.ProductBitBox02PlusMulti:   "firmware-bitbox02nova-multi",
+		bitbox02common.ProductBitBox02PlusBTCOnly: "firmware-bitbox02nova-btconly",
+	}
+	for expectedProduct, firmwares := range bundledFirmwares {
+		for _, fw := range firmwares {
+			prefix := prefixes[expectedProduct]
+			require.NotEmpty(t, prefix, "unknown product: %s", expectedProduct)
 			if fw.version.String() == "9.17.1" {
-				filename = fmt.Sprintf("assets/firmware.v%s.signed.bin.sha256", fw.version)
+				switch expectedProduct {
+				case bitbox02common.ProductBitBox02Multi:
+					prefix = "firmware"
+				case bitbox02common.ProductBitBox02BTCOnly:
+					prefix = "firmware-btc"
+				}
 			}
-			testHash(t, fw, bitbox02common.ProductBitBox02Multi, filename)
-		})
+			filename := fmt.Sprintf("%s.v%s.bin", prefix, fw.version)
+			t.Run(filename, func(t *testing.T) {
+				signedBinary, err := fw.signedBinary()
+				require.NoError(t, err)
+				product, _, binary, err := bootloader.ParseSignedFirmware(signedBinary)
+				require.NoError(t, err)
+				require.Equal(t, expectedProduct, product)
+				checksums[filename] = sha256.Sum256(binary)
+			})
+		}
 	}
-
-	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02BTCOnly] {
-		t.Run("bitbox02-btconly/"+fw.version.String(), func(t *testing.T) {
-			filename := fmt.Sprintf("assets/firmware-bitbox02-btconly.v%s.signed.bin.sha256", fw.version)
-			if fw.version.String() == "9.17.1" {
-				filename = fmt.Sprintf("assets/firmware-btc.v%s.signed.bin.sha256", fw.version)
-			}
-			testHash(t, fw, bitbox02common.ProductBitBox02BTCOnly, filename)
-		})
+	generatedManifest := ""
+	for _, filename := range slices.Sorted(maps.Keys(checksums)) {
+		generatedManifest += fmt.Sprintf("%x  %s\n", checksums[filename], filename)
 	}
-
-	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02PlusMulti] {
-		t.Run("bitbox02nova-multi/"+fw.version.String(), func(t *testing.T) {
-			testHash(t, fw, bitbox02common.ProductBitBox02PlusMulti, fmt.Sprintf("assets/firmware-bitbox02nova-multi.v%s.signed.bin.sha256", fw.version))
-		})
-	}
-
-	for _, fw := range bundledFirmwares[bitbox02common.ProductBitBox02PlusBTCOnly] {
-		t.Run("bitbox02nova-btconly/"+fw.version.String(), func(t *testing.T) {
-			testHash(t, fw, bitbox02common.ProductBitBox02PlusBTCOnly, fmt.Sprintf("assets/firmware-bitbox02nova-btconly.v%s.signed.bin.sha256", fw.version))
-		})
-	}
+	require.Equal(t, string(manifest), generatedManifest)
 }
 
 func TestMontonicVersions(t *testing.T) {

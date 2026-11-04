@@ -13,7 +13,8 @@ Expected input directory layout:
 
 The input files must be plain .bin files (not gzipped). The script writes:
   - the gzipped binaries (*.bin.gz)
-  - the sha256 of the original .bin (*.bin.sha256)
+  - unsigned-firmware.sha256, containing SHA256 hashes of the unsigned firmware
+    payloads (without the magic prefix or signature data), sorted by unsigned filename
 """
 
 from __future__ import annotations
@@ -21,7 +22,6 @@ from __future__ import annotations
 import argparse
 import gzip
 import hashlib
-import os
 import re
 import struct
 import sys
@@ -53,6 +53,8 @@ FIRMWARE_DATA_LEN = VERSION_LEN + NUM_SIGNING_KEYS * 64
 SIGDATA_LEN = SIGNING_PUBKEYS_DATA_LEN + FIRMWARE_DATA_LEN
 
 MAGIC_BY_VARIANT = {
+    "firmware": MAGIC_BITBOX02_MULTI,
+    "firmware-btc": MAGIC_BITBOX02_BTCONLY,
     "firmware-bitbox02-multi": MAGIC_BITBOX02_MULTI,
     "firmware-bitbox02-btconly": MAGIC_BITBOX02_BTCONLY,
     "firmware-bitbox02nova-multi": MAGIC_BITBOX02NOVA_MULTI,
@@ -73,14 +75,19 @@ def _normalize_version_tag(version: str) -> str:
     return f"v{version_num}"
 
 
+def _is_gzipped(data: bytes) -> bool:
+    return data.startswith(b"\x1f\x8b")
+
+
 def _sha256_firmware_payload(path: Path, *, variant: str) -> str:
     signed_firmware = path.read_bytes()
+    if _is_gzipped(signed_firmware):
+        signed_firmware = gzip.decompress(signed_firmware)
     if len(signed_firmware) < MAGIC_LEN + SIGDATA_LEN:
         raise ValueError(f"signed firmware too small to parse (len={len(signed_firmware)}): {path}")
 
     magic, rest = signed_firmware[:MAGIC_LEN], signed_firmware[MAGIC_LEN:]
-    sigdata, firmware = rest[:SIGDATA_LEN], rest[SIGDATA_LEN:]
-    _ = sigdata
+    firmware = rest[SIGDATA_LEN:]
 
     expected_magic = MAGIC_BY_VARIANT.get(variant)
     if expected_magic is None:
@@ -99,7 +106,7 @@ def _sha256_firmware_payload(path: Path, *, variant: str) -> str:
 def _ensure_not_gzipped(path: Path) -> None:
     with path.open("rb") as f:
         header = f.read(2)
-    if header == b"\x1f\x8b":
+    if _is_gzipped(header):
         raise ValueError(f"input file looks gzipped, expected plain .bin: {path}")
 
 
@@ -139,26 +146,30 @@ def main(argv: list[str]) -> int:
 
     for src_bin in expected_src_bins:
         _ensure_not_gzipped(src_bin)
-    # Validate signed firmware format and magic prefixes before touching the assets folder.
-    for variant, src_bin in expected_src_by_variant.items():
-        _sha256_firmware_payload(src_bin, variant=variant)
-
     # Resolve current bundled firmware files to delete (excluding fixed assets).
-    current_assets_gz: list[Path] = []
-    current_assets_sha: list[Path] = []
-    for variant in VARIANTS:
-        current_assets_gz.append(_find_single(f"{variant}.v*.signed.bin.gz"))
-        current_assets_sha.append(_find_single(f"{variant}.v*.signed.bin.sha256"))
+    planned_deletes = [_find_single(f"{variant}.v*.signed.bin.gz") for variant in VARIANTS]
 
     # Ensure we don't touch the fixed files.
-    for p in current_assets_gz + current_assets_sha:
+    for p in planned_deletes:
         if any(f".v{version}." in p.name for version in FIXED_VERSIONS):
             raise RuntimeError(f"refusing to touch fixed asset: {p}")
 
-    planned_deletes = current_assets_gz + current_assets_sha
     planned_adds: list[tuple[Path, Path]] = []  # (src_bin, dst_gz)
     for src_bin in expected_src_bins:
         planned_adds.append((src_bin, ASSETS_DIR / (src_bin.name + ".gz")))
+
+    # Validate signed firmware format and magic prefixes before touching the assets folder.
+    checksums: dict[str, str] = {}
+    for variant, src_bin in expected_src_by_variant.items():
+        unsigned_name = src_bin.name.removesuffix(".signed.bin") + ".bin"
+        checksums[unsigned_name] = _sha256_firmware_payload(src_bin, variant=variant)
+    retained_assets = [p for p in ASSETS_DIR.glob("*.signed.bin.gz") if p not in planned_deletes]
+    for path in retained_assets:
+        variant = path.name.split(".v", 1)[0]
+        unsigned_name = path.name.removesuffix(".gz").removesuffix(".signed.bin") + ".bin"
+        checksums[unsigned_name] = _sha256_firmware_payload(path, variant=variant)
+    manifest = "".join(f"{checksums[name]}  {name}\n" for name in sorted(checksums))
+    manifest_path = ASSETS_DIR / "unsigned-firmware.sha256"
 
     if args.dry_run:
         print("Would delete:")
@@ -166,24 +177,20 @@ def main(argv: list[str]) -> int:
             print(f"  {p}")
         print("Would add/replace:")
         for src_bin, dst_gz in planned_adds:
-            dst_sha = ASSETS_DIR / (src_bin.name + ".sha256")
             print(f"  {dst_gz}  (from {src_bin})")
-            print(f"  {dst_sha}  (sha256 of {src_bin.name})")
+        print(f"  {manifest_path}  (SHA256 of unsigned firmware payloads):")
+        print(manifest, end="")
         return 0
 
     for p in planned_deletes:
         p.unlink()
 
-    for variant, src_bin in expected_src_by_variant.items():
-        sha256_hex = _sha256_firmware_payload(src_bin, variant=variant)
-
-        dst_gz = ASSETS_DIR / (src_bin.name + ".gz")
+    for src_bin, dst_gz in planned_adds:
         with src_bin.open("rb") as src_f, dst_gz.open("wb") as dst_f:
             with gzip.GzipFile(fileobj=dst_f, mode="wb", compresslevel=9, mtime=0) as gz_f:
                 gz_f.write(src_f.read())
 
-        dst_sha = ASSETS_DIR / (src_bin.name + ".sha256")
-        dst_sha.write_text(sha256_hex + "\n", encoding="utf-8")
+    manifest_path.write_text(manifest, encoding="utf-8")
 
     return 0
 
