@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, useCallback, useState, useEffect, useRef } from 'react';
+import { ChangeEvent, useCallback, useState, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alertUser } from '@/components/alert/Alert';
 import { TGroupedOption, TOption } from '@/components/dropdown/dropdown';
@@ -8,10 +8,8 @@ import { InputWithDropdown } from '@/components/forms/input-with-dropdown';
 import * as accountApi from '@/api/account';
 import { getReceiveAddressList, TAccount } from '@/api/account';
 import type { TLightningContact } from '@/api/lightning';
-import { statusChanged, syncdone } from '@/api/accountsync';
 import { connectKeystore, getKeystoreFeatures } from '@/api/keystores';
-import { unsubscribe } from '@/utils/subscriptions';
-import { TUnsubscribe } from '@/utils/transport-common';
+import { useAccountStatuses } from '@/hooks/account-status';
 import { useMountedRef } from '@/hooks/mount';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
@@ -90,7 +88,8 @@ export const ReceiverAddressWrapper = ({
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [selectedAccount, setSelectedAccount] = useState<TOption<TAccount | null> | null>(null);
   const accountSelectionRequest = useRef(0);
-  const [accountSyncStatus, setAccountSyncStatus] = useState<{ [code: string]: accountApi.TStatus }>({});
+  const accountCodes = useMemo(() => accounts?.map(account => account.code) ?? [], [accounts]);
+  const accountSyncStatus = useAccountStatuses(accountCodes);
 
   const toAccountOption = (account: TAccount): TAccountOption => {
     const accountNumber = getDisplayAccountNumber(account.accountNumber);
@@ -184,34 +183,6 @@ export const ReceiverAddressWrapper = ({
     }
     onAccountChange?.(null);
   }, [onInputChange, onAccountChange, selectedAccount]);
-
-  const checkAccountStatus = useCallback(async (accountCode: accountApi.AccountCode) => {
-    if (!mounted.current) {
-      return;
-    }
-    const status = await accountApi.getStatus(accountCode);
-    if (!mounted.current) {
-      return;
-    }
-    setAccountSyncStatus(prev => ({
-      ...prev,
-      [accountCode]: status
-    }));
-  }, [mounted]);
-
-  useEffect(() => {
-    if (!accounts || accounts.length === 0) {
-      return;
-    }
-
-    const subscriptions: TUnsubscribe[] = [];
-    accounts.forEach(account => {
-      checkAccountStatus(account.code);
-      subscriptions.push(statusChanged(account.code, () => checkAccountStatus(account.code)));
-      subscriptions.push(syncdone(account.code, () => checkAccountStatus(account.code)));
-    });
-    return () => unsubscribe(subscriptions);
-  }, [accounts, checkAccountStatus]);
 
   return (
     <>
