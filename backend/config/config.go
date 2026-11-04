@@ -92,6 +92,10 @@ type Backend struct {
 	// BtcUnit is the unit used to represent Bitcoin amounts. See `coin.BtcUnit` for details.
 	BtcUnit coin.BtcUnit `json:"btcUnit"`
 
+	// LightningDebugLogs enables SDK debug logging instead of warnings.
+	// Changing it requires restarting the app.
+	LightningDebugLogs bool `json:"lightningDebugLogs"`
+
 	// StartInTestnet represents whether the app should launch in testnet on the next start.
 	// It resets to `false` after the app starts.
 	StartInTestnet bool `json:"startInTestnet"`
