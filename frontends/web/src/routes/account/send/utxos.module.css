@@ -22,11 +22,8 @@
     border-bottom: none;
 }
 
-.utxoContent {
-    align-items: flex-start;
-    display: flex;
-    flex-wrap: nowrap;
-    font-size: var(--size-subheader);
+.checkBox > label {
+    margin-bottom: 0;
 }
 
 .note {
@@ -41,6 +38,11 @@
     flex-shrink: 1;
     overflow-x: hidden;
     overflow-y: auto;
+}
+@media (min-width: 769px) {
+    .utxoData {
+        padding-left: calc(var(--size-default) * 1.5);
+    }
 }
 
 .utxoExplorer {
@@ -58,8 +60,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-quarter) var(--space-half);
-    line-height: 1;
-    padding-bottom: var(--space-quarter);
+    line-height: 1.25;
 }
 
 .amount {
@@ -70,6 +71,10 @@
     margin-right: var(--space-quarter);
     max-width: 100%;
     word-break: keep-all;
+}
+
+.grow {
+    flex-grow: 1;
 }
 
 .label,
@@ -86,13 +91,29 @@
     font-size: var(--size-default);
 }
 
+.date {
+    color: var(--color-secondary);
+}
+
 .address,
 .date,
 .transaction {
     display: flex;
     font-size: var(--size-default);
-    line-height: 1.5;
     white-space: nowrap;
+}
+
+.address {
+    gap: 0 var(--space-quarter);
+}
+@media (max-width: 768px) {
+    .address {
+        flex-wrap: wrap;
+    }
+}
+
+.transaction {
+    align-items: baseline;
 }
 
 .shrink {

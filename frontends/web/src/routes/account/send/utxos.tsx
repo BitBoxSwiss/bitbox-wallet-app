@@ -19,7 +19,7 @@ import { Amount } from '@/components/amount/amount';
 import { getScriptName } from '@/routes/account/utils';
 import { Message } from '@/components/message/message';
 import { Badge } from '@/components/badge/badge';
-import { parseTimeShort } from '@/utils/date';
+import { convertDateToLocaleString } from '@/utils/date';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import style from './utxos.module.css';
 
@@ -95,79 +95,37 @@ export const UTXOs = ({
         <h2 className="subTitle">{ getScriptName(scriptType) }</h2>
         <ul className={style.utxosList}>
           { filteredUTXOs.map(utxo => (
-            <li key={'utxo-' + utxo.outPoint} className={style.utxo}>
+            <li
+              key={'utxo-' + utxo.outPoint}
+              className={style.utxo}>
               <Checkbox
                 checked={!!selectedUTXOs[utxo.outPoint]}
                 id={'utxo-' + utxo.outPoint}
+                className={style.checkBox}
                 onChange={event => handleUTXOChange(event, utxo)}>
                 {utxo.note && (
                   <div className={style.note}>
                     <strong>{utxo.note}{' '}</strong>
                   </div>
                 )}
-                <div className={style.utxoContent}>
-                  <div className={style.utxoData}>
-                    <div className={style.amounts}>
-                      <span className={style.amount}>
-                        <Amount alwaysShowAmounts amount={utxo.amount.amount} unit={utxo.amount.unit}/>
-                        {' '}
-                        <span className={style.unit}>
-                          {utxo.amount.unit}
-                        </span>
-                      </span>
-                      <AmountWithUnit alwaysShowAmounts amount={utxo.amount} convertToFiat/>
-                    </div>
-                    <div className={style.date}>
-                      <span className={style.label}>
-                        {t('transaction.details.date')}:
-                      </span>
-                      <span className={style.shrink}>
-                        {utxo.headerTimestamp
-                          ? parseTimeShort(utxo.headerTimestamp, i18n.language)
-                          : t('transaction.status.pending')}
-                      </span>
-                    </div>
-                    <div className={style.address}>
-                      <span className={style.label}>
-                        {t('send.coincontrol.address')}:
-                      </span>
-                      <span className={`${style.shrink || ''} ${style.tabularNums || ''}`}>
-                        {utxo.address}
-                      </span>
-                      <div className="m-left-quarter">
-                        {utxo.addressReused ? (
-                          <>
-                            <Badge type="danger">
-                              {t('send.coincontrol.addressReused')}
-                            </Badge>
-                            {' '}
-                          </>
-                        )
-                          :
-                          null
-                        }
-                        {utxo.isChange ? (
-                          <>
-                            <Badge type="info">
-                              {t('send.coincontrol.change')}
-                            </Badge>
-                            {' '}
-                          </>
-                        )
-                          :
-                          null
-                        }
-                      </div>
-                    </div>
-                    <div className={style.transaction}>
-                      <span className={style.label}>
-                        {t('send.coincontrol.outpoint')}:
-                      </span>
-                      <span className={`${style.shrink || ''} ${style.tabularNums || ''}`}>
-                        {utxo.txId}
-                      </span>:<span className={style.tabularNums}>{utxo.txOutput}</span>
-                    </div>
-                  </div>
+                <div className={style.amounts}>
+                  <span className={style.amount}>
+                    <Amount
+                      alwaysShowAmounts
+                      amount={utxo.amount.amount}
+                      unit={utxo.amount.unit}
+                    />
+                    {' '}
+                    <span className={style.unit}>
+                      {utxo.amount.unit}
+                    </span>
+                  </span>
+                  <AmountWithUnit
+                    alwaysShowAmounts
+                    amount={utxo.amount}
+                    convertToFiat
+                    amountClassName={style.grow}
+                  />
                   <A
                     className={style.utxoExplorer}
                     href={explorerURL + utxo.txId}
@@ -176,6 +134,48 @@ export const UTXOs = ({
                   </A>
                 </div>
               </Checkbox>
+              <div className={style.utxoData}>
+                <div className={style.address}>
+                  <div className={`${style.shrink || ''} ${style.tabularNums || ''}`}>
+                    {utxo.address}
+                  </div>
+                  {(utxo.addressReused || utxo.isChange) && (
+                    <div>
+                      {utxo.addressReused ? (
+                        <>
+                          <Badge type="danger">
+                            {t('send.coincontrol.addressReused')}
+                          </Badge>
+                          {' '}
+                        </>
+                      ) : null }
+                      {utxo.isChange ? (
+                        <>
+                          <Badge type="info">
+                            {t('send.coincontrol.change')}
+                          </Badge>
+                          {' '}
+                        </>
+                      ) : null }
+                    </div>
+                  )}
+                </div>
+                <div className={style.date}>
+                  <small className={style.shrink}>
+                    {utxo.headerTimestamp
+                      ? convertDateToLocaleString(utxo.headerTimestamp, i18n.language)
+                      : t('transaction.status.pending')}
+                  </small>
+                </div>
+                <div className={style.transaction}>
+                  <small className={style.label}>
+                    {t('send.coincontrol.outpoint')}:
+                  </small>
+                  <small className={`${style.shrink || ''} ${style.tabularNums || ''}`}>
+                    {utxo.txId}
+                  </small>:<small className={style.tabularNums}>{utxo.txOutput}</small>
+                </div>
+              </div>
             </li>
           )) }
         </ul>
