@@ -1978,26 +1978,16 @@
     },
     "topUp": {
       "action": "Top up",
-      "available": "Available",
       "claimFeeInfo": "Deducted from your top-up amount. The actual fee may vary with Bitcoin network conditions at claim time.",
-      "confirm": {
-        "amount": "Amount",
-        "continue": "Continue on your BitBox.",
-        "networkFee": "Network fee",
-        "receiver": "Receiver",
-        "title": "Confirm and send transaction",
-        "total": "Total"
-      },
       "estimatedClaimFee": "Estimated claim fee",
-      "from": "From",
       "noBitcoinAccounts": "No Bitcoin accounts active. Please activate a Bitcoin account.",
       "note": "Lightning top-up",
+      "selectAccount": "Select a Bitcoin account",
       "success": {
         "message": "Top up created!",
         "note": "The top-up transaction will appear as pending in the payment list before its first confirmation. It is claimed automatically when confirmations and fees allow. Standard claims require three confirmations; early claims may complete sooner."
       },
-      "title": "Top up Lightning wallet",
-      "to": "To"
+      "title": "Top up Lightning wallet"
     }
   },
   "loading": "loading…",

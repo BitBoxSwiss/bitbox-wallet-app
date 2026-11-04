@@ -7,11 +7,6 @@ import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
-import { SendAbortedResult } from '@/routes/account/send/components/result';
-
-type TTopUpAbortedProps = {
-  onRetry: () => void;
-};
 
 type TTopUpNoBitcoinAccountsProps = {
   hasAccounts: boolean;
@@ -82,16 +77,5 @@ export const TopUpNoBitcoinAccounts = ({ hasAccounts }: TTopUpNoBitcoinAccountsP
         </Main>
       </GuidedContent>
     </GuideWrapper>
-  );
-};
-
-export const TopUpAborted = ({ onRetry }: TTopUpAbortedProps) => {
-  const [, navigate] = useLocation();
-
-  return (
-    <SendAbortedResult
-      onDone={() => navigate('/lightning')}
-      onRetry={onRetry}
-    />
   );
 };

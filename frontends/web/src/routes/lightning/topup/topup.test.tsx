@@ -1,42 +1,40 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import '../../../../__mocks__/i18n';
+import i18n from '../../../../__mocks__/i18n';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { MemoryRouter } from '@/utils/test-helpers';
-import { useLocation } from '@/utils/router-compatability';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Route, Switch } from 'wouter';
+import type { TAccount } from '@/api/account';
 import * as accountApi from '@/api/account';
-import * as coinsApi from '@/api/coins';
+import { syncdone } from '@/api/accountsync';
 import * as keystoresApi from '@/api/keystores';
-import * as lightningApi from '@/api/lightning';
-import { TLightningErrorCode } from '@/api/lightning-errors';
 import { AppStateContext } from '@/contexts/app-state-context';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
-import { ConfigContext } from '@/contexts/ConfigContext';
-import { LocalizationContext } from '@/contexts/localization-context';
-import { RatesContext } from '@/contexts/RatesContext';
+import { BackNavigationProvider } from '@/contexts/BackNavigationContext';
+import { MemoryRouter } from '@/utils/test-helpers';
+import { useLocation, useNavigationType } from '@/utils/router-compatability';
+import { SendWrapper } from '@/routes/account/send/send-wrapper';
+import en from '@/locales/en/app.json';
 import { LightningTopUp } from './topup';
 
 vi.mock('@/i18n/i18n');
-
-vi.mock('@/routes/account/send/feetargets', () => ({
-  FeeTargets: ({
-    onFeeTargetChange,
-  }: {
-    onFeeTargetChange: (feeTarget: accountApi.FeeTargetCode) => void;
+vi.mock('@/api/accountsync', () => ({ syncdone: vi.fn(() => vi.fn()) }));
+vi.mock('@/routes/account/send/send', () => ({
+  Send: ({ account, fixedRecipient, onBack, onDone }: {
+    account: TAccount;
+    fixedRecipient?: 'lightning';
+    onBack?: () => void;
+    onDone?: () => void;
   }) => (
-    <button onClick={() => onFeeTargetChange('economy')}>Set fee target</button>
+    <>
+      <span>{account.name}: {fixedRecipient}</span>
+      <button onClick={onBack}>Send back</button>
+      <button onClick={onDone}>Send done</button>
+    </>
   ),
 }));
 
-vi.mock('@/components/groupedaccountselector/groupedaccountselector', () => ({
-  GroupedAccountSelector: ({ accounts }: { accounts: accountApi.TAccount[] }) => (
-    <span data-testid="btc-accounts">{accounts.map(account => account.code).join(',')}</span>
-  ),
-}));
-
-const account: accountApi.TAccount = {
+const account: TAccount = {
   keystore: {
     watchonly: false,
     rootFingerprint: 'f23ab988',
@@ -51,216 +49,168 @@ const account: accountApi.TAccount = {
   code: 'btc-account',
   name: 'Bitcoin Account',
   isToken: false,
-  blockExplorerTxPrefix: 'https://example.com/tx/',
+  blockExplorerTxPrefix: '',
 };
-
-const amount = (value: string): accountApi.TAmountWithConversions => ({
-  amount: value,
-  unit: 'sat',
-  estimated: false,
-});
-
-const lightningBalance = (marginSat = 150000): lightningApi.TLightningBalance => ({
-  available: amount(String(200000 - marginSat)),
-  fundingLimit: {
-    limitSat: 200000,
-    marginSat,
+const otherAccount = { ...account, code: 'other-btc', name: 'Other Bitcoin' };
+const balanceResult = (hasAvailable: boolean): Awaited<ReturnType<typeof accountApi.getBalance>> => ({
+  success: true,
+  balance: {
+    hasAvailable,
+    hasIncoming: false,
+    available: { amount: hasAvailable ? '0.001' : '0', unit: 'BTC', conversions: {}, estimated: false },
+    incoming: { amount: '0', unit: 'BTC', conversions: {}, estimated: false },
   },
-  hasAvailable: marginSat < 200000,
-  hasIncoming: false,
-  incoming: amount('0'),
 });
 
 const CurrentPath = () => {
-  const { pathname } = useLocation();
-  return <span data-testid="current-path">{pathname}</span>;
+  const { pathname, search } = useLocation();
+  const navigationType = useNavigationType();
+  return <span data-testid="current-path">{pathname}{search} {navigationType}</span>;
 };
 
 const renderTopUp = (activeAccounts = [account], hasAccounts = true) => render(
-  <MemoryRouter initialEntries={['/lightning/topup']}>
+  <MemoryRouter initialEntries={['/lightning', '/lightning/topup']}>
     <BackButtonProvider>
-      <RatesContext.Provider value={{
-        defaultCurrency: 'USD',
-        activeCurrencies: ['USD'],
-        btcUnit: 'sat',
-        rotateDefaultCurrency: vi.fn(),
-        rotateBtcUnit: vi.fn(),
-        addToActiveCurrencies: vi.fn(),
-        updateDefaultCurrency: vi.fn(),
-        removeFromActiveCurrencies: vi.fn(),
-      }}>
-        <AppStateContext.Provider
-          value={{
-            accounts: activeAccounts,
-            activeAccounts: activeAccounts,
-            deviceIDs: [],
-            devices: {},
-            hasAccounts: hasAccounts,
-            hasBottomNavigation: false,
-            hasDevices: false,
-            lightningAccount: undefined,
-            hasLightningAccount: false,
-          }}
-        >
-          <LocalizationContext.Provider value={{ decimal: '.', group: ',' }}>
-            <ConfigContext.Provider value={{ config: undefined, setConfig: vi.fn() }}>
-              <LightningTopUp />
-              <CurrentPath />
-            </ConfigContext.Provider>
-          </LocalizationContext.Provider>
+      <BackNavigationProvider>
+        <AppStateContext.Provider value={{
+          accounts: activeAccounts,
+          activeAccounts,
+          deviceIDs: [],
+          devices: {},
+          hasAccounts,
+          hasBottomNavigation: false,
+          hasDevices: false,
+          lightningAccount: undefined,
+          hasLightningAccount: false,
+        }}>
+          <Switch>
+            <Route path="/lightning/topup" component={LightningTopUp} />
+            <Route path="/account/:code/send" component={SendWrapper} />
+          </Switch>
+          <CurrentPath />
         </AppStateContext.Provider>
-      </RatesContext.Provider>
+      </BackNavigationProvider>
     </BackButtonProvider>
   </MemoryRouter>
 );
 
+const selectAccount = async (name: string) => {
+  fireEvent.mouseDown(await screen.findByRole('combobox'));
+  await waitFor(() => expect(screen.getByRole('option', { name: new RegExp(name) })).toHaveAttribute('aria-disabled', 'false'));
+  fireEvent.click(screen.getByRole('option', { name: new RegExp(name) }));
+  fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+};
+
 describe('LightningTopUp', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    vi.spyOn(lightningApi, 'subscribeLightningBalance').mockReturnValue(vi.fn());
+    vi.mocked(syncdone).mockClear();
+    i18n.addResourceBundle('en', 'translation', en);
+    vi.spyOn(accountApi, 'getBalance').mockResolvedValue(balanceResult(true));
   });
 
-  it('prompts to connect a BitBox without leaving Top up when there are no accounts', async () => {
-    vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(lightningBalance());
-    const connectAnyKeystore = vi.spyOn(keystoresApi, 'connectAnyKeystore').mockResolvedValue({
-      success: false,
-      errorCode: 'userAbort',
-    });
-
+  // No accounts must keep the connect prompt on Top up when connection is cancelled.
+  it('prompts to connect a BitBox when there are no accounts', async () => {
+    const connect = vi.spyOn(keystoresApi, 'connectAnyKeystore').mockResolvedValue({ success: false, errorCode: 'userAbort' });
     renderTopUp([], false);
     fireEvent.click(await screen.findByRole('button', { name: /connect/i }));
-
-    await waitFor(() => expect(connectAnyKeystore).toHaveBeenCalledOnce());
+    await waitFor(() => expect(connect).toHaveBeenCalledOnce());
     expect(screen.getByTestId('current-path')).toHaveTextContent('/lightning/topup');
   });
 
-  it('opens Manage accounts when accounts exist but no Bitcoin account is active', async () => {
-    vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(lightningBalance());
-    const connectAnyKeystore = vi.spyOn(keystoresApi, 'connectAnyKeystore');
-
-    renderTopUp([], true);
-    fireEvent.click(await screen.findByRole('button', { name: /manage/i }));
-
+  // Accounts of other networks or coins must not be offered as a top-up source.
+  it('opens Manage accounts when no active mainnet Bitcoin account exists', () => {
+    renderTopUp([
+      { ...account, active: false },
+      { ...account, code: 'tbtc', coinCode: 'tbtc' },
+      { ...account, code: 'eth', coinCode: 'eth' },
+    ]);
+    fireEvent.click(screen.getByRole('button', { name: /manage/i }));
     expect(screen.getByTestId('current-path')).toHaveTextContent('/settings/manage-accounts');
-    expect(connectAnyKeystore).not.toHaveBeenCalled();
   });
 
-  it('shows every Bitcoin account without loading its balance', async () => {
-    const emptyAccount: accountApi.TAccount = {
-      ...account,
-      code: 'empty-btc-account',
-      name: 'Empty Bitcoin Account',
-      keystore: {
-        ...account.keystore,
-        connected: false,
-      },
-    };
-    const getBalance = vi.spyOn(accountApi, 'getBalance').mockResolvedValue({
-      success: true,
-      balance: lightningBalance(200000),
-    });
-    vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(lightningBalance());
-
-    renderTopUp([account, emptyAccount]);
-
-    expect(await screen.findByTestId('btc-accounts')).toHaveTextContent('btc-account,empty-btc-account');
-    expect(getBalance).not.toHaveBeenCalled();
+  // Replacing the skipped picker prevents Back from redirecting into Send again.
+  it('skips a single account and returns directly to Lightning', async () => {
+    renderTopUp();
+    expect(await screen.findByText('Bitcoin Account: lightning')).toBeVisible();
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/account/btc-account/send?recipient=lightning REPLACE');
+    fireEvent.click(screen.getByRole('button', { name: 'Send back' }));
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/lightning REPLACE');
   });
 
-  it.each([
-    { name: 'estimated claim fee', estimatedClaimFee: { ...amount('1188'), conversions: { USD: '0.75' } } },
-    { name: 'unavailable claim fee', estimatedClaimFee: null },
-  ])('shows $name before entering review and completes the send', async ({ estimatedClaimFee }) => {
-    vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(lightningBalance());
-    vi.spyOn(coinsApi, 'convertToCurrency').mockResolvedValue({ success: true, fiatAmount: '100' });
-    vi.spyOn(keystoresApi, 'connectKeystore').mockResolvedValue({ success: true });
-    const prepareTopUp = vi.spyOn(lightningApi, 'postPrepareTopUp').mockResolvedValue({
-      success: true,
-      amount: amount('100000'),
-      estimatedClaimFee,
-      fee: amount('100'),
-      total: amount('100100'),
-      recipientDisplayAddress: 'bc1q boarding',
-    });
-    let completeSend: (value: Awaited<ReturnType<typeof accountApi.sendTx>>) => void = () => {};
-    const sendTx = vi.spyOn(accountApi, 'sendTx').mockReturnValue(new Promise((resolve) => {
-      completeSend = resolve;
+  // Selection stays explicit and includes funded disconnected accounts.
+  it('selects a source, returns to the picker, and can choose another source', async () => {
+    renderTopUp([account, { ...otherAccount, keystore: { ...account.keystore, connected: false } }]);
+    expect(await screen.findByRole('button', { name: 'Next' })).toBeDisabled();
+    await selectAccount('Other Bitcoin');
+    expect(await screen.findByText('Other Bitcoin: lightning')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Send back' }));
+    await selectAccount('Bitcoin Account');
+    expect(await screen.findByText('Bitcoin Account: lightning')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Send done' }));
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/lightning PUSH');
+  });
+
+  // The single-account shortcut must wait for a funded balance and react when an empty account receives coins.
+  it('keeps a single empty account blocked until funds become available', async () => {
+    let resolve!: (result: Awaited<ReturnType<typeof accountApi.getBalance>>) => void;
+    vi.mocked(accountApi.getBalance).mockReturnValueOnce(new Promise(done => {
+      resolve = done;
     }));
-
     renderTopUp();
+    expect(await screen.findByRole('button', { name: 'Next' })).toBeDisabled();
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/lightning/topup');
+    await act(async () => resolve(balanceResult(false)));
+    fireEvent.mouseDown(screen.getByRole('combobox'));
+    expect(screen.getByRole('option', { name: /Bitcoin Account/ })).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(screen.getByRole('option', { name: /Bitcoin Account/ }));
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    expect(accountApi.getBalance).toHaveBeenCalledTimes(1);
 
-    expect(screen.queryByText('Estimated claim fee')).not.toBeInTheDocument();
-    fireEvent.input(await screen.findByLabelText('sat'), { target: { value: '100000' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Set fee target' }));
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Review' })).toBeEnabled(), {
-      timeout: 2000,
+    await act(async () => {
+      vi.mocked(syncdone).mock.calls.find(([code]) => code === account.code)?.[1]();
     });
-
-    expect(prepareTopUp).toHaveBeenLastCalledWith({
-      amount: '100000',
-      customFee: '',
-      feeTarget: 'economy',
-      sourceAccountCode: 'btc-account',
-    });
-    expect(sendTx).not.toHaveBeenCalled();
-    expect(screen.getByText('Estimated claim fee')).toBeVisible();
-    expect(screen.getByText(
-      'Deducted from your top-up amount. The actual fee may vary with Bitcoin network conditions at claim time.'
-    )).toBeVisible();
-    expect(screen.getAllByTestId('amountBlocks').map(element => element.textContent)).toEqual(
-      estimatedClaimFee ? ['50000', '1188'] : ['50000']
-    );
-    if (estimatedClaimFee) {
-      expect(screen.getByText('0.75')).toBeVisible();
-      expect(screen.queryByText(/Unavailable/)).not.toBeInTheDocument();
-    } else {
-      expect(screen.getByText(/Unavailable/)).toBeVisible();
-    }
-    fireEvent.click(screen.getByRole('button', { name: 'Review' }));
-
-    await waitFor(() => expect(sendTx).toHaveBeenCalledWith('btc-account', 'Lightning top-up'));
-    expect(screen.getAllByTestId('amountBlocks').map(element => element.textContent)).toEqual(
-      ['100000', '100', '100100']
-    );
-    await act(async () => completeSend({ success: true, txId: 'tx-id' }));
-    expect(await screen.findByText('Top up created!')).toBeVisible();
+    expect(await screen.findByText('Bitcoin Account: lightning')).toBeVisible();
+    expect(accountApi.getBalance).toHaveBeenCalledTimes(2);
   });
 
-  it('shows the funding-limit error returned by the prepare endpoint', async () => {
-    vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(lightningBalance());
-    vi.spyOn(lightningApi, 'postPrepareTopUp').mockResolvedValue({
-      success: false,
-      errorCode: 'lightningBalanceLimitExceeded',
-      fundingLimit: {
-        limitSat: 200000,
-        marginSat: 50000,
-      },
+  // Empty and unavailable balances stay disabled without blocking funded accounts or hiding the empty row.
+  it.each(['response', 'rejection'])('disables empty accounts and failed balance %s while keeping funded accounts selectable', async failure => {
+    const unavailable = { ...account, code: 'unavailable', name: 'Unavailable account' };
+    vi.mocked(accountApi.getBalance).mockImplementation(async code => {
+      if (code === unavailable.code) {
+        if (failure === 'rejection') {
+          throw new Error('Balance unavailable');
+        }
+        return { success: false };
+      }
+      return balanceResult(code === account.code);
     });
-    vi.spyOn(coinsApi, 'convertToCurrency').mockResolvedValue({ success: true, fiatAmount: '100' });
-    renderTopUp();
-
-    fireEvent.input(await screen.findByLabelText('sat'), { target: { value: '100000' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Set fee target' }));
-
-    expect(await screen.findByText(/Maximum top-up amount/)).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
+    renderTopUp([account, otherAccount, unavailable]);
+    fireEvent.mouseDown(await screen.findByRole('combobox'));
+    await waitFor(() => expect(screen.getByRole('option', { name: /Bitcoin Account/ })).toHaveAttribute('aria-disabled', 'false'));
+    expect(screen.getByRole('option', { name: /Other Bitcoin/ })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('option', { name: /Unavailable account/ })).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(screen.getByRole('option', { name: /Other Bitcoin/ }));
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('option', { name: /Bitcoin Account/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(await screen.findByText('Bitcoin Account: lightning')).toBeVisible();
   });
 
-  it('shows the minimum-amount error returned by the prepare endpoint', async () => {
-    vi.spyOn(lightningApi, 'getLightningBalance').mockResolvedValue(lightningBalance());
-    vi.spyOn(lightningApi, 'postPrepareTopUp').mockResolvedValue({
-      success: false,
-      errorCode: TLightningErrorCode.AMOUNT_BELOW_MINIMUM,
-      minAmountSat: 1000,
+  // Refreshing a selected account to empty must also disable Next, not just the dropdown row.
+  it('blocks proceeding when the selected account loses its available balance', async () => {
+    renderTopUp([account, otherAccount]);
+    fireEvent.mouseDown(await screen.findByRole('combobox'));
+    await waitFor(() => expect(screen.getByRole('option', { name: /Bitcoin Account/ })).toHaveAttribute('aria-disabled', 'false'));
+    fireEvent.click(screen.getByRole('option', { name: /Bitcoin Account/ }));
+    expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
+    vi.mocked(accountApi.getBalance).mockResolvedValue(balanceResult(false));
+    await act(async () => {
+      vi.mocked(syncdone).mock.calls.find(([code]) => code === account.code)?.[1]();
     });
-    vi.spyOn(coinsApi, 'convertToCurrency').mockResolvedValue({ success: true, fiatAmount: '0.01' });
-    renderTopUp();
-
-    fireEvent.input(await screen.findByLabelText('sat'), { target: { value: '100000' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Set fee target' }));
-
-    expect(await screen.findByLabelText('sat: The amount must be at least 1000 sats.')).toBeVisible();
-    expect(screen.getByLabelText('USD')).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/lightning/topup');
   });
 });

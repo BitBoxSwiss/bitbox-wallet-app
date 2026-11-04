@@ -22,9 +22,16 @@ import { getAccountsByKeystore, getDisplayAccountNumber, isAmbiguousName } from 
 import receiverStyles from './receiver-address-input.module.css';
 import styles from './receiver-address-wrapper.module.css';
 
-type TAccountOption = TOption<TAccount | null> & { disabled?: boolean };
-type TRecipientOption = TOption<TAccount | TLightningContact | null> & { disabled?: boolean };
-type TRecipientGroup = TGroupedOption<TAccount | TLightningContact | null, { connected: boolean; section?: string }>;
+type TRecipient = TAccount | 'lightning' | null;
+type TAccountOption = TOption<TRecipient> & { disabled?: boolean };
+type TRecipientOption = TOption<TRecipient | TLightningContact> & { disabled?: boolean };
+type TRecipientGroup = TGroupedOption<TRecipient | TLightningContact, { connected: boolean; section?: string }>;
+
+export type TLightningRecipientOption = {
+  ready: boolean;
+  selected: boolean;
+  onSelect: () => void;
+};
 
 type Props = {
   option: TRecipientOption;
@@ -40,6 +47,7 @@ type TReceiverAddressWrapperProps = {
   groupAccountsByKeystore?: boolean;
   inputLabel?: string;
   inputPlaceholder?: string;
+  lightningOption?: TLightningRecipientOption;
   onInputChange: (value: string) => void;
   onAccountChange?: (account: TAccount | null) => void;
   recipientAddress: string;
@@ -54,12 +62,18 @@ const AccountOption = ({ option, isSelectedValue }: Props) => {
 
   return (
     <div className={`${styles.accountOption || ''}`}>
-      {'address' in option.value ? (
+      {option.value !== 'lightning' && 'address' in option.value ? (
         <>
           <ContactDark aria-hidden alt="" className={`show-in-lightmode ${styles.coinLogo || ''}`} />
           <ContactLight aria-hidden alt="" className={`show-in-darkmode ${styles.coinLogo || ''}`} />
         </>
-      ) : <Logo coinCode={option.value.coinCode} alt={option.value.coinName} className={styles.coinLogo} />}
+      ) : (
+        <Logo
+          coinCode={option.value === 'lightning' ? 'lightning' : option.value.coinCode}
+          alt={option.value === 'lightning' ? option.label : option.value.coinName}
+          className={styles.coinLogo}
+        />
+      )}
       <span className={isSelectedValue ? styles.accountName : ''}>
         {option.label}
       </span>
@@ -78,6 +92,7 @@ export const ReceiverAddressWrapper = ({
   groupAccountsByKeystore = false,
   inputLabel,
   inputPlaceholder,
+  lightningOption,
   onInputChange,
   onAccountChange,
   recipientAddress,
@@ -103,13 +118,22 @@ export const ReceiverAddressWrapper = ({
   };
   const flatAccountOptions = accounts?.map(toAccountOption) ?? [];
   const accountsByKeystore = getAccountsByKeystore(accounts ?? []);
-  const groupedAccountOptions: TGroupedOption<TAccount | null, { connected: boolean }>[] = accountsByKeystore.map(({ keystore, accounts }) => ({
+  const groupedAccountOptions: TGroupedOption<TRecipient, { connected: boolean }>[] = accountsByKeystore.map(({ keystore, accounts }) => ({
     connected: keystore.connected,
     label: isAmbiguousName(keystore.name, accountsByKeystore)
       ? `${keystore.name} (${keystore.rootFingerprint})`
       : keystore.name,
     options: accounts.map(toAccountOption),
   }));
+  const lightningAccountOption: TAccountOption = {
+    label: t('lightning.accountLabel'),
+    value: 'lightning',
+    disabled: !lightningOption?.ready,
+  };
+  if (lightningOption) {
+    flatAccountOptions.unshift(lightningAccountOption);
+    groupedAccountOptions.unshift({ label: lightningAccountOption.label, connected: false, options: [lightningAccountOption] });
+  }
   const recipientGroups: TRecipientGroup[] = groupedAccountOptions.map((group, index) => ({
     ...group,
     section: index === 0 ? t('lightning.contacts.myAccounts') : undefined,
@@ -148,13 +172,20 @@ export const ReceiverAddressWrapper = ({
     if (selectedOption.value === null || selectedOption.disabled) {
       return;
     }
-    const selectedAccountValue = selectedOption.value;
     const request = ++accountSelectionRequest.current;
+    if (selectedOption.value === 'lightning') {
+      setSelectedAccount(null);
+      lightningOption?.onSelect();
+      return;
+    }
+    const selectedAccountValue = selectedOption.value;
 
     const supported = await checkFirmwareSupport(selectedAccountValue);
     if (!supported || !mounted.current || request !== accountSelectionRequest.current) {
       return;
     }
+    onInputChange('');
+    setSelectedAccount({ label: selectedOption.label, value: selectedAccountValue });
     try {
       const result = await getReceiveAddressList(selectedAccountValue.code)();
       if (!mounted.current || request !== accountSelectionRequest.current) {
@@ -166,7 +197,6 @@ export const ReceiverAddressWrapper = ({
       }
       const receiveAddresses = result.addresses;
       if (receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 0) {
-        setSelectedAccount(selectedOption);
         const address = receiveAddresses[0].addresses[0].address;
         onInputChange(address);
         onAccountChange?.(selectedAccountValue);
@@ -174,16 +204,16 @@ export const ReceiverAddressWrapper = ({
     } catch (e) {
       console.error(e);
     }
-  }, [onInputChange, onAccountChange, checkFirmwareSupport, mounted]);
+  }, [onInputChange, onAccountChange, checkFirmwareSupport, mounted, lightningOption]);
 
   const handleReset = useCallback(() => {
     accountSelectionRequest.current++;
     setSelectedAccount(null);
-    if (selectedAccount !== null) {
+    if (selectedAccount !== null || lightningOption?.selected) {
       onInputChange('');
     }
     onAccountChange?.(null);
-  }, [onInputChange, onAccountChange, selectedAccount]);
+  }, [onInputChange, onAccountChange, selectedAccount, lightningOption?.selected]);
 
   const checkAccountStatus = useCallback(async (accountCode: accountApi.AccountCode) => {
     if (!mounted.current) {
@@ -227,14 +257,14 @@ export const ReceiverAddressWrapper = ({
           onInputChange(e.target.value);
         }}
         value={recipientAddress}
-        readOnly={selectedAccount !== null}
+        readOnly={lightningOption?.selected || selectedAccount !== null}
         autoFocus={autoFocus ?? !isMobile}
         dropdownOptions={accountOptions}
-        dropdownValue={selectedAccount}
+        dropdownValue={lightningOption?.selected ? lightningAccountOption : selectedAccount}
         onDropdownChange={(selected) => {
           const option = selected as TRecipientOption;
           if (option.value && !option.disabled) {
-            if ('address' in option.value) {
+            if (option.value !== 'lightning' && 'address' in option.value) {
               accountSelectionRequest.current++;
               setSelectedAccount(null);
               onInputChange(option.value.address);
@@ -249,14 +279,14 @@ export const ReceiverAddressWrapper = ({
         renderGroupHeader={contacts !== undefined ? (group: TRecipientGroup) => (
           <div className={styles.groupHeader}>
             {group.section && <p className={styles.sectionTitle}>{group.section}</p>}
-            {group.options.some(option => option.value && 'address' in option.value)
+            {group.options.some(option => option.value && option.value !== 'lightning' && 'address' in option.value)
               ? <span>{group.label}</span>
               : renderKeystoreGroupHeader(group)}
           </div>
         ) : groupAccountsByKeystore ? renderKeystoreGroupHeader : undefined}
         renderOptions={(e, isSelectedValue) => <AccountOption option={e} isSelectedValue={isSelectedValue} />}
         isOptionDisabled={(option) => (option as TAccountOption).disabled || false}
-        labelSection={selectedAccount ? (
+        labelSection={selectedAccount || lightningOption?.selected ? (
           <span role="button" id="sendToSelf" className={receiverStyles.action} onClick={handleReset}>
             {t('generic.reset')}
           </span>
