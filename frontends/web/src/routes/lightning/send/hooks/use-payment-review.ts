@@ -118,6 +118,7 @@ export const usePaymentReview = ({
         type: TPaymentInputType.BOLT11,
         paymentInput: paymentDetails.details.invoice,
         amountSat,
+        idempotencyKey: existingIdempotencyKey,
       };
       break;
     case TPaymentInputType.LNURL_PAY:
@@ -225,11 +226,15 @@ export const usePaymentReview = ({
             idempotencyKey: fees.idempotencyKey,
           };
         case TPaymentInputType.BOLT11:
+          if (fees.idempotencyKey === undefined) {
+            throw new TSdkError('idempotency key missing', TLightningErrorCode.INVALID_PAYMENT_INPUT);
+          }
           return {
             type: TPaymentInputType.BOLT11,
             paymentInput: paymentDetails.details.invoice,
             amountSat: paymentDetails.details.amountSat === undefined ? amountSat : undefined,
             approvedFeeSat: fees.feeSat,
+            idempotencyKey: fees.idempotencyKey,
           };
         case TPaymentInputType.LNURL_PAY:
           if (fees.idempotencyKey === undefined) {
@@ -257,7 +262,10 @@ export const usePaymentReview = ({
       setIsSending(false);
       const errorMessage = toLightningErrorMessage(t, error);
 
-      if (error instanceof TSdkError && error.code === TLightningErrorCode.INVOICE_ALREADY_USED) {
+      if (error instanceof TSdkError && (
+        error.code === TLightningErrorCode.INVOICE_ALREADY_USED
+        || error.code === TLightningErrorCode.PAYMENT_FAILED
+      )) {
         backToPaymentInput(errorMessage);
         return;
       }

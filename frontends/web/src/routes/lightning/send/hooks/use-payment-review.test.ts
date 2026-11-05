@@ -46,12 +46,12 @@ const sendRequest = {
   idempotencyKey,
 };
 
-const renderPaymentReview = () => {
+const renderPaymentReview = (details: TPaymentReviewDetails = paymentDetails) => {
   const backToPaymentInput = vi.fn();
   const onSendingChange = vi.fn();
   const onSuccess = vi.fn();
   return renderHook(() => usePaymentReview({
-    paymentDetails,
+    paymentDetails: details,
     backToPaymentInput,
     onSendingChange,
     onSuccess,
@@ -63,30 +63,61 @@ const enterAmount = async (result: ReturnType<typeof renderPaymentReview>['resul
   await waitFor(() => expect(result.current.preparedPayment?.status).toBe('ready'));
 };
 
-describe('usePaymentReview LNURL idempotency', () => {
+const idempotencyCases: {
+  name: string;
+  paymentDetails: TPaymentReviewDetails;
+  sendRequest: lightningApi.TSendPaymentRequest;
+  needsCustomAmount: boolean;
+}[] = [
+  { name: 'LNURL', paymentDetails, sendRequest, needsCustomAmount: true },
+  {
+    name: 'fixed BOLT11',
+    paymentDetails: { type: lightningApi.TPaymentInputType.BOLT11, details: { invoice: 'lnbc1invoice', amountSat: 100 } },
+    sendRequest: { ...sendRequest, type: lightningApi.TPaymentInputType.BOLT11, paymentInput: 'lnbc1invoice', amountSat: undefined },
+    needsCustomAmount: false,
+  },
+  {
+    name: 'amountless BOLT11',
+    paymentDetails: { type: lightningApi.TPaymentInputType.BOLT11, details: { invoice: 'lnbc1amountless' } },
+    sendRequest: { ...sendRequest, type: lightningApi.TPaymentInputType.BOLT11, paymentInput: 'lnbc1amountless' },
+    needsCustomAmount: true,
+  },
+];
+
+describe.each(idempotencyCases)('usePaymentReview $name idempotency', ({ paymentDetails, sendRequest, needsCustomAmount }) => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
+  const prepareReview = async () => {
+    const hook = renderPaymentReview(paymentDetails);
+    if (needsCustomAmount) {
+      await enterAmount(hook.result);
+    } else {
+      await waitFor(() => expect(hook.result.current.canSend).toBe(true));
+    }
+    return hook;
+  };
+
+  // Every payment sends the backend-generated key associated with its approved quote.
   it('sends the idempotency key returned by prepare', async () => {
     vi.mocked(lightningApi.postPreparePayment).mockResolvedValue(preparedPayment(idempotencyKey));
     vi.mocked(lightningApi.postSendPayment).mockResolvedValue();
-    const { result } = renderPaymentReview();
+    const { result } = await prepareReview();
 
-    await enterAmount(result);
     await act(async () => result.current.sendPayment());
 
     expect(lightningApi.postSendPayment).toHaveBeenCalledWith(sendRequest);
   });
 
+  // A live retry after a lost response must reuse the transfer identity from the first attempt.
   it('reuses the same idempotency key after an ambiguous send error', async () => {
     vi.mocked(lightningApi.postPreparePayment).mockResolvedValue(preparedPayment(idempotencyKey));
     vi.mocked(lightningApi.postSendPayment)
       .mockRejectedValueOnce(new Error('response lost'))
       .mockResolvedValueOnce();
-    const { result } = renderPaymentReview();
+    const { result } = await prepareReview();
 
-    await enterAmount(result);
     await act(async () => result.current.sendPayment());
     await act(async () => result.current.sendPayment());
 
@@ -95,23 +126,37 @@ describe('usePaymentReview LNURL idempotency', () => {
     expect(lightningApi.postSendPayment).toHaveBeenNthCalledWith(2, sendRequest);
   });
 
+  // Fee reapproval keeps the same identity and uses it again when the user sends.
   it('reuses the same idempotency key when the fee must be prepared again', async () => {
     vi.mocked(lightningApi.postPreparePayment).mockResolvedValue(preparedPayment(idempotencyKey));
-    vi.mocked(lightningApi.postSendPayment).mockRejectedValue(new TSdkError(
+    vi.mocked(lightningApi.postSendPayment).mockRejectedValueOnce(new TSdkError(
       'fee changed',
       TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED,
-    ));
-    const { result } = renderPaymentReview();
+    )).mockResolvedValueOnce();
+    const { result } = await prepareReview();
 
-    await enterAmount(result);
+    vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({ ...preparedPayment(idempotencyKey), feeSat: 3, totalDebitSat: 103 });
     await act(async () => result.current.sendPayment());
 
     expect(lightningApi.postPreparePayment).toHaveBeenLastCalledWith({
-      type: lightningApi.TPaymentInputType.LNURL_PAY,
-      paymentInput: 'alice@example.com',
-      amountSat: 100,
+      type: sendRequest.type,
+      paymentInput: sendRequest.paymentInput,
+      amountSat: sendRequest.amountSat,
       idempotencyKey,
     });
+    await act(async () => result.current.sendPayment());
+    expect(lightningApi.postSendPayment).toHaveBeenLastCalledWith({ ...sendRequest, approvedFeeSat: 3 });
+  });
+
+  // An incomplete quote cannot fall back to an SDK-generated identity at send time.
+  it('refuses to send when prepare omitted the idempotency key', async () => {
+    vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({ amountSat: 100, feeSat: 2, totalDebitSat: 102 });
+    const { result } = await prepareReview();
+
+    await act(async () => result.current.sendPayment());
+
+    expect(lightningApi.postSendPayment).not.toHaveBeenCalled();
+    expect(result.current.sendError).toBeDefined();
   });
 });
 
@@ -124,6 +169,7 @@ const sendAllDestinations: TPaymentReviewDetails[] = [
 describe('usePaymentReview send all', () => {
   beforeEach(() => vi.resetAllMocks());
 
+  // Send-all payments carry the reviewed debit and the same backend-generated transfer identity.
   it.each(sendAllDestinations)('sends the reviewed debit for $type', async (paymentDetails) => {
     vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({
       amountSat: 998, feeSat: 2, totalDebitSat: 1_000, idempotencyKey,
@@ -139,28 +185,29 @@ describe('usePaymentReview send all', () => {
     }));
     await act(async () => result.current.sendPayment());
     expect(lightningApi.postSendPayment).toHaveBeenCalledWith(expect.objectContaining({
-      type: paymentDetails.type, sendAll: true, amountSat: 1_000, approvedFeeSat: 2,
+      type: paymentDetails.type, sendAll: true, amountSat: 1_000, approvedFeeSat: 2, idempotencyKey,
     }));
   });
 
-  it('preserves the debit and idempotency key when approving higher fees', async () => {
+  // Fee changes on send-all retain the approved debit and key for every payment method.
+  it.each(sendAllDestinations)('preserves the debit and idempotency key when approving higher fees for $type', async (paymentDetails) => {
     vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({
       amountSat: 998, feeSat: 2, totalDebitSat: 1_000, idempotencyKey,
     });
     vi.mocked(lightningApi.postSendPayment).mockRejectedValue(new TSdkError(
       'fee changed', TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED,
     ));
-    const { result } = renderPaymentReview();
+    const { result } = renderPaymentReview(paymentDetails);
     act(() => result.current.setSendAll(true));
     await waitFor(() => expect(result.current.canSend).toBe(true));
     vi.mocked(lightningApi.postPreparePayment).mockResolvedValue({
       amountSat: 997, feeSat: 3, totalDebitSat: 1_000, idempotencyKey,
     });
     await act(async () => result.current.sendPayment());
-    expect(lightningApi.postPreparePayment).toHaveBeenLastCalledWith({
-      type: lightningApi.TPaymentInputType.LNURL_PAY, paymentInput: 'alice@example.com',
+    expect(lightningApi.postPreparePayment).toHaveBeenLastCalledWith(expect.objectContaining({
+      type: paymentDetails.type,
       sendAll: true, amountSat: 1_000, idempotencyKey,
-    });
+    }));
     expect(result.current.fees?.amountSat).toBe(997);
     expect(result.current.canSend).toBe(true);
   });

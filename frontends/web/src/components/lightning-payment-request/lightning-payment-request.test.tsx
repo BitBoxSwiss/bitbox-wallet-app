@@ -168,6 +168,7 @@ describe('Lightning payment request overlay', () => {
     vi.mocked(lightningApi.getParsePaymentInput).mockReset().mockImplementation(async ({ s }) => invoice(s));
     vi.mocked(lightningApi.postPreparePayment).mockReset().mockResolvedValue({
       amountSat: 100, feeSat: 1, totalDebitSat: 101,
+      idempotencyKey: '00000000-0000-4000-8000-000000000001',
     });
     vi.mocked(lightningApi.postSendPayment).mockReset();
   });
@@ -313,22 +314,24 @@ describe('Lightning payment request overlay', () => {
     expect(lightningApi.postSendPayment).toHaveBeenCalledTimes(1);
   });
 
-  // A terminal send error unmounts the review and must release its dismissal lock.
-  it('allows dismissal after the backend rejects an already-used invoice', async () => {
+  // Already-used invoices and confirmed payment failures unmount the review and release its dismissal lock.
+  it.each([TLightningErrorCode.INVOICE_ALREADY_USED, TLightningErrorCode.PAYMENT_FAILED])('allows dismissal after %s', async code => {
     vi.mocked(lightningApi.postSendPayment).mockRejectedValue(
-      new TSdkError('already paid', TLightningErrorCode.INVOICE_ALREADY_USED),
+      new TSdkError('payment rejected', code),
     );
     renderApp();
     deliver(1, 'first');
     fireEvent.click(await review());
-    await screen.findByText('error.lightningInvoiceAlreadyUsed');
+    await screen.findByText(`error.${code}`);
     back();
-    expect(screen.queryByText('error.lightningInvoiceAlreadyUsed')).not.toBeInTheDocument();
+    expect(screen.queryByText(`error.${code}`)).not.toBeInTheDocument();
     expect(screen.getByTestId('location')).toHaveTextContent('/account-summary');
   });
 
-  // Ambiguous send errors retain the same payment and idempotency key, even with a newer URI waiting.
+  // Ambiguous BOLT11, LNURL, and Bitcoin send errors retain the same payment and idempotency key,
+  // even with a newer URI waiting.
   it.each<lightningApi.TPaymentInput>([
+    { type: TPaymentInputType.BOLT11, invoice: { invoice: 'lnbc1invoice', amountSat: 100 } },
     { type: TPaymentInputType.LNURL_PAY, lnurlPay: { input: 'alice@example.com', domain: 'example.com', minAmountSat: 1, maxAmountSat: 1000 } },
     { type: TPaymentInputType.BITCOIN_ADDRESS, bitcoinAddress: { address: 'bc1qrecipient', amountSat: 100 } },
   ])('preserves $type retries while another request is pending', async paymentInput => {

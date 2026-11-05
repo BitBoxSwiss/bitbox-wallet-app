@@ -965,6 +965,7 @@
     "lightningInvalidAmount": "Invalid amount.",
     "lightningInvalidPaymentInput": "Invalid invoice or payment request.",
     "lightningInvoiceAlreadyUsed": "This Lightning invoice was already used. Please request a new invoice.",
+    "lightningPaymentFailed": "Lightning payment failed. Please review the payment before trying again.",
     "lightningPaymentPreparationFailed": "Could not prepare payment. Please try again.",
     "lightningTopUpClaimFailed": "Please try claiming the top-up again.",
     "lightningTopUpRefundFailed": "Please try refunding the top-up again.",

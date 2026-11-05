@@ -8,6 +8,7 @@ import { useLocation } from '@/utils/router-compatability';
 import { MemoryRouter } from '@/utils/test-helpers';
 import { TPaymentInputType } from '@/api/lightning';
 import * as lightningApi from '@/api/lightning';
+import { TLightningErrorCode, TSdkError } from '@/api/lightning-errors';
 import { AppStateContext } from '@/contexts/app-state-context';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { Send } from './send';
@@ -47,9 +48,16 @@ vi.mock('../guide', () => ({
 vi.mock('./components/select-payment-input-step', () => ({
   SelectPaymentInputStep: ({
     onSubmit,
+    inputError,
   }: {
     onSubmit: (input: string) => Promise<boolean>;
-  }) => <button onClick={() => onSubmit('lnbc1invoice')}>review payment</button>,
+    inputError?: string;
+  }) => (
+    <>
+      {inputError && <span>{inputError}</span>}
+      <button onClick={() => onSubmit('lnbc1invoice')}>review payment</button>
+    </>
+  ),
 }));
 
 vi.mock('./components/custom-payment-amount', async () => {
@@ -147,6 +155,7 @@ describe('Lightning Send', () => {
       amountSat: 100,
       feeSat: 1,
       totalDebitSat: 101,
+      idempotencyKey: '00000000-0000-4000-8000-000000000001',
     });
   });
 
@@ -220,6 +229,37 @@ describe('Lightning Send', () => {
       resolvePayment();
     });
     expect(await screen.findByText('payment sent')).toBeInTheDocument();
+  });
+
+  // A confirmed BOLT11 failure ends the review; only a new explicit review can use a fresh key.
+  it('starts a fresh reviewed attempt after a confirmed BOLT11 failure', async () => {
+    const originalKey = '00000000-0000-4000-8000-000000000001';
+    const newKey = '00000000-0000-4000-8000-000000000002';
+    vi.mocked(lightningApi.postPreparePayment)
+      .mockResolvedValueOnce({ amountSat: 100, feeSat: 1, totalDebitSat: 101, idempotencyKey: originalKey })
+      .mockResolvedValueOnce({ amountSat: 100, feeSat: 1, totalDebitSat: 101, idempotencyKey: newKey });
+    vi.mocked(lightningApi.postSendPayment)
+      .mockRejectedValueOnce(new TSdkError('payment failed', TLightningErrorCode.PAYMENT_FAILED))
+      .mockResolvedValueOnce();
+    renderSend();
+
+    fireEvent.click(screen.getByRole('button', { name: 'review payment' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'generic.send' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'generic.send' }));
+
+    expect(await screen.findByText('error.lightningPaymentFailed')).toBeInTheDocument();
+    expect(screen.queryByText('payment sent')).not.toBeInTheDocument();
+    expect(lightningApi.postPreparePayment).toHaveBeenCalledTimes(1);
+    expect(lightningApi.postSendPayment).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ idempotencyKey: originalKey }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'review payment' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'generic.send' })).toBeEnabled());
+    expect(lightningApi.postPreparePayment).toHaveBeenLastCalledWith(expect.objectContaining({ idempotencyKey: undefined }));
+    expect(lightningApi.postSendPayment).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('button', { name: 'generic.send' }));
+
+    expect(await screen.findByText('payment sent')).toBeInTheDocument();
+    expect(lightningApi.postSendPayment).toHaveBeenNthCalledWith(2, expect.objectContaining({ idempotencyKey: newKey }));
   });
 
   it('keeps LNURL payment review mounted after a send error', async () => {
