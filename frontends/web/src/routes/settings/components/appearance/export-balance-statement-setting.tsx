@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ChangeEvent, useMemo, useState } from 'react';
+import { ChangeEvent, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { exportBalanceStatement } from '@/api/backend';
@@ -8,6 +8,7 @@ import { alertUser } from '@/components/alert/Alert';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button, Checkbox, Input, Label } from '@/components/forms';
 import { Logo } from '@/components/icon/logo';
+import { LocalizationContext } from '@/contexts/localization-context';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import styles from './export-balance-statement-setting.module.css';
 
@@ -28,6 +29,7 @@ const getDefaultSnapshotDate = (): string => {
 
 export const ExportBalanceStatementSetting = ({ accounts }: TProps) => {
   const { t } = useTranslation();
+  const numberFormat = useContext(LocalizationContext);
   const activeAccounts = useMemo(() => accounts.filter(account => account.active), [accounts]);
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -70,7 +72,7 @@ export const ExportBalanceStatementSetting = ({ accounts }: TProps) => {
   const onGenerate = async () => {
     try {
       setSubmitting(true);
-      const result = await exportBalanceStatement(selectedActiveCodes, snapshotDate);
+      const result = await exportBalanceStatement(selectedActiveCodes, snapshotDate, numberFormat);
       if (result.success) {
         setOpen(false);
       } else if (!result.aborted) {

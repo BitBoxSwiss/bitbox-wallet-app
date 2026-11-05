@@ -2,6 +2,7 @@
 
 import type { AccountCode, CoinCode, ScriptType } from './account';
 import type { ERC20CoinCode } from './erc20';
+import type { TNumberFormat } from './nativelocale';
 import type { FailResponse, SuccessResponse } from './response';
 import { apiGet, apiPost } from '@/utils/request';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
@@ -153,8 +154,9 @@ export type TExportBalanceStatementResponse = (FailResponse & {
 export const exportBalanceStatement = (
   accountCodes: AccountCode[],
   snapshotDate: string,
+  numberFormat: NonNullable<TNumberFormat>,
 ): Promise<TExportBalanceStatementResponse> => {
-  return apiPost('accounts/balance-statement/export', { accountCodes, snapshotDate });
+  return apiPost('accounts/balance-statement/export', { accountCodes, snapshotDate, numberFormat });
 };
 
 type TImportNotes = {
