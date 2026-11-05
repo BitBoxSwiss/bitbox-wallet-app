@@ -17,6 +17,7 @@ export enum TLightningErrorCode {
   ADDRESS_INVALID_USERNAME = 'lightningAddressInvalidUsername',
   ADDRESS_USERNAME_UNAVAILABLE = 'lightningAddressUsernameUnavailable',
   CONTACT_INVALID_ADDRESS = 'lightningContactInvalidAddress',
+  CONTACT_ADDRESS_NOT_FOUND = 'lightningContactAddressNotFound',
   CONTACT_DUPLICATE = 'lightningContactDuplicate',
   CONTACT_NOT_FOUND = 'lightningContactNotFound',
 }
@@ -24,6 +25,7 @@ export enum TLightningErrorCode {
 // Backend error codes arrive over JSON, so keep the lookup defensive for unknown runtime values.
 const lightningErrorTranslationKeys: Partial<Record<string, string>> = {
   [TLightningErrorCode.CONTACT_INVALID_ADDRESS]: 'lightning.contacts.invalidAddress',
+  [TLightningErrorCode.CONTACT_ADDRESS_NOT_FOUND]: 'lightning.contacts.addressNotFound',
   [TLightningErrorCode.CONTACT_DUPLICATE]: 'lightning.contacts.duplicateAddress',
   [TLightningErrorCode.CONTACT_NOT_FOUND]: 'lightning.contacts.notFound',
   [TLightningErrorCode.PAYMENT_APPROVAL_REQUIRED]: 'error.paymentApprovalRequired',
