@@ -193,7 +193,8 @@ const swapBuyTokenAccount: swapApi.TSwapAccount = {
 
 describe('routes/market/swap', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    // Unused one-shot responses must not carry over to another test.
+    vi.resetAllMocks();
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       value: vi.fn().mockImplementation((query: string) => ({
