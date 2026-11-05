@@ -113,6 +113,7 @@ func TestExportBalanceStatementRejectsSepolia(t *testing.T) {
 
 // Native ETH snapshots use on-chain historical balances, including withdrawals
 // absent from transaction history, and pass no token contract to the provider.
+// The PDF must show that same cutoff and timezone, including for today's snapshot.
 func TestExportBalanceStatementETHChainBalance(t *testing.T) {
 	snapshotDate := time.Date(2025, 1, 1, 0, 0, 0, 0, time.FixedZone("UTC+1", 3600))
 	for _, test := range []struct {
@@ -166,7 +167,7 @@ func TestExportBalanceStatementETHChainBalance(t *testing.T) {
 			date := snapshotDate
 			before := time.Now()
 			if test.currentDay {
-				date = before
+				date = before.In(snapshotDate.Location())
 			}
 			err = b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, date)
 			if test.lookupError {
@@ -187,6 +188,8 @@ func TestExportBalanceStatementETHChainBalance(t *testing.T) {
 			}
 			pdf, err := os.ReadFile(filename)
 			require.NoError(t, err)
+			require.Equal(t, date.Location(), calls[0].At.Location())
+			require.Contains(t, string(pdf), calls[0].At.Format("02.01.2006 15:04:05 UTC-07:00"))
 			if test.snapshotAmount == 0 {
 				require.Contains(t, string(pdf), "(0 ETH)")
 			} else {
@@ -537,7 +540,60 @@ func TestExportBalanceStatementRestrictsFilePermissions(t *testing.T) {
 	}
 }
 
-// A single-asset statement includes its snapshot date, balance, and disclaimer.
+// At the same instant, statement and chart valuations must agree without rounding
+// individual assets before summing. A daily chart point uses an earlier instant.
+func TestExportBalanceStatementMatchesChartAtSnapshot(t *testing.T) {
+	b := newBackend(t, testnetDisabled, regtestDisabled)
+	defer b.Close()
+	filename := filepath.Join(t.TempDir(), "statement.pdf")
+	b.environment = fileExportEnvironment{filename: filename}
+	b.registerKeystore(makeBitBox02Multi())
+	func() {
+		defer b.accountsAndKeystoreLock.Lock()()
+		b.ratesUpdater.Stop()
+		b.ratesUpdater = rates.MockRateUpdater()
+	}()
+
+	snapshotDate := time.Date(2020, 9, 1, 0, 0, 0, 0, time.FixedZone("UTC+1", 3600))
+	snapshotEnd := snapshotDate.AddDate(0, 0, 1).Add(-time.Nanosecond)
+	dailyPoint := time.Date(2020, 9, 1, 0, 0, 0, 0, time.UTC)
+	txTime := snapshotDate.AddDate(0, 0, -1)
+	chartEntries := map[int64]RatChartEntry{}
+	accountCodes := []accountsTypes.Code{}
+	for accountCode, amount := range map[accountsTypes.Code]int64{
+		"v0-55555555-btc-0": 123_456_789,
+		"v0-55555555-ltc-0": 234_625_000,
+	} {
+		view := b.Accounts().lookup(accountCode)
+		require.NotNil(t, view)
+		txs := accounts.OrderedTransactions{
+			{Height: 1, Timestamp: &txTime, Balance: coinpkg.NewAmountFromInt64(amount)},
+		}
+		view.Account.(*accountsmock.InterfaceMock).TransactionsFunc = func() (accounts.OrderedTransactions, error) {
+			return txs, nil
+		}
+		for _, at := range []time.Time{dailyPoint, snapshotEnd} {
+			timeseries, err := txs.Timeseries(at, at, time.Hour)
+			require.NoError(t, err)
+			b.addChartData(view.Account.Coin().Code(), "USD",
+				coinpkg.DecimalsExp(view.Account.Coin(), false), timeseries, chartEntries)
+		}
+		accountCodes = append(accountCodes, accountCode)
+	}
+
+	require.NoError(t, b.ExportBalanceStatement(accountCodes, snapshotDate))
+	pdf, err := os.ReadFile(filename)
+	require.NoError(t, err)
+	snapshotTotal := coinpkg.FormatAsCurrency(chartEntries[snapshotEnd.Unix()].RatValue, "USD")
+	dailyTotal := coinpkg.FormatAsCurrency(chartEntries[dailyPoint.Unix()].RatValue, "USD")
+	require.Equal(t, "13.66", snapshotTotal) // Rounded rows would instead add up to 13.67.
+	require.NotEqual(t, dailyTotal, snapshotTotal)
+	require.Contains(t, string(pdf), "("+snapshotTotal+")")
+	require.Contains(t, string(pdf), "01.09.2020 23:59:59 UTC+01:00")
+}
+
+// A single-asset statement includes its snapshot date, time, numeric UTC offset,
+// balance, and disclaimer.
 func TestCreateBalanceStatementPDF(t *testing.T) {
 	pdf, err := createBalanceStatementPDF(
 		[]statementRow{
@@ -550,7 +606,7 @@ func TestCreateBalanceStatementPDF(t *testing.T) {
 		},
 		"CHF",
 		"100'000.00",
-		time.Date(2025, 12, 31, 0, 0, 0, 0, time.UTC),
+		time.Date(2025, 12, 31, 23, 59, 59, 0, time.FixedZone("UTC-3:30", -3*3600-30*60)),
 		false,
 		false,
 	)
@@ -558,7 +614,7 @@ func TestCreateBalanceStatementPDF(t *testing.T) {
 	require.NotEmpty(t, pdf)
 	require.True(t, strings.HasPrefix(string(pdf), "%PDF-"))
 	require.Contains(t, string(pdf), "Balance of assets as of ")
-	require.Contains(t, string(pdf), "31.12.2025")
+	require.Contains(t, string(pdf), "31.12.2025 23:59:59 UTC-03:30")
 	require.Contains(t, string(pdf), "Bitcoin")
 	require.Contains(t, string(pdf), "Disclaimer: This is an auto-generated report.")
 }
