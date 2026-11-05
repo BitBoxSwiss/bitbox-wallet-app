@@ -6,12 +6,15 @@ import { errUserAbort, setDeviceLanguage } from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { Dropdown } from '@/components/dropdown/dropdown';
 import { PointToBitBox02 } from '@/components/icon';
+import { GlobeDark, GlobeLight } from '@/components/icon/icon';
 import { defaultLanguages } from '@/components/language/types';
 import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
+import { useDarkmode } from '@/hooks/darkmode';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { useMountedRef } from '@/hooks/mount';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import settingsDropdownStyles from '../appearance/settingsdropdown.module.css';
+import styles from '../appearance/languageDropDownSetting.module.css';
 
 type TProps = {
   deviceID: string;
@@ -21,6 +24,8 @@ type TProps = {
 
 export const DeviceLanguageSetting = ({ deviceID, language, supportedLanguages = [] }: TProps) => {
   const { t } = useTranslation();
+  const { isDarkMode } = useDarkmode();
+  const globe = isDarkMode ? <GlobeLight /> : <GlobeDark />;
   const mounted = useMountedRef();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [isMobileSelectorOpen, setIsMobileSelectorOpen] = useState(false);
@@ -66,7 +71,7 @@ export const DeviceLanguageSetting = ({ deviceID, language, supportedLanguages =
   if (!language) {
     return (
       <SettingsItem
-        settingName={t('deviceSettings.deviceLanguage.title')}
+        settingName={<div className={styles.container}>{globe}{t('deviceSettings.deviceLanguage.title')}</div>}
         secondaryText={t('deviceSettings.deviceLanguage.description')}
         displayedValue={t('bitbox02Wizard.advanced.outOfDate')}
       />
@@ -78,7 +83,7 @@ export const DeviceLanguageSetting = ({ deviceID, language, supportedLanguages =
       <SettingsItem
         onClick={isMobile && !isMobileSelectorOpen ? () => setIsMobileSelectorOpen(true) : undefined}
         disabled={inProgress}
-        settingName={t('deviceSettings.deviceLanguage.title')}
+        settingName={<div className={styles.container}>{globe}{t('deviceSettings.deviceLanguage.title')}</div>}
         secondaryText={t('deviceSettings.deviceLanguage.description')}
         collapseOnSmall
         extraComponent={
