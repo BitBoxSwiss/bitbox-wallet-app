@@ -8,8 +8,10 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend"
+	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/arguments"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/handlers"
@@ -88,6 +90,47 @@ func TestGetNativeLocale(t *testing.T) {
 	if locale != ptLocale {
 		t.Errorf("locale = %q; want %q", locale, ptLocale)
 	}
+}
+
+type balanceStatementBackend struct {
+	*backend.Backend
+	accountCodes []accountsTypes.Code
+	snapshotDate time.Time
+	numberFormat *backend.NumberFormat
+}
+
+func (b *balanceStatementBackend) ExportBalanceStatement(
+	accountCodes []accountsTypes.Code, snapshotDate time.Time, numberFormat *backend.NumberFormat,
+) error {
+	b.accountCodes = accountCodes
+	b.snapshotDate = snapshotDate
+	b.numberFormat = numberFormat
+	return nil
+}
+
+// The export route must decode and forward the app's number format along with
+// the account selection and snapshot date, without substituting system defaults.
+func TestExportBalanceStatementNumberFormat(t *testing.T) {
+	back, err := backend.NewBackend(
+		arguments.NewArguments(t.TempDir(), true, true, true, nil), &backendEnv{})
+	require.NoError(t, err)
+	defer back.Close()
+	capture := &balanceStatementBackend{Backend: back}
+	h := handlers.NewHandlers(capture, handlers.NewConnectionData(0, ""))
+	request := httptest.NewRequest(http.MethodPost, "/api/accounts/balance-statement/export", strings.NewReader(
+		`{"accountCodes":["v0-55555555-btc-0"],"snapshotDate":"2025-12-31","numberFormat":{"decimal":",","group":"."}}`))
+	recorder := httptest.NewRecorder()
+	h.Router.ServeHTTP(recorder, request)
+
+	require.Equal(t, http.StatusOK, recorder.Code)
+	var response struct {
+		Success bool `json:"success"`
+	}
+	test.DecodeHandlerResponse(t, &response, recorder.Result().Body)
+	require.True(t, response.Success)
+	require.Equal(t, []accountsTypes.Code{"v0-55555555-btc-0"}, capture.accountCodes)
+	require.Equal(t, time.Date(2025, 12, 31, 0, 0, 0, 0, time.Local), capture.snapshotDate)
+	require.Equal(t, &backend.NumberFormat{DecimalSeparator: ",", GroupSeparator: "."}, capture.numberFormat)
 }
 
 func TestConnectKeystoreRequiredFeature(t *testing.T) {

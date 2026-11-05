@@ -105,7 +105,7 @@ type Backend interface {
 	ClearCache() error
 	ExportLogs() error
 	ExportNotes() error
-	ExportBalanceStatement(accountCodes []accountsTypes.Code, snapshotDate time.Time) error
+	ExportBalanceStatement(accountCodes []accountsTypes.Code, snapshotDate time.Time, numberFormat *backend.NumberFormat) error
 	ImportNotes(jsonLines []byte) (*backend.ImportNotesResult, error)
 	ChartData(bool) (*backend.Chart, error)
 	SupportedCoins(keystore.Keystore) []coinpkg.Code
@@ -1897,8 +1897,9 @@ func (handlers *Handlers) postExportBalanceStatement(r *http.Request) interface{
 		ErrorCode string `json:"errorCode,omitempty"`
 	}
 	var request struct {
-		AccountCodes []accountsTypes.Code `json:"accountCodes"`
-		SnapshotDate string               `json:"snapshotDate"`
+		AccountCodes []accountsTypes.Code  `json:"accountCodes"`
+		SnapshotDate string                `json:"snapshotDate"`
+		NumberFormat *backend.NumberFormat `json:"numberFormat"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return result{Success: false, Message: err.Error()}
@@ -1910,7 +1911,7 @@ func (handlers *Handlers) postExportBalanceStatement(r *http.Request) interface{
 	if err != nil {
 		return result{Success: false, Message: "invalid snapshot date"}
 	}
-	if err := handlers.backend.ExportBalanceStatement(request.AccountCodes, snapshotDate); err != nil {
+	if err := handlers.backend.ExportBalanceStatement(request.AccountCodes, snapshotDate, request.NumberFormat); err != nil {
 		if errp.Cause(err) == errp.ErrUserAbort {
 			return result{Success: false, Aborted: true}
 		}

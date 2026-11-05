@@ -3,11 +3,12 @@
 import i18n from '../../../../../__mocks__/i18n';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TAccount } from '@/api/account';
 import { exportBalanceStatement, type TExportBalanceStatementResponse } from '@/api/backend';
 import { alertUser } from '@/components/alert/Alert';
 import { BackButtonContext } from '@/contexts/BackButtonContext';
+import { LocalizationContext } from '@/contexts/localization-context';
 import en from '@/locales/en/app.json';
 import { ExportBalanceStatementSetting } from './export-balance-statement-setting';
 
@@ -39,11 +40,15 @@ const account: TAccount = {
   },
 };
 
+const numberFormat = { decimal: ',', group: '.' };
+
 const generateStatement = async (selectedAccount: TAccount = account) => {
   const user = userEvent.setup();
   render(
     <BackButtonContext.Provider value={{ pushHandler: vi.fn(), popHandler: vi.fn() }}>
-      <ExportBalanceStatementSetting accounts={[selectedAccount]} />
+      <LocalizationContext.Provider value={numberFormat}>
+        <ExportBalanceStatementSetting accounts={[selectedAccount]} />
+      </LocalizationContext.Provider>
     </BackButtonContext.Provider>
   );
 
@@ -54,6 +59,37 @@ const generateStatement = async (selectedAccount: TAccount = account) => {
 describe('ExportBalanceStatementSetting', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  // The real API/request path must serialize the same resolved separators as
+  // on-screen amounts, including overrides that differ from the UI language.
+  it('exports with the app number format', async () => {
+    const backendApi = await vi.importActual<typeof import('@/api/backend')>('@/api/backend');
+    vi.mocked(exportBalanceStatement).mockImplementationOnce(backendApi.exportBalanceStatement);
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ success: true })),
+    );
+
+    await generateStatement();
+
+    expect(exportBalanceStatement).toHaveBeenCalledWith(
+      [account.code],
+      `${new Date().getFullYear() - 1}-12-31`,
+      numberFormat,
+    );
+    expect(fetchMock).toHaveBeenCalledExactlyOnceWith(
+      'http://localhost:8082/api/accounts/balance-statement/export',
+      expect.objectContaining({ method: 'POST', body: expect.any(String) }),
+    );
+    expect(JSON.parse(fetchMock.mock.calls[0]![1]!.body as string)).toEqual({
+      accountCodes: [account.code],
+      snapshotDate: `${new Date().getFullYear() - 1}-12-31`,
+      numberFormat,
+    });
   });
 
   // Unsupported Sepolia exports must show the translated explanation instead of

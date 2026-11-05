@@ -76,7 +76,7 @@ func TestExportBalanceStatementRejectsFutureDate(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
 
-	err := b.ExportBalanceStatement(nil, time.Now().AddDate(0, 0, 1))
+	err := b.ExportBalanceStatement(nil, time.Now().AddDate(0, 0, 1), nil)
 	require.ErrorContains(t, err, "future")
 }
 
@@ -104,7 +104,7 @@ func TestExportBalanceStatementRejectsSepolia(t *testing.T) {
 				}
 			}
 
-			err := b.ExportBalanceStatement(test.accountCodes, time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC))
+			err := b.ExportBalanceStatement(test.accountCodes, time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC), nil)
 			require.ErrorIs(t, err, errp.ErrorCode("sepoliaBalanceStatementUnsupported"))
 			require.NoFileExists(t, filename)
 		})
@@ -169,7 +169,7 @@ func TestExportBalanceStatementETHChainBalance(t *testing.T) {
 			if test.currentDay {
 				date = before.In(snapshotDate.Location())
 			}
-			err = b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, date)
+			err = b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, date, nil)
 			if test.lookupError {
 				require.ErrorContains(t, err, "historical balance unavailable")
 				require.NoFileExists(t, filename)
@@ -310,7 +310,7 @@ func TestExportBalanceStatementERC20ChainBalance(t *testing.T) {
 			} else if test.beforeDeployment {
 				date = time.Date(2017, 11, 1, 0, 0, 0, 0, time.UTC)
 			}
-			err = b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, date)
+			err = b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, date, nil)
 			calls := client.HistoricalBalanceAtCalls()
 			require.Len(t, calls, 1)
 			require.Equal(t, address.Address, calls[0].Account)
@@ -363,7 +363,7 @@ func TestExportBalanceStatementETHAndERC20Snapshot(t *testing.T) {
 	require.NoError(t, b.SetTokenActive(parentCode, "eth-erc20-usdt", true))
 	snapshotDate := time.Date(2025, 1, 1, 0, 0, 0, 0, time.FixedZone("UTC+1", 3600))
 	require.NoError(t, b.ExportBalanceStatement(
-		[]accountsTypes.Code{parentCode, Erc20AccountCode(parentCode, "eth-erc20-usdt")}, snapshotDate))
+		[]accountsTypes.Code{parentCode, Erc20AccountCode(parentCode, "eth-erc20-usdt")}, snapshotDate, nil))
 	calls := client.HistoricalBalanceAtCalls()
 	require.Len(t, calls, 2)
 	require.Equal(t, snapshotDate.AddDate(0, 0, 1).Add(-time.Nanosecond), calls[0].At)
@@ -402,7 +402,7 @@ func TestExportBalanceStatementWithoutRates(t *testing.T) {
 					}, nil
 				}
 
-				require.NoError(t, b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, snapshotDate))
+				require.NoError(t, b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, snapshotDate, nil))
 				pdf, err := os.ReadFile(filename)
 				require.NoError(t, err)
 				if amount == 0 {
@@ -446,7 +446,7 @@ func TestExportBalanceStatementZeroBalancePreservesFiatTotal(t *testing.T) {
 		}
 	}
 
-	require.NoError(t, b.ExportBalanceStatement([]accountsTypes.Code{btcAccountCode, ltcAccountCode}, time.Now()))
+	require.NoError(t, b.ExportBalanceStatement([]accountsTypes.Code{btcAccountCode, ltcAccountCode}, time.Now(), nil))
 	pdf, err := os.ReadFile(filename)
 	require.NoError(t, err)
 	require.Contains(t, string(pdf), "(21.00*)")
@@ -454,6 +454,58 @@ func TestExportBalanceStatementZeroBalancePreservesFiatTotal(t *testing.T) {
 	require.Contains(t, string(pdf), "(Total)")
 	require.Contains(t, string(pdf), "(21.00)")
 	require.NotContains(t, string(pdf), "N/A")
+}
+
+// Exported crypto amounts, estimated fiat values and totals use the app's separators.
+// Unicode separators must survive the PDF's Windows-1252 encoding, with narrow
+// no-break spaces rendered as no-break spaces supported by the built-in font and
+// Arabic decimal/group separators mapped to distinct ASCII punctuation.
+func TestExportBalanceStatementNumberFormat(t *testing.T) {
+	for _, test := range []struct {
+		name         string
+		numberFormat *NumberFormat
+		fiat         string
+		amount       string
+	}{
+		{"default", nil, "25'924.50", "1234.50000000"},
+		{"English", &NumberFormat{".", ","}, "25,924.50", "1234.50000000"},
+		{"Arabic", &NumberFormat{"\u066b", "\u066c"}, "25,924.50", "1234.50000000"},
+		{"German", &NumberFormat{",", "."}, "25.924,50", "1234,50000000"},
+		{"Swiss", &NumberFormat{".", "’"}, "25\x92924.50", "1234.50000000"},
+		{"space", &NumberFormat{",", " "}, "25 924,50", "1234,50000000"},
+		{"no-break space", &NumberFormat{",", "\u00a0"}, "25\xa0924,50", "1234,50000000"},
+		{"narrow no-break space", &NumberFormat{",", "\u202f"}, "25\xa0924,50", "1234,50000000"},
+		{"no grouping", &NumberFormat{".", ""}, "25924.50", "1234.50000000"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			b := newBackend(t, testnetDisabled, regtestDisabled)
+			defer b.Close()
+			filename := filepath.Join(t.TempDir(), "statement.pdf")
+			b.environment = fileExportEnvironment{filename: filename}
+			b.registerKeystore(makeBitBox02BTCOnly())
+			func() {
+				defer b.accountsAndKeystoreLock.Lock()()
+				b.ratesUpdater.Stop()
+				b.ratesUpdater = rates.MockRateUpdater()
+			}()
+			const accountCode accountsTypes.Code = "v0-55555555-btc-0"
+			view := b.Accounts().lookup(accountCode)
+			require.NotNil(t, view)
+			timestamp := time.Now().AddDate(0, 0, -1)
+			view.Account.(*accountsmock.InterfaceMock).TransactionsFunc = func() (accounts.OrderedTransactions, error) {
+				return accounts.OrderedTransactions{
+					{Height: 1, Timestamp: &timestamp, Balance: coinpkg.NewAmountFromInt64(123_450_000_000)},
+				}, nil
+			}
+
+			require.NoError(t, b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, time.Now(), test.numberFormat))
+			pdf, err := os.ReadFile(filename)
+			require.NoError(t, err)
+			require.Contains(t, string(pdf), "("+test.amount+" BTC)")
+			require.Contains(t, string(pdf), "("+test.fiat+"*)", "estimated fiat row")
+			require.Contains(t, string(pdf), "("+test.fiat+")", "fiat total")
+		})
+	}
 }
 
 func TestExportBalanceStatementUsesPersistedAccountMetadata(t *testing.T) {
@@ -489,7 +541,7 @@ func TestExportBalanceStatementUsesPersistedAccountMetadata(t *testing.T) {
 				return nil
 			}))
 
-			err := b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, timestamp)
+			err := b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, timestamp, nil)
 			if test.inactive || test.hidden {
 				require.ErrorContains(t, err, "is not active")
 				return
@@ -526,7 +578,7 @@ func TestExportBalanceStatementRestrictsFilePermissions(t *testing.T) {
 				}, nil
 			}
 
-			require.NoError(t, b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, timestamp))
+			require.NoError(t, b.ExportBalanceStatement([]accountsTypes.Code{accountCode}, timestamp, nil))
 
 			info, err := os.Stat(filename)
 			require.NoError(t, err)
