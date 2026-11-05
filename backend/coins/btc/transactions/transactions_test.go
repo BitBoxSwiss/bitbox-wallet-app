@@ -36,7 +36,8 @@ func TestMain(m *testing.M) {
 
 type BlockchainMock struct {
 	blockchainMock.Interface
-	transactions map[chainhash.Hash]*wire.MsgTx
+	transactions   map[chainhash.Hash]*wire.MsgTx
+	transactionGet func(chainhash.Hash) (*wire.MsgTx, error)
 }
 
 func NewBlockchainMock() *BlockchainMock {
@@ -52,9 +53,11 @@ func (blockchain *BlockchainMock) RegisterTxs(txs ...*wire.MsgTx) {
 	}
 }
 
-// TransactionGet by default automatically calls the callback which processes the tx. Overwrite
-// default behavior by setting the TransactionGetFunc var.
+// TransactionGet returns a registered transaction, unless transactionGet overrides it.
 func (blockchain *BlockchainMock) TransactionGet(txHash chainhash.Hash) (*wire.MsgTx, error) {
+	if blockchain.transactionGet != nil {
+		return blockchain.transactionGet(txHash)
+	}
 	tx, ok := blockchain.transactions[txHash]
 	if !ok {
 		panic("you need to first register the transaction with the mock backend")
@@ -89,6 +92,7 @@ type transactionsSuite struct {
 	headersMock    *headersMock.Interface
 	notifierMock   *accountsMock.Notifier
 	transactions   *transactions.Transactions
+	db             *transactionsdb.DB
 
 	log *logrus.Entry
 }
@@ -108,6 +112,8 @@ func (s *transactionsSuite) SetupTest() {
 	if err != nil {
 		panic(err)
 	}
+	s.db = db
+	s.T().Cleanup(func() { s.Require().NoError(db.Close()) })
 	s.headersMock = &headersMock.Interface{}
 	s.headersMock.On("SubscribeEvent", mock.AnythingOfType("func(headers.Event)")).Return(func() {})
 	s.headersMock.On("TipHeight").Return(15).Once()
@@ -215,8 +221,8 @@ func (s *transactionsSuite) TestUpdateAddressHistoryRejectsMismatchingTxHash() {
 	s.Require().ErrorContains(err, "transaction hash mismatch")
 }
 
-// TestSpendableOutputs checks that the utxo set is correct. Only confirmed (or unconfirmed outputs
-// we own) outputs can be spent.
+// TestSpendableOutputs checks the utxo set with signed wallet spends. Only confirmed outputs or
+// unconfirmed outputs from our own spends can be spent.
 func (s *transactionsSuite) TestSpendableOutputs() {
 	// Starts out empty.
 	spendableOutputs, err := s.transactions.SpendableOutputs()
@@ -254,6 +260,7 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 	// Spend output generated from tx12 to an external address, the spend being unconfirmed => the
 	// output can't be spent anymore.
 	tx12Spend := newTx(tx12.TxHash(), 0, otherAddress, 1000)
+	signTestInput(s.T(), tx12Spend, 0, address1, tx12)
 	s.blockchainMock.RegisterTxs(tx12Spend)
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx11.TxHash()), Height: 0},
@@ -268,6 +275,7 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 	// Send output generated from tx22 to an internal address, unconfirmed. The new output needs to
 	// be spendable, as it is our own.
 	tx22Spend := newTx(tx22.TxHash(), 0, address2, 4000)
+	signTestInput(s.T(), tx22Spend, 0, address2, tx22)
 	s.blockchainMock.RegisterTxs(tx22Spend)
 	s.updateAddressHistory(address2, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx21.TxHash()), Height: 0},
@@ -283,6 +291,7 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 	s.Require().Contains(spendableOutputs, wire.OutPoint{Hash: tx22Spend.TxHash(), Index: 0})
 }
 
+// Incoming and signed outgoing transactions update confirmed and unconfirmed balances.
 func (s *transactionsSuite) TestBalance() {
 	balance, err := s.transactions.Balance()
 	s.Require().NoError(err)
@@ -297,6 +306,8 @@ func (s *transactionsSuite) TestBalance() {
 	expectedAmount2 := btcutil.Amount(456)
 	tx2 := newTx(chainhash.HashH(nil), 1, address1, expectedAmount2)
 	tx2Spend := newTx(tx2.TxHash(), 0, address1, expectedAmount2)
+	signTestInput(s.T(), tx1Spend, 0, address1, tx1)
+	signTestInput(s.T(), tx2Spend, 0, address1, tx2)
 	s.blockchainMock.RegisterTxs(tx1, tx1Spend, tx2, tx2Spend)
 	// Incoming.
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
@@ -346,6 +357,7 @@ func (s *transactionsSuite) TestBalance() {
 	s.Require().Equal(newBalance(expectedAmount2, 0), balance)
 }
 
+// A signed transaction stays indexed until it disappears from every associated address history.
 func (s *transactionsSuite) TestRemoveTransaction() {
 	addresses, err := s.addressChain.EnsureAddresses()
 	s.Require().NoError(err)
@@ -356,6 +368,7 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 	// tx3 touches both address1 and address2. It also spends the output of tx1.
 	tx3 := newTx(tx1.TxHash(), 0, address1, 2)
 	tx3.TxOut = append(tx3.TxOut, wire.NewTxOut(10, address2.PubkeyScript()))
+	signTestInput(s.T(), tx3, 0, address1, tx1)
 	s.blockchainMock.RegisterTxs(tx1, tx2, tx3)
 	s.headersMock.On("VerifiedHeaderByHeight", 10).Return(nil, nil).Twice()
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{

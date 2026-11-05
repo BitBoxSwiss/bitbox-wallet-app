@@ -409,7 +409,9 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 		if err != nil {
 			return err
 		}
+		previousTxs := map[chainhash.Hash]struct{}{}
 		for _, entry := range previousHistory {
+			previousTxs[entry.TXHash.Hash()] = struct{}{}
 			if _, txOK := txsSet[entry.TXHash.Hash()]; txOK {
 				continue
 			}
@@ -428,12 +430,27 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 		if err := dbTx.PutAddressHistory(scriptHashHex, txs); err != nil {
 			return err
 		}
+		txsToCheck := map[chainhash.Hash]*wire.MsgTx{}
+		newOutputs := map[wire.OutPoint]struct{}{}
 		for _, txInfo := range txs {
 			txHash := txInfo.TXHash.Hash()
 			height := txInfo.Height
 			tx, headerTimestamp, err := transactions.getTransactionCached(dbTx, txHash, height)
 			if err != nil {
 				return err
+			}
+			for index, txOut := range tx.TxOut {
+				if getScriptHashHex(txOut) != scriptHashHex {
+					continue
+				}
+				outPoint := wire.OutPoint{Hash: txHash, Index: uint32(index)}
+				output, err := dbTx.KnownOutput(outPoint)
+				if err != nil {
+					return err
+				}
+				if output == nil {
+					newOutputs[outPoint] = struct{}{}
+				}
 			}
 			newlyConfirmed, err := transactions.processTxForAddress(
 				dbTx, scriptHashHex, txHash, tx, height, headerTimestamp,
@@ -445,8 +462,15 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 			if newlyConfirmed {
 				txsToVerify = append(txsToVerify, txToVerify{txHash: txHash, height: height})
 			}
+			// Existing entries are only rechecked when a newly discovered wallet output
+			// reveals an owned input. There is no retroactive validation of cached history.
+			if _, existed := previousTxs[txHash]; !existed {
+				txsToCheck[txHash] = tx
+			}
 		}
-		return nil
+		// Resolve ownership after indexing the whole history, since parents and children can
+		// arrive in either order. Invalid signatures roll back all changes before notification.
+		return transactions.verifyHistorySignatures(dbTx, txsToCheck, newOutputs)
 	})
 	if err != nil {
 		return errp.WithMessage(err, "failed to update address history")

@@ -23,6 +23,7 @@ const (
 	bucketUnverifiedTransactionsKey = "unverifiedTransactions"
 	bucketInputsKey                 = "inputs"
 	bucketOutputsKey                = "outputs"
+	bucketRemovedOutputsKey         = "removedOutputs"
 	bucketAddressHistoriesKey       = "addressHistories"
 	bucketConfigKey                 = "config"
 )
@@ -286,6 +287,20 @@ func (tx *Tx) Output(outPoint wire.OutPoint) (*wire.TxOut, error) {
 	return txOut, nil
 }
 
+// KnownOutput implements transactions.DBTxInterface.
+func (tx *Tx) KnownOutput(outPoint wire.OutPoint) (*wire.TxOut, error) {
+	output, err := tx.Output(outPoint)
+	if err != nil || output != nil {
+		return output, err
+	}
+	output = &wire.TxOut{}
+	found, err := readJSON(tx.tx.Bucket([]byte(bucketRemovedOutputsKey)), []byte(outPoint.String()), output)
+	if err != nil || !found {
+		return nil, err
+	}
+	return output, nil
+}
+
 // Outputs implements transactions.DBTxInterface.
 func (tx *Tx) Outputs() (map[wire.OutPoint]*wire.TxOut, error) {
 	outputs := map[wire.OutPoint]*wire.TxOut{}
@@ -314,7 +329,19 @@ func (tx *Tx) DeleteOutput(outPoint wire.OutPoint) error {
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	if err := bucketOutputs.Delete([]byte(outPoint.String())); err != nil {
+	key := []byte(outPoint.String())
+	if value := bucketOutputs.Get(key); value != nil {
+		// Keep ownership and the authenticated script/amount even if the server removes the
+		// funding transaction. A later history update may still contain a spend of this output.
+		removedOutputs, err := tx.tx.CreateBucketIfNotExists([]byte(bucketRemovedOutputsKey))
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		if err := removedOutputs.Put(key, value); err != nil {
+			return errp.WithStack(err)
+		}
+	}
+	if err := bucketOutputs.Delete(key); err != nil {
 		return errp.WithStack(err)
 	}
 	return nil
