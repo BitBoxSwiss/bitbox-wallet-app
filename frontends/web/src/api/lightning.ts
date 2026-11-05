@@ -196,6 +196,7 @@ export type TSendPaymentRequest = {
   sendAll?: boolean;
   amountSat?: number;
   approvedFeeSat: number;
+  idempotencyKey: string;
 } | {
   type: TPaymentInputType.LNURL_PAY;
   paymentInput: string;
@@ -216,6 +217,7 @@ export type TPreparePaymentRequest = {
   paymentInput: string;
   sendAll?: boolean;
   amountSat?: number;
+  idempotencyKey?: string;
 } | {
   type: TPaymentInputType.LNURL_PAY;
   paymentInput: string;

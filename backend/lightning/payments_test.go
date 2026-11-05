@@ -1528,6 +1528,203 @@ func testLNURLPaymentSDK(
 	}
 }
 
+// New BOLT11 reviews get distinct UUIDs; fee refreshes retain the original key even after funds moved.
+func TestPrepareBolt11PaymentIdempotencyKey(t *testing.T) {
+	t.Parallel()
+	sdk := &testPaymentSDK{
+		balanceSats: 1_000,
+		prepareSend: func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+			return breez_sdk_spark.PrepareSendPaymentResponse{
+				Amount: big.NewInt(100), PaymentMethod: breez_sdk_spark.SendPaymentMethodBolt11Invoice{LightningFeeSats: 2},
+			}, nil
+		},
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+	request := preparePaymentRequest{Type: paymentInputTypeBolt11, PaymentInput: "lnbc1invoice"}
+	firstFee, err := lightning.PreparePayment(request)
+	require.NoError(t, err)
+	key, err := uuid.Parse(firstFee.IdempotencyKey)
+	require.NoError(t, err)
+	require.NotEqual(t, uuid.Nil, key)
+
+	newFee, err := lightning.PreparePayment(request)
+	require.NoError(t, err)
+	require.NotEqual(t, firstFee.IdempotencyKey, newFee.IdempotencyKey)
+
+	sdk.balanceSats = 0
+	fee, err := lightning.PreparePayment(request)
+	require.ErrorIs(t, err, errLightningInsufficientFunds)
+	require.Empty(t, fee.IdempotencyKey)
+
+	request.IdempotencyKey = firstFee.IdempotencyKey
+	repreparedFee, err := lightning.PreparePayment(request)
+	require.NoError(t, err)
+	require.Equal(t, firstFee, repreparedFee)
+}
+
+// Fee reapproval and a lost send response must keep the same BOLT11 transfer identity, including
+// when the original attempt consumed the balance. Fixed invoices must still omit the SDK amount.
+func TestSendBolt11PaymentReusesIdempotencyKey(t *testing.T) {
+	t.Parallel()
+	amountSat := uint64(100)
+	for _, testCase := range []struct {
+		name      string
+		amountSat *uint64
+		sendAll   bool
+	}{
+		{name: "fixed amount"},
+		{name: "amountless", amountSat: &amountSat},
+		{name: "send all", amountSat: &amountSat, sendAll: true},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			feeSat := uint64(2)
+			responseLost := errors.New("send response lost")
+			var sentKeys []string
+			sdk := &testPaymentSDK{balanceSats: 1_000}
+			sdk.prepareSend = func(request breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+				require.Equal(t, prepareBolt11PaymentRequest("lnbc1invoice", testCase.amountSat, testCase.sendAll), request)
+				return breez_sdk_spark.PrepareSendPaymentResponse{
+					Amount: big.NewInt(100), FeePolicy: *request.FeePolicy,
+					PaymentMethod: breez_sdk_spark.SendPaymentMethodBolt11Invoice{LightningFeeSats: feeSat},
+				}, nil
+			}
+			sdk.send = func(request breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+				require.NotNil(t, request.IdempotencyKey)
+				sentKeys = append(sentKeys, *request.IdempotencyKey)
+				require.NotNil(t, request.Options)
+				require.Equal(t, breez_sdk_spark.SendPaymentOptionsBolt11Invoice{PreferSpark: false}, *request.Options)
+				sdk.balanceSats = 0
+				if len(sentKeys) == 1 {
+					return breez_sdk_spark.SendPaymentResponse{}, responseLost
+				}
+				return breez_sdk_spark.SendPaymentResponse{
+					Payment: breez_sdk_spark.Payment{Status: breez_sdk_spark.PaymentStatusPending},
+				}, nil
+			}
+			lightning := newActivePaymentTestLightning(t, sdk)
+			prepareRequest := preparePaymentRequest{
+				Type: paymentInputTypeBolt11, PaymentInput: "lnbc1invoice",
+				AmountSat: testCase.amountSat, SendAll: testCase.sendAll,
+			}
+			quote, err := lightning.PreparePayment(prepareRequest)
+			require.NoError(t, err)
+			require.NotEmpty(t, quote.IdempotencyKey)
+			request := sendPaymentRequest{
+				Type: paymentInputTypeBolt11, PaymentInput: prepareRequest.PaymentInput,
+				AmountSat: testCase.amountSat, SendAll: testCase.sendAll,
+				ApprovedFeeSat: quote.FeeSat, IdempotencyKey: quote.IdempotencyKey,
+			}
+			feeSat++
+			require.ErrorIs(t, lightning.SendPayment(request), errPaymentApprovalRequired)
+			require.Empty(t, sentKeys)
+
+			prepareRequest.IdempotencyKey = quote.IdempotencyKey
+			updatedQuote, err := lightning.PreparePayment(prepareRequest)
+			require.NoError(t, err)
+			require.Equal(t, quote.IdempotencyKey, updatedQuote.IdempotencyKey)
+			request.ApprovedFeeSat = updatedQuote.FeeSat
+			require.ErrorIs(t, lightning.SendPayment(request), responseLost)
+			require.NoError(t, lightning.SendPayment(request))
+			require.Equal(t, []string{quote.IdempotencyKey, quote.IdempotencyKey}, sentKeys)
+		})
+	}
+}
+
+// A missing BOLT11 key must fail before any SDK prepare or send can create a fresh transfer.
+func TestSendBolt11PaymentRequiresIdempotencyKey(t *testing.T) {
+	t.Parallel()
+	sdk := &testPaymentSDK{
+		prepareSend: func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+			t.Fatal("payment must not be prepared without an idempotency key")
+			return breez_sdk_spark.PrepareSendPaymentResponse{}, nil
+		},
+		send: func(breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+			t.Fatal("payment must not be sent without an idempotency key")
+			return breez_sdk_spark.SendPaymentResponse{}, nil
+		},
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+	err := lightning.SendPayment(sendPaymentRequest{Type: paymentInputTypeBolt11, PaymentInput: "lnbc1invoice"})
+	require.ErrorIs(t, err, errLightningInvalidPaymentInput)
+}
+
+// Stored attempts bypass preparation even if the fee service is unavailable. Both stored and
+// returned payments must report failures, while pending/completed payments remain accepted.
+func TestSendBolt11PaymentStatus(t *testing.T) {
+	t.Parallel()
+	for _, stored := range []bool{true, false} {
+		for _, status := range []breez_sdk_spark.PaymentStatus{
+			breez_sdk_spark.PaymentStatusCompleted,
+			breez_sdk_spark.PaymentStatusPending,
+			breez_sdk_spark.PaymentStatusFailed,
+		} {
+			t.Run(fmt.Sprintf("stored=%v/status=%d", stored, status), func(t *testing.T) {
+				t.Parallel()
+				const key = "00000000-0000-4000-8000-000000000001"
+				payment := breez_sdk_spark.Payment{Id: key, Status: status}
+				prepared, sent := false, false
+				sdk := &testPaymentSDK{
+					prepareSend: func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+						prepared = true
+						if stored {
+							return breez_sdk_spark.PrepareSendPaymentResponse{}, errors.New("fee service unavailable")
+						}
+						return breez_sdk_spark.PrepareSendPaymentResponse{
+							Amount:        big.NewInt(100),
+							PaymentMethod: breez_sdk_spark.SendPaymentMethodBolt11Invoice{LightningFeeSats: 1},
+						}, nil
+					},
+					send: func(request breez_sdk_spark.SendPaymentRequest) (breez_sdk_spark.SendPaymentResponse, error) {
+						sent = true
+						require.Equal(t, key, *request.IdempotencyKey)
+						return breez_sdk_spark.SendPaymentResponse{Payment: payment}, nil
+					},
+				}
+				if stored {
+					sdk.getPayment = func(request breez_sdk_spark.GetPaymentRequest) (breez_sdk_spark.GetPaymentResponse, error) {
+						require.Equal(t, key, request.PaymentId)
+						return breez_sdk_spark.GetPaymentResponse{Payment: payment}, nil
+					}
+				}
+				lightning := newActivePaymentTestLightning(t, sdk)
+				err := lightning.SendPayment(sendPaymentRequest{
+					Type: paymentInputTypeBolt11, PaymentInput: "lnbc1invoice",
+					ApprovedFeeSat: 1, IdempotencyKey: key,
+				})
+				if status == breez_sdk_spark.PaymentStatusFailed {
+					require.ErrorIs(t, err, errLightningPaymentFailed)
+				} else {
+					require.NoError(t, err)
+				}
+				require.Equal(t, !stored, prepared)
+				require.Equal(t, !stored, sent)
+			})
+		}
+	}
+}
+
+// An unsuccessful lookup must not be mistaken for an absent payment and start another attempt.
+func TestSendBolt11PaymentLookupError(t *testing.T) {
+	t.Parallel()
+	lookupError := errors.New("storage unavailable")
+	sdk := &testPaymentSDK{
+		getPayment: func(breez_sdk_spark.GetPaymentRequest) (breez_sdk_spark.GetPaymentResponse, error) {
+			return breez_sdk_spark.GetPaymentResponse{}, lookupError
+		},
+		prepareSend: func(breez_sdk_spark.PrepareSendPaymentRequest) (breez_sdk_spark.PrepareSendPaymentResponse, error) {
+			t.Fatal("a failed lookup must not reach preparation")
+			return breez_sdk_spark.PrepareSendPaymentResponse{}, nil
+		},
+	}
+	lightning := newActivePaymentTestLightning(t, sdk)
+	err := lightning.SendPayment(sendPaymentRequest{
+		Type: paymentInputTypeBolt11, PaymentInput: "lnbc1invoice",
+		IdempotencyKey: "00000000-0000-4000-8000-000000000001",
+	})
+	require.ErrorIs(t, err, lookupError)
+}
+
 func TestPrepareLNURLPaymentIdempotencyKey(t *testing.T) {
 	t.Parallel()
 
@@ -3253,7 +3450,9 @@ func TestSendAllPayment(t *testing.T) {
 				require.Equal(t, balanceSat, request.PrepareResponse.Amount.Uint64())
 				require.Equal(t, breez_sdk_spark.FeePolicyFeesIncluded, request.PrepareResponse.FeePolicy)
 				sent++
-				return breez_sdk_spark.SendPaymentResponse{}, nil
+				return breez_sdk_spark.SendPaymentResponse{
+					Payment: breez_sdk_spark.Payment{Status: breez_sdk_spark.PaymentStatusPending},
+				}, nil
 			}
 			sdk.lnurlPay = func(request breez_sdk_spark.LnurlPayRequest) (breez_sdk_spark.LnurlPayResponse, error) {
 				require.Equal(t, balanceSat, request.PrepareResponse.AmountSats)
