@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"time"
 
 	"codeberg.org/go-pdf/fpdf"
@@ -32,10 +33,11 @@ type statementRow struct {
 }
 
 // ExportBalanceStatement exports a PDF statement for the selected active accounts
-// at the provided snapshot date.
+// at the provided snapshot date, using the app's resolved number separators.
 func (backend *Backend) ExportBalanceStatement(
 	accountCodes []accountsTypes.Code,
 	snapshotDate time.Time,
+	numberFormat *NumberFormat,
 ) error {
 	snapshotStart := time.Date(
 		snapshotDate.Year(),
@@ -93,6 +95,13 @@ func (backend *Backend) ExportBalanceStatement(
 	}
 
 	fiat := backend.Config().AppConfig().Backend.MainFiat
+	if numberFormat == nil {
+		numberFormat = &NumberFormat{DecimalSeparator: ".", GroupSeparator: "'"}
+	}
+	localizeAmount := strings.NewReplacer(
+		".", numberFormat.DecimalSeparator,
+		"'", numberFormat.GroupSeparator,
+	).Replace
 
 	totalByCoin := make(map[coinpkg.Code]*big.Int)
 	for _, account := range selectedAccounts {
@@ -125,7 +134,7 @@ func (backend *Backend) ExportBalanceStatement(
 		totalAmount := coinpkg.NewAmount(totalAmountInt)
 		row := statementRow{
 			coinName: coin.Name(),
-			amount:   coin.FormatAmount(totalAmount, false),
+			amount:   localizeAmount(coin.FormatAmount(totalAmount, false)),
 			unit:     coin.GetFormatUnit(false),
 		}
 
@@ -158,10 +167,11 @@ func (backend *Backend) ExportBalanceStatement(
 			hasMissingFiat = true
 		}
 
+		row.fiatValue = localizeAmount(row.fiatValue)
 		rows = append(rows, row)
 	}
 	sort.Slice(rows, func(i, j int) bool { return rows[i].coinName < rows[j].coinName })
-	totalFiatLabel := coinpkg.FormatAsCurrency(totalFiat, fiat)
+	totalFiatLabel := localizeAmount(coinpkg.FormatAsCurrency(totalFiat, fiat))
 	if hasMissingFiat {
 		totalFiatLabel = "N/A"
 	}
@@ -267,7 +277,13 @@ func createBalanceStatementPDF(
 	pdf.SetAutoPageBreak(false, 0)
 	pdf.RegisterImageOptionsReader("bitbox-logo", fpdf.ImageOptions{ImageType: "PNG"},
 		bytes.NewReader(balanceStatementLogo))
-	encodeText := pdf.UnicodeTranslatorFromDescriptor("")
+	translate := pdf.UnicodeTranslatorFromDescriptor("")
+	// Helvetica's Windows-1252 encoding needs ASCII fallbacks for Arabic separators
+	// and regular no-break spaces in place of narrow no-break spaces.
+	fontFallbacks := strings.NewReplacer("\u066b", ".", "\u066c", ",", "\u202f", "\u00a0")
+	encodeText := func(value string) string {
+		return translate(fontFallbacks.Replace(value))
+	}
 	text := func(x, y, size float64, style, value string) {
 		pdf.SetFont("Helvetica", style, size)
 		pdf.Text(x, y, encodeText(value))
