@@ -3,6 +3,7 @@ import Foundation
 enum WidgetShared {
     static let appGroupID = "group.swiss.bitbox.BitBoxApp"
     static let widgetKind = "BitBoxAppWidget"
+    static let lightningWidgetKind = "BitBoxAppLightningWidget"
     static let fallbackCurrency = "USD"
 
     static let invalidGeckoCurrencies: Set<String> = ["BTC", "sat"]
@@ -17,6 +18,8 @@ enum WidgetShared {
         static let selectedCoinIndex = "selectedCoinIndex"
         static let freshPriceReloadFulfilledPrefix = "freshPriceReloadFulfilled"
         static let freshPriceReloadRequestedToken = "freshPriceReloadRequestedToken"
+        static let lightningAccount = "lightningWidgetAccount"
+        static let lightningAddress = "lightningWidgetAddress"
     }
 
     enum Cache {
