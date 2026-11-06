@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useBackButton } from '@/hooks/backbutton';
 import { useQRScanner } from '@/hooks/qrcodescanner';
+import { useNativeQRScanner } from '@/hooks/native-qr-scanner';
+import { useMountedRef } from '@/hooks/mount';
 import { CloseXWhite, FlashWhite, FlashYellow } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { triggerHapticFeedback, triggerLongHapticFeedback } from '@/utils/transport-mobile';
@@ -35,6 +38,11 @@ export const ScanQR = ({
 }: TProps) => {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const guideRef = useRef<HTMLDivElement>(null);
+  const stopNativeRef = useRef<() => void>();
+  const mounted = useMountedRef();
+  const native = Boolean(window.nativeQRScanner);
   const scanRegionCenterY = (
     fullscreen
       ? FULLSCREEN_SCAN_REGION_CENTER_Y
@@ -63,6 +71,7 @@ export const ScanQR = ({
       return;
     }
     closingRef.current = true;
+    stopNativeRef.current?.();
     setOpen(false);
     closeTimer.current = setTimeout(onClosed, ANIMATION_MS);
   }, [onClose]);
@@ -85,6 +94,9 @@ export const ScanQR = ({
     setProcessing(true);
     try {
       const accepted = await onResult(text);
+      if (!mounted.current || closingRef.current) {
+        return;
+      }
       if (accepted === false) {
         busyRef.current = false;
         setProcessing(false);
@@ -94,18 +106,34 @@ export const ScanQR = ({
       requestClose();
     } catch (error) {
       console.error(error);
+      if (!mounted.current || closingRef.current) {
+        return;
+      }
       busyRef.current = false;
       setProcessing(false);
     }
-  }, [onResult, requestClose]);
+  }, [onResult, requestClose, mounted]);
 
-  const { initErrorMessage, hasFlash, isFlashOn, toggleFlash } = useQRScanner(videoRef, {
+  const webScanner = useQRScanner(videoRef, {
     onStart: () => setCameraReady(true),
     onResult: result => handleValue(result.data),
     onError: err => console.error(err),
     scanRegionCenterY,
     stopOnResult: false,
   });
+  const nativeScanner = useNativeQRScanner({
+    enabled: native && open,
+    gesturesEnabled: !guideHidden && !processing,
+    previewRef,
+    guideRef,
+    onResult: handleValue,
+  });
+  stopNativeRef.current = native ? nativeScanner.stop : undefined;
+  const initErrorMessage = native ? nativeScanner.initErrorMessage : webScanner.initErrorMessage;
+  const hasFlash = native ? nativeScanner.camera?.hasFlash : webScanner.hasFlash;
+  const isFlashOn = native ? nativeScanner.camera?.isFlashOn : webScanner.isFlashOn;
+  const toggleFlash = native ? nativeScanner.toggleFlash : webScanner.toggleFlash;
+  const ready = native ? nativeScanner.camera !== undefined : cameraReady;
 
   const handleToggleFlash = () => {
     triggerHapticFeedback();
@@ -125,27 +153,35 @@ export const ScanQR = ({
   const fullscreenClass = fullscreen ? style.fullscreen || '' : '';
   const content = typeof children === 'function' ? children(requestClose, resetLastResult) : children;
 
-  return (
+  const scannerUI = (
     <div
-      className={`${style.backdrop || ''} ${open ? style.backdropOpen || '' : ''} ${fullscreenClass}`}
+      className={`${style.backdrop || ''} ${open ? style.backdropOpen || '' : ''} ${fullscreenClass} ${native ? style.native || '' : ''}`}
       onClick={handleBackdropClick}>
       <div
         className={`${style.container || ''} ${open ? style.containerOpen || '' : ''} ${fullscreenClass}`}
         style={{ '--scan-qr-focus-top': `${scanRegionCenterY * 100}%` }}>
-        {!cameraReady && !initErrorMessage && (
+        {!ready && !initErrorMessage && (
           <div className={style.spinnerContainer}>
             <SpinnerRingAnimated />
           </div>
         )}
 
-        <video
-          className={style.video}
-          ref={videoRef}
-          poster="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%3E%20width=%2264%22%20height=%2248%22%3C/svg%3E"
-        />
+        {native ? (
+          <div
+            ref={previewRef}
+            className={`${style.nativePreview || ''} ${ready && !initErrorMessage ? style.previewReady || '' : ''}`}
+            {...nativeScanner.gestureHandlers}
+          />
+        ) : (
+          <video
+            className={style.video}
+            ref={videoRef}
+            poster="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%3E%20width=%2264%22%20height=%2248%22%3C/svg%3E"
+          />
+        )}
 
         <div className={style.overlay}>
-          <div className={`${style.focus || ''} ${guideHidden ? style.focusHidden || '' : ''}`}>
+          <div ref={guideRef} className={`${style.focus || ''} ${guideHidden ? style.focusHidden || '' : ''}`}>
             <span className={`${style.corner || ''} ${style.topLeft || ''}`} />
             <span className={`${style.corner || ''} ${style.topRight || ''}`} />
             <span className={`${style.corner || ''} ${style.bottomLeft || ''}`} />
@@ -193,4 +229,5 @@ export const ScanQR = ({
       </div>
     </div>
   );
+  return native ? createPortal(scannerUI, document.body) : scannerUI;
 };
