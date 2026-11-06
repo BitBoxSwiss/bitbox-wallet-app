@@ -223,3 +223,5 @@ routing components, use `renderHook` for hooks, and mock API calls with `vi.fn()
 Follow the existing `context: summary` convention (lowercase imperative, no trailing period)—e.g.,
 `frontend: simplify account selector`. Keep commits atomic and under ~500 lines when
 possible.
+
+In commit messages and PR bodies, do not include verification information, such as which tests were run.
