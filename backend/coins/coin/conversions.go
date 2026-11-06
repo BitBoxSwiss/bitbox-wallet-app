@@ -98,17 +98,12 @@ func ConversionsAtTime(amount Amount, coin Coin, isFee bool, ratesUpdater *rates
 	}
 
 	conversions := ConversionsMap{}
-	lastRates := ratesUpdater.LatestPrice()
-	if lastRates != nil {
-		unit := coin.Unit(isFee)
-		for currency := range lastRates[unit] {
-			value := ratesUpdater.HistoricalPriceAt(string(coin.Code()), currency, *timeStamp)
-			if value == 0 {
-				conversions[currency] = ""
-			} else {
-				convertedAmount := new(big.Rat).Mul(ToUnitRat(amount, coin, isFee), new(big.Rat).SetFloat64(value))
-				conversions[currency] = FormatAsCurrency(convertedAmount, currency)
-			}
+	for currency, value := range ratesUpdater.HistoricalPricesAt(string(coin.Code()), *timeStamp) {
+		if value == 0 {
+			conversions[currency] = ""
+		} else {
+			convertedAmount := new(big.Rat).Mul(ToUnitRat(amount, coin, isFee), new(big.Rat).SetFloat64(value))
+			conversions[currency] = FormatAsCurrency(convertedAmount, currency)
 		}
 	}
 	return conversions, false
