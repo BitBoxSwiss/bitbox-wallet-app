@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'wouter';
 import { Header, Main } from '../../components/layout';
 import { View, ViewButtons, ViewContent } from '../../components/view/view';
 import { MultilineMarkup } from '../../utils/markup';
@@ -10,7 +11,7 @@ import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { postDeactivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { Spinner } from '../../components/spinner/Spinner';
-import { route } from '../../utils/route';
+import { useAppState } from '@/contexts/app-state-context';
 
 const CONTENT_MIN_HEIGHT = '38em';
 
@@ -18,6 +19,8 @@ type TSteps = 'intro' | 'wait' | 'success';
 
 export const LightningDeactivate = () => {
   const { t } = useTranslation();
+  const [, navigate] = useLocation();
+  const { accounts } = useAppState();
   const [agree, setAgree] = useState(false);
   const [step, setStep] = useState<TSteps>('intro');
   const [deactivateError, setDeactivateError] = useState<string>();
@@ -72,7 +75,7 @@ export const LightningDeactivate = () => {
             <p>{t('lightning.deactivate.success.message')}</p>
           </ViewContent>
           <ViewButtons>
-            <Button primary onClick={() => route('/account-summary')}>
+            <Button primary onClick={() => navigate(accounts.length > 0 ? '/account-summary' : '/')}>
               {t('button.done')}
             </Button>
           </ViewButtons>
