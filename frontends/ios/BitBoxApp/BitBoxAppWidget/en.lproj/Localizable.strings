@@ -1,0 +1,4 @@
+"lightningWidget.address" = "Lightning address";
+"lightningWidget.description" = "Receive Lightning payments with your address QR code.";
+"lightningWidget.empty" = "Open BitBoxApp to set up your Lightning address.";
+"lightningWidget.name" = "BitBoxApp Lightning";

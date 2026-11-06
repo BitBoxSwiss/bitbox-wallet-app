@@ -51,6 +51,11 @@
 		DDDD00000000000000000009 /* BitBoxAppWidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD00000000000000000019 /* BitBoxAppWidgetEntryView.swift */; };
 		EEEE00000000000000000001 /* WidgetAppGroupSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEEE00000000000000000003 /* WidgetAppGroupSync.swift */; };
 		EEEE00000000000000000002 /* WidgetAppGroupSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEEE00000000000000000003 /* WidgetAppGroupSync.swift */; };
+		F37230010000000000000001 /* LightningWidgetSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37230010000000000000011 /* LightningWidgetSync.swift */; };
+		F37230010000000000000002 /* LightningAddressWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37230010000000000000012 /* LightningAddressWidget.swift */; };
+		F37230010000000000000003 /* LightningAddressQRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37230010000000000000013 /* LightningAddressQRCode.swift */; };
+		F37230010000000000000004 /* LightningAddressQRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37230010000000000000013 /* LightningAddressQRCode.swift */; };
+		F37230010000000000000005 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = F37230010000000000000014 /* Localizable.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -151,6 +156,10 @@
 		DDDD00000000000000000018 /* SparklineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparklineView.swift; sourceTree = "<group>"; };
 		DDDD00000000000000000019 /* BitBoxAppWidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitBoxAppWidgetEntryView.swift; sourceTree = "<group>"; };
 		EEEE00000000000000000003 /* WidgetAppGroupSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetAppGroupSync.swift; sourceTree = "<group>"; };
+		F37230010000000000000011 /* LightningWidgetSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightningWidgetSync.swift; sourceTree = "<group>"; };
+		F37230010000000000000012 /* LightningAddressWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightningAddressWidget.swift; sourceTree = "<group>"; };
+		F37230010000000000000013 /* LightningAddressQRCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightningAddressQRCode.swift; sourceTree = "<group>"; };
+		F37230010000000000000015 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -241,6 +250,7 @@
 				D76516082B1F3B1300DC03A9 /* BitBoxAppApp.swift */,
 				9A0000010000000000000001 /* LightningEncryptionHelper.swift */,
 				EEEE00000000000000000003 /* WidgetAppGroupSync.swift */,
+				F37230010000000000000011 /* LightningWidgetSync.swift */,
 				CCCC00010000000000000004 /* WidgetShared.swift */,
 				D76516322B1F3D1A00DC03A9 /* WebView.swift */,
 				D765160C2B1F3B1500DC03A9 /* Assets.xcassets */,
@@ -288,6 +298,9 @@
 			children = (
 				BBBB00010000000000000002 /* BitBoxAppWidget.entitlements */,
 				AAAA00010000000000000001 /* BitBoxAppWidget.swift */,
+				F37230010000000000000012 /* LightningAddressWidget.swift */,
+				F37230010000000000000013 /* LightningAddressQRCode.swift */,
+				F37230010000000000000014 /* Localizable.strings */,
 				DDDD00000000000000000019 /* BitBoxAppWidgetEntryView.swift */,
 				DDDD00000000000000000018 /* SparklineView.swift */,
 				DDDD00000000000000000017 /* WidgetTimelineProvider.swift */,
@@ -492,6 +505,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AAAA0001000000000000000A /* Assets.xcassets in Resources */,
+				F37230010000000000000005 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -563,6 +577,7 @@
 				D76516092B1F3B1300DC03A9 /* BitBoxAppApp.swift in Sources */,
 				9A0000010000000000000002 /* LightningEncryptionHelper.swift in Sources */,
 				EEEE00000000000000000001 /* WidgetAppGroupSync.swift in Sources */,
+				F37230010000000000000001 /* LightningWidgetSync.swift in Sources */,
 				CCCC00010000000000000001 /* WidgetShared.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -572,6 +587,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D765161A2B1F3B1500DC03A9 /* BitBoxAppTests.swift in Sources */,
+				F37230010000000000000004 /* LightningAddressQRCode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -589,6 +605,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				AAAA00010000000000000009 /* BitBoxAppWidget.swift in Sources */,
+				F37230010000000000000002 /* LightningAddressWidget.swift in Sources */,
+				F37230010000000000000003 /* LightningAddressQRCode.swift in Sources */,
 				DDDD00000000000000000009 /* BitBoxAppWidgetEntryView.swift in Sources */,
 				DDDD00000000000000000008 /* SparklineView.swift in Sources */,
 				DDDD00000000000000000007 /* WidgetTimelineProvider.swift in Sources */,
@@ -621,6 +639,17 @@
 			targetProxy = AAAA0001000000000000000E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		F37230010000000000000014 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F37230010000000000000015 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		D700B6082CA2FFAF000496D4 /* Debug */ = {

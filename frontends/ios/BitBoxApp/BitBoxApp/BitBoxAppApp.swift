@@ -210,15 +210,44 @@ class GoEnvironment: NSObject, MobileserverGoEnvironmentInterfaceProtocol, UIDoc
     }
 }
 
-class GoAPI: NSObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersProtocol {
+class GoAPI: NSObject, ObservableObject, MobileserverGoAPIInterfaceProtocol, SetMessageHandlersProtocol {
     var handlers: MessageHandlersProtocol?
+    #if !TARGET_TESTNET
+    private let lightningWidgetSync = LightningWidgetSync()
+    #endif
 
     func pushNotify(_ msg: String?) {
+        #if !TARGET_TESTNET
+        if let msg {
+            DispatchQueue.main.async {
+                self.lightningWidgetSync.handleEvent(msg)
+            }
+        }
+        #endif
         self.handlers?.pushNotificationHandler(msg: msg!)
     }
 
     func respond(_ queryID: Int, response: String?) {
+        #if !TARGET_TESTNET
+        // Native widget requests use negative IDs; web requests start at 1.
+        if queryID < 0 {
+            if let response {
+                DispatchQueue.main.async {
+                    self.lightningWidgetSync.handleResponse(queryID: queryID, response: response)
+                }
+            }
+            return
+        }
+        #endif
         self.handlers?.callResponseHandler(queryID: queryID, response: response!)
+    }
+
+    func syncLightningWidget() {
+        #if !TARGET_TESTNET
+        DispatchQueue.main.async {
+            self.lightningWidgetSync.sync()
+        }
+        #endif
     }
 
     func setMessageHandlers(handlers: MessageHandlersProtocol) {
@@ -362,17 +391,18 @@ final class AppPrivacyScreen: NSObject {
 struct BitBoxAppApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var bluetoothManager = BluetoothManager()
+    @StateObject private var goAPI = GoAPI()
     private let widgetSync = WidgetAppGroupSync()
 
     var body: some Scene {
         WindowGroup {
             GridLayout(alignment: .leading) {
-                let goAPI = GoAPI()
                 ZStack(alignment: .top) {
                 WebView(setHandlers: goAPI)
                     .edgesIgnoringSafeArea(.all)
                     .onAppear {
                         setupGoAPI(goAPI: goAPI)
+                        goAPI.syncLightningWidget()
                         MobileserverSetOnline(NetworkMonitor.shared.isOnline())
                         Task.detached(priority: .utility) {
                             widgetSync.sync(forceReload: true)
@@ -381,6 +411,7 @@ struct BitBoxAppApp: App {
                     .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
                         MobileserverManualReconnect()
                         MobileserverTriggerAuth()
+                        goAPI.syncLightningWidget()
                         Task.detached(priority: .utility) {
                             widgetSync.sync(forceReload: true)
                         }

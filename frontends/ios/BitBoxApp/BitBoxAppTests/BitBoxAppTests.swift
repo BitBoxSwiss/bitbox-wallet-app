@@ -8,6 +8,7 @@
 import XCTest
 import Security
 import UIKit
+import CoreImage
 @testable import BitBoxApp
 
 private final class InMemoryLightningKeychainClient: LightningKeychainClient {
@@ -57,6 +58,124 @@ private final class InMemoryLightningKeychainClient: LightningKeychainClient {
             return nil
         }
         return "\(service):\(account)"
+    }
+}
+
+final class LightningWidgetSyncTests: XCTestCase {
+    private var suiteName: String!
+    private var defaults: UserDefaults!
+    private var sync: LightningWidgetSync!
+    private var requests: [(id: Int, query: String)] = []
+    private var reloads = 0
+
+    override func setUpWithError() throws {
+        suiteName = "swiss.bitbox.BitBoxAppTests.widget.\(UUID().uuidString)"
+        defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
+        sync = LightningWidgetSync(
+            defaults: defaults,
+            backendCall: { self.requests.append(($0, $1)) },
+            reload: { self.reloads += 1 }
+        )
+    }
+
+    override func tearDownWithError() throws {
+        sync = nil
+        defaults.removePersistentDomain(forName: suiteName)
+        defaults = nil
+    }
+
+    private func respond(_ response: String) throws {
+        let request = try XCTUnwrap(requests.last)
+        sync.handleResponse(queryID: request.id, response: response)
+    }
+
+    private func loadAddress() throws {
+        sync.sync()
+        try respond(#"{"code":"wallet-a"}"#)
+        try respond(#"{"success":true,"data":"alice@bitbox.cash"}"#)
+    }
+
+    // Launch loads the address without opening Receive and leaves all price widget settings alone.
+    func testInitialSyncPreservesPriceWidget() throws {
+        defaults.set("CHF", forKey: WidgetShared.Keys.sharedCurrency)
+        defaults.set(["btc", "eth"], forKey: WidgetShared.Keys.sharedCoins)
+        defaults.set(1, forKey: WidgetShared.Keys.selectedCoinIndex)
+        try loadAddress()
+        try loadAddress()
+
+        XCTAssertEqual(defaults.string(forKey: WidgetShared.Keys.lightningAddress), "alice@bitbox.cash")
+        XCTAssertEqual(reloads, 1)
+        XCTAssertTrue(requests.allSatisfy { $0.id < 0 })
+        let query = try JSONDecoder().decode([String: String].self, from: Data(requests.last!.query.utf8))
+        XCTAssertEqual(query, ["method": "GET", "endpoint": "lightning/address"])
+        XCTAssertEqual(defaults.string(forKey: WidgetShared.Keys.sharedCurrency), "CHF")
+        XCTAssertEqual(defaults.stringArray(forKey: WidgetShared.Keys.sharedCoins), ["btc", "eth"])
+        XCTAssertEqual(defaults.integer(forKey: WidgetShared.Keys.selectedCoinIndex), 1)
+    }
+
+    // A rename invalidates the outstanding address read, even if it finishes after the new one.
+    func testAddressChangeIgnoresStaleResponse() throws {
+        try loadAddress()
+        sync.sync()
+        try respond(#"{"code":"wallet-a"}"#)
+        let oldID = try XCTUnwrap(requests.last?.id)
+        sync.handleEvent(#"{"subject":"lightning/address","action":"replace","object":"bob@bitbox.cash"}"#)
+        try respond(#"{"code":"wallet-a"}"#)
+        try respond(#"{"success":true,"data":"bob@bitbox.cash"}"#)
+        sync.handleResponse(queryID: oldID, response: #"{"success":true,"data":"alice@bitbox.cash"}"#)
+
+        XCTAssertEqual(defaults.string(forKey: WidgetShared.Keys.lightningAddress), "bob@bitbox.cash")
+    }
+
+    // Removing the wallet clears its QR immediately and a late response cannot restore it.
+    func testAccountRemovalClearsAddress() throws {
+        try loadAddress()
+        sync.sync()
+        try respond(#"{"code":"wallet-a"}"#)
+        let oldID = try XCTUnwrap(requests.last?.id)
+        sync.handleEvent(#"{"subject":"lightning/account","action":"reload"}"#)
+        XCTAssertNil(defaults.string(forKey: WidgetShared.Keys.lightningAddress))
+        try respond("null")
+        sync.handleResponse(queryID: oldID, response: #"{"success":true,"data":"alice@bitbox.cash"}"#)
+
+        XCTAssertNil(defaults.string(forKey: WidgetShared.Keys.lightningAddress))
+        XCTAssertNil(defaults.string(forKey: WidgetShared.Keys.lightningAccount))
+    }
+
+    // A different wallet detected on launch must not inherit the previous wallet's cached QR.
+    func testAccountReplacementClearsCachedAddress() throws {
+        try loadAddress()
+        sync.sync()
+        try respond(#"{"code":"wallet-b"}"#)
+        try respond(#"{"success":false,"errorMessage":"Lightning not initialized"}"#)
+
+        XCTAssertNil(defaults.string(forKey: WidgetShared.Keys.lightningAddress))
+        XCTAssertEqual(defaults.string(forKey: WidgetShared.Keys.lightningAccount), "wallet-b")
+    }
+
+    // Temporary SDK failures preserve an offline QR, but an authoritative null removes it.
+    func testUnavailableSDKPreservesAddressUntilSuccessfulRefresh() throws {
+        try loadAddress()
+        sync.handleEvent(#"{"subject":"lightning/sdk-status","object":"failed"}"#)
+        try respond(#"{"code":"wallet-a"}"#)
+        try respond(#"{"success":false,"errorMessage":"Lightning not initialized"}"#)
+        XCTAssertEqual(defaults.string(forKey: WidgetShared.Keys.lightningAddress), "alice@bitbox.cash")
+
+        sync.handleEvent(#"{"subject":"lightning/sdk-status","object":"ready"}"#)
+        try respond(#"{"code":"wallet-a"}"#)
+        try respond(#"{"success":true,"data":null}"#)
+        XCTAssertNil(defaults.string(forKey: WidgetShared.Keys.lightningAddress))
+    }
+
+    // Both typical and maximum-length addresses must round-trip through the actual QR encoder.
+    func testQRCodeEncodesReceivingAddress() throws {
+        let detector = try XCTUnwrap(CIDetector(ofType: CIDetectorTypeQRCode, context: CIContext(), options: [CIDetectorAccuracy: CIDetectorAccuracyHigh]))
+        for address in ["alice@bitbox.cash", String(repeating: "a", count: 64) + "@bitbox.cash"] {
+            let image = try XCTUnwrap(LightningAddressQRCode.image(for: address))
+            let codes = detector.features(in: CIImage(cgImage: image)).compactMap { $0 as? CIQRCodeFeature }
+            XCTAssertEqual(codes.map(\.messageString), [address])
+        }
+        XCTAssertNil(LightningAddressQRCode.image(for: ""))
     }
 }
 
