@@ -3,12 +3,13 @@
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
 import { useTranslation } from 'react-i18next';
+import { useQRScanRegion } from './qr-scan-region';
 
 type TUseQRScannerOptions = {
   onStart?: () => void;
   onResult: (result: QrScanner.ScanResult) => void;
   onError: (error: any) => void;
-  scanRegionCenterY?: number;
+  scanRegionRef: RefObject<HTMLDivElement>;
   stopOnResult?: boolean;
 };
 
@@ -17,7 +18,7 @@ export const useQRScanner = (
     onStart,
     onResult,
     onError,
-    scanRegionCenterY = 0.5,
+    scanRegionRef,
     stopOnResult = true,
   }: TUseQRScannerOptions
 ) => {
@@ -26,9 +27,7 @@ export const useQRScanner = (
   const [hasFlash, setHasFlash] = useState(false);
   const [isFlashOn, setIsFlashOn] = useState(false);
   const scanner = useRef<QrScanner | null>(null);
-  // loading is set to true while the scanner is being created/started/stopped/destroyed,
-  // this allows to sync across re-renders.
-  const loading = useRef<boolean>(false);
+  const calculateScanRegion = useQRScanRegion(videoRef, scanRegionRef);
 
   const onStartRef = useRef(onStart);
   const onResultRef = useRef(onResult);
@@ -38,68 +37,66 @@ export const useQRScanner = (
   onErrorRef.current = onError;
 
   useEffect(() => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+    let cancelled = false;
+    let qrScanner: QrScanner | undefined;
     (async () => {
-      if (!videoRef.current) {
-        return;
-      }
-
-      while (loading.current) {
-        await new Promise(r => setTimeout(r, 100));
-      }
       try {
-        loading.current = true;
-        scanner.current = new QrScanner(
-          videoRef.current,
+        qrScanner = new QrScanner(
+          video,
           result => {
+            if (cancelled) {
+              return;
+            }
             if (stopOnResult) {
-              scanner.current?.stop();
+              qrScanner?.stop();
             }
             onResultRef.current(result);
           }, {
             onDecodeError: err => {
-              const errorString = err.toString();
-              if (err && !errorString.includes('No QR code found')) {
+              if (!cancelled && err && !err.toString().includes('No QR code found')) {
                 onErrorRef.current(err);
               }
             },
-            // disabled bc we draw their own scan overlay.
+            // The component draws the scan overlay.
             highlightScanRegion: false,
             highlightCodeOutline: false,
-            calculateScanRegion: (v) => {
-              const videoWidth = v.videoWidth;
-              const videoHeight = v.videoHeight;
-              const factor = 0.5;
-              const size = Math.floor(Math.min(videoWidth, videoHeight) * factor);
-              const y = Math.min(
-                Math.max(videoHeight * scanRegionCenterY - size / 2, 0),
-                videoHeight - size
-              );
-              return {
-                x: (videoWidth - size) / 2,
-                y,
-                width: size,
-                height: size
-              };
-            }
+            calculateScanRegion,
           }
         );
-        // Somehow, the new QrScanner may return before it is ready to be started.
-        // We don't have a way to know when it is ready, but this 300ms wait seems
-        // to work well enough.
+        scanner.current = qrScanner;
+        setInitErrorMessage(undefined);
+        setHasFlash(false);
+        setIsFlashOn(false);
+        // Allow the video to settle and any previous scanner's delayed stream
+        // shutdown to finish before requesting the camera.
         await new Promise(r => setTimeout(r, 300));
-        await scanner.current?.start();
-        loading.current = false;
-        try {
-          setHasFlash(await scanner.current?.hasFlash() ?? false);
-        } catch {
-          setHasFlash(false);
+        if (cancelled) {
+          return;
         }
-        if (onStartRef.current) {
-          onStartRef.current();
+        await qrScanner.start();
+        if (cancelled) {
+          return;
+        }
+        try {
+          const flash = await qrScanner.hasFlash();
+          if (!cancelled) {
+            setHasFlash(flash);
+          }
+        } catch {
+          // Flash detection is optional; scanning can continue without it.
+        }
+        if (!cancelled) {
+          onStartRef.current?.();
         }
       } catch (error: any) {
+        if (cancelled) {
+          return;
+        }
         const stringifiedError = error.toString();
-        loading.current = false;
         const cameraNotFound = stringifiedError === 'Camera not found.';
         setInitErrorMessage(cameraNotFound ? t('send.scanQRNoCameraMessage') : stringifiedError);
         onErrorRef.current(error);
@@ -107,39 +104,27 @@ export const useQRScanner = (
     })();
 
     return () => {
-      (async() => {
-        while (loading.current) {
-          await new Promise(r => setTimeout(r, 100));
-        }
-        if (scanner.current) {
-          loading.current = true;
-          await scanner.current?.pause(true);
-          await scanner.current?.stop();
-          await scanner.current?.destroy();
-          scanner.current = null;
-          loading.current = false;
-        }
-      })();
+      cancelled = true;
+      qrScanner?.pause(true);
+      qrScanner?.destroy();
+      scanner.current = null;
     };
-  }, [videoRef, scanRegionCenterY, stopOnResult, t]);
+  }, [videoRef, calculateScanRegion, stopOnResult, t]);
 
   const toggleFlash = useCallback(async () => {
-    const stream = videoRef.current?.srcObject;
-    if (!(stream instanceof MediaStream)) {
+    const qrScanner = scanner.current;
+    if (!qrScanner) {
       return;
     }
-    const track = stream.getVideoTracks()[0];
-    if (!track) {
-      return;
-    }
-    const nextOn = !isFlashOn;
     try {
-      await track.applyConstraints({ advanced: [{ torch: nextOn }] } as unknown as MediaTrackConstraints);
-      setIsFlashOn(nextOn);
+      await qrScanner.toggleFlash();
+      if (scanner.current === qrScanner) {
+        setIsFlashOn(qrScanner.isFlashOn());
+      }
     } catch (error) {
       console.error(error);
     }
-  }, [videoRef, isFlashOn]);
+  }, []);
 
   return { initErrorMessage, hasFlash, isFlashOn, toggleFlash };
 };

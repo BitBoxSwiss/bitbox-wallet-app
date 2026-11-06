@@ -35,6 +35,7 @@ export const ScanQR = ({
 }: TProps) => {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const scanRegionRef = useRef<HTMLDivElement>(null);
   const scanRegionCenterY = (
     fullscreen
       ? FULLSCREEN_SCAN_REGION_CENTER_Y
@@ -103,7 +104,7 @@ export const ScanQR = ({
     onStart: () => setCameraReady(true),
     onResult: result => handleValue(result.data),
     onError: err => console.error(err),
-    scanRegionCenterY,
+    scanRegionRef,
     stopOnResult: false,
   });
 
@@ -145,7 +146,7 @@ export const ScanQR = ({
         />
 
         <div className={style.overlay}>
-          <div className={`${style.focus || ''} ${guideHidden ? style.focusHidden || '' : ''}`}>
+          <div ref={scanRegionRef} className={`${style.focus || ''} ${guideHidden ? style.focusHidden || '' : ''}`}>
             <span className={`${style.corner || ''} ${style.topLeft || ''}`} />
             <span className={`${style.corner || ''} ${style.topRight || ''}`} />
             <span className={`${style.corner || ''} ${style.bottomLeft || ''}`} />
