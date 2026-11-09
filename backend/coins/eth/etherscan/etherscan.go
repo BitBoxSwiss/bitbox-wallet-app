@@ -138,12 +138,13 @@ func (etherScan *EtherScan) callWithMethod(
 	if err := etherScan.waitForRequestRateLimit(ctx, params.Get("action")); err != nil {
 		return errp.WithMessage(rpcclient.ErrRequestRejected, err.Error())
 	}
-	params.Set("chainId", etherScan.chainId)
 	encodedParams := params.Encode()
-	requestURL := etherScan.url
+	// The proxy requires chain selection in the URL, including for POST requests.
+	chainParams := url.Values{"chainId": {etherScan.chainId}}
+	requestURL := etherScan.url + "?" + chainParams.Encode()
 	var requestBody io.Reader
 	if method == http.MethodGet {
-		requestURL += "?" + encodedParams
+		requestURL += "&" + encodedParams
 	} else {
 		requestBody = strings.NewReader(encodedParams)
 	}
