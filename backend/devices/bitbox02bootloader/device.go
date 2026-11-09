@@ -31,6 +31,7 @@ type Device struct {
 
 	operationLock                     sync.RWMutex
 	operationErased                   bool
+	operationTargetFirmwareVersion    string
 	operationAdditionalUpgradeFollows bool
 
 	log *logrus.Entry
@@ -136,6 +137,8 @@ type Status struct {
 	*bootloader.Status
 	Product bitbox02common.Product `json:"product"`
 	Erased  bool                   `json:"erased"`
+	// TargetFirmwareVersion is the version being installed, or empty if no upgrade has started.
+	TargetFirmwareVersion string `json:"targetFirmwareVersion"`
 	// AdditionalUpgradeFollows is true if there is more than one upgrade to be performed
 	// (intermediate and final).
 	AdditionalUpgradeFollows bool `json:"additionalUpgradeFollows"`
@@ -145,12 +148,14 @@ type Status struct {
 func (device *Device) Status() *Status {
 	device.operationLock.RLock()
 	erased := device.operationErased
+	targetFirmwareVersion := device.operationTargetFirmwareVersion
 	additionalUpgradeFollows := device.operationAdditionalUpgradeFollows
 	device.operationLock.RUnlock()
 	return &Status{
 		Status:                   device.Device.Status(),
 		Product:                  device.Device.Product(),
 		Erased:                   erased,
+		TargetFirmwareVersion:    targetFirmwareVersion,
 		AdditionalUpgradeFollows: additionalUpgradeFollows,
 	}
 }
@@ -224,6 +229,7 @@ func (device *Device) UpgradeFirmware() error {
 	}
 	device.operationLock.Lock()
 	device.operationErased = erased
+	device.operationTargetFirmwareVersion = nextFirmware.version.String()
 	device.operationAdditionalUpgradeFollows = nextFirmware.monotonicVersion < latestFirmware.monotonicVersion
 	device.operationLock.Unlock()
 

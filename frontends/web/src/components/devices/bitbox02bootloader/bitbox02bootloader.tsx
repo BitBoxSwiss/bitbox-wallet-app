@@ -73,11 +73,11 @@ export const BitBox02Bootloader = ({ deviceID }: TProps) => {
       contents = (
         <>
           <SubTitle className={style.upgradingTitle}>
-            {t('bb02Bootloader.upgradeTitle', { context: (status.erased ? 'install' : '') })}
+            {t('bb02Bootloader.upgradeTitle', { context: 'install' })} {status.targetFirmwareVersion}
           </SubTitle>
           { status.additionalUpgradeFollows ? (
             <p className={style.additionalUpgrade}>
-              {t('bb02Bootloader.additionalUpgradeFollows1')}
+              {t('bb02Bootloader.furtherUpgrades')}
             </p>
           ) : null }
           <progress className={style.progressBar} value={value} max="100">{value}%</progress>

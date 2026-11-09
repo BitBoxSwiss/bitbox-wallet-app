@@ -17,6 +17,8 @@ export type TStatus = {
   upgradeSuccessful: boolean;
   erased: boolean;
   product: TProduct;
+  // The version being installed, or empty if no upgrade has started.
+  targetFirmwareVersion: string;
   // This is true if there is more than one upgrade to be performed (intermediate and final).
   additionalUpgradeFollows: boolean;
 };

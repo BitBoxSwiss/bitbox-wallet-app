@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader"
 	"github.com/BitBoxSwiss/bitbox02-api-go/api/common"
 	"github.com/BitBoxSwiss/bitbox02-api-go/util/semver"
@@ -75,20 +76,28 @@ func TestLatestFirmwareInfo(t *testing.T) {
 	}
 }
 
-// The app uploads v9.27.2 first, boots it, and resumes with v9.28.0 only on bootloader v1.2.3.
+// The app uploads and boots each required intermediate before continuing, reporting the version
+// being installed throughout each upload so consecutive upgrades can be distinguished in the UI.
 func TestFirmwareUpgradeSequence(t *testing.T) {
 	for product := range bundledFirmwares {
 		for _, step := range []struct {
-			name         string
-			version      uint32
-			bootloader   *semver.SemVer
-			upload       uint32
-			autoContinue bool
+			name          string
+			version       uint32
+			bootloader    *semver.SemVer
+			upload        uint32
+			uploadVersion string
+			autoContinue  bool
 		}{
-			{"from-v9.27.0", 54, semver.NewSemVer(1, 2, 2), 56, false},
-			{"boot-intermediate", 56, semver.NewSemVer(1, 2, 2), 0, false},
-			{"resume-after-bootloader-upgrade", 56, semver.NewSemVer(1, 2, 3), 57, true},
+			{"legacy-intermediate", 35, semver.NewSemVer(1, 0, 0), 36, "9.17.1", false},
+			{"from-v9.25.0", 49, semver.NewSemVer(1, 2, 0), 50, "9.26.2", false},
+			{"resume-after-first-bootloader-upgrade", 50, semver.NewSemVer(1, 2, 2), 56, "9.27.2", true},
+			{"from-v9.27.0", 54, semver.NewSemVer(1, 2, 2), 56, "9.27.2", false},
+			{"boot-intermediate", 56, semver.NewSemVer(1, 2, 2), 0, "", false},
+			{"resume-after-bootloader-upgrade", 56, semver.NewSemVer(1, 2, 3), 57, "9.28.0", true},
 		} {
+			if step.upload == 36 && product != common.ProductBitBox02Multi && product != common.ProductBitBox02BTCOnly {
+				continue // The legacy intermediate is only bundled for the original BitBox02.
+			}
 			t.Run(string(product)+"/"+step.name, func(t *testing.T) {
 				communication := mockBootloaderCommunication(step.version, nil)
 				query := communication.query
@@ -117,6 +126,15 @@ func TestFirmwareUpgradeSequence(t *testing.T) {
 					return nil
 				}
 				device := NewDevice("deviceID", step.bootloader, product, &communication)
+				require.Empty(t, device.Status().TargetFirmwareVersion)
+				var reportedVersions []string
+				unobserve := device.Observe(func(event observable.Event) {
+					status := event.Object.(*Status)
+					if status.Upgrading {
+						reportedVersions = append(reportedVersions, status.TargetFirmwareVersion)
+					}
+				})
+				defer unobserve()
 				require.NoError(t, device.Init(false))
 				if !step.autoContinue {
 					require.NoError(t, device.UpgradeFirmware())
@@ -131,7 +149,13 @@ func TestFirmwareUpgradeSequence(t *testing.T) {
 					require.Zero(t, chunks)
 					require.Empty(t, written)
 					require.Empty(t, sigdata)
+					require.Empty(t, reportedVersions)
+					require.Empty(t, device.Status().TargetFirmwareVersion)
 					return
+				}
+				require.NotEmpty(t, reportedVersions)
+				for _, version := range reportedVersions {
+					require.Equal(t, step.uploadVersion, version)
 				}
 				firmware, err := nextFirmware(product, step.version)
 				require.NoError(t, err)
@@ -145,7 +169,7 @@ func TestFirmwareUpgradeSequence(t *testing.T) {
 				require.Equal(t, chunks*4096, len(written))
 				require.Equal(t, expectedFirmware, written[:len(expectedFirmware)])
 				require.Equal(t, bytes.Repeat([]byte{0xFF}, len(written)-len(expectedFirmware)), written[len(expectedFirmware):])
-				require.Equal(t, step.upload == 56, device.Status().AdditionalUpgradeFollows)
+				require.Equal(t, step.upload < 57, device.Status().AdditionalUpgradeFollows)
 				require.True(t, device.Status().UpgradeSuccessful)
 			})
 		}

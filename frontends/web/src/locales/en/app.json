@@ -212,13 +212,13 @@
   "bb02Bootloader": {
     "abort": "Don't upgrade – take me back",
     "abort_noUpgrade": "Take me back",
-    "additionalUpgradeFollows1": "An additional upgrade will follow immediately after this one.",
     "additionalUpgradeFollows2": "Please keep your BitBox plugged in until all upgrades are complete.",
     "advanced": {
       "label": "Advanced settings",
       "toggleShowFirmwareHash": "Show the firmware hash every time on startup"
     },
     "flipscreen": "Flip screen",
+    "furtherUpgrades": "Further upgrades will follow.",
     "orientation": "Device oriented the wrong way?",
     "success": "Upgrade successful!",
     "success_install": "Installation successful!",
