@@ -633,7 +633,7 @@ func TestExportBalanceStatementMatchesChartAtSnapshot(t *testing.T) {
 		accountCodes = append(accountCodes, accountCode)
 	}
 
-	require.NoError(t, b.ExportBalanceStatement(accountCodes, snapshotDate))
+	require.NoError(t, b.ExportBalanceStatement(accountCodes, snapshotDate, nil))
 	pdf, err := os.ReadFile(filename)
 	require.NoError(t, err)
 	snapshotTotal := coinpkg.FormatAsCurrency(chartEntries[snapshotEnd.Unix()].RatValue, "USD")
