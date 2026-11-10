@@ -30,6 +30,7 @@ import { useAccountSynced } from '@/hooks/account';
 import { useLightning } from '@/hooks/lightning';
 import { Send as LightningSend } from '@/routes/lightning/send/send';
 import { LightningTestnetGuard } from '@/routes/lightning/testnet-warning';
+import { TermsPage } from '@/components/terms/terms-page';
 import style from './iframe.module.css';
 import { useAppState } from '@/contexts/app-state-context';
 
@@ -240,6 +241,16 @@ export const Bitrefill = () => {
 
   const title = t('generic.spend', { context: translationContext });
 
+  if (!agreedTerms) {
+    return (
+      <TermsPage
+        title={title}
+        guide={<MarketGuide vendor="bitrefill" translationContext={translationContext} terms={<BitrefillTerms coinCode={coinCode} readOnly />} />}>
+        <BitrefillTerms coinCode={coinCode} />
+      </TermsPage>
+    );
+  }
+
   return (
     <>
       {/* Keep the checkout iframe mounted so its order and confirmation survive payment. */}
@@ -250,41 +261,35 @@ export const Bitrefill = () => {
               {!lightningPaymentInput && <Header variant="navigation" mobileBackButton title={title} />}
             </div>
             <div ref={containerRef} className={style.container}>
-              { !agreedTerms ? (
-                <BitrefillTerms
-                  coinCode={coinCode}
-                />
-              ) : (
-                <div style={{ height }}>
-                  {!iframeLoaded && (
-                    <Spinner text={t('loading')} />
-                  )}
-                  { bitrefillInfo?.success && (
-                    <iframe
-                      ref={iframeRef}
-                      title="Bitrefill"
-                      width="100%"
-                      height={height}
-                      frameBorder="0"
-                      className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
-                      sandbox="allow-same-origin allow-popups allow-scripts allow-forms"
-                      src={bitrefillInfo.url}
-                      onLoad={() => {
-                        onIframeLoad();
-                      }}
-                    />
-                  )}
-                  {verifyPaymentRequest && verifyPaymentRequest.success && (
-                    <ConfirmBitrefill
-                      isConfirming={verifyPaymentRequest.success}
-                      proposedFee={verifyPaymentRequest.fee}
-                      proposedAmount={verifyPaymentRequest.amount}
-                      recipientAddress={verifyPaymentRequest.address}
-                      proposedTotal={verifyPaymentRequest.total}
-                    />
-                  )}
-                </div>
-              )}
+              <div style={{ height }}>
+                {!iframeLoaded && (
+                  <Spinner text={t('loading')} />
+                )}
+                { bitrefillInfo?.success && (
+                  <iframe
+                    ref={iframeRef}
+                    title="Bitrefill"
+                    width="100%"
+                    height={height}
+                    frameBorder="0"
+                    className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
+                    sandbox="allow-same-origin allow-popups allow-scripts allow-forms"
+                    src={bitrefillInfo.url}
+                    onLoad={() => {
+                      onIframeLoad();
+                    }}
+                  />
+                )}
+                {verifyPaymentRequest && verifyPaymentRequest.success && (
+                  <ConfirmBitrefill
+                    isConfirming={verifyPaymentRequest.success}
+                    proposedFee={verifyPaymentRequest.fee}
+                    proposedAmount={verifyPaymentRequest.amount}
+                    recipientAddress={verifyPaymentRequest.address}
+                    proposedTotal={verifyPaymentRequest.total}
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -29,6 +29,7 @@ import {
 import { useAccountSynced } from '@/hooks/account';
 import { Message } from '@/components/message/message';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
+import { TermsPage } from '@/components/terms/terms-page';
 import style from './iframe.module.css';
 
 type TProps = {
@@ -291,6 +292,16 @@ export const Pocket = ({ action }: TProps) => {
 
   const title = t('generic.buySell');
 
+  if (!agreedTerms && accountInfoResponse?.success !== false) {
+    return (
+      <TermsPage
+        title={title}
+        guide={<MarketGuide vendor="pocket" translationContext="bitcoin" terms={<PocketTerms readOnly />} />}>
+        <PocketTerms />
+      </TermsPage>
+    );
+  }
+
   return (
     <div className="contentWithGuide">
       <div className="container">
@@ -303,8 +314,6 @@ export const Pocket = ({ action }: TProps) => {
               <Message type="error">{accountInfoResponse.errorMessage || t('genericError')}</Message>
               <DesktopBackButton enableEsc>{t('button.back')}</DesktopBackButton>
             </div>
-          ) : !agreedTerms ? (
-            <PocketTerms />
           ) : (
             <div style={{ height }}>
               <UseDisableBackButton />
