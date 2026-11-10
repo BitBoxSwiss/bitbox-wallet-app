@@ -627,7 +627,7 @@ func (lightning *Lightning) getBreezApiKey() (*string, error) {
 		err = errp.New("Breez api key response is empty")
 	}
 
-	cache := utilconfig.NewFile(lightning.lightningDirectoryPath, "breez-api-key.json")
+	cache := atomicJSONFile{File: utilconfig.NewFile(lightning.lightningDirectoryPath, "breez-api-key.json")}
 	if err != nil {
 		lightning.log.WithError(err).Warn("Breez api key fetch failed")
 		var cachedKey string

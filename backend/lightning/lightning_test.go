@@ -319,10 +319,11 @@ func (transport apiKeyTransport) RoundTrip(request *http.Request) (*http.Respons
 	return transport(request)
 }
 
-// Successful fetches refresh a private cache that remains available to a new Lightning instance.
+// Successful fetches replace the private cache file, which remains available to a new Lightning instance.
 func TestBreezAPIKeyCacheRefresh(t *testing.T) {
 	lightning := newTestLightning(t, nil)
 	cache := utilconfig.NewFile(lightning.lightningDirectoryPath, "breez-api-key.json")
+	var previousInfo os.FileInfo
 	for _, key := range []string{"first-key", "updated-key"} {
 		lightning.httpClient = &http.Client{
 			Timeout: time.Minute,
@@ -346,6 +347,10 @@ func TestBreezAPIKeyCacheRefresh(t *testing.T) {
 		info, err := os.Stat(cache.Path())
 		require.NoError(t, err)
 		require.Equal(t, os.FileMode(0600), info.Mode().Perm())
+		if previousInfo != nil {
+			require.False(t, os.SameFile(previousInfo, info), "cache refresh must replace the existing file")
+		}
+		previousInfo = info
 		// Refreshing an existing cache must also tighten its permissions.
 		require.NoError(t, os.Chmod(cache.Path(), 0644))
 	}
@@ -425,7 +430,7 @@ func TestBreezAPIKeyInvalidCache(t *testing.T) {
 	}
 }
 
-// A cache write failure must not block connecting with the freshly fetched key.
+// A cache write failure must not block connecting with the fresh key or leave temporary files behind.
 func TestBreezAPIKeyCacheWriteFailure(t *testing.T) {
 	lightning := newTestLightning(t, nil)
 	filename := filepath.Join(lightning.lightningDirectoryPath, "breez-api-key.json")
@@ -440,6 +445,9 @@ func TestBreezAPIKeyCacheWriteFailure(t *testing.T) {
 	apiKey, err := lightning.getBreezApiKey()
 	require.NoError(t, err)
 	require.Equal(t, "fresh-key", *apiKey)
+	entries, err := os.ReadDir(lightning.lightningDirectoryPath)
+	require.NoError(t, err)
+	require.Len(t, entries, 1)
 }
 
 // A stalled request is canceled after five seconds and falls back to the cached key.
