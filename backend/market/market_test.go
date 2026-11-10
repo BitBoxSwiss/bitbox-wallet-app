@@ -33,12 +33,18 @@ func pocketRegionsClient(t *testing.T, regions ...string) *http.Client {
 	body, err := json.Marshal(pocketRegions)
 	require.NoError(t, err)
 
+	return pocketResponseClient(t, http.StatusOK, string(body))
+}
+
+func pocketResponseClient(t *testing.T, statusCode int, body string) *http.Client {
+	t.Helper()
+
 	return &http.Client{
 		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
 			require.Equal(t, pocketAPILiveURL+"/availabilities", req.URL.String())
 			return &http.Response{
-				StatusCode: http.StatusOK,
-				Body:       io.NopCloser(strings.NewReader(string(body))),
+				StatusCode: statusCode,
+				Body:       io.NopCloser(strings.NewReader(body)),
 			}, nil
 		}),
 	}
@@ -60,6 +66,7 @@ func vendorNames(dealsLists []*DealsList) []string {
 	return names
 }
 
+// Unsupported coins and successful availability responses excluding the region must still reject OTC offers.
 func TestSpecialActionDealsOTCErrors(t *testing.T) {
 	tests := []struct {
 		name        string
@@ -96,10 +103,17 @@ func TestSpecialActionDealsOTCErrors(t *testing.T) {
 			expectedErr: ErrRegionNotSupported,
 		},
 		{
-			name:        "pocket availability failure returns region error for pocket only coin",
-			coinCode:    coin.CodeTBTC,
+			name:        "pocket availability failure does not enable unsupported coin",
+			coinCode:    coin.CodeLTC,
 			regionCode:  "US",
 			httpClient:  failingPocketClient(),
+			expectedErr: ErrRegionNotSupported,
+		},
+		{
+			name:        "successful empty availability response excludes pocket",
+			coinCode:    coin.CodeBTC,
+			regionCode:  "US",
+			httpClient:  pocketRegionsClient(t),
 			expectedErr: ErrRegionNotSupported,
 		},
 	}
@@ -114,6 +128,7 @@ func TestSpecialActionDealsOTCErrors(t *testing.T) {
 	}
 }
 
+// Pocket OTC stays available for supported coins when its availability lookup fails or no region is selected.
 func TestSpecialActionDealsOTCDeals(t *testing.T) {
 	tests := []struct {
 		name          string
@@ -140,6 +155,39 @@ func TestSpecialActionDealsOTCDeals(t *testing.T) {
 			coinCode:      coin.CodeBTC,
 			regionCode:    "CH",
 			httpClient:    pocketRegionsClient(t, "CH"),
+			expectedNames: []string{BTCDirectOTCName, PocketOTCName},
+		},
+		{
+			name:          "availability failure allows pocket only coin in any region",
+			coinCode:      coin.CodeTBTC,
+			regionCode:    "US",
+			httpClient:    failingPocketClient(),
+			expectedNames: []string{PocketOTCName},
+		},
+		{
+			name:          "availability failure keeps both vendors available",
+			coinCode:      coin.CodeBTC,
+			regionCode:    "CH",
+			httpClient:    failingPocketClient(),
+			expectedNames: []string{BTCDirectOTCName, PocketOTCName},
+		},
+		{
+			name:          "HTTP 429 allows pocket in any region",
+			coinCode:      coin.CodeBTC,
+			regionCode:    "US",
+			httpClient:    pocketResponseClient(t, http.StatusTooManyRequests, "<html>Vercel Security Checkpoint</html>"),
+			expectedNames: []string{PocketOTCName},
+		},
+		{
+			name:          "invalid availability JSON allows pocket in any region",
+			coinCode:      coin.CodeBTC,
+			regionCode:    "US",
+			httpClient:    pocketResponseClient(t, http.StatusOK, "invalid JSON"),
+			expectedNames: []string{PocketOTCName},
+		},
+		{
+			name:          "unspecified region allows both vendors without an availability request",
+			coinCode:      coin.CodeBTC,
 			expectedNames: []string{BTCDirectOTCName, PocketOTCName},
 		},
 	}
