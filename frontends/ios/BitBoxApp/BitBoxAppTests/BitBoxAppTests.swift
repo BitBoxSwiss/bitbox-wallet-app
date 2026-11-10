@@ -68,15 +68,19 @@ final class BitBoxAppTests: XCTestCase {
     func testPrivacyScreenReusesLaunchScreenWithoutTakingFocus() throws {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
         let keyWindow = scene.windows.first(where: { $0.isKeyWindow })
-        let privacy = AppPrivacyScreen()
+        let existingWindows = Set(scene.windows)
+        let privacy = AppPrivacyScreen(isSceneActive: { _ in true })
         let center = NotificationCenter()
         privacy.startObserving(center: center)
-        defer { center.post(name: UIScene.didDisconnectNotification, object: scene) }
+        defer {
+            center.post(name: UIScene.didDisconnectNotification, object: scene)
+            center.removeObserver(privacy)
+        }
 
         privacy.cover(scene)
         privacy.cover(scene)
 
-        let covers = scene.windows.filter { $0.accessibilityIdentifier == "app-privacy-screen" && !$0.isHidden }
+        let covers = scene.windows.filter { !existingWindows.contains($0) && $0.accessibilityIdentifier == "app-privacy-screen" && !$0.isHidden }
         let cover = try XCTUnwrap(covers.first)
         XCTAssertEqual(covers.count, 1)
         XCTAssertFalse(cover.isKeyWindow)
@@ -92,76 +96,97 @@ final class BitBoxAppTests: XCTestCase {
         XCTAssertEqual(logo.center.y, view.bounds.midY, accuracy: 0.5)
     }
 
-    // Returning from the background must not uncover the wallet before authentication completes.
+    // Returning from the background requires both completed authentication and an active scene.
     @MainActor
     func testPrivacyScreenWaitsForAuthenticationOnReturn() async throws {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
-        XCTAssertEqual(scene.activationState, .foregroundActive)
-        let privacy = AppPrivacyScreen()
+        let existingWindows = Set(scene.windows)
+        var sceneActive = true
+        let privacy = AppPrivacyScreen(isSceneActive: { _ in sceneActive })
         let center = NotificationCenter()
         privacy.startObserving(center: center)
-        defer { center.post(name: UIScene.didDisconnectNotification, object: scene) }
+        defer {
+            center.post(name: UIScene.didDisconnectNotification, object: scene)
+            center.removeObserver(privacy)
+        }
 
         center.post(name: UIScene.willEnterForegroundNotification, object: scene)
         center.post(name: UIScene.didActivateNotification, object: scene)
-        XCTAssertTrue(scene.windows.contains { $0.accessibilityIdentifier == "app-privacy-screen" && !$0.isHidden })
+        let cover = try privacyWindow(in: scene, excluding: existingWindows)
+        XCTAssertEqual(cover.alpha, 1)
 
         privacy.authenticationStarted()
+        sceneActive = false
         privacy.authenticationFinished(success: true)
-        await waitForPrivacyScreenToHide(in: scene)
-        XCTAssertFalse(scene.windows.contains { $0.accessibilityIdentifier == "app-privacy-screen" && !$0.isHidden })
+        XCTAssertEqual(cover.alpha, 1)
+        XCTAssertFalse(cover.isHidden)
+
+        sceneActive = true
+        center.post(name: UIScene.didActivateNotification, object: scene)
+        await waitForPrivacyScreenToHide(cover)
     }
 
     // Cancellation leaves the web lock available for retry, including after another app switch.
     @MainActor
     func testPrivacyScreenAllowsRetryAfterCancelledAuthentication() async throws {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
-        let privacy = AppPrivacyScreen()
+        let existingWindows = Set(scene.windows)
+        let privacy = AppPrivacyScreen(isSceneActive: { _ in true })
         let center = NotificationCenter()
         privacy.startObserving(center: center)
-        defer { center.post(name: UIScene.didDisconnectNotification, object: scene) }
+        defer {
+            center.post(name: UIScene.didDisconnectNotification, object: scene)
+            center.removeObserver(privacy)
+        }
 
         center.post(name: UIScene.willEnterForegroundNotification, object: scene)
+        let cover = try privacyWindow(in: scene, excluding: existingWindows)
         privacy.authenticationStarted()
         privacy.authenticationFinished(success: false)
         center.post(name: UIScene.willEnterForegroundNotification, object: scene)
         center.post(name: UIScene.didActivateNotification, object: scene)
 
-        await waitForPrivacyScreenToHide(in: scene)
-        XCTAssertFalse(scene.windows.contains { $0.accessibilityIdentifier == "app-privacy-screen" && !$0.isHidden })
+        await waitForPrivacyScreenToHide(cover)
     }
 
     // Preview privacy applies even with app authentication disabled; activation restores the app.
     @MainActor
     func testPrivacyScreenCoversWithoutAuthentication() async throws {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
-        let privacy = AppPrivacyScreen()
+        let existingWindows = Set(scene.windows)
+        let privacy = AppPrivacyScreen(isSceneActive: { _ in true })
         privacy.authenticationEnabled = false
         let center = NotificationCenter()
         privacy.startObserving(center: center)
-        defer { center.post(name: UIScene.didDisconnectNotification, object: scene) }
+        defer {
+            center.post(name: UIScene.didDisconnectNotification, object: scene)
+            center.removeObserver(privacy)
+        }
 
         center.post(name: UIScene.willDeactivateNotification, object: scene)
         center.post(name: UIScene.didEnterBackgroundNotification, object: scene)
-        XCTAssertTrue(scene.windows.contains { $0.accessibilityIdentifier == "app-privacy-screen" && !$0.isHidden })
+        let cover = try privacyWindow(in: scene, excluding: existingWindows)
         center.post(name: UIScene.willEnterForegroundNotification, object: scene)
         center.post(name: UIScene.didActivateNotification, object: scene)
-        await waitForPrivacyScreenToHide(in: scene)
-        XCTAssertFalse(scene.windows.contains { $0.accessibilityIdentifier == "app-privacy-screen" && !$0.isHidden })
+        await waitForPrivacyScreenToHide(cover)
     }
 
     // Backgrounding during either fade must produce an opaque snapshot and cancel stale removal.
     @MainActor
     func testBackgroundingFinishesFadeAndCancelsPendingReveal() async throws {
         let scene = try XCTUnwrap(UIApplication.shared.connectedScenes.first as? UIWindowScene)
-        let privacy = AppPrivacyScreen()
+        let existingWindows = Set(scene.windows)
+        let privacy = AppPrivacyScreen(isSceneActive: { _ in true })
         privacy.authenticationEnabled = false
         let center = NotificationCenter()
         privacy.startObserving(center: center)
-        defer { center.post(name: UIScene.didDisconnectNotification, object: scene) }
+        defer {
+            center.post(name: UIScene.didDisconnectNotification, object: scene)
+            center.removeObserver(privacy)
+        }
 
         center.post(name: UIScene.willDeactivateNotification, object: scene)
-        let cover = try XCTUnwrap(scene.windows.first { $0.accessibilityIdentifier == "app-privacy-screen" && !$0.isHidden })
+        let cover = try privacyWindow(in: scene, excluding: existingWindows)
         center.post(name: UIScene.didEnterBackgroundNotification, object: scene)
         XCTAssertEqual(cover.alpha, 1)
         XCTAssertTrue(cover.layer.animationKeys()?.isEmpty ?? true)
@@ -180,13 +205,17 @@ final class BitBoxAppTests: XCTestCase {
     }
 
     @MainActor
-    private func waitForPrivacyScreenToHide(in scene: UIWindowScene) async {
-        let hidden = scene.windows
-            .filter { $0.accessibilityIdentifier == "app-privacy-screen" && !$0.isHidden }
-            .map { expectation(for: NSPredicate(format: "hidden == YES"), evaluatedWith: $0) }
-        if !hidden.isEmpty {
-            await fulfillment(of: hidden, timeout: 2)
-        }
+    private func privacyWindow(in scene: UIWindowScene, excluding existingWindows: Set<UIWindow>) throws -> UIWindow {
+        try XCTUnwrap(scene.windows.first {
+            !existingWindows.contains($0) && $0.accessibilityIdentifier == "app-privacy-screen" && !$0.isHidden
+        })
+    }
+
+    @MainActor
+    private func waitForPrivacyScreenToHide(_ cover: UIWindow) async {
+        let hidden = expectation(for: NSPredicate(format: "hidden == YES"), evaluatedWith: cover)
+        await fulfillment(of: [hidden], timeout: 2)
+        XCTAssertTrue(cover.isHidden)
     }
 
     @MainActor

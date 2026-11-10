@@ -259,6 +259,12 @@ final class AppPrivacyScreen: NSObject {
     private var waitingForAuthentication = false
     private var authenticationScreenVisible = false
     private var windows: [UIWindowScene: UIWindow] = [:]
+    private let isSceneActive: @MainActor (UIWindowScene) -> Bool
+
+    init(isSceneActive: @escaping @MainActor (UIWindowScene) -> Bool = { $0.activationState == .foregroundActive }) {
+        self.isSceneActive = isSceneActive
+        super.init()
+    }
 
     func startObserving(center: NotificationCenter = .default) {
         center.addObserver(self, selector: #selector(sceneWillDeactivate), name: UIScene.willDeactivateNotification, object: nil)
@@ -339,7 +345,7 @@ final class AppPrivacyScreen: NSObject {
     }
 
     private func revealIfReady(_ scene: UIWindowScene) {
-        guard scene.activationState == .foregroundActive, !waitingForAuthentication,
+        guard isSceneActive(scene), !waitingForAuthentication,
               let window = windows[scene], window.alpha != 0 else { return }
         // On failure or cancellation the existing web authentication screen provides retry.
         UIView.animate(
@@ -351,7 +357,7 @@ final class AppPrivacyScreen: NSObject {
         } completion: { [weak self] finished in
             // A new background transition can interrupt this fade and reuse the same cover.
             guard let self, finished, window.alpha == 0,
-                  scene.activationState == .foregroundActive, !self.waitingForAuthentication,
+                  self.isSceneActive(scene), !self.waitingForAuthentication,
                   self.windows[scene] === window else { return }
             self.windows.removeValue(forKey: scene)?.isHidden = true
         }
