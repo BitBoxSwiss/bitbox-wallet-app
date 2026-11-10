@@ -10,6 +10,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 )
 
 const (
@@ -68,7 +69,8 @@ func IsPocketSupported(coinCode coin.Code) bool {
 }
 
 // IsPocketOTCSupportedForCoinInRegion returns whether Pocket OTC is supported for the specific
-// combination of coin and region.
+// combination of coin and region. Supported coins are available in all regions when no region is
+// specified or the availability lookup fails.
 func IsPocketOTCSupportedForCoinInRegion(
 	coinCode coin.Code,
 	region string,
@@ -77,10 +79,14 @@ func IsPocketOTCSupportedForCoinInRegion(
 	if !IsPocketSupported(coinCode) {
 		return false
 	}
+	if region == "" {
+		return true
+	}
 
 	pocketSupportedRegions, err := GetPocketSupportedRegions(httpClient)
 	if err != nil {
-		return false
+		logging.Get().WithGroup("market").Error(err)
+		return true
 	}
 	_, ok := pocketSupportedRegions[region]
 	return ok
