@@ -1583,6 +1583,9 @@ func (backend *Backend) ExportLogs() error {
 	backend.log.Infof("Exported logs copied to %s.", path)
 
 	if err := backend.Environment().SystemOpen(path); err != nil {
+		if errp.Cause(err) == errp.ErrUserAbort {
+			return nil
+		}
 		backend.log.WithError(err).Error("error opening log file")
 		return err
 	}
