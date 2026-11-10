@@ -96,9 +96,10 @@ Run both with `npx playwright test tests/vendor-widgets.test.ts tests/vendor-ifr
 The usual Playwright webserver setup still applies. These tests do not replace
 checkout/signing smoke tests in the native app shells.
 
-The local HTML files must also be deployed to the corresponding hosted `/widgets/*/v1/`
-URLs for released apps to receive the wrapper fixes. Keep the existing
-`request-configuration` handshake and payloads when updating those shared URLs.
+The local HTML files must also be deployed to the corresponding versioned widget
+URLs configured in the backend for released apps to receive the wrapper fixes.
+Keep the existing `request-configuration` handshake and payloads when updating
+those shared URLs.
 
 ## Mobile Lightning payment links
 
