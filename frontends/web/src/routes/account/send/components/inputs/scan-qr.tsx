@@ -141,7 +141,9 @@ export const ScanQR = ({
         <video
           className={style.video}
           ref={videoRef}
-          poster="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%3E%20width=%2264%22%20height=%2248%22%3C/svg%3E"
+          poster={`data:image/svg+xml,${encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="48"/>'
+          )}`}
         />
 
         <div className={style.overlay}>
