@@ -48,17 +48,17 @@ type contactsFile interface {
 	WriteJSON(interface{}) error
 }
 
-type atomicContactsFile struct {
+type atomicJSONFile struct {
 	*utilconfig.File
 }
 
-// WriteJSON replaces the contact file after the complete JSON is flushed and closed.
-func (file atomicContactsFile) WriteJSON(object interface{}) error {
+// WriteJSON replaces the file after the complete JSON is flushed and closed.
+func (file atomicJSONFile) WriteJSON(object interface{}) error {
 	dir := filepath.Dir(file.Path())
 	if err := utilconfig.EnsurePrivateDir(dir); err != nil {
 		return err
 	}
-	temp, err := os.CreateTemp(dir, ".lightning-contacts-*.tmp")
+	temp, err := os.CreateTemp(dir, "."+filepath.Base(file.Path())+"-*.tmp")
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (file atomicContactsFile) WriteJSON(object interface{}) error {
 
 // NewContacts creates a persistent store in the given directory. Files are loaded on demand.
 func NewContacts(contactsDirectoryPath string) *Contacts {
-	return &Contacts{file: atomicContactsFile{File: utilconfig.NewFile(contactsDirectoryPath, "lightning-contacts.json")}}
+	return &Contacts{file: atomicJSONFile{File: utilconfig.NewFile(contactsDirectoryPath, "lightning-contacts.json")}}
 }
 
 func (contacts *Contacts) read() ([]Contact, error) {

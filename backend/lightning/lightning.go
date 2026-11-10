@@ -14,6 +14,7 @@ import (
 	"path"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/notes"
@@ -24,6 +25,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/rates"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/util"
+	utilconfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
@@ -615,15 +617,35 @@ func decryptMnemonic(sealedMnemonic string, encryptionKey []byte) (string, error
 }
 
 func (lightning *Lightning) getBreezApiKey() (*string, error) {
-	_, breezApiKey, err := util.HTTPGet(lightning.httpClient, breezApiKeyUrl, "", int64(4096))
+	// Limit this fetch without changing the shared client's timeout or proxy transport.
+	client := *lightning.httpClient
+	client.Timeout = 5 * time.Second
+	_, breezApiKey, err := util.HTTPGet(&client, breezApiKeyUrl, "", int64(4096))
+	// The server response can include a trailing newline.
+	trimmedKey := strings.TrimSpace(string(breezApiKey))
+	if err == nil && trimmedKey == "" {
+		err = errp.New("Breez api key response is empty")
+	}
+
+	cache := atomicJSONFile{File: utilconfig.NewFile(lightning.lightningDirectoryPath, "breez-api-key.json")}
 	if err != nil {
-		lightning.log.WithError(err).Error("Breez api key fetch failed")
+		lightning.log.WithError(err).Warn("Breez api key fetch failed")
+		var cachedKey string
+		if cacheErr := cache.ReadJSON(&cachedKey); cacheErr != nil {
+			if !os.IsNotExist(cacheErr) {
+				lightning.log.WithError(cacheErr).Warn("Breez api key cache read failed")
+			}
+		} else if cachedKey = strings.TrimSpace(cachedKey); cachedKey != "" {
+			lightning.log.Info("Using cached Breez api key")
+			return &cachedKey, nil
+		}
 		return nil, err
 	}
 
-	// fetched key could have an unwanted newline, we'll just trim invalid chars for safety.
-	trimmedKey := strings.TrimSpace(string(breezApiKey))
-
+	// A cache write failure must not prevent connecting with a freshly fetched key.
+	if err := cache.WriteJSON(trimmedKey); err != nil {
+		lightning.log.WithError(err).Warn("Breez api key cache write failed")
+	}
 	return &trimmedKey, nil
 }
 
