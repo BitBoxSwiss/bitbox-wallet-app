@@ -46,7 +46,7 @@ export const getBTCDirectAboutUsLink = () => {
   case 'fr':
     return 'https://btcdirect.eu/fr-fr/a-propos-de-nous?BitBox';
   default:
-    return 'https://btcdirect.eu/en-eu/about-btc-direct?BitBox';
+    return 'https://btcdirect.eu/en-eu/about-us?BitBox';
   }
 };
 
