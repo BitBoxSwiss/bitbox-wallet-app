@@ -36,6 +36,7 @@
 - iOS: Hide wallet information in app-switcher previews.
 - Add PDF export of assets balance on chosen date
 - Marketplace: remember disclaimer acceptance and allow rereading disclaimers from the guide
+- In standard dropdown menus, hide search for all tablet lists and for desktop lists with fewer than 10 options
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1
