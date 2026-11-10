@@ -721,7 +721,13 @@ func (etherScan *EtherScan) HistoricalBalanceAt(
 		return nil, err
 	}
 
-	params = url.Values{
+	return etherScan.historicalBalanceAtBlock(ctx, account, blockNumber, erc20Token)
+}
+
+func (etherScan *EtherScan) historicalBalanceAtBlock(
+	ctx context.Context, account common.Address, blockNumber *big.Int, erc20Token *erc20.Token,
+) (*big.Int, error) {
+	params := url.Values{
 		"module":  {"account"},
 		"action":  {"balancehistory"},
 		"address": {account.Hex()},
@@ -788,6 +794,11 @@ func (etherScan *EtherScan) Balances(ctx context.Context, accounts []common.Addr
 
 // ERC20Balance implements rpc.Interface.
 func (etherScan *EtherScan) ERC20Balance(account common.Address, erc20Token *erc20.Token, blockNumber *big.Int) (*big.Int, error) {
+	// Etherscan's eth_call only supports latest, so use the historical endpoint to
+	// keep balances at the same block as outgoing transaction reconciliation.
+	if blockNumber != nil {
+		return etherScan.historicalBalanceAtBlock(context.TODO(), account, blockNumber, erc20Token)
+	}
 	parsed, err := erc20.IERC20MetaData.GetAbi()
 	if err != nil {
 		return nil, err

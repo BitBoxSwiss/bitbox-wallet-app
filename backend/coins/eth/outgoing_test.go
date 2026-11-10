@@ -4,13 +4,18 @@ package eth
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"math/big"
+	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountmocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -19,6 +24,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/time/rate"
 )
 
 func sharedAccounts(t *testing.T) (*Account, *Account) {
@@ -567,4 +573,140 @@ func TestUpdateBalanceAtConfirmation(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, big.NewInt(20000), balance.Available().BigInt())
 	}
+}
+
+// A send mined between the tip and balance requests must be subtracted exactly once.
+// Check both displayed funds and send-time funds with Etherscan's actual balance request path.
+func TestTokenBalanceAtConfirmation(t *testing.T) {
+	for _, sent := range []int64{10_000_000, 60_000_000} {
+		t.Run(fmt.Sprint(sent), func(t *testing.T) {
+			_, token := sharedAccounts(t)
+			client := newTransactionRPCClient(0, 50000, big.NewInt(1), nil)
+			token.coin.client = client
+			notifier := &accountmocks.Notifier{}
+			notifier.On("Put", mock.Anything).Return(nil)
+			token.notifier = notifier
+			contract := token.coin.erc20Token.ContractAddress()
+			putOutgoingTx(t, token, &ethtypes.TransactionWithMetadata{Transaction: types.NewTx(&types.LegacyTx{
+				To: &contract, Gas: 50000, GasPrice: big.NewInt(1),
+				Data: erc20TransferData(t, common.Address{2}, sent),
+			})})
+			tip := int64(99)
+			client.BlockNumberFunc = func(context.Context) (*big.Int, error) { return big.NewInt(tip), nil }
+			client.NonceAtFunc = func(_ context.Context, _ common.Address, block *big.Int) (uint64, error) {
+				if block.Int64() >= 100 {
+					return 1, nil
+				}
+				return 0, nil
+			}
+			client.TransactionReceiptWithBlockNumberFunc = func(context.Context, common.Hash) (*types.Receipt, error) {
+				return &types.Receipt{BlockNumber: big.NewInt(100), GasUsed: 50000, Status: types.ReceiptStatusSuccessful}, nil
+			}
+			remaining := 100_000_000 - sent
+			httpClient := &http.Client{Transport: chainClientRoundTripFunc(func(request *http.Request) (*http.Response, error) {
+				query := request.URL.Query()
+				var body string
+				switch query.Get("action") {
+				case "eth_call":
+					// Etherscan ignores the requested block and always returns latest for eth_call.
+					body = fmt.Sprintf(`{"jsonrpc":"2.0","result":"0x%064x"}`, remaining)
+				case "tokenbalancehistory":
+					balance := remaining
+					if query.Get("blockno") == "99" {
+						balance = 100_000_000
+					}
+					body = fmt.Sprintf(`{"status":"1","result":"%d"}`, balance)
+				default:
+					return nil, fmt.Errorf("unexpected action: %s", query.Get("action"))
+				}
+				return &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(body))}, nil
+			})}
+			etherScan := etherscan.NewEtherScan("1", httpClient, rate.NewLimiter(rate.Inf, 1))
+			client.ERC20BalanceFunc = etherScan.ERC20Balance
+			fetcher := updaterBalanceFetcher{Interface: client, balances: func(context.Context, []common.Address, *big.Int) (map[common.Address]*big.Int, error) {
+				tip = 100 // The send confirms after capturing the reconciliation block.
+				return nil, nil
+			}}
+			updater := NewUpdater(nil, nil, nil, nil)
+			defer updater.Close()
+			for range 2 {
+				updater.UpdateBalancesAndBlockNumber([]*Account{token}, fetcher)
+				require.NoError(t, token.Offline())
+				balance, err := token.Balance()
+				require.NoError(t, err)
+				require.Equal(t, big.NewInt(remaining), balance.Available().BigInt())
+
+				sender, unlock, err := token.outgoing.lock(token.coin.ChainID(), token.address.Address)
+				require.NoError(t, err)
+				next := types.NewTx(&types.LegacyTx{
+					Nonce: 1, To: &contract, Gas: 50000, GasPrice: big.NewInt(1),
+					Data: erc20TransferData(t, common.Address{2}, remaining),
+				})
+				err = sender.checkFunds(client, next, token.coin.erc20Token, token.blockNumber)
+				unlock()
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+// Inconsistent provider data must never expose a negative available balance. Keep funds
+// reserved until confirmation; this clamp is only a defensive guard against bad snapshots.
+func TestTokenBalanceBeforeConfirmationIsIndexed(t *testing.T) {
+	_, token := sharedAccounts(t)
+	client := newTransactionRPCClient(0, 50000, big.NewInt(1), nil)
+	token.coin.client = client
+	notifier := &accountmocks.Notifier{}
+	notifier.On("Put", mock.Anything).Return(nil)
+	token.notifier = notifier
+	contract := token.coin.erc20Token.ContractAddress()
+	tx := types.NewTx(&types.LegacyTx{
+		To: &contract, Gas: 50000, GasPrice: big.NewInt(1),
+		Data: erc20TransferData(t, common.Address{2}, 1000000),
+	})
+	putOutgoingTx(t, token, &ethtypes.TransactionWithMetadata{Transaction: tx})
+	remoteBalance := int64(1000000)
+	client.ERC20BalanceFunc = func(common.Address, *erc20.Token, *big.Int) (*big.Int, error) {
+		return big.NewInt(remoteBalance), nil
+	}
+	fetcher := updaterBalanceFetcher{Interface: client, balances: func(context.Context, []common.Address, *big.Int) (map[common.Address]*big.Int, error) {
+		return nil, nil
+	}}
+	updater := NewUpdater(nil, nil, nil, nil)
+	defer updater.Close()
+	for _, test := range []struct {
+		balance   int64
+		available int64
+	}{
+		{2000000, 1000000},
+		{1000000, 0},
+		{0, 0},
+		{400000, 0},
+	} {
+		remoteBalance = test.balance
+		updater.UpdateBalancesAndBlockNumber([]*Account{token}, fetcher)
+		require.NoError(t, token.Offline())
+		available, err := token.Balance()
+		require.NoError(t, err)
+		require.Equal(t, big.NewInt(test.available), available.Available().BigInt())
+		require.Equal(t, big.NewInt(remoteBalance), token.remoteBalance())
+		records := outgoingTxs(t, token)
+		require.Len(t, records, 1)
+		require.Zero(t, records[0].Height)
+		require.False(t, records[0].NonceConsumed)
+	}
+	client.NonceAtFunc = func(context.Context, common.Address, *big.Int) (uint64, error) { return 1, nil }
+	client.TransactionReceiptWithBlockNumberFunc = func(context.Context, common.Hash) (*types.Receipt, error) {
+		return &types.Receipt{BlockNumber: big.NewInt(100), GasUsed: 50000, Status: types.ReceiptStatusSuccessful}, nil
+	}
+	updater.UpdateBalancesAndBlockNumber([]*Account{token}, fetcher)
+	require.NoError(t, token.Offline())
+	available, err := token.Balance()
+	require.NoError(t, err)
+	require.Equal(t, big.NewInt(remoteBalance), available.Available().BigInt())
+	transactions, err := token.Transactions()
+	require.NoError(t, err)
+	require.Len(t, transactions, 1)
+	require.Equal(t, tx.Hash().Hex(), transactions[0].TxID)
+	require.Equal(t, 1, transactions[0].NumConfirmations)
 }

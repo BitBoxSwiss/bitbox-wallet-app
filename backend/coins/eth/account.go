@@ -332,7 +332,13 @@ func (account *Account) Update(
 	}
 
 	account.rawBalance = coin.NewAmount(balance)
-	account.balance = coin.NewAmount(new(big.Int).Sub(balance, pendingAmount))
+	available := new(big.Int).Sub(balance, pendingAmount)
+	// Etherscan can report a debited balance before the outgoing transaction is confirmed
+	// locally. Keep the reservation until confirmation, but never expose negative funds.
+	if available.Sign() < 0 {
+		available.SetInt64(0)
+	}
+	account.balance = coin.NewAmount(available)
 
 	if account.initDone != nil {
 		account.initDone()
