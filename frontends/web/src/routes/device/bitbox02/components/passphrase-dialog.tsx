@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { submitHostPassphrase } from '@/api/bitbox02';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
@@ -16,6 +16,7 @@ type TProps = {
 export const PassphraseDialog = ({ deviceID, id }: TProps) => {
   const { t } = useTranslation();
   const mounted = useMountedRef();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [passphrase, setPassphrase] = useState('');
   const [showPassphrase, setShowPassphrase] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -59,13 +60,14 @@ export const PassphraseDialog = ({ deviceID, id }: TProps) => {
     <Dialog
       open
       noSidebarOffset
+      initialFocusRef={inputRef}
       title={t('bitbox02Wizard.passphrase.dialogTitle')}
       onClose={submitting ? undefined : () => submit(null)}>
       <form onSubmit={onSubmit}>
         <PasswordInput
           visible={showPassphrase}
           onVisibilityChange={setShowPassphrase}
-          autoFocus
+          ref={inputRef}
           aria-label={t('bitbox02Wizard.passphrase.dialogTitle')}
           value={passphrase}
           disabled={submitting}

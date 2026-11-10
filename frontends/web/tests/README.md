@@ -159,6 +159,10 @@ Other options, when running locally, are to use the `--ui` or the `--debug` flag
 
 ## Host passphrase simulator checks
 
+On Android with a BitBox, confirm host entry and check the first keyboard opening:
+the passphrase field and Confirm button must remain visible. Dismiss and reopen the
+keyboard, toggle passphrase visibility, and submit. Repeat in portrait and landscape.
+
 Use firmware 9.28.0 or newer with the host-passphrase unlock workflow and a seeded simulator
 with the optional BIP39 passphrase enabled. Keep its flash in a dedicated temporary directory
 using `FAKE_MEMORY_FILEPATH`. The graphical BitBox02 simulator is needed to control consent,
