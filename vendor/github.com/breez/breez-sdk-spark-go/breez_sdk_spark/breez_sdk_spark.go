@@ -441,6 +441,15 @@ func uniffiCheckChecksums() {
 	}
 	{
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_func_default_bridging_config()
+		})
+		if checksum != 23181 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_func_default_bridging_config: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_func_default_config()
 		})
 		if checksum != 62194 {
@@ -527,6 +536,15 @@ func uniffiCheckChecksums() {
 		if checksum != 2826 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_func_mysql_storage: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_func_new_bridging_client()
+		})
+		if checksum != 35110 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_func_new_bridging_client: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -677,7 +695,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_breezsdk_bridge_from_cash_app()
 		})
-		if checksum != 35122 {
+		if checksum != 29767 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_breezsdk_bridge_from_cash_app: UniFFI API checksum mismatch")
 		}
@@ -686,7 +704,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_breezsdk_bridge_to_cash_app()
 		})
-		if checksum != 54543 {
+		if checksum != 25187 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_breezsdk_bridge_to_cash_app: UniFFI API checksum mismatch")
 		}
@@ -851,6 +869,15 @@ func uniffiCheckChecksums() {
 		if checksum != 50958 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_breezsdk_fetch_conversion_limits: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_method_breezsdk_get_bridging_client()
+		})
+		if checksum != 12454 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_breezsdk_get_bridging_client: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -1046,7 +1073,7 @@ func uniffiCheckChecksums() {
 		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
 			return C.uniffi_breez_sdk_spark_checksum_method_breezsdk_prepare_payment_link()
 		})
-		if checksum != 32711 {
+		if checksum != 7617 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_breezsdk_prepare_payment_link: UniFFI API checksum mismatch")
 		}
@@ -1265,6 +1292,51 @@ func uniffiCheckChecksums() {
 		if checksum != 1721 {
 			// If this happens try cleaning and rebuilding your project
 			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_breezsdk_update_user_settings: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_method_bridgingclient_bridge_from_cash_app()
+		})
+		if checksum != 63903 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_bridgingclient_bridge_from_cash_app: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_method_bridgingclient_bridge_to_cash_app()
+		})
+		if checksum != 29057 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_bridgingclient_bridge_to_cash_app: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_method_bridgingclient_create_bridge()
+		})
+		if checksum != 60481 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_bridgingclient_create_bridge: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_method_bridgingclient_get_bridge_status()
+		})
+		if checksum != 45714 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_bridgingclient_get_bridge_status: UniFFI API checksum mismatch")
+		}
+	}
+	{
+		checksum := rustCall(func(_uniffiStatus *C.RustCallStatus) C.uint16_t {
+			return C.uniffi_breez_sdk_spark_checksum_method_bridgingclient_get_routes()
+		})
+		if checksum != 65444 {
+			// If this happens try cleaning and rebuilding your project
+			panic("breez_sdk_spark: uniffi_breez_sdk_spark_checksum_method_bridgingclient_get_routes: UniFFI API checksum mismatch")
 		}
 	}
 	{
@@ -3556,6 +3628,10 @@ type BreezSdkInterface interface {
 	// claims it via [`BreezSdk::claim_lightning_address_transfer`].
 	// Errors if the current owner has no lightning address registered.
 	AuthorizeLightningAddressTransfer(request AuthorizeTransferRequest) (TransferAuthorization, error)
+	// **Deprecated.** Use `bridge_from_cash_app` on the client from
+	// [`get_bridging_client`](Self::get_bridging_client), whose bridges can be
+	// looked up with `get_bridge_status`.
+	//
 	// Bridge from Cash App to USDC/USDT on an external chain.
 	//
 	// Creates a cross-chain order and returns a `cash.app` deep link the payer
@@ -3563,6 +3639,10 @@ type BreezSdkInterface interface {
 	// `address`. No funds move through the Spark wallet, and nothing is
 	// tracked. Only available on mainnet.
 	BridgeFromCashApp(request BridgeFromCashAppRequest) (BridgeFromCashAppResponse, error)
+	// **Deprecated.** Use `bridge_to_cash_app` on the client from
+	// [`get_bridging_client`](Self::get_bridging_client), whose bridges can be
+	// looked up with `get_bridge_status`.
+	//
 	// Bridge USDC/USDT from an external chain to a Cash App user.
 	//
 	// Returns the deposit the payer makes on the source chain. Once it lands,
@@ -3659,6 +3739,12 @@ type BreezSdkInterface interface {
 	// current fees.
 	FetchClaimDepositQuote(request FetchClaimDepositQuoteRequest) (FetchClaimDepositQuoteResponse, error)
 	FetchConversionLimits(request FetchConversionLimitsRequest) (FetchConversionLimitsResponse, error)
+	// Returns a client for bridges: orders in which a payer on another chain
+	// or on Lightning pays a recipient, with no funds moving through the
+	// SDK. It shares this SDK's API key, and its cross-chain settings when
+	// set. It doesn't need cross-chain payments enabled, so it also works in
+	// server mode. Only available on mainnet.
+	GetBridgingClient() (*BridgingClient, error)
 	// Returns the available cross-chain routes.
 	//
 	// Use [`CrossChainRouteFilter::Send`] to get routes for sending to
@@ -3797,7 +3883,8 @@ type BreezSdkInterface interface {
 	OptimizeLeaves(request OptimizeLeavesRequest) (OptimizeLeavesResponse, error)
 	Parse(input string) (InputType, error)
 	PrepareLnurlPay(request PrepareLnurlPayRequest) (PrepareLnurlPayResponse, error)
-	// **Deprecated.** Use [`bridge_from_cash_app`](Self::bridge_from_cash_app).
+	// **Deprecated.** Use `bridge_from_cash_app` on the client from
+	// [`get_bridging_client`](Self::get_bridging_client).
 	PreparePaymentLink(request PreparePaymentLinkRequest) (PreparePaymentLinkResponse, error)
 	// Prepares a pull from a wallet that granted this wallet an allowance.
 	PreparePullPayment(request PreparePullPaymentRequest) (PreparePullPaymentResponse, error)
@@ -4058,6 +4145,10 @@ func (_self *BreezSdk) AuthorizeLightningAddressTransfer(request AuthorizeTransf
 	return res, err
 }
 
+// **Deprecated.** Use `bridge_from_cash_app` on the client from
+// [`get_bridging_client`](Self::get_bridging_client), whose bridges can be
+// looked up with `get_bridge_status`.
+//
 // Bridge from Cash App to USDC/USDT on an external chain.
 //
 // Creates a cross-chain order and returns a `cash.app` deep link the payer
@@ -4099,6 +4190,10 @@ func (_self *BreezSdk) BridgeFromCashApp(request BridgeFromCashAppRequest) (Brid
 	return res, err
 }
 
+// **Deprecated.** Use `bridge_to_cash_app` on the client from
+// [`get_bridging_client`](Self::get_bridging_client), whose bridges can be
+// looked up with `get_bridge_status`.
+//
 // Bridge USDC/USDT from an external chain to a Cash App user.
 //
 // Returns the deposit the payer makes on the source chain. Once it lands,
@@ -4825,6 +4920,26 @@ func (_self *BreezSdk) FetchConversionLimits(request FetchConversionLimitsReques
 	}
 
 	return res, err
+}
+
+// Returns a client for bridges: orders in which a payer on another chain
+// or on Lightning pays a recipient, with no funds moving through the
+// SDK. It shares this SDK's API key, and its cross-chain settings when
+// set. It doesn't need cross-chain payments enabled, so it also works in
+// server mode. Only available on mainnet.
+func (_self *BreezSdk) GetBridgingClient() (*BridgingClient, error) {
+	_pointer := _self.ffiObject.incrementPointer("*BreezSdk")
+	defer _self.ffiObject.decrementPointer()
+	_uniffiRV, _uniffiErr := rustCallWithError[SdkError](FfiConverterSdkError{}, func(_uniffiStatus *C.RustCallStatus) unsafe.Pointer {
+		return C.uniffi_breez_sdk_spark_fn_method_breezsdk_get_bridging_client(
+			_pointer, _uniffiStatus)
+	})
+	if _uniffiErr != nil {
+		var _uniffiDefaultValue *BridgingClient
+		return _uniffiDefaultValue, _uniffiErr
+	} else {
+		return FfiConverterBridgingClientINSTANCE.Lift(_uniffiRV), nil
+	}
 }
 
 // Returns the available cross-chain routes.
@@ -5653,7 +5768,8 @@ func (_self *BreezSdk) PrepareLnurlPay(request PrepareLnurlPayRequest) (PrepareL
 	return res, err
 }
 
-// **Deprecated.** Use [`bridge_from_cash_app`](Self::bridge_from_cash_app).
+// **Deprecated.** Use `bridge_from_cash_app` on the client from
+// [`get_bridging_client`](Self::get_bridging_client).
 func (_self *BreezSdk) PreparePaymentLink(request PreparePaymentLinkRequest) (PreparePaymentLinkResponse, error) {
 	_pointer := _self.ffiObject.incrementPointer("*BreezSdk")
 	defer _self.ffiObject.decrementPointer()
@@ -6654,6 +6770,271 @@ func (c FfiConverterBreezSdk) Write(writer io.Writer, value *BreezSdk) {
 type FfiDestroyerBreezSdk struct{}
 
 func (_ FfiDestroyerBreezSdk) Destroy(value *BreezSdk) {
+	value.Destroy()
+}
+
+// Creates bridges: orders that pay a recipient from another chain or over
+// Lightning, with no funds moving through the SDK. Get one with
+// [`new_bridging_client`], or from a connected SDK with
+// `get_bridging_client`. Only available on mainnet.
+type BridgingClientInterface interface {
+	// Pays a recipient on another chain from Cash App. Takes a route for the
+	// address that the payer funds over Lightning, and returns the bridge
+	// with the Cash App link as its `payment_request`.
+	BridgeFromCashApp(request CreateBridgeRequest) (CreateBridgeResponse, error)
+	// Pays a Cash App user from another chain. The recipient is their
+	// username, as `$alice`, or their `alice@cash.app` Lightning address, as
+	// given to [`Self::get_routes`].
+	BridgeToCashApp(request CreateBridgeRequest) (CreateBridgeResponse, error)
+	// Creates a bridge and returns what the payer pays. Once paid, the
+	// provider delivers to the recipient, or refunds `refund_address` if it
+	// can't. Track it with [`Self::get_bridge_status`].
+	CreateBridge(request CreateBridgeRequest) (CreateBridgeResponse, error)
+	// Reads a bridge's status from the provider.
+	GetBridgeStatus(request GetBridgeStatusRequest) (GetBridgeStatusResponse, error)
+	// Lists the routes that can pay `recipient`.
+	GetRoutes(request GetBridgeRoutesRequest) (GetBridgeRoutesResponse, error)
+}
+
+// Creates bridges: orders that pay a recipient from another chain or over
+// Lightning, with no funds moving through the SDK. Get one with
+// [`new_bridging_client`], or from a connected SDK with
+// `get_bridging_client`. Only available on mainnet.
+type BridgingClient struct {
+	ffiObject FfiObject
+}
+
+// Pays a recipient on another chain from Cash App. Takes a route for the
+// address that the payer funds over Lightning, and returns the bridge
+// with the Cash App link as its `payment_request`.
+func (_self *BridgingClient) BridgeFromCashApp(request CreateBridgeRequest) (CreateBridgeResponse, error) {
+	_pointer := _self.ffiObject.incrementPointer("*BridgingClient")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[SdkError](
+		FfiConverterSdkErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_breez_sdk_spark_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) CreateBridgeResponse {
+			return FfiConverterCreateBridgeResponseINSTANCE.Lift(ffi)
+		},
+		C.uniffi_breez_sdk_spark_fn_method_bridgingclient_bridge_from_cash_app(
+			_pointer, FfiConverterCreateBridgeRequestINSTANCE.Lower(request)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Pays a Cash App user from another chain. The recipient is their
+// username, as `$alice`, or their `alice@cash.app` Lightning address, as
+// given to [`Self::get_routes`].
+func (_self *BridgingClient) BridgeToCashApp(request CreateBridgeRequest) (CreateBridgeResponse, error) {
+	_pointer := _self.ffiObject.incrementPointer("*BridgingClient")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[SdkError](
+		FfiConverterSdkErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_breez_sdk_spark_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) CreateBridgeResponse {
+			return FfiConverterCreateBridgeResponseINSTANCE.Lift(ffi)
+		},
+		C.uniffi_breez_sdk_spark_fn_method_bridgingclient_bridge_to_cash_app(
+			_pointer, FfiConverterCreateBridgeRequestINSTANCE.Lower(request)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Creates a bridge and returns what the payer pays. Once paid, the
+// provider delivers to the recipient, or refunds `refund_address` if it
+// can't. Track it with [`Self::get_bridge_status`].
+func (_self *BridgingClient) CreateBridge(request CreateBridgeRequest) (CreateBridgeResponse, error) {
+	_pointer := _self.ffiObject.incrementPointer("*BridgingClient")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[SdkError](
+		FfiConverterSdkErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_breez_sdk_spark_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) CreateBridgeResponse {
+			return FfiConverterCreateBridgeResponseINSTANCE.Lift(ffi)
+		},
+		C.uniffi_breez_sdk_spark_fn_method_bridgingclient_create_bridge(
+			_pointer, FfiConverterCreateBridgeRequestINSTANCE.Lower(request)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Reads a bridge's status from the provider.
+func (_self *BridgingClient) GetBridgeStatus(request GetBridgeStatusRequest) (GetBridgeStatusResponse, error) {
+	_pointer := _self.ffiObject.incrementPointer("*BridgingClient")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[SdkError](
+		FfiConverterSdkErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_breez_sdk_spark_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) GetBridgeStatusResponse {
+			return FfiConverterGetBridgeStatusResponseINSTANCE.Lift(ffi)
+		},
+		C.uniffi_breez_sdk_spark_fn_method_bridgingclient_get_bridge_status(
+			_pointer, FfiConverterGetBridgeStatusRequestINSTANCE.Lower(request)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+
+// Lists the routes that can pay `recipient`.
+func (_self *BridgingClient) GetRoutes(request GetBridgeRoutesRequest) (GetBridgeRoutesResponse, error) {
+	_pointer := _self.ffiObject.incrementPointer("*BridgingClient")
+	defer _self.ffiObject.decrementPointer()
+	res, err := uniffiRustCallAsync[SdkError](
+		FfiConverterSdkErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) RustBufferI {
+			res := C.ffi_breez_sdk_spark_rust_future_complete_rust_buffer(handle, status)
+			return GoRustBuffer{
+				inner: res,
+			}
+		},
+		// liftFn
+		func(ffi RustBufferI) GetBridgeRoutesResponse {
+			return FfiConverterGetBridgeRoutesResponseINSTANCE.Lift(ffi)
+		},
+		C.uniffi_breez_sdk_spark_fn_method_bridgingclient_get_routes(
+			_pointer, FfiConverterGetBridgeRoutesRequestINSTANCE.Lower(request)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_poll_rust_buffer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_free_rust_buffer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
+}
+func (object *BridgingClient) Destroy() {
+	runtime.SetFinalizer(object, nil)
+	object.ffiObject.destroy()
+}
+
+type FfiConverterBridgingClient struct{}
+
+var FfiConverterBridgingClientINSTANCE = FfiConverterBridgingClient{}
+
+func (c FfiConverterBridgingClient) Lift(pointer unsafe.Pointer) *BridgingClient {
+	result := &BridgingClient{
+		newFfiObject(
+			pointer,
+			func(pointer unsafe.Pointer, status *C.RustCallStatus) unsafe.Pointer {
+				return C.uniffi_breez_sdk_spark_fn_clone_bridgingclient(pointer, status)
+			},
+			func(pointer unsafe.Pointer, status *C.RustCallStatus) {
+				C.uniffi_breez_sdk_spark_fn_free_bridgingclient(pointer, status)
+			},
+		),
+	}
+	runtime.SetFinalizer(result, (*BridgingClient).Destroy)
+	return result
+}
+
+func (c FfiConverterBridgingClient) Read(reader io.Reader) *BridgingClient {
+	return c.Lift(unsafe.Pointer(uintptr(readUint64(reader))))
+}
+
+func (c FfiConverterBridgingClient) Lower(value *BridgingClient) unsafe.Pointer {
+	// TODO: this is bad - all synchronization from ObjectRuntime.go is discarded here,
+	// because the pointer will be decremented immediately after this function returns,
+	// and someone will be left holding onto a non-locked pointer.
+	pointer := value.ffiObject.incrementPointer("*BridgingClient")
+	defer value.ffiObject.decrementPointer()
+	return pointer
+
+}
+
+func (c FfiConverterBridgingClient) Write(writer io.Writer, value *BridgingClient) {
+	writeUint64(writer, uint64(uintptr(c.Lower(value))))
+}
+
+type FfiDestroyerBridgingClient struct{}
+
+func (_ FfiDestroyerBridgingClient) Destroy(value *BridgingClient) {
 	value.Destroy()
 }
 
@@ -18504,6 +18885,9 @@ func (_ FfiDestroyerBolt12OfferDetails) Destroy(value Bolt12OfferDetails) {
 	value.Destroy()
 }
 
+// **Deprecated.** Use `CreateBridgeRequest` with the bridging client's
+// `bridge_from_cash_app`.
+//
 // Request to bridge from Cash App to USDC/USDT on an external chain.
 //
 // The payer pays the returned URL in Cash App over Lightning, and the
@@ -18579,6 +18963,9 @@ func (_ FfiDestroyerBridgeFromCashAppRequest) Destroy(value BridgeFromCashAppReq
 	value.Destroy()
 }
 
+// **Deprecated.** Use `CreateBridgeResponse`, from the bridging client's
+// `bridge_from_cash_app`.
+//
 // Response to a [`BridgeFromCashAppRequest`]: the URL to pay plus the quote,
 // so the caller can display the expected delivery and fees.
 type BridgeFromCashAppResponse struct {
@@ -18660,6 +19047,129 @@ func (_ FfiDestroyerBridgeFromCashAppResponse) Destroy(value BridgeFromCashAppRe
 	value.Destroy()
 }
 
+// A way to pay a recipient: what the payer pays, and what the recipient
+// receives.
+type BridgeRoutePair struct {
+	Provider CrossChainProvider
+	// What the payer pays.
+	Source BridgeRoutePairSide
+	// What the recipient receives.
+	Destination BridgeRoutePairSide
+	// Bounds on what the payer pays, in `source` base units. Unset when the
+	// provider publishes none.
+	Limits *CrossChainRouteLimits
+}
+
+func (r *BridgeRoutePair) Destroy() {
+	FfiDestroyerCrossChainProvider{}.Destroy(r.Provider)
+	FfiDestroyerBridgeRoutePairSide{}.Destroy(r.Source)
+	FfiDestroyerBridgeRoutePairSide{}.Destroy(r.Destination)
+	FfiDestroyerOptionalCrossChainRouteLimits{}.Destroy(r.Limits)
+}
+
+type FfiConverterBridgeRoutePair struct{}
+
+var FfiConverterBridgeRoutePairINSTANCE = FfiConverterBridgeRoutePair{}
+
+func (c FfiConverterBridgeRoutePair) Lift(rb RustBufferI) BridgeRoutePair {
+	return LiftFromRustBuffer[BridgeRoutePair](c, rb)
+}
+
+func (c FfiConverterBridgeRoutePair) Read(reader io.Reader) BridgeRoutePair {
+	return BridgeRoutePair{
+		FfiConverterCrossChainProviderINSTANCE.Read(reader),
+		FfiConverterBridgeRoutePairSideINSTANCE.Read(reader),
+		FfiConverterBridgeRoutePairSideINSTANCE.Read(reader),
+		FfiConverterOptionalCrossChainRouteLimitsINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterBridgeRoutePair) Lower(value BridgeRoutePair) C.RustBuffer {
+	return LowerIntoRustBuffer[BridgeRoutePair](c, value)
+}
+
+func (c FfiConverterBridgeRoutePair) LowerExternal(value BridgeRoutePair) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[BridgeRoutePair](c, value))
+}
+
+func (c FfiConverterBridgeRoutePair) Write(writer io.Writer, value BridgeRoutePair) {
+	FfiConverterCrossChainProviderINSTANCE.Write(writer, value.Provider)
+	FfiConverterBridgeRoutePairSideINSTANCE.Write(writer, value.Source)
+	FfiConverterBridgeRoutePairSideINSTANCE.Write(writer, value.Destination)
+	FfiConverterOptionalCrossChainRouteLimitsINSTANCE.Write(writer, value.Limits)
+}
+
+type FfiDestroyerBridgeRoutePair struct{}
+
+func (_ FfiDestroyerBridgeRoutePair) Destroy(value BridgeRoutePair) {
+	value.Destroy()
+}
+
+// One side of a [`BridgeRoutePair`].
+type BridgeRoutePairSide struct {
+	// `"spark"`, `"lightning"`, or another chain, e.g. `"base"` or `"tron"`.
+	Chain string
+	// EVM `chainId` as a decimal string. Unset on chains without one.
+	ChainId *string
+	// Asset symbol, e.g. `"USDC"`, `"USDT"`, `"BTC"` or `"USDB"`.
+	Asset string
+	// Token contract or mint address, or the token identifier on Spark.
+	// Unset for Bitcoin.
+	ContractAddress *string
+	Decimals        uint8
+}
+
+func (r *BridgeRoutePairSide) Destroy() {
+	FfiDestroyerString{}.Destroy(r.Chain)
+	FfiDestroyerOptionalString{}.Destroy(r.ChainId)
+	FfiDestroyerString{}.Destroy(r.Asset)
+	FfiDestroyerOptionalString{}.Destroy(r.ContractAddress)
+	FfiDestroyerUint8{}.Destroy(r.Decimals)
+}
+
+type FfiConverterBridgeRoutePairSide struct{}
+
+var FfiConverterBridgeRoutePairSideINSTANCE = FfiConverterBridgeRoutePairSide{}
+
+func (c FfiConverterBridgeRoutePairSide) Lift(rb RustBufferI) BridgeRoutePairSide {
+	return LiftFromRustBuffer[BridgeRoutePairSide](c, rb)
+}
+
+func (c FfiConverterBridgeRoutePairSide) Read(reader io.Reader) BridgeRoutePairSide {
+	return BridgeRoutePairSide{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterUint8INSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterBridgeRoutePairSide) Lower(value BridgeRoutePairSide) C.RustBuffer {
+	return LowerIntoRustBuffer[BridgeRoutePairSide](c, value)
+}
+
+func (c FfiConverterBridgeRoutePairSide) LowerExternal(value BridgeRoutePairSide) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[BridgeRoutePairSide](c, value))
+}
+
+func (c FfiConverterBridgeRoutePairSide) Write(writer io.Writer, value BridgeRoutePairSide) {
+	FfiConverterStringINSTANCE.Write(writer, value.Chain)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.ChainId)
+	FfiConverterStringINSTANCE.Write(writer, value.Asset)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.ContractAddress)
+	FfiConverterUint8INSTANCE.Write(writer, value.Decimals)
+}
+
+type FfiDestroyerBridgeRoutePairSide struct{}
+
+func (_ FfiDestroyerBridgeRoutePairSide) Destroy(value BridgeRoutePairSide) {
+	value.Destroy()
+}
+
+// **Deprecated.** Use `CreateBridgeRequest` with the bridging client's
+// `bridge_to_cash_app`.
+//
 // Request to bridge USDC/USDT from an external chain to a Cash App user.
 //
 // The payer deposits the stablecoin to the returned address, and the
@@ -18742,6 +19252,9 @@ func (_ FfiDestroyerBridgeToCashAppRequest) Destroy(value BridgeToCashAppRequest
 	value.Destroy()
 }
 
+// **Deprecated.** Use `CreateBridgeResponse`, from the bridging client's
+// `bridge_to_cash_app`.
+//
 // Response to a [`BridgeToCashAppRequest`].
 type BridgeToCashAppResponse struct {
 	// What the payer pays: an EIP-681 URI on EVM chains, otherwise the bare
@@ -18788,6 +19301,59 @@ func (c FfiConverterBridgeToCashAppResponse) Write(writer io.Writer, value Bridg
 type FfiDestroyerBridgeToCashAppResponse struct{}
 
 func (_ FfiDestroyerBridgeToCashAppResponse) Destroy(value BridgeToCashAppResponse) {
+	value.Destroy()
+}
+
+// Settings for a [`BridgingClient`](super::BridgingClient) built with
+// [`new_bridging_client`](super::new_bridging_client).
+type BridgingConfig struct {
+	// Breez API key.
+	ApiKey string
+	// Routes the client's connections through a SOCKS5 proxy.
+	Proxy *ProxyConfig
+	// Default slippage and overpay. Unset uses the built-in defaults.
+	CrossChainConfig *CrossChainConfig
+}
+
+func (r *BridgingConfig) Destroy() {
+	FfiDestroyerString{}.Destroy(r.ApiKey)
+	FfiDestroyerOptionalProxyConfig{}.Destroy(r.Proxy)
+	FfiDestroyerOptionalCrossChainConfig{}.Destroy(r.CrossChainConfig)
+}
+
+type FfiConverterBridgingConfig struct{}
+
+var FfiConverterBridgingConfigINSTANCE = FfiConverterBridgingConfig{}
+
+func (c FfiConverterBridgingConfig) Lift(rb RustBufferI) BridgingConfig {
+	return LiftFromRustBuffer[BridgingConfig](c, rb)
+}
+
+func (c FfiConverterBridgingConfig) Read(reader io.Reader) BridgingConfig {
+	return BridgingConfig{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterOptionalProxyConfigINSTANCE.Read(reader),
+		FfiConverterOptionalCrossChainConfigINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterBridgingConfig) Lower(value BridgingConfig) C.RustBuffer {
+	return LowerIntoRustBuffer[BridgingConfig](c, value)
+}
+
+func (c FfiConverterBridgingConfig) LowerExternal(value BridgingConfig) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[BridgingConfig](c, value))
+}
+
+func (c FfiConverterBridgingConfig) Write(writer io.Writer, value BridgingConfig) {
+	FfiConverterStringINSTANCE.Write(writer, value.ApiKey)
+	FfiConverterOptionalProxyConfigINSTANCE.Write(writer, value.Proxy)
+	FfiConverterOptionalCrossChainConfigINSTANCE.Write(writer, value.CrossChainConfig)
+}
+
+type FfiDestroyerBridgingConfig struct{}
+
+func (_ FfiDestroyerBridgingConfig) Destroy(value BridgingConfig) {
 	value.Destroy()
 }
 
@@ -18999,7 +19565,8 @@ func (_ FfiDestroyerBurnIssuerTokenRequest) Destroy(value BurnIssuerTokenRequest
 type BuyBitcoinResponse struct {
 	// The URL to open in a browser to complete the purchase
 	Url string
-	// The conversion quote, populated only for cross-chain delivery.
+	// The conversion quote, populated for cross-chain delivery and for
+	// `CashApp`, whose purchase is delivered through a conversion provider.
 	CrossChainInfo *CrossChainReceiveInfo
 }
 
@@ -20644,6 +21211,141 @@ func (_ FfiDestroyerCooperativeRecoveryFailure) Destroy(value CooperativeRecover
 	value.Destroy()
 }
 
+type CreateBridgeRequest struct {
+	// Who to pay, as given to [`BridgingClient::get_routes`](super::BridgingClient::get_routes).
+	Recipient string
+	// A route from [`BridgingClient::get_routes`](super::BridgingClient::get_routes)
+	// for this recipient.
+	Route BridgeRoutePair
+	// Amount in stablecoin base units: the destination asset when the
+	// recipient is paid in a stablecoin, the source asset otherwise, per that
+	// side's `decimals`. At parity this is the USD value: `1_000_000` is 1
+	// USDC at 6 decimals.
+	Amount u128
+	// The payer's address on the source chain, where the deposit is refunded
+	// if the recipient can't be paid. Required to pay a Lightning address,
+	// and recommended whenever the payer pays from another chain: without
+	// one the provider has no address to refund to. Ignored when the payer
+	// pays over Lightning.
+	RefundAddress *string
+	// Whether fees are added on top of `amount` (`FeesExcluded`, the default)
+	// or deducted from it (`FeesIncluded`).
+	FeePolicy *FeePolicy
+	// Maximum slippage tolerance in basis points. Unset uses the configured
+	// default.
+	MaxSlippageBps *uint32
+}
+
+func (r *CreateBridgeRequest) Destroy() {
+	FfiDestroyerString{}.Destroy(r.Recipient)
+	FfiDestroyerBridgeRoutePair{}.Destroy(r.Route)
+	FfiDestroyerTypeu128{}.Destroy(r.Amount)
+	FfiDestroyerOptionalString{}.Destroy(r.RefundAddress)
+	FfiDestroyerOptionalFeePolicy{}.Destroy(r.FeePolicy)
+	FfiDestroyerOptionalUint32{}.Destroy(r.MaxSlippageBps)
+}
+
+type FfiConverterCreateBridgeRequest struct{}
+
+var FfiConverterCreateBridgeRequestINSTANCE = FfiConverterCreateBridgeRequest{}
+
+func (c FfiConverterCreateBridgeRequest) Lift(rb RustBufferI) CreateBridgeRequest {
+	return LiftFromRustBuffer[CreateBridgeRequest](c, rb)
+}
+
+func (c FfiConverterCreateBridgeRequest) Read(reader io.Reader) CreateBridgeRequest {
+	return CreateBridgeRequest{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterBridgeRoutePairINSTANCE.Read(reader),
+		FfiConverterTypeu128INSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalFeePolicyINSTANCE.Read(reader),
+		FfiConverterOptionalUint32INSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterCreateBridgeRequest) Lower(value CreateBridgeRequest) C.RustBuffer {
+	return LowerIntoRustBuffer[CreateBridgeRequest](c, value)
+}
+
+func (c FfiConverterCreateBridgeRequest) LowerExternal(value CreateBridgeRequest) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[CreateBridgeRequest](c, value))
+}
+
+func (c FfiConverterCreateBridgeRequest) Write(writer io.Writer, value CreateBridgeRequest) {
+	FfiConverterStringINSTANCE.Write(writer, value.Recipient)
+	FfiConverterBridgeRoutePairINSTANCE.Write(writer, value.Route)
+	FfiConverterTypeu128INSTANCE.Write(writer, value.Amount)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.RefundAddress)
+	FfiConverterOptionalFeePolicyINSTANCE.Write(writer, value.FeePolicy)
+	FfiConverterOptionalUint32INSTANCE.Write(writer, value.MaxSlippageBps)
+}
+
+type FfiDestroyerCreateBridgeRequest struct{}
+
+func (_ FfiDestroyerCreateBridgeRequest) Destroy(value CreateBridgeRequest) {
+	value.Destroy()
+}
+
+type CreateBridgeResponse struct {
+	// Identifies the bridge for [`BridgingClient::get_bridge_status`](super::BridgingClient::get_bridge_status).
+	// Store it to look up the status later.
+	BridgeId string
+	// Pass it to
+	// [`BridgingClient::get_bridge_status`](super::BridgingClient::get_bridge_status).
+	StatusToken *string
+	// What the payer pays: an EIP-681 URI on EVM chains, a BOLT11 invoice or a
+	// Cash App link over Lightning, otherwise the bare deposit address.
+	PaymentRequest string
+	// The deposit and the expected delivery.
+	Info CrossChainReceiveInfo
+}
+
+func (r *CreateBridgeResponse) Destroy() {
+	FfiDestroyerString{}.Destroy(r.BridgeId)
+	FfiDestroyerOptionalString{}.Destroy(r.StatusToken)
+	FfiDestroyerString{}.Destroy(r.PaymentRequest)
+	FfiDestroyerCrossChainReceiveInfo{}.Destroy(r.Info)
+}
+
+type FfiConverterCreateBridgeResponse struct{}
+
+var FfiConverterCreateBridgeResponseINSTANCE = FfiConverterCreateBridgeResponse{}
+
+func (c FfiConverterCreateBridgeResponse) Lift(rb RustBufferI) CreateBridgeResponse {
+	return LiftFromRustBuffer[CreateBridgeResponse](c, rb)
+}
+
+func (c FfiConverterCreateBridgeResponse) Read(reader io.Reader) CreateBridgeResponse {
+	return CreateBridgeResponse{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterCrossChainReceiveInfoINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterCreateBridgeResponse) Lower(value CreateBridgeResponse) C.RustBuffer {
+	return LowerIntoRustBuffer[CreateBridgeResponse](c, value)
+}
+
+func (c FfiConverterCreateBridgeResponse) LowerExternal(value CreateBridgeResponse) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[CreateBridgeResponse](c, value))
+}
+
+func (c FfiConverterCreateBridgeResponse) Write(writer io.Writer, value CreateBridgeResponse) {
+	FfiConverterStringINSTANCE.Write(writer, value.BridgeId)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.StatusToken)
+	FfiConverterStringINSTANCE.Write(writer, value.PaymentRequest)
+	FfiConverterCrossChainReceiveInfoINSTANCE.Write(writer, value.Info)
+}
+
+type FfiDestroyerCreateBridgeResponse struct{}
+
+func (_ FfiDestroyerCreateBridgeResponse) Destroy(value CreateBridgeResponse) {
+	value.Destroy()
+}
+
 type CreateIssuerTokenRequest struct {
 	Name        string
 	Ticker      string
@@ -21062,26 +21764,32 @@ func (_ FfiDestroyerCrossChainConfig) Destroy(value CrossChainConfig) {
 	value.Destroy()
 }
 
-// Information about the cross-chain receive quote.
+// Information about the cross-chain receive quote: what the sender deposits
+// and what the receiver is expected to get.
 type CrossChainReceiveInfo struct {
-	// Bare external deposit address the sender pays to.
+	// The provider's id for this receive. The incoming payment carries the
+	// same id in its conversion info, so it can be matched to this receive.
+	QuoteId string
+	// Bare deposit address the sender pays to on the source chain, or the
+	// BOLT11 invoice when the sender pays over Lightning.
 	DepositAddress string
 	// Amount the sender must deposit, in source-asset base units
-	// (`route.decimals`). On `FeesExcluded` this may differ from the
-	// request's `amount` because the SDK inflates the deposit to absorb
-	// provider fees. Render this value to the sender.
+	// (`route.decimals`, or sats over Lightning). On `FeesExcluded` this may
+	// differ from the request's `amount` because the SDK inflates the deposit
+	// to absorb provider fees. Render this value to the sender.
 	DepositAmount u128
 	// Amount the receiver will see, net of provider fees, in
-	// destination-asset base units. Sats when receiving BTC into Spark,
-	// or token base units when receiving a Spark token (e.g. USDB). The
-	// final delivered amount may move within the slippage tolerance.
+	// destination-asset base units. Sats when receiving BTC, token base
+	// units when receiving a Spark token (e.g. USDB), or stablecoin base
+	// units when the receiver is on another chain. The final delivered
+	// amount may move within the slippage tolerance.
 	ExpectedReceivedAmount u128
-	// Symbol of the Spark-side asset `expected_received_amount` is
-	// denominated in, as the provider reports it: `"BTC"` for sats, or the
-	// token symbol (e.g. `"USDB"`).
+	// Symbol of the asset `expected_received_amount` is denominated in, as
+	// the provider reports it: `"BTC"` for sats, a Spark token symbol (e.g.
+	// `"USDB"`), or the stablecoin when the receiver is on another chain.
 	DestinationAsset string
-	// Spark token identifier when the destination is a token. Absent when
-	// the destination is BTC and the receiver will see sats.
+	// Spark token identifier when the destination is a Spark token. Absent
+	// otherwise.
 	TokenIdentifier *string
 	// Provider-quoted total fee for this receive, including the partner fee
 	// when one is set, in `service_fee_asset` units.
@@ -21097,6 +21805,7 @@ type CrossChainReceiveInfo struct {
 }
 
 func (r *CrossChainReceiveInfo) Destroy() {
+	FfiDestroyerString{}.Destroy(r.QuoteId)
 	FfiDestroyerString{}.Destroy(r.DepositAddress)
 	FfiDestroyerTypeu128{}.Destroy(r.DepositAmount)
 	FfiDestroyerTypeu128{}.Destroy(r.ExpectedReceivedAmount)
@@ -21119,6 +21828,7 @@ func (c FfiConverterCrossChainReceiveInfo) Lift(rb RustBufferI) CrossChainReceiv
 func (c FfiConverterCrossChainReceiveInfo) Read(reader io.Reader) CrossChainReceiveInfo {
 	return CrossChainReceiveInfo{
 		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterStringINSTANCE.Read(reader),
 		FfiConverterTypeu128INSTANCE.Read(reader),
 		FfiConverterTypeu128INSTANCE.Read(reader),
 		FfiConverterStringINSTANCE.Read(reader),
@@ -21139,6 +21849,7 @@ func (c FfiConverterCrossChainReceiveInfo) LowerExternal(value CrossChainReceive
 }
 
 func (c FfiConverterCrossChainReceiveInfo) Write(writer io.Writer, value CrossChainReceiveInfo) {
+	FfiConverterStringINSTANCE.Write(writer, value.QuoteId)
 	FfiConverterStringINSTANCE.Write(writer, value.DepositAddress)
 	FfiConverterTypeu128INSTANCE.Write(writer, value.DepositAmount)
 	FfiConverterTypeu128INSTANCE.Write(writer, value.ExpectedReceivedAmount)
@@ -23852,10 +24563,223 @@ func (_ FfiDestroyerFreezeIssuerTokenResponse) Destroy(value FreezeIssuerTokenRe
 	value.Destroy()
 }
 
+type GetBridgeRoutesRequest struct {
+	// Who to pay: a Spark address, a Lightning address (a Cash App
+	// `$cashtag` included), or an EVM/Solana/Tron address or URI.
+	Recipient string
+}
+
+func (r *GetBridgeRoutesRequest) Destroy() {
+	FfiDestroyerString{}.Destroy(r.Recipient)
+}
+
+type FfiConverterGetBridgeRoutesRequest struct{}
+
+var FfiConverterGetBridgeRoutesRequestINSTANCE = FfiConverterGetBridgeRoutesRequest{}
+
+func (c FfiConverterGetBridgeRoutesRequest) Lift(rb RustBufferI) GetBridgeRoutesRequest {
+	return LiftFromRustBuffer[GetBridgeRoutesRequest](c, rb)
+}
+
+func (c FfiConverterGetBridgeRoutesRequest) Read(reader io.Reader) GetBridgeRoutesRequest {
+	return GetBridgeRoutesRequest{
+		FfiConverterStringINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterGetBridgeRoutesRequest) Lower(value GetBridgeRoutesRequest) C.RustBuffer {
+	return LowerIntoRustBuffer[GetBridgeRoutesRequest](c, value)
+}
+
+func (c FfiConverterGetBridgeRoutesRequest) LowerExternal(value GetBridgeRoutesRequest) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[GetBridgeRoutesRequest](c, value))
+}
+
+func (c FfiConverterGetBridgeRoutesRequest) Write(writer io.Writer, value GetBridgeRoutesRequest) {
+	FfiConverterStringINSTANCE.Write(writer, value.Recipient)
+}
+
+type FfiDestroyerGetBridgeRoutesRequest struct{}
+
+func (_ FfiDestroyerGetBridgeRoutesRequest) Destroy(value GetBridgeRoutesRequest) {
+	value.Destroy()
+}
+
+type GetBridgeRoutesResponse struct {
+	// The routes that can pay the recipient. Empty when none can.
+	Routes []BridgeRoutePair
+}
+
+func (r *GetBridgeRoutesResponse) Destroy() {
+	FfiDestroyerSequenceBridgeRoutePair{}.Destroy(r.Routes)
+}
+
+type FfiConverterGetBridgeRoutesResponse struct{}
+
+var FfiConverterGetBridgeRoutesResponseINSTANCE = FfiConverterGetBridgeRoutesResponse{}
+
+func (c FfiConverterGetBridgeRoutesResponse) Lift(rb RustBufferI) GetBridgeRoutesResponse {
+	return LiftFromRustBuffer[GetBridgeRoutesResponse](c, rb)
+}
+
+func (c FfiConverterGetBridgeRoutesResponse) Read(reader io.Reader) GetBridgeRoutesResponse {
+	return GetBridgeRoutesResponse{
+		FfiConverterSequenceBridgeRoutePairINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterGetBridgeRoutesResponse) Lower(value GetBridgeRoutesResponse) C.RustBuffer {
+	return LowerIntoRustBuffer[GetBridgeRoutesResponse](c, value)
+}
+
+func (c FfiConverterGetBridgeRoutesResponse) LowerExternal(value GetBridgeRoutesResponse) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[GetBridgeRoutesResponse](c, value))
+}
+
+func (c FfiConverterGetBridgeRoutesResponse) Write(writer io.Writer, value GetBridgeRoutesResponse) {
+	FfiConverterSequenceBridgeRoutePairINSTANCE.Write(writer, value.Routes)
+}
+
+type FfiDestroyerGetBridgeRoutesResponse struct{}
+
+func (_ FfiDestroyerGetBridgeRoutesResponse) Destroy(value GetBridgeRoutesResponse) {
+	value.Destroy()
+}
+
+type GetBridgeStatusRequest struct {
+	BridgeId string
+	// The bridge's status token, if any.
+	StatusToken *string
+}
+
+func (r *GetBridgeStatusRequest) Destroy() {
+	FfiDestroyerString{}.Destroy(r.BridgeId)
+	FfiDestroyerOptionalString{}.Destroy(r.StatusToken)
+}
+
+type FfiConverterGetBridgeStatusRequest struct{}
+
+var FfiConverterGetBridgeStatusRequestINSTANCE = FfiConverterGetBridgeStatusRequest{}
+
+func (c FfiConverterGetBridgeStatusRequest) Lift(rb RustBufferI) GetBridgeStatusRequest {
+	return LiftFromRustBuffer[GetBridgeStatusRequest](c, rb)
+}
+
+func (c FfiConverterGetBridgeStatusRequest) Read(reader io.Reader) GetBridgeStatusRequest {
+	return GetBridgeStatusRequest{
+		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterGetBridgeStatusRequest) Lower(value GetBridgeStatusRequest) C.RustBuffer {
+	return LowerIntoRustBuffer[GetBridgeStatusRequest](c, value)
+}
+
+func (c FfiConverterGetBridgeStatusRequest) LowerExternal(value GetBridgeStatusRequest) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[GetBridgeStatusRequest](c, value))
+}
+
+func (c FfiConverterGetBridgeStatusRequest) Write(writer io.Writer, value GetBridgeStatusRequest) {
+	FfiConverterStringINSTANCE.Write(writer, value.BridgeId)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.StatusToken)
+}
+
+type FfiDestroyerGetBridgeStatusRequest struct{}
+
+func (_ FfiDestroyerGetBridgeStatusRequest) Destroy(value GetBridgeStatusRequest) {
+	value.Destroy()
+}
+
+type GetBridgeStatusResponse struct {
+	Status BridgeStatus
+	// The provider's own status, e.g. `"bridging"` or `"awaiting_approval"`,
+	// for display and support. Unset before the payment arrives.
+	ProviderStatus *string
+	// The provider's order id, once the payment arrived.
+	OrderId *string
+	// The amount the payer paid, in the source asset's base units.
+	AmountIn *u128
+	// The amount the recipient received, in the destination asset's base
+	// units. Set once completed.
+	AmountOut *u128
+	// The payer's transaction on the source chain.
+	DepositTxHash *string
+	// The transaction that paid the recipient, or the Spark transfer when the
+	// recipient is on Spark. Set once completed.
+	DeliveryTxHash *string
+	// The transaction that refunded the payer.
+	RefundTxHash *string
+	// The provider's error code when the bridge failed.
+	ErrorCode *string
+}
+
+func (r *GetBridgeStatusResponse) Destroy() {
+	FfiDestroyerBridgeStatus{}.Destroy(r.Status)
+	FfiDestroyerOptionalString{}.Destroy(r.ProviderStatus)
+	FfiDestroyerOptionalString{}.Destroy(r.OrderId)
+	FfiDestroyerOptionalTypeu128{}.Destroy(r.AmountIn)
+	FfiDestroyerOptionalTypeu128{}.Destroy(r.AmountOut)
+	FfiDestroyerOptionalString{}.Destroy(r.DepositTxHash)
+	FfiDestroyerOptionalString{}.Destroy(r.DeliveryTxHash)
+	FfiDestroyerOptionalString{}.Destroy(r.RefundTxHash)
+	FfiDestroyerOptionalString{}.Destroy(r.ErrorCode)
+}
+
+type FfiConverterGetBridgeStatusResponse struct{}
+
+var FfiConverterGetBridgeStatusResponseINSTANCE = FfiConverterGetBridgeStatusResponse{}
+
+func (c FfiConverterGetBridgeStatusResponse) Lift(rb RustBufferI) GetBridgeStatusResponse {
+	return LiftFromRustBuffer[GetBridgeStatusResponse](c, rb)
+}
+
+func (c FfiConverterGetBridgeStatusResponse) Read(reader io.Reader) GetBridgeStatusResponse {
+	return GetBridgeStatusResponse{
+		FfiConverterBridgeStatusINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalTypeu128INSTANCE.Read(reader),
+		FfiConverterOptionalTypeu128INSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+	}
+}
+
+func (c FfiConverterGetBridgeStatusResponse) Lower(value GetBridgeStatusResponse) C.RustBuffer {
+	return LowerIntoRustBuffer[GetBridgeStatusResponse](c, value)
+}
+
+func (c FfiConverterGetBridgeStatusResponse) LowerExternal(value GetBridgeStatusResponse) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[GetBridgeStatusResponse](c, value))
+}
+
+func (c FfiConverterGetBridgeStatusResponse) Write(writer io.Writer, value GetBridgeStatusResponse) {
+	FfiConverterBridgeStatusINSTANCE.Write(writer, value.Status)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.ProviderStatus)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.OrderId)
+	FfiConverterOptionalTypeu128INSTANCE.Write(writer, value.AmountIn)
+	FfiConverterOptionalTypeu128INSTANCE.Write(writer, value.AmountOut)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.DepositTxHash)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.DeliveryTxHash)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.RefundTxHash)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.ErrorCode)
+}
+
+type FfiDestroyerGetBridgeStatusResponse struct{}
+
+func (_ FfiDestroyerGetBridgeStatusResponse) Destroy(value GetBridgeStatusResponse) {
+	value.Destroy()
+}
+
 // Request to get the balance of the wallet
 type GetInfoRequest struct {
 	// When `Some(true)`, and `background_tasks_enabled` is `true`, the call
-	// waits for the initial Full sync to complete before returning.
+	// waits for the initial Full sync to complete before returning. The sync
+	// can fail to reach the network: `last_sync_error` in the response says
+	// whether it did.
 	//
 	// When `background_tasks_enabled` is `false`, setting this to `Some(true)`
 	// is rejected with an invalid-input error. There is no background sync to
@@ -23915,6 +24839,13 @@ type GetInfoResponse struct {
 	// total includes funds too small to be worth recovering at the fee rate
 	// you choose.
 	RecoverableFundsSats uint64
+	// Why the latest sync could not refresh the balances, which may then be
+	// out of date. Unset once a sync succeeds. It is not persisted, so it is
+	// also unset after each `connect` until the first sync ends.
+	LastSyncError *SyncError
+	// When a sync last refreshed the balances, in seconds since the Unix
+	// epoch. Unset until a sync succeeds with this storage.
+	LastSyncedAt *uint64
 }
 
 func (r *GetInfoResponse) Destroy() {
@@ -23922,6 +24853,8 @@ func (r *GetInfoResponse) Destroy() {
 	FfiDestroyerUint64{}.Destroy(r.BalanceSats)
 	FfiDestroyerMapStringTokenBalance{}.Destroy(r.TokenBalances)
 	FfiDestroyerUint64{}.Destroy(r.RecoverableFundsSats)
+	FfiDestroyerOptionalSyncError{}.Destroy(r.LastSyncError)
+	FfiDestroyerOptionalUint64{}.Destroy(r.LastSyncedAt)
 }
 
 type FfiConverterGetInfoResponse struct{}
@@ -23938,6 +24871,8 @@ func (c FfiConverterGetInfoResponse) Read(reader io.Reader) GetInfoResponse {
 		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterMapStringTokenBalanceINSTANCE.Read(reader),
 		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterOptionalSyncErrorINSTANCE.Read(reader),
+		FfiConverterOptionalUint64INSTANCE.Read(reader),
 	}
 }
 
@@ -23954,6 +24889,8 @@ func (c FfiConverterGetInfoResponse) Write(writer io.Writer, value GetInfoRespon
 	FfiConverterUint64INSTANCE.Write(writer, value.BalanceSats)
 	FfiConverterMapStringTokenBalanceINSTANCE.Write(writer, value.TokenBalances)
 	FfiConverterUint64INSTANCE.Write(writer, value.RecoverableFundsSats)
+	FfiConverterOptionalSyncErrorINSTANCE.Write(writer, value.LastSyncError)
+	FfiConverterOptionalUint64INSTANCE.Write(writer, value.LastSyncedAt)
 }
 
 type FfiDestroyerGetInfoResponse struct{}
@@ -25587,12 +26524,16 @@ type LnurlReceiveMetadata struct {
 	NostrZapRequest *string
 	NostrZapReceipt *string
 	SenderComment   *string
+	// The Lightning address the payment was received on. Unset for some payments received
+	// before the LNURL server recorded addresses.
+	LightningAddress *string
 }
 
 func (r *LnurlReceiveMetadata) Destroy() {
 	FfiDestroyerOptionalString{}.Destroy(r.NostrZapRequest)
 	FfiDestroyerOptionalString{}.Destroy(r.NostrZapReceipt)
 	FfiDestroyerOptionalString{}.Destroy(r.SenderComment)
+	FfiDestroyerOptionalString{}.Destroy(r.LightningAddress)
 }
 
 type FfiConverterLnurlReceiveMetadata struct{}
@@ -25605,6 +26546,7 @@ func (c FfiConverterLnurlReceiveMetadata) Lift(rb RustBufferI) LnurlReceiveMetad
 
 func (c FfiConverterLnurlReceiveMetadata) Read(reader io.Reader) LnurlReceiveMetadata {
 	return LnurlReceiveMetadata{
+		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
@@ -25623,6 +26565,7 @@ func (c FfiConverterLnurlReceiveMetadata) Write(writer io.Writer, value LnurlRec
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.NostrZapRequest)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.NostrZapReceipt)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.SenderComment)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.LightningAddress)
 }
 
 type FfiDestroyerLnurlReceiveMetadata struct{}
@@ -26832,11 +27775,12 @@ func (_ FfiDestroyerPaymentRequestSource) Destroy(value PaymentRequestSource) {
 	value.Destroy()
 }
 
-// How much to fund one branch of the exit to avoid a fan-out.
+// How much one funding UTXO must hold to avoid a fan-out: for a branch of the
+// exit, or under `CpfpFundingStrategy::PerNode` for one transaction of it.
 type PerBranchFunding struct {
 	// The leaf whose branch this funds.
 	LeafId string
-	// Fund a UTXO of at least this many satoshis for this branch.
+	// Fund a UTXO of at least this many satoshis.
 	FundingSats uint64
 }
 
@@ -27119,7 +28063,8 @@ func (_ FfiDestroyerPrepareLnurlPayResponse) Destroy(value PrepareLnurlPayRespon
 	value.Destroy()
 }
 
-// **Deprecated.** Use [`BridgeFromCashAppRequest`].
+// **Deprecated.** Use `CreateBridgeRequest` with the bridging client's
+// `bridge_from_cash_app`.
 //
 // Request for a payment link that sends USDC/USDT to an external-chain
 // recipient, funded by Cash App over Lightning.
@@ -27197,7 +28142,8 @@ func (_ FfiDestroyerPreparePaymentLinkRequest) Destroy(value PreparePaymentLinkR
 	value.Destroy()
 }
 
-// **Deprecated.** Use [`BridgeFromCashAppResponse`].
+// **Deprecated.** Use `CreateBridgeResponse`, from the bridging client's
+// `bridge_from_cash_app`.
 //
 // Response to a [`PreparePaymentLinkRequest`]. Mirrors `BuyBitcoinResponse`
 // (a payable `url`) plus the quote so the caller can display the expected
@@ -27406,6 +28352,9 @@ type PrepareRecoverFundsRequest struct {
 	// The kind of UTXO that will fund a unilateral exit. Needed when a
 	// transaction of a unilateral exit in the quote has a CPFP child.
 	FundingKind *CpfpFundingKind
+	// How the funding UTXOs pay a unilateral exit's CPFP children. Unset funds
+	// one UTXO per branch.
+	FundingStrategy *CpfpFundingStrategy
 	// The Bitcoin address the recovered funds are sent to.
 	Destination string
 	Selection   ExitLeafSelection
@@ -27414,6 +28363,7 @@ type PrepareRecoverFundsRequest struct {
 func (r *PrepareRecoverFundsRequest) Destroy() {
 	FfiDestroyerUint64{}.Destroy(r.FeeRateSatPerVbyte)
 	FfiDestroyerOptionalCpfpFundingKind{}.Destroy(r.FundingKind)
+	FfiDestroyerOptionalCpfpFundingStrategy{}.Destroy(r.FundingStrategy)
 	FfiDestroyerString{}.Destroy(r.Destination)
 	FfiDestroyerExitLeafSelection{}.Destroy(r.Selection)
 }
@@ -27430,6 +28380,7 @@ func (c FfiConverterPrepareRecoverFundsRequest) Read(reader io.Reader) PrepareRe
 	return PrepareRecoverFundsRequest{
 		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterOptionalCpfpFundingKindINSTANCE.Read(reader),
+		FfiConverterOptionalCpfpFundingStrategyINSTANCE.Read(reader),
 		FfiConverterStringINSTANCE.Read(reader),
 		FfiConverterExitLeafSelectionINSTANCE.Read(reader),
 	}
@@ -27446,6 +28397,7 @@ func (c FfiConverterPrepareRecoverFundsRequest) LowerExternal(value PrepareRecov
 func (c FfiConverterPrepareRecoverFundsRequest) Write(writer io.Writer, value PrepareRecoverFundsRequest) {
 	FfiConverterUint64INSTANCE.Write(writer, value.FeeRateSatPerVbyte)
 	FfiConverterOptionalCpfpFundingKindINSTANCE.Write(writer, value.FundingKind)
+	FfiConverterOptionalCpfpFundingStrategyINSTANCE.Write(writer, value.FundingStrategy)
 	FfiConverterStringINSTANCE.Write(writer, value.Destination)
 	FfiConverterExitLeafSelectionINSTANCE.Write(writer, value.Selection)
 }
@@ -27474,8 +28426,8 @@ type PrepareRecoverFundsResponse struct {
 	CooperativeFeeSats uint64
 	// Paid by the CPFP children, from your funding UTXOs.
 	CpfpFeeSats uint64
-	// Paid by the fan-out, from your funding UTXO. Funding one UTXO per branch
-	// (`funding.per_branch`) avoids it.
+	// Paid by the fan-out, from your funding UTXO. Funding one UTXO per
+	// `funding.per_branch` entry avoids it.
 	FanoutFeeSats uint64
 	// Paid from the unilateral leaves' own value before the sweep: each leaf's
 	// value less what its refund passes to the sweep. The output of a direct
@@ -28602,7 +29554,7 @@ func (_ FfiDestroyerRecoverFundsLeaf) Destroy(value RecoverFundsLeaf) {
 type RecoverFundsRequest struct {
 	Prepared PrepareRecoverFundsResponse
 	// UTXOs that meet the quote's `funding`: one of at least `single_utxo_sats`,
-	// or one per branch. Not needed when the quote has no `funding`.
+	// or one per `per_branch` entry. Not needed when the quote has no `funding`.
 	FundingInputs []CpfpInput
 }
 
@@ -28786,16 +29738,21 @@ func (_ FfiDestroyerRecoverableEcdsaSignatureBytes) Destroy(value RecoverableEcd
 // How much to fund a unilateral exit with.
 type RecoveryFunding struct {
 	// Fund a single UTXO of at least this many satoshis, which a fan-out
-	// splits over the branches.
+	// splits over the `per_branch` entries.
 	SingleUtxoSats uint64
-	// To skip the fan-out, fund one UTXO per branch of at least the given
-	// amount.
+	// To skip the fan-out, fund one UTXO per entry of at least its amount, in
+	// any order. An entry is a branch, or under `CpfpFundingStrategy::PerNode`
+	// one transaction of a branch, so a leaf can have several.
 	PerBranch []PerBranchFunding
+	// The strategy the amounts were computed for, which `recover_funds` builds
+	// with.
+	Strategy CpfpFundingStrategy
 }
 
 func (r *RecoveryFunding) Destroy() {
 	FfiDestroyerUint64{}.Destroy(r.SingleUtxoSats)
 	FfiDestroyerSequencePerBranchFunding{}.Destroy(r.PerBranch)
+	FfiDestroyerCpfpFundingStrategy{}.Destroy(r.Strategy)
 }
 
 type FfiConverterRecoveryFunding struct{}
@@ -28810,6 +29767,7 @@ func (c FfiConverterRecoveryFunding) Read(reader io.Reader) RecoveryFunding {
 	return RecoveryFunding{
 		FfiConverterUint64INSTANCE.Read(reader),
 		FfiConverterSequencePerBranchFundingINSTANCE.Read(reader),
+		FfiConverterCpfpFundingStrategyINSTANCE.Read(reader),
 	}
 }
 
@@ -28824,6 +29782,7 @@ func (c FfiConverterRecoveryFunding) LowerExternal(value RecoveryFunding) Extern
 func (c FfiConverterRecoveryFunding) Write(writer io.Writer, value RecoveryFunding) {
 	FfiConverterUint64INSTANCE.Write(writer, value.SingleUtxoSats)
 	FfiConverterSequencePerBranchFundingINSTANCE.Write(writer, value.PerBranch)
+	FfiConverterCpfpFundingStrategyINSTANCE.Write(writer, value.Strategy)
 }
 
 type FfiDestroyerRecoveryFunding struct{}
@@ -29887,13 +30846,17 @@ func (_ FfiDestroyerSendPaymentResponse) Destroy(value SendPaymentResponse) {
 
 // Cached authentication session for a single backend service identity.
 type Session struct {
-	Token      string
-	Expiration uint64
+	Token                  string
+	Expiration             uint64
+	RefreshToken           *string
+	RefreshTokenExpiration *uint64
 }
 
 func (r *Session) Destroy() {
 	FfiDestroyerString{}.Destroy(r.Token)
 	FfiDestroyerUint64{}.Destroy(r.Expiration)
+	FfiDestroyerOptionalString{}.Destroy(r.RefreshToken)
+	FfiDestroyerOptionalUint64{}.Destroy(r.RefreshTokenExpiration)
 }
 
 type FfiConverterSession struct{}
@@ -29908,6 +30871,8 @@ func (c FfiConverterSession) Read(reader io.Reader) Session {
 	return Session{
 		FfiConverterStringINSTANCE.Read(reader),
 		FfiConverterUint64INSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
+		FfiConverterOptionalUint64INSTANCE.Read(reader),
 	}
 }
 
@@ -29922,6 +30887,8 @@ func (c FfiConverterSession) LowerExternal(value Session) ExternalCRustBuffer {
 func (c FfiConverterSession) Write(writer io.Writer, value Session) {
 	FfiConverterStringINSTANCE.Write(writer, value.Token)
 	FfiConverterUint64INSTANCE.Write(writer, value.Expiration)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.RefreshToken)
+	FfiConverterOptionalUint64INSTANCE.Write(writer, value.RefreshTokenExpiration)
 }
 
 type FfiDestroyerSession struct{}
@@ -29931,10 +30898,11 @@ func (_ FfiDestroyerSession) Destroy(value Session) {
 }
 
 type SetLnurlMetadataItem struct {
-	PaymentHash     string
-	SenderComment   *string
-	NostrZapRequest *string
-	NostrZapReceipt *string
+	PaymentHash      string
+	SenderComment    *string
+	NostrZapRequest  *string
+	NostrZapReceipt  *string
+	LightningAddress *string
 }
 
 func (r *SetLnurlMetadataItem) Destroy() {
@@ -29942,6 +30910,7 @@ func (r *SetLnurlMetadataItem) Destroy() {
 	FfiDestroyerOptionalString{}.Destroy(r.SenderComment)
 	FfiDestroyerOptionalString{}.Destroy(r.NostrZapRequest)
 	FfiDestroyerOptionalString{}.Destroy(r.NostrZapReceipt)
+	FfiDestroyerOptionalString{}.Destroy(r.LightningAddress)
 }
 
 type FfiConverterSetLnurlMetadataItem struct{}
@@ -29955,6 +30924,7 @@ func (c FfiConverterSetLnurlMetadataItem) Lift(rb RustBufferI) SetLnurlMetadataI
 func (c FfiConverterSetLnurlMetadataItem) Read(reader io.Reader) SetLnurlMetadataItem {
 	return SetLnurlMetadataItem{
 		FfiConverterStringINSTANCE.Read(reader),
+		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
 		FfiConverterOptionalStringINSTANCE.Read(reader),
@@ -29974,6 +30944,7 @@ func (c FfiConverterSetLnurlMetadataItem) Write(writer io.Writer, value SetLnurl
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.SenderComment)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.NostrZapRequest)
 	FfiConverterOptionalStringINSTANCE.Write(writer, value.NostrZapReceipt)
+	FfiConverterOptionalStringINSTANCE.Write(writer, value.LightningAddress)
 }
 
 type FfiDestroyerSetLnurlMetadataItem struct{}
@@ -30337,54 +31308,6 @@ func (c FfiConverterSigningOnlyExternalSigners) Write(writer io.Writer, value Si
 type FfiDestroyerSigningOnlyExternalSigners struct{}
 
 func (_ FfiDestroyerSigningOnlyExternalSigners) Destroy(value SigningOnlyExternalSigners) {
-	value.Destroy()
-}
-
-type SilentPaymentAddressDetails struct {
-	Address string
-	Network BitcoinNetwork
-	Source  PaymentRequestSource
-}
-
-func (r *SilentPaymentAddressDetails) Destroy() {
-	FfiDestroyerString{}.Destroy(r.Address)
-	FfiDestroyerBitcoinNetwork{}.Destroy(r.Network)
-	FfiDestroyerPaymentRequestSource{}.Destroy(r.Source)
-}
-
-type FfiConverterSilentPaymentAddressDetails struct{}
-
-var FfiConverterSilentPaymentAddressDetailsINSTANCE = FfiConverterSilentPaymentAddressDetails{}
-
-func (c FfiConverterSilentPaymentAddressDetails) Lift(rb RustBufferI) SilentPaymentAddressDetails {
-	return LiftFromRustBuffer[SilentPaymentAddressDetails](c, rb)
-}
-
-func (c FfiConverterSilentPaymentAddressDetails) Read(reader io.Reader) SilentPaymentAddressDetails {
-	return SilentPaymentAddressDetails{
-		FfiConverterStringINSTANCE.Read(reader),
-		FfiConverterBitcoinNetworkINSTANCE.Read(reader),
-		FfiConverterPaymentRequestSourceINSTANCE.Read(reader),
-	}
-}
-
-func (c FfiConverterSilentPaymentAddressDetails) Lower(value SilentPaymentAddressDetails) C.RustBuffer {
-	return LowerIntoRustBuffer[SilentPaymentAddressDetails](c, value)
-}
-
-func (c FfiConverterSilentPaymentAddressDetails) LowerExternal(value SilentPaymentAddressDetails) ExternalCRustBuffer {
-	return RustBufferFromC(LowerIntoRustBuffer[SilentPaymentAddressDetails](c, value))
-}
-
-func (c FfiConverterSilentPaymentAddressDetails) Write(writer io.Writer, value SilentPaymentAddressDetails) {
-	FfiConverterStringINSTANCE.Write(writer, value.Address)
-	FfiConverterBitcoinNetworkINSTANCE.Write(writer, value.Network)
-	FfiConverterPaymentRequestSourceINSTANCE.Write(writer, value.Source)
-}
-
-type FfiDestroyerSilentPaymentAddressDetails struct{}
-
-func (_ FfiDestroyerSilentPaymentAddressDetails) Destroy(value SilentPaymentAddressDetails) {
 	value.Destroy()
 }
 
@@ -31387,9 +32310,17 @@ func (_ FfiDestroyerSyncWalletRequest) Destroy(value SyncWalletRequest) {
 
 // Response from synchronizing the wallet
 type SyncWalletResponse struct {
+	// Why the sync could not refresh the balances, which may then be out of
+	// date. Unset when it succeeded.
+	LastSyncError *SyncError
+	// When a sync last refreshed the balances, in seconds since the Unix
+	// epoch. Unset until a sync succeeds with this storage.
+	LastSyncedAt *uint64
 }
 
 func (r *SyncWalletResponse) Destroy() {
+	FfiDestroyerOptionalSyncError{}.Destroy(r.LastSyncError)
+	FfiDestroyerOptionalUint64{}.Destroy(r.LastSyncedAt)
 }
 
 type FfiConverterSyncWalletResponse struct{}
@@ -31401,7 +32332,10 @@ func (c FfiConverterSyncWalletResponse) Lift(rb RustBufferI) SyncWalletResponse 
 }
 
 func (c FfiConverterSyncWalletResponse) Read(reader io.Reader) SyncWalletResponse {
-	return SyncWalletResponse{}
+	return SyncWalletResponse{
+		FfiConverterOptionalSyncErrorINSTANCE.Read(reader),
+		FfiConverterOptionalUint64INSTANCE.Read(reader),
+	}
 }
 
 func (c FfiConverterSyncWalletResponse) Lower(value SyncWalletResponse) C.RustBuffer {
@@ -31413,6 +32347,8 @@ func (c FfiConverterSyncWalletResponse) LowerExternal(value SyncWalletResponse) 
 }
 
 func (c FfiConverterSyncWalletResponse) Write(writer io.Writer, value SyncWalletResponse) {
+	FfiConverterOptionalSyncErrorINSTANCE.Write(writer, value.LastSyncError)
+	FfiConverterOptionalUint64INSTANCE.Write(writer, value.LastSyncedAt)
 }
 
 type FfiDestroyerSyncWalletResponse struct{}
@@ -33236,6 +34172,58 @@ type FfiDestroyerBitcoinNetwork struct{}
 func (_ FfiDestroyerBitcoinNetwork) Destroy(value BitcoinNetwork) {
 }
 
+// Where a bridge is in its lifecycle.
+type BridgeStatus uint
+
+const (
+	// The bridge was created, and the payer hasn't paid yet. An unpaid bridge
+	// stays `Created` after its `expires_at`. A late deposit on another chain
+	// may still be accepted at a new price.
+	BridgeStatusCreated BridgeStatus = 1
+	// The provider is processing the payment, from confirming the deposit to
+	// paying the recipient. `provider_status` gives the stage.
+	BridgeStatusPending BridgeStatus = 2
+	// The recipient can't be paid, and the payment is being refunded.
+	BridgeStatusRefunding BridgeStatus = 3
+	// The recipient was paid.
+	BridgeStatusCompleted BridgeStatus = 4
+	// The payment was refunded to the payer's refund address.
+	BridgeStatusRefunded BridgeStatus = 5
+	// The bridge failed. `error_code` gives the reason.
+	BridgeStatusFailed BridgeStatus = 6
+	// The provider's order expired without a payment.
+	BridgeStatusExpired BridgeStatus = 7
+)
+
+type FfiConverterBridgeStatus struct{}
+
+var FfiConverterBridgeStatusINSTANCE = FfiConverterBridgeStatus{}
+
+func (c FfiConverterBridgeStatus) Lift(rb RustBufferI) BridgeStatus {
+	return LiftFromRustBuffer[BridgeStatus](c, rb)
+}
+
+func (c FfiConverterBridgeStatus) Lower(value BridgeStatus) C.RustBuffer {
+	return LowerIntoRustBuffer[BridgeStatus](c, value)
+}
+
+func (c FfiConverterBridgeStatus) LowerExternal(value BridgeStatus) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[BridgeStatus](c, value))
+}
+func (FfiConverterBridgeStatus) Read(reader io.Reader) BridgeStatus {
+	id := readInt32(reader)
+	return BridgeStatus(id)
+}
+
+func (FfiConverterBridgeStatus) Write(writer io.Writer, value BridgeStatus) {
+	writeInt32(writer, int32(value))
+}
+
+type FfiDestroyerBridgeStatus struct{}
+
+func (_ FfiDestroyerBridgeStatus) Destroy(value BridgeStatus) {
+}
+
 type BuildTransferPackageOptions interface {
 	Destroy()
 }
@@ -33330,8 +34318,9 @@ func (e BuyBitcoinRequestMoonpay) Destroy() {
 }
 
 // `CashApp`: Pay via the Lightning Network.
-// Generates a bolt11 invoice for the given amount and returns a
-// `cash.app` deep link. Only available on mainnet.
+// Returns a `cash.app` deep link to a bolt11 invoice. A conversion
+// provider delivers the payment to the wallet over Spark, and the payer
+// pays its fee on top of the amount. Only available on mainnet.
 //
 // The amount is required. With an amountless invoice, Cash App only
 // lets the payer fund from their existing Cash App BTC balance. With
@@ -34670,6 +35659,49 @@ func (_ FfiDestroyerCpfpFundingKind) Destroy(value CpfpFundingKind) {
 	value.Destroy()
 }
 
+// How funding UTXOs pay a unilateral exit's CPFP children.
+type CpfpFundingStrategy uint
+
+const (
+	// One UTXO per branch. Each child after the first spends the change of the
+	// one before it, so a child's inputs depend on the fee rate of every child
+	// above it.
+	CpfpFundingStrategyPerBranch CpfpFundingStrategy = 1
+	// One UTXO per fee-bumped transaction. No child spends another's output,
+	// so each can be signed at any fee rate without knowing the others. Each
+	// child's change stays on the funding script rather than being swept.
+	CpfpFundingStrategyPerNode CpfpFundingStrategy = 2
+)
+
+type FfiConverterCpfpFundingStrategy struct{}
+
+var FfiConverterCpfpFundingStrategyINSTANCE = FfiConverterCpfpFundingStrategy{}
+
+func (c FfiConverterCpfpFundingStrategy) Lift(rb RustBufferI) CpfpFundingStrategy {
+	return LiftFromRustBuffer[CpfpFundingStrategy](c, rb)
+}
+
+func (c FfiConverterCpfpFundingStrategy) Lower(value CpfpFundingStrategy) C.RustBuffer {
+	return LowerIntoRustBuffer[CpfpFundingStrategy](c, value)
+}
+
+func (c FfiConverterCpfpFundingStrategy) LowerExternal(value CpfpFundingStrategy) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[CpfpFundingStrategy](c, value))
+}
+func (FfiConverterCpfpFundingStrategy) Read(reader io.Reader) CpfpFundingStrategy {
+	id := readInt32(reader)
+	return CpfpFundingStrategy(id)
+}
+
+func (FfiConverterCpfpFundingStrategy) Write(writer io.Writer, value CpfpFundingStrategy) {
+	writeInt32(writer, int32(value))
+}
+
+type FfiDestroyerCpfpFundingStrategy struct{}
+
+func (_ FfiDestroyerCpfpFundingStrategy) Destroy(value CpfpFundingStrategy) {
+}
+
 // A funding UTXO that pays the on-chain fees of a unilateral exit.
 type CpfpInput interface {
 	Destroy()
@@ -35450,9 +36482,9 @@ func (_ FfiDestroyerErrorKind) Destroy(value ErrorKind) {
 
 // Which leaves to recover. `All` and `RecoverableOnly` take a leaf only when
 // what is left of its funds exceeds what recovering it costs. That cost leaves
-// out the shared fan-out fee, so funding several unilateral exits from one UTXO
-// adds `fanout_fee_sats` on top: compare `recoverable_value_sats` with
-// `total_fee_sats`, or fund one UTXO per branch to avoid the fan-out.
+// out the shared fan-out fee, which you also pay when you fund several
+// `funding.per_branch` entries from one UTXO: compare `recoverable_value_sats`
+// with `total_fee_sats`, or fund one UTXO per entry to avoid the fan-out.
 type ExitLeafSelection interface {
 	Destroy()
 }
@@ -36126,11 +37158,11 @@ func (e InputTypeLnurlPay) Destroy() {
 }
 
 type InputTypeSilentPaymentAddress struct {
-	Field0 SilentPaymentAddressDetails
+	Field0 BitcoinAddressDetails
 }
 
 func (e InputTypeSilentPaymentAddress) Destroy() {
-	FfiDestroyerSilentPaymentAddressDetails{}.Destroy(e.Field0)
+	FfiDestroyerBitcoinAddressDetails{}.Destroy(e.Field0)
 }
 
 type InputTypeLnurlAuth struct {
@@ -36241,7 +37273,7 @@ func (FfiConverterInputType) Read(reader io.Reader) InputType {
 		}
 	case 7:
 		return InputTypeSilentPaymentAddress{
-			FfiConverterSilentPaymentAddressDetailsINSTANCE.Read(reader),
+			FfiConverterBitcoinAddressDetailsINSTANCE.Read(reader),
 		}
 	case 8:
 		return InputTypeLnurlAuth{
@@ -36302,7 +37334,7 @@ func (FfiConverterInputType) Write(writer io.Writer, value InputType) {
 		FfiConverterLnurlPayRequestDetailsINSTANCE.Write(writer, variant_value.Field0)
 	case InputTypeSilentPaymentAddress:
 		writeInt32(writer, 7)
-		FfiConverterSilentPaymentAddressDetailsINSTANCE.Write(writer, variant_value.Field0)
+		FfiConverterBitcoinAddressDetailsINSTANCE.Write(writer, variant_value.Field0)
 	case InputTypeLnurlAuth:
 		writeInt32(writer, 8)
 		FfiConverterLnurlAuthRequestDetailsINSTANCE.Write(writer, variant_value.Field0)
@@ -37687,11 +38719,15 @@ func (e PaymentDetailsLightning) Destroy() {
 }
 
 type PaymentDetailsWithdraw struct {
-	TxId string
+	TxId               string
+	Vout               uint32
+	DestinationAddress string
 }
 
 func (e PaymentDetailsWithdraw) Destroy() {
 	FfiDestroyerString{}.Destroy(e.TxId)
+	FfiDestroyerUint32{}.Destroy(e.Vout)
+	FfiDestroyerString{}.Destroy(e.DestinationAddress)
 }
 
 type PaymentDetailsDeposit struct {
@@ -37750,6 +38786,8 @@ func (FfiConverterPaymentDetails) Read(reader io.Reader) PaymentDetails {
 	case 4:
 		return PaymentDetailsWithdraw{
 			FfiConverterStringINSTANCE.Read(reader),
+			FfiConverterUint32INSTANCE.Read(reader),
+			FfiConverterStringINSTANCE.Read(reader),
 		}
 	case 5:
 		return PaymentDetailsDeposit{
@@ -37788,6 +38826,8 @@ func (FfiConverterPaymentDetails) Write(writer io.Writer, value PaymentDetails) 
 	case PaymentDetailsWithdraw:
 		writeInt32(writer, 4)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.TxId)
+		FfiConverterUint32INSTANCE.Write(writer, variant_value.Vout)
+		FfiConverterStringINSTANCE.Write(writer, variant_value.DestinationAddress)
 	case PaymentDetailsDeposit:
 		writeInt32(writer, 5)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.TxId)
@@ -38973,6 +40013,7 @@ type ReceivePaymentMethodBolt11Invoice struct {
 	ExpirySecs                *uint32
 	PaymentHash               *string
 	ReceiverIdentityPublicKey *string
+	Preimage                  *string
 }
 
 func (e ReceivePaymentMethodBolt11Invoice) Destroy() {
@@ -38981,6 +40022,7 @@ func (e ReceivePaymentMethodBolt11Invoice) Destroy() {
 	FfiDestroyerOptionalUint32{}.Destroy(e.ExpirySecs)
 	FfiDestroyerOptionalString{}.Destroy(e.PaymentHash)
 	FfiDestroyerOptionalString{}.Destroy(e.ReceiverIdentityPublicKey)
+	FfiDestroyerOptionalString{}.Destroy(e.Preimage)
 }
 
 type ReceivePaymentMethodCrossChain struct {
@@ -39040,6 +40082,7 @@ func (FfiConverterReceivePaymentMethod) Read(reader io.Reader) ReceivePaymentMet
 			FfiConverterOptionalUint32INSTANCE.Read(reader),
 			FfiConverterOptionalStringINSTANCE.Read(reader),
 			FfiConverterOptionalStringINSTANCE.Read(reader),
+			FfiConverterOptionalStringINSTANCE.Read(reader),
 		}
 	case 5:
 		return ReceivePaymentMethodCrossChain{
@@ -39076,6 +40119,7 @@ func (FfiConverterReceivePaymentMethod) Write(writer io.Writer, value ReceivePay
 		FfiConverterOptionalUint32INSTANCE.Write(writer, variant_value.ExpirySecs)
 		FfiConverterOptionalStringINSTANCE.Write(writer, variant_value.PaymentHash)
 		FfiConverterOptionalStringINSTANCE.Write(writer, variant_value.ReceiverIdentityPublicKey)
+		FfiConverterOptionalStringINSTANCE.Write(writer, variant_value.Preimage)
 	case ReceivePaymentMethodCrossChain:
 		writeInt32(writer, 5)
 		FfiConverterCrossChainRoutePairINSTANCE.Write(writer, variant_value.Route)
@@ -39185,8 +40229,10 @@ const (
 	// operators. Pays its fee from the leaf's value: no CPFP child, no
 	// dependencies, no timelock.
 	RecoveryTxKindCooperative RecoveryTxKind = 1
-	// Splits the caller's funding into one output per branch. Present only
-	// when the funding couldn't be matched one-to-one to branches.
+	// Splits the caller's funding into one output per `funding.per_branch`
+	// entry: per branch, or under `CpfpFundingStrategy::PerNode` per
+	// transaction. Present only when the funding couldn't be matched
+	// one-to-one to the entries.
 	RecoveryTxKindFanOut RecoveryTxKind = 2
 	// A tree node transaction (root, intermediate, or leaf node).
 	RecoveryTxKindNode RecoveryTxKind = 3
@@ -42163,6 +43209,15 @@ type SkippedLeafReasonUnverified struct {
 func (e SkippedLeafReasonUnverified) Destroy() {
 }
 
+// The SDK needs data from the Spark operators to find the leaf's funds,
+// and could not reach them or they were too busy. It tries again the next
+// time you prepare.
+type SkippedLeafReasonOperatorsUnavailable struct {
+}
+
+func (e SkippedLeafReasonOperatorsUnavailable) Destroy() {
+}
+
 // No recovery can be built for the leaf as it stands. `message` says why.
 type SkippedLeafReasonNotRecoverable struct {
 	Message string
@@ -42197,6 +43252,8 @@ func (FfiConverterSkippedLeafReason) Read(reader io.Reader) SkippedLeafReason {
 	case 3:
 		return SkippedLeafReasonUnverified{}
 	case 4:
+		return SkippedLeafReasonOperatorsUnavailable{}
+	case 5:
 		return SkippedLeafReasonNotRecoverable{
 			FfiConverterStringINSTANCE.Read(reader),
 		}
@@ -42213,8 +43270,10 @@ func (FfiConverterSkippedLeafReason) Write(writer io.Writer, value SkippedLeafRe
 		writeInt32(writer, 2)
 	case SkippedLeafReasonUnverified:
 		writeInt32(writer, 3)
-	case SkippedLeafReasonNotRecoverable:
+	case SkippedLeafReasonOperatorsUnavailable:
 		writeInt32(writer, 4)
+	case SkippedLeafReasonNotRecoverable:
+		writeInt32(writer, 5)
 		FfiConverterStringINSTANCE.Write(writer, variant_value.Message)
 	default:
 		_ = variant_value
@@ -43104,6 +44163,81 @@ func (FfiConverterSwapDegradation) Write(writer io.Writer, value SwapDegradation
 type FfiDestroyerSwapDegradation struct{}
 
 func (_ FfiDestroyerSwapDegradation) Destroy(value SwapDegradation) {
+}
+
+// Why a sync could not refresh the balances. Each message is for logs, not
+// for display.
+type SyncError interface {
+	Destroy()
+}
+
+// The network could not be reached, or is temporarily too busy to answer.
+type SyncErrorNetwork struct {
+	Message string
+}
+
+func (e SyncErrorNetwork) Destroy() {
+	FfiDestroyerString{}.Destroy(e.Message)
+}
+
+// Any other failure.
+type SyncErrorGeneric struct {
+	Message string
+}
+
+func (e SyncErrorGeneric) Destroy() {
+	FfiDestroyerString{}.Destroy(e.Message)
+}
+
+type FfiConverterSyncError struct{}
+
+var FfiConverterSyncErrorINSTANCE = FfiConverterSyncError{}
+
+func (c FfiConverterSyncError) Lift(rb RustBufferI) SyncError {
+	return LiftFromRustBuffer[SyncError](c, rb)
+}
+
+func (c FfiConverterSyncError) Lower(value SyncError) C.RustBuffer {
+	return LowerIntoRustBuffer[SyncError](c, value)
+}
+
+func (c FfiConverterSyncError) LowerExternal(value SyncError) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[SyncError](c, value))
+}
+func (FfiConverterSyncError) Read(reader io.Reader) SyncError {
+	id := readInt32(reader)
+	switch id {
+	case 1:
+		return SyncErrorNetwork{
+			FfiConverterStringINSTANCE.Read(reader),
+		}
+	case 2:
+		return SyncErrorGeneric{
+			FfiConverterStringINSTANCE.Read(reader),
+		}
+	default:
+		panic(fmt.Sprintf("invalid enum value %v in FfiConverterSyncError.Read()", id))
+	}
+}
+
+func (FfiConverterSyncError) Write(writer io.Writer, value SyncError) {
+	switch variant_value := value.(type) {
+	case SyncErrorNetwork:
+		writeInt32(writer, 1)
+		FfiConverterStringINSTANCE.Write(writer, variant_value.Message)
+	case SyncErrorGeneric:
+		writeInt32(writer, 2)
+		FfiConverterStringINSTANCE.Write(writer, variant_value.Message)
+	default:
+		_ = variant_value
+		panic(fmt.Sprintf("invalid enum value `%v` in FfiConverterSyncError.Write", value))
+	}
+}
+
+type FfiDestroyerSyncError struct{}
+
+func (_ FfiDestroyerSyncError) Destroy(value SyncError) {
+	value.Destroy()
 }
 
 type TokenAllowanceErrorReason uint
@@ -46199,6 +47333,47 @@ func (_ FfiDestroyerOptionalCpfpFundingKind) Destroy(value *CpfpFundingKind) {
 	}
 }
 
+type FfiConverterOptionalCpfpFundingStrategy struct{}
+
+var FfiConverterOptionalCpfpFundingStrategyINSTANCE = FfiConverterOptionalCpfpFundingStrategy{}
+
+func (c FfiConverterOptionalCpfpFundingStrategy) Lift(rb RustBufferI) *CpfpFundingStrategy {
+	return LiftFromRustBuffer[*CpfpFundingStrategy](c, rb)
+}
+
+func (_ FfiConverterOptionalCpfpFundingStrategy) Read(reader io.Reader) *CpfpFundingStrategy {
+	if readInt8(reader) == 0 {
+		return nil
+	}
+	temp := FfiConverterCpfpFundingStrategyINSTANCE.Read(reader)
+	return &temp
+}
+
+func (c FfiConverterOptionalCpfpFundingStrategy) Lower(value *CpfpFundingStrategy) C.RustBuffer {
+	return LowerIntoRustBuffer[*CpfpFundingStrategy](c, value)
+}
+
+func (c FfiConverterOptionalCpfpFundingStrategy) LowerExternal(value *CpfpFundingStrategy) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[*CpfpFundingStrategy](c, value))
+}
+
+func (_ FfiConverterOptionalCpfpFundingStrategy) Write(writer io.Writer, value *CpfpFundingStrategy) {
+	if value == nil {
+		writeInt8(writer, 0)
+	} else {
+		writeInt8(writer, 1)
+		FfiConverterCpfpFundingStrategyINSTANCE.Write(writer, *value)
+	}
+}
+
+type FfiDestroyerOptionalCpfpFundingStrategy struct{}
+
+func (_ FfiDestroyerOptionalCpfpFundingStrategy) Destroy(value *CpfpFundingStrategy) {
+	if value != nil {
+		FfiDestroyerCpfpFundingStrategy{}.Destroy(*value)
+	}
+}
+
 type FfiConverterOptionalCrossChainFeeMode struct{}
 
 var FfiConverterOptionalCrossChainFeeModeINSTANCE = FfiConverterOptionalCrossChainFeeMode{}
@@ -46811,6 +47986,47 @@ type FfiDestroyerOptionalSwapDegradation struct{}
 func (_ FfiDestroyerOptionalSwapDegradation) Destroy(value *SwapDegradation) {
 	if value != nil {
 		FfiDestroyerSwapDegradation{}.Destroy(*value)
+	}
+}
+
+type FfiConverterOptionalSyncError struct{}
+
+var FfiConverterOptionalSyncErrorINSTANCE = FfiConverterOptionalSyncError{}
+
+func (c FfiConverterOptionalSyncError) Lift(rb RustBufferI) *SyncError {
+	return LiftFromRustBuffer[*SyncError](c, rb)
+}
+
+func (_ FfiConverterOptionalSyncError) Read(reader io.Reader) *SyncError {
+	if readInt8(reader) == 0 {
+		return nil
+	}
+	temp := FfiConverterSyncErrorINSTANCE.Read(reader)
+	return &temp
+}
+
+func (c FfiConverterOptionalSyncError) Lower(value *SyncError) C.RustBuffer {
+	return LowerIntoRustBuffer[*SyncError](c, value)
+}
+
+func (c FfiConverterOptionalSyncError) LowerExternal(value *SyncError) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[*SyncError](c, value))
+}
+
+func (_ FfiConverterOptionalSyncError) Write(writer io.Writer, value *SyncError) {
+	if value == nil {
+		writeInt8(writer, 0)
+	} else {
+		writeInt8(writer, 1)
+		FfiConverterSyncErrorINSTANCE.Write(writer, *value)
+	}
+}
+
+type FfiDestroyerOptionalSyncError struct{}
+
+func (_ FfiDestroyerOptionalSyncError) Destroy(value *SyncError) {
+	if value != nil {
+		FfiDestroyerSyncError{}.Destroy(*value)
 	}
 }
 
@@ -47685,6 +48901,53 @@ type FfiDestroyerSequenceBolt12OfferBlindedPath struct{}
 func (FfiDestroyerSequenceBolt12OfferBlindedPath) Destroy(sequence []Bolt12OfferBlindedPath) {
 	for _, value := range sequence {
 		FfiDestroyerBolt12OfferBlindedPath{}.Destroy(value)
+	}
+}
+
+type FfiConverterSequenceBridgeRoutePair struct{}
+
+var FfiConverterSequenceBridgeRoutePairINSTANCE = FfiConverterSequenceBridgeRoutePair{}
+
+func (c FfiConverterSequenceBridgeRoutePair) Lift(rb RustBufferI) []BridgeRoutePair {
+	return LiftFromRustBuffer[[]BridgeRoutePair](c, rb)
+}
+
+func (c FfiConverterSequenceBridgeRoutePair) Read(reader io.Reader) []BridgeRoutePair {
+	length := readInt32(reader)
+	if length == 0 {
+		return nil
+	}
+	result := make([]BridgeRoutePair, 0, length)
+	for i := int32(0); i < length; i++ {
+		result = append(result, FfiConverterBridgeRoutePairINSTANCE.Read(reader))
+	}
+	return result
+}
+
+func (c FfiConverterSequenceBridgeRoutePair) Lower(value []BridgeRoutePair) C.RustBuffer {
+	return LowerIntoRustBuffer[[]BridgeRoutePair](c, value)
+}
+
+func (c FfiConverterSequenceBridgeRoutePair) LowerExternal(value []BridgeRoutePair) ExternalCRustBuffer {
+	return RustBufferFromC(LowerIntoRustBuffer[[]BridgeRoutePair](c, value))
+}
+
+func (c FfiConverterSequenceBridgeRoutePair) Write(writer io.Writer, value []BridgeRoutePair) {
+	if len(value) > math.MaxInt32 {
+		panic("[]BridgeRoutePair is too large to fit into Int32")
+	}
+
+	writeInt32(writer, int32(len(value)))
+	for _, item := range value {
+		FfiConverterBridgeRoutePairINSTANCE.Write(writer, item)
+	}
+}
+
+type FfiDestroyerSequenceBridgeRoutePair struct{}
+
+func (FfiDestroyerSequenceBridgeRoutePair) Destroy(sequence []BridgeRoutePair) {
+	for _, value := range sequence {
+		FfiDestroyerBridgeRoutePair{}.Destroy(value)
 	}
 }
 
@@ -50748,6 +52011,15 @@ func CustomStorage(storage Storage) *StorageBackend {
 	}))
 }
 
+// Settings for [`new_bridging_client`] with every optional field unset.
+func DefaultBridgingConfig(apiKey string) BridgingConfig {
+	return FfiConverterBridgingConfigINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) RustBufferI {
+		return GoRustBuffer{
+			inner: C.uniffi_breez_sdk_spark_fn_func_default_bridging_config(FfiConverterStringINSTANCE.Lower(apiKey), _uniffiStatus),
+		}
+	}))
+}
+
 func DefaultConfig(network Network) Config {
 	return FfiConverterConfigINSTANCE.Lift(rustCall(func(_uniffiStatus *C.RustCallStatus) RustBufferI {
 		return GoRustBuffer{
@@ -50949,6 +52221,37 @@ func MysqlStorage(config MysqlStorageConfig) (*StorageBackend, error) {
 	} else {
 		return FfiConverterStorageBackendINSTANCE.Lift(_uniffiRV), nil
 	}
+}
+
+// Builds a [`BridgingClient`] from an API key, with no seed or storage.
+func NewBridgingClient(config BridgingConfig) (*BridgingClient, error) {
+	res, err := uniffiRustCallAsync[SdkError](
+		FfiConverterSdkErrorINSTANCE,
+		// completeFn
+		func(handle C.uint64_t, status *C.RustCallStatus) unsafe.Pointer {
+			res := C.ffi_breez_sdk_spark_rust_future_complete_pointer(handle, status)
+			return res
+		},
+		// liftFn
+		func(ffi unsafe.Pointer) *BridgingClient {
+			return FfiConverterBridgingClientINSTANCE.Lift(ffi)
+		},
+		C.uniffi_breez_sdk_spark_fn_func_new_bridging_client(FfiConverterBridgingConfigINSTANCE.Lower(config)),
+		// pollFn
+		func(handle C.uint64_t, continuation C.UniffiRustFutureContinuationCallback, data C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_poll_pointer(handle, continuation, data)
+		},
+		// freeFn
+		func(handle C.uint64_t) {
+			C.ffi_breez_sdk_spark_rust_future_free_pointer(handle)
+		},
+	)
+
+	if err == nil {
+		return res, nil
+	}
+
+	return res, err
 }
 
 // Constructs a shareable REST-based [`BitcoinChainService`].
