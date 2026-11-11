@@ -22,10 +22,28 @@
     "total": "مجموع"
   },
   "addAccount": {
+    "chooseName": {
+      "nextButton": "افزودن حساب"
+    },
+    "selectCoin": {
+      "nextButton": "بعدي"
+    },
     "title": "افزودن حساب"
+  },
+  "addresses": {
+    "columnAddress": "آدرس",
+    "detail": {
+      "address": "آدرس"
+    }
+  },
+  "aopp": {
+    "labelAddress": "آدرس"
   },
   "app": {
     "upgrade": "نسخه جدید برنامه موجود است. لطفا برنامه را از نسخه {{current}} به نسخه {{version}} ارتقا دهید."
+  },
+  "auth": {
+    "dismissButton": "لغو"
   },
   "backup": {
     "check": {
@@ -99,9 +117,13 @@
     }
   },
   "bitbox02Interact": {
-    "followInstructions": "لطفا طبق دستورالعمل های نمایش داده شده در BitBox02 عمل کنید."
+    "followInstructions": "لطفا طبق دستورالعمل های نمایش داده شده در BitBox02 عمل کنید.",
+    "followInstructionsMnemonicTitle": "بازیابی با کلمات بازیابی"
   },
   "bitbox02Settings": {
+    "changePassword": {
+      "title": "تغيير رمزعبور دستگاه"
+    },
     "deviceName": {
       "current": "نام دستگاه فعلی",
       "input": "نام BitBox02",
@@ -179,6 +201,11 @@
       "title": "شما آماده رفتن هستید!"
     }
   },
+  "bitsurance": {
+    "insure": {
+      "title": "شروع کنید"
+    }
+  },
   "blink": {
     "button": "چشمک زدن"
   },
@@ -200,10 +227,23 @@
     "ok": "تاييد",
     "previous": "قبلي",
     "restore": "بازیابی",
+    "review": "امضا و ارسال",
     "select": "انتخاب",
     "unlock": "باز کردن",
     "update": "بروز رسانی",
     "upgrade": "ارتقاء"
+  },
+  "buy": {
+    "info": {
+      "disclaimer": {
+        "payment": {
+          "table": {
+            "fee": "هزینه"
+          }
+        }
+      },
+      "next": "بعدي"
+    }
   },
   "changePin": {
     "newTitle": "رمزعبور جدید دستگاه",
@@ -255,6 +295,9 @@
   },
   "footer": {
     "appVersion": "نسخه برنامه:"
+  },
+  "generic": {
+    "resetToDefault": "تنظیم مجدد به حالت پیش فرض"
   },
   "genericError": "یک خطا رخ داده است اگر متوجه شدید، لطفا برنامه را مجددا راه اندازی کنید.",
   "goal": {
@@ -316,6 +359,9 @@
     "accountSendDisabled": {
       "text": "دکمه «ارسال» هنگامی فعال می شود که موجودی شما بیش از صفر باشد.",
       "title": "چرا نمی توانم هر مقدار {{unit}} را بفرستم؟"
+    },
+    "accountSummaryDescription": {
+      "title": "چه چیزی در این صفحه به من نمایش داده می شود؟"
     },
     "accountTransactionAttributesBTC": {
       "text": "اندازه مجازی: برای تعیین هزینه شبکه استفاده می شود. شما با موفقیت در هزینه صرفه جویی کردید اگر کوچکتر از اندازه تراکنش باشد.\nاندازه: حجم معامله واقعی در بایت زمانی که با توجه به بلوک های زیرزمینی سرویسی می شود.\nوزن: با Segwit معرفی شده است، این یک متریک جدید برای ارزیابی معامله و اندازه بلوک است. هر شهود جداگانه شمرده شده به عنوان یک، هر چیز دیگری به عنوان چهار وزن واحد. به جای یک مگابایت در اندازه واقعی، محدودیت اندازه بلوک در حال حاضر ٤ میلیون وزن واحد است.",
@@ -509,10 +555,51 @@
   "language": {
     "title": "زبان مورد نظر را انتخاب كنيد"
   },
+  "lightning": {
+    "claimTopUp": {
+      "confirm": {
+        "fee": "هزینه"
+      }
+    },
+    "closeWithdrawFunds": {
+      "fee": "هزینه"
+    },
+    "payments": {
+      "header": {
+        "amount": "مقدار"
+      }
+    },
+    "receive": {
+      "amountSats": {
+        "placeholder": "مقدار را وارد کنید"
+      }
+    },
+    "send": {
+      "confirm": {
+        "amount": "مقدار"
+      }
+    },
+    "settings": {
+      "wallet": "كيف پول"
+    },
+    "topUp": {
+      "confirm": {
+        "amount": "مقدار",
+        "networkFee": "هزینه شبکه",
+        "title": "تأیید تراکنش",
+        "total": "مجموع"
+      }
+    }
+  },
   "loading": "در حال بارگذاری…",
   "notification": {
     "newTxs_one": "تراکنش جدید در: {{accountName}}",
     "newTxs_other": ""
+  },
+  "passphrase": {
+    "summary": {
+      "title": "خلاصه"
+    }
   },
   "password": {
     "show": "نمایش {{label}}",
@@ -632,6 +719,7 @@
         "economy": "٢٤ بلوک (حدود ٤ ساعت برای Bitcoin، ١ ساعت برای Litecoin)",
         "high": "٢ بلوک (حدود ٢٠ دقیقه برای Bitcoin، ٥ دقیقه برای Litecoin)",
         "low": "١٢ بلوک (حدود ٢ ساعت برای Bitcoin، ٣٠ دقیقه برای Litecoin)",
+        "mHalfHour": "٢ بلوک (حدود ٢٠ دقیقه برای Bitcoin، ٥ دقیقه برای Litecoin)",
         "normal": "٦ بلوک (حدود ١ ساعت برای Bitcoin، ١٥ دقیقه برای Litecoin)"
       },
       "estimate": "زمان انتظار تخمینی:",
@@ -639,6 +727,8 @@
         "economy": "اقتصاد",
         "high": "زیاد",
         "low": "کم",
+        "mFastest": "زیاد",
+        "mHour": "کم",
         "normal": "متوسط"
       },
       "placeholder": "محاسبه تخمین هزینه ..."
@@ -650,6 +740,7 @@
     "toggleCoinControl": "کنترل سکه را تغییر دهید"
   },
   "settings": {
+    "advancedSettings": "تنظیمات پیشرفته",
     "electrum": {
       "add": "افزودن سرور",
       "add-server": "افزودن",
@@ -698,6 +789,9 @@
     "leave": "ترک",
     "settings": "تنظیمات"
   },
+  "signMessage": {
+    "addressLabel": "آدرس"
+  },
   "success": {
     "create": {
       "info1": "کیف پول شما در حافظه microSD با موفقیت پشتیبان گیری شد. آن را جدا کنید و در مکان امن نگهداری کنید.",
@@ -712,8 +806,17 @@
       "title": "موفقیت"
     }
   },
+  "testWallet": {
+    "prompt": {
+      "button": "باز کردن"
+    }
+  },
   "transaction": {
     "confirmation": "تاییدیه ها",
+    "details": {
+      "address": "آدرس",
+      "amount": "مقدار"
+    },
     "explorer": "شماره تراکنش",
     "explorerTitle": "باز کردن در جستجوگر بلوک خارجی",
     "fee": "هزینه",
@@ -721,6 +824,14 @@
     "gas": "گاز",
     "pending": "تراکنش در انتظار",
     "size": "اندازه",
+    "status": {
+      "failed": "ناموفق",
+      "pending_send_to_self": "تراکنش در انتظار"
+    },
+    "statusShort": {
+      "failed": "ناموفق",
+      "pending_receive": "ورودی"
+    },
     "vsize": "اندازه مجازی",
     "weight": "وزن"
   },

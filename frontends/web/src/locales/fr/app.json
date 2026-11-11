@@ -201,7 +201,6 @@
   "bb02Bootloader": {
     "abort": "Ne pas mettre à jour - Revenir en arrière",
     "abort_noUpgrade": "Retour en arrière",
-    "additionalUpgradeFollows1": "Une mise à jour supplémentaire suivra immédiatement après celle-ci.",
     "additionalUpgradeFollows2": "Veuillez laisser votre BitBox branché jusqu'à ce que toutes les mises à jour soient terminées.",
     "advanced": {
       "label": "Paramètres avancés",
@@ -1856,7 +1855,7 @@
       "enableWalletDescription": "Lightning permet des paiements instantanés avec de faibles frais.",
       "expert": "Expert",
       "serviceProvider": "Fournisseur de service",
-      "setLightningAddress": "Définir l’adresse Lightning",
+      "setLightningAddress": "Adresse Lightning",
       "status": "Statut",
       "statusConnected": "Connecté",
       "title": "Paramètres Lightning",
@@ -1867,6 +1866,9 @@
       "major": "Le réseau Spark subit une panne majeure. Les paiements Lightning peuvent être indisponibles.",
       "partial": "Le réseau Spark est partiellement indisponible. Les paiements Lightning peuvent être indisponibles.",
       "unknown": "Le statut du réseau Spark est inconnu. Les paiements Lightning peuvent être indisponibles."
+    },
+    "testnetWarning": {
+      "title": "Avertissement"
     },
     "topUp": {
       "action": "Déposer",

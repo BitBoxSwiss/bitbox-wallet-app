@@ -22,10 +22,28 @@
     "total": "टोटल"
   },
   "addAccount": {
+    "chooseName": {
+      "nextButton": "अकाउंट जोड़ो"
+    },
+    "selectCoin": {
+      "nextButton": "आगे"
+    },
     "title": "अकाउंट जोड़ो"
+  },
+  "addresses": {
+    "columnAddress": "एड्रेस",
+    "detail": {
+      "address": "एड्रेस"
+    }
+  },
+  "aopp": {
+    "labelAddress": "एड्रेस"
   },
   "app": {
     "upgrade": "इस एप्लिकेशन का एक नया संस्करण उपलब्ध है! कृपया {{current}} से {{version}} अपग्रेड करें ।"
+  },
+  "auth": {
+    "dismissButton": "रद्द करे"
   },
   "backup": {
     "check": {
@@ -99,9 +117,13 @@
     }
   },
   "bitbox02Interact": {
-    "followInstructions": "कृपया अपने BitBox02 पर दिए गए निर्देशों का पालन करें।"
+    "followInstructions": "कृपया अपने BitBox02 पर दिए गए निर्देशों का पालन करें।",
+    "followInstructionsMnemonicTitle": "mnemonic से पुनर्स्थापित करें"
   },
   "bitbox02Settings": {
+    "changePassword": {
+      "title": "डिवाइस पासवर्ड बदलें"
+    },
     "deviceName": {
       "current": "वर्तमान डिवाइस का नाम",
       "input": "BitBox02 का नाम",
@@ -179,6 +201,11 @@
       "title": "आप आगे जाने के लिए तैयार हैं!"
     }
   },
+  "bitsurance": {
+    "insure": {
+      "title": "शुरू करें"
+    }
+  },
   "blink": {
     "button": "झपकी"
   },
@@ -200,10 +227,23 @@
     "ok": "ठीक",
     "previous": "पिछला",
     "restore": "पुनर्स्थापित करें",
+    "review": "हस्ताक्षर करें और भेजें",
     "select": "Select",
     "unlock": "अनलॉक",
     "update": "Update",
     "upgrade": "अपग्रेड"
+  },
+  "buy": {
+    "info": {
+      "disclaimer": {
+        "payment": {
+          "table": {
+            "fee": "शुल्क"
+          }
+        }
+      },
+      "next": "आगे"
+    }
   },
   "changePin": {
     "newTitle": "नया डिवाइस पासवर्ड",
@@ -255,6 +295,9 @@
   },
   "footer": {
     "appVersion": "एप्लिकेशन वर्जन:"
+  },
+  "generic": {
+    "resetToDefault": "डिफ़ॉल्ट पर रीसेट करे"
   },
   "genericError": "एक एरर पाई गई। यदि आपको कोई समस्या दिखाई देती है, तो कृपया एप्लिकेशन को पुनः आरंभ करें।",
   "goal": {
@@ -317,6 +360,9 @@
     "accountSendDisabled": {
       "text": "आपका शेष शून्य से अधिक होने पर  'Send' बटन सक्रिय हो जाता है।",
       "title": "मैं कोई {{unit}} क्यों नहीं भेज सकता ?"
+    },
+    "accountSummaryDescription": {
+      "title": "यह पेज मुझे क्या दिखाता है?"
     },
     "accountTransactionAttributesBTC": {
       "text": "वर्चुअल साइज: नेटवर्क शुल्क निर्धारित करने के लिए उपयोग किया जाता है। यदि ट्रांजेक्शन के साइज से छोटा है तो आपने फीस पर सफलतापूर्वक बचत की है।\nसाइज: ब्लॉकचैन के अनुसार क्रमबद्ध होने पर बाइट्स में वास्तविक लेनदेन का साइज।\nवेइट: Segwit के साथ पेश किया गया, यह ट्रांजेक्शन और ब्लॉक आकारों का मूल्यांकन करने के लिए एक नया मीट्रिक है। प्रत्येक segregated witness बाइट की गिनती एक के रूप में होती है, बाकी सब चार वेट यूनिट के रूप में। वास्तविक आकार में एक मेगाबाइट के बजाय, ब्लॉक आकार की सीमा अब चार मिलियन वेट यूनिट है।",
@@ -510,10 +556,51 @@
   "language": {
     "title": "भाषा चुनिए"
   },
+  "lightning": {
+    "claimTopUp": {
+      "confirm": {
+        "fee": "शुल्क"
+      }
+    },
+    "closeWithdrawFunds": {
+      "fee": "शुल्क"
+    },
+    "payments": {
+      "header": {
+        "amount": "रकम"
+      }
+    },
+    "receive": {
+      "amountSats": {
+        "placeholder": "राशी डालें"
+      }
+    },
+    "send": {
+      "confirm": {
+        "amount": "रकम"
+      }
+    },
+    "settings": {
+      "wallet": "वॉलेट"
+    },
+    "topUp": {
+      "confirm": {
+        "amount": "रकम",
+        "networkFee": "नेटवर्क शुल्क",
+        "title": "ट्रांजेक्शन की पुष्टि करें",
+        "total": "टोटल"
+      }
+    }
+  },
   "loading": "लोड हो रहा है…",
   "notification": {
     "newTxs_one": "{{accountName}} में इसमें नया ट्रांजेक्शन",
     "newTxs_other": "{{accountName}} में {{count}} नए ट्रांजेक्शंस"
+  },
+  "passphrase": {
+    "summary": {
+      "title": "सारांश"
+    }
   },
   "password": {
     "show": "{{label}} दिखाए",
@@ -633,6 +720,7 @@
         "economy": "24 ब्लॉक (Bitcoin के लिए लगभग 4 घंटे, Litecoin के लिए 1 घंटा)",
         "high": "2 ब्लॉक (Bitcoin के लिए लगभग 20 मिनट, Litecoin के लिए 5 मिनट)",
         "low": "12 ब्लॉक (Bitcoin के लिए लगभग 2 घंटे, Litecoin के लिए 30 मिनट)",
+        "mHalfHour": "2 ब्लॉक (Bitcoin के लिए लगभग 20 मिनट, Litecoin के लिए 5 मिनट)",
         "normal": "6 ब्लॉक (Bitcoin के लिए लगभग 1 घंटे, Litecoin के लिए 15 मिनट)"
       },
       "estimate": "अनुमानित प्रतीक्षा समय:",
@@ -640,6 +728,8 @@
         "economy": "किफायती",
         "high": "उच्च",
         "low": "कम",
+        "mFastest": "उच्च",
+        "mHour": "कम",
         "normal": "साधारण"
       },
       "placeholder": "शुल्क आकलन की गणना कर रहे हैं ..."
@@ -651,6 +741,7 @@
     "toggleCoinControl": "Coin Control टॉगल करें"
   },
   "settings": {
+    "advancedSettings": "एडवांस सेटिंग",
     "electrum": {
       "add": "एक सर्वर जोड़ें",
       "add-server": "जोड़े",
@@ -699,6 +790,9 @@
     "leave": "छोड़े",
     "settings": "सेटिंग्स"
   },
+  "signMessage": {
+    "addressLabel": "एड्रेस"
+  },
   "success": {
     "create": {
       "info1": "आपके वॉलेट को माइक्रो एसडी कार्ड में सुरक्षित रूप से बैकअप दिया गया है। इसे हटा दें और सुरक्षित रखें।",
@@ -713,8 +807,17 @@
       "title": "सफलता"
     }
   },
+  "testWallet": {
+    "prompt": {
+      "button": "अनलॉक"
+    }
+  },
   "transaction": {
     "confirmation": "Confirmations",
+    "details": {
+      "address": "एड्रेस",
+      "amount": "रकम"
+    },
     "explorer": "ट्रांजेक्शन आईडी",
     "explorerTitle": "बाहरी ब्लॉक एक्सप्लोरर में खोलें",
     "fee": "शुल्क",
@@ -722,6 +825,14 @@
     "gas": "Gas",
     "pending": "लंबित ट्रांजेक्शन",
     "size": "आकार",
+    "status": {
+      "failed": "असफल हुआ",
+      "pending_send_to_self": "लंबित ट्रांजेक्शन"
+    },
+    "statusShort": {
+      "failed": "असफल हुआ",
+      "pending_receive": "आ रहे है"
+    },
     "vsize": "आभासी आकार",
     "weight": "वजन"
   },

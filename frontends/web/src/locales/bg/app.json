@@ -22,10 +22,28 @@
     "total": "Общо"
   },
   "addAccount": {
+    "chooseName": {
+      "nextButton": "Добавяне на портфейл"
+    },
+    "selectCoin": {
+      "nextButton": "Напред"
+    },
     "title": "Добавяне на портфейл"
+  },
+  "addresses": {
+    "columnAddress": "Адрес",
+    "detail": {
+      "address": "Адрес"
+    }
+  },
+  "aopp": {
+    "labelAddress": "Адрес"
   },
   "app": {
     "upgrade": "Намерена е по-нова версия на това приложение! Моля актуализирайте от {{current}} до {{version}}."
+  },
+  "auth": {
+    "dismissButton": "Отказ"
   },
   "backup": {
     "check": {
@@ -99,9 +117,13 @@
     }
   },
   "bitbox02Interact": {
-    "followInstructions": "Моля спазвайте инструкциите, които подава Вашият BitBox02."
+    "followInstructions": "Моля спазвайте инструкциите, които подава Вашият BitBox02.",
+    "followInstructionsMnemonicTitle": "Възстановяване от мнемонична фраза"
   },
   "bitbox02Settings": {
+    "changePassword": {
+      "title": "Смяна на паролата на устройството"
+    },
     "deviceName": {
       "current": "Настоящо име на устройството",
       "input": "Име на BitBox02",
@@ -179,6 +201,11 @@
       "title": "Можете да работите!"
     }
   },
+  "bitsurance": {
+    "insure": {
+      "title": "Начало"
+    }
+  },
   "blink": {
     "button": "Мигане"
   },
@@ -200,10 +227,23 @@
     "ok": "ОК",
     "previous": "Назад",
     "restore": "Възстановяване",
+    "review": "Подписване и изпращане",
     "select": "Изберете",
     "unlock": "Отключване",
     "update": "Обновяване",
     "upgrade": "Актуализиране"
+  },
+  "buy": {
+    "info": {
+      "disclaimer": {
+        "payment": {
+          "table": {
+            "fee": "Такса"
+          }
+        }
+      },
+      "next": "Напред"
+    }
   },
   "changePin": {
     "newTitle": "Нова парола на устройството",
@@ -255,6 +295,9 @@
   },
   "footer": {
     "appVersion": "Версия на приложението:"
+  },
+  "generic": {
+    "resetToDefault": "Възстановяване на настройките по подразбиране"
   },
   "genericError": "Възникна грешка. Ако забележите проблеми, рестартирайте приложението.",
   "goal": {
@@ -317,6 +360,9 @@
     "accountSendDisabled": {
       "text": "Бутонът \"Изпращане\" се активира, когато балансът е по-голям от нула.",
       "title": "Защо не мога да изпращам {{unit}}?"
+    },
+    "accountSummaryDescription": {
+      "title": "Какво се показва на тази страница?"
     },
     "accountTransactionAttributesBTC": {
       "text": "Виртуален размер: определя мрежовата такса. Ако е по-малък от същинския размер на транзакцията, спестявате от такси.\nСъщински размер: реалният размер на транзакцията в байтове, както се подава към съответния блокчейн.\nТегло: нов параметър, въведен заедно със SegWit с цел определяне на размера на транзакцията и блоковете. Всеки SegWit байт се брои за една тегловна единица, а всички останали байтове се смятат по четири тегловни единици. Вместо един мегабайт същински размер, лимитът за големина на блока вече е четири милиона тегловни единици.",
@@ -510,10 +556,51 @@
   "language": {
     "title": "Избор на език"
   },
+  "lightning": {
+    "claimTopUp": {
+      "confirm": {
+        "fee": "Такса"
+      }
+    },
+    "closeWithdrawFunds": {
+      "fee": "Такса"
+    },
+    "payments": {
+      "header": {
+        "amount": "Сума"
+      }
+    },
+    "receive": {
+      "amountSats": {
+        "placeholder": "Въведете сума"
+      }
+    },
+    "send": {
+      "confirm": {
+        "amount": "Сума"
+      }
+    },
+    "settings": {
+      "wallet": "Портфейл"
+    },
+    "topUp": {
+      "confirm": {
+        "amount": "Сума",
+        "networkFee": "Мрежова такса",
+        "title": "Потвърждение на транзакцията",
+        "total": "Общо"
+      }
+    }
+  },
   "loading": "зареждане...",
   "notification": {
     "newTxs_one": "Нова транзакция в {{accountName}}",
     "newTxs_other": "{{count}} нови транзакции в {{accountName}}"
+  },
+  "passphrase": {
+    "summary": {
+      "title": "Обща информация"
+    }
   },
   "password": {
     "show": "Показване на {{label}}",
@@ -633,6 +720,7 @@
         "economy": "24 блока (около 4 часа за Bitcoin, 1 час за Litecoin)",
         "high": "2 блока (около 20 минути за Bitcoin, 5 минути за Litecoin)",
         "low": "12 блока (около 2 часа за Bitcoin, 30 минути за Litecoin)",
+        "mHalfHour": "2 блока (около 20 минути за Bitcoin, 5 минути за Litecoin)",
         "normal": "6 блока (около 1 час за Bitcoin, 15 минути за Litecoin)"
       },
       "estimate": "Прогнозно време за включване:",
@@ -640,6 +728,8 @@
         "economy": "икономична",
         "high": "висока",
         "low": "ниска",
+        "mFastest": "висока",
+        "mHour": "ниска",
         "normal": "нормална"
       },
       "placeholder": "Изчисляване на таксата..."
@@ -651,6 +741,7 @@
     "toggleCoinControl": "Контрол върху харченето (Coin Control)"
   },
   "settings": {
+    "advancedSettings": "Разширени настройки",
     "electrum": {
       "add": "Добавяне на сървър",
       "add-server": "Добавяне",
@@ -699,6 +790,9 @@
     "leave": "Напускане",
     "settings": "Настройки"
   },
+  "signMessage": {
+    "addressLabel": "Адрес"
+  },
   "success": {
     "create": {
       "info1": "Вашият портфейл е успешно архивиран върху microSD картата. Извадете я от устройството и я съхранявайте на сигурно място.",
@@ -713,8 +807,17 @@
       "title": "Успех"
     }
   },
+  "testWallet": {
+    "prompt": {
+      "button": "Отключване"
+    }
+  },
   "transaction": {
     "confirmation": "Потвърждения",
+    "details": {
+      "address": "Адрес",
+      "amount": "Сума"
+    },
     "explorer": "ID на транзакция",
     "explorerTitle": "Отваряне във външен блок експлорер",
     "fee": "Такса",
@@ -722,6 +825,14 @@
     "gas": "Gas",
     "pending": "Транзакция, чакаща потвърждение",
     "size": "Размер",
+    "status": {
+      "failed": "Неуспешно",
+      "pending_send_to_self": "Транзакция, чакаща потвърждение"
+    },
+    "statusShort": {
+      "failed": "Неуспешно",
+      "pending_receive": "Входящи"
+    },
     "vsize": "Виртуален размер",
     "weight": "Тегло"
   },

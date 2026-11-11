@@ -14,6 +14,7 @@
     "maybeProxyError": "Tor proxy omogočen. Prepričajte se, da Tor proxy deluje pravilno, ali onemogočite proxy.",
     "reconnecting": "Povezava je prekinjena, poizkušam s ponovno vzpostavitvijo...",
     "syncedAddressesCount": "Prešteto št. naslovov: {{count}}",
+    "syncing": "Račun se sinhronizira, počakaj…",
     "uncoveredFunds": "Kovance imate na naslednjih nezavarovanih vrstah naslovov vašega računa <strong>{{name}}</strong>: {{uncovered}}. \nKer je račun zavarovan, so zajeti samo kovanci, prejeti preko naslova <strong>Native Segwit</strong>. Kovanci na ostalih vrstah naslovov, tudi če so na istem računu, niso zavarovani.\nPredlagamo, da premaknete vse kovance z nepodprtih tipov naslova na <strong>Native Segwit</strong> naslov, da bodo vsi kovanci na tem računu zavarovani. Hvala!",
     "uncoveredFundsLink": "Za premik kovancev sledite temu navodilu.",
     "warning": "Pozor!"
@@ -26,6 +27,7 @@
         "start": "Začnite tako, da pošljete nekaj kovancev v denarnico ali jih kupite neposredno v aplikaciji BitBoxApp."
       }
     },
+    "exportTransactionsDisabled": "Ni transakcij",
     "extendedPublicKey": "Razširjen javni ključ",
     "label": "Podatki o računu",
     "scriptType": "Tip skripte",
@@ -44,6 +46,7 @@
     "name": "Ime računa",
     "noAccount": "Ni računov za prikaz.",
     "portfolio": "Portfelj",
+    "searchPlaceholder": "Iskanje transakcij…",
     "title": "Moj portfelj",
     "total": "Skupaj",
     "transactionHistory": "Zgodovina transakcij"
@@ -67,6 +70,35 @@
       "title": "Račun dodan"
     },
     "title": "Nov račun"
+  },
+  "addresses": {
+    "columnAddress": "Naslov",
+    "detail": {
+      "address": "Naslov"
+    },
+    "empty": "Do sedaj niso bili uporabljeni nobeni naslovi.",
+    "emptyFiltered": "Naslovi se ne ujemajo z vašimi filtri.",
+    "filter": {
+      "changeAddresses": "Spremeni naslove",
+      "receiveAddresses": "Prejmi naslove"
+    },
+    "listDescriptionPrefix": "Ta stran prikazuje vse uporabljene naslove računa.",
+    "loadFailed": "Ni bilo mogoče naložiti uporabljenih naslovov.",
+    "loadNotSupported": "Uporabljeni naslovi niso na voljo za ta tip računa.",
+    "loadSyncInProgress": "Uporabljeni naslovi se še sinhronizirajo. Prosimo, poskusite znova v kratkem.",
+    "new": "Nov naslov",
+    "notFound": "Naslov ni najden.",
+    "searchPlaceholder": "Išči naslov",
+    "skipDeviceVerification": "Preskoči preverjanje naprave",
+    "skipVerifyBody": "Ne preverjanje naslova na napravi lahko povzroči kopiranje naslova, ki ne pripada vaši BitBox.",
+    "skipVerifyConfirm": "Da, preskočite preverjanje",
+    "skipVerifyQuestion": "Ste prepričani, da želite nadaljevati?",
+    "skipVerifyTitle": "Preskočiti preverjanje naprave?",
+    "skipVerifyWarning": "Opozorilo",
+    "title": "Uporabljeni naslovi",
+    "unverifiedAddressWarning": "Ta naslov ni bil preverjen na napravi.",
+    "verifyConnectFailed": "Ni mogoče vzpostaviti povezave z izbrano napravo.",
+    "verifyFailed": "Preverjanje naslova ni uspelo."
   },
   "aopp": {
     "addressRequest": "{{host}} zahteva naslov prejemnika.",
@@ -148,6 +180,19 @@
       "understand": "Razumem, da bo nepravilno geslo za obnovitev ustvarilo drugo, novo denarnico"
     },
     "showMnemonic": {
+      "availableIn_few": "Na voljo čez {{count}} sekund",
+      "availableIn_one": "",
+      "availableIn_other": "Na voljo čez {{count}} sekund",
+      "availableIn_two": "Na voljo čez {{count}} sekund",
+      "instructions": "BitBox bo prikazal vaše obnovitvene besede. <strong>Zapišite jih na papir.</strong>",
+      "safetyWarnings": {
+        "noAppsOrWebsites": "Nikoli jih ne vnašajte v nobeno aplikacijo ali spletno stran.",
+        "noDigitalCopies": "Ne fotografirajte jih ali jih digitalno shranjujte.",
+        "noSharing": "Podpora BitBox ali katera koli druga podjetja vas nikoli ne bodo prosila, da delite vaše obnovitvene besede.",
+        "noSpeaking": "Ne izgovarjajte jih na glas.",
+        "safeStorage": "Niso zaščitene z geslom. Shranite jih na varnem mestu."
+      },
+      "scamWarning": "Če vas kdo prosi, da to storite, končajte klic. To je prevara.",
       "title": "Prikaži seznam besed",
       "warning": "<strong>Nikoli ne delite obnovitvenih besed z nikomer.</strong> Te besede omogočajo popoln dostop do vaše denarnice. Če vas kdo sprašuje po teh besedah, gre zelo verjetno za prevaro. Ne delite jih z neznanci!"
     },
@@ -156,7 +201,6 @@
   "bb02Bootloader": {
     "abort": "Ne nadgradi - vrni me nazaj",
     "abort_noUpgrade": "Vrni me nazaj",
-    "additionalUpgradeFollows1": "Takoj za to nadgradnjo sledi nova.",
     "additionalUpgradeFollows2": "BitBox02 pustite vklopljen dokler niso nameščene vse nadgradnje.",
     "advanced": {
       "label": "Napredne nastavitve",
@@ -193,6 +237,9 @@
       "description": "Bluetooth se uporablja za povezavo z iPhon-om.",
       "titleDisabled": "Omogiči Bluetooth",
       "titleEnabled": "Ugasni Bluetooth"
+    },
+    "changePassword": {
+      "title": "Spremenite geslo naprave"
     },
     "deviceName": {
       "current": "Trenutno ime naprave",
@@ -254,9 +301,21 @@
       "title": "Potrditev seznanitvene kode",
       "unpaired": "Zaznana je bila nova BitBox naprava. Preverite, ali se prikazana koda ujema s tisto na zaslonu naprave."
     },
+    "passphrase": {
+      "confirmHostEntry": "Na BitBoxu potrdi, da v aplikaciji vneseš passphrase.",
+      "confirmTitle": "Na BitBoxu potrdi passphrase.",
+      "dialogTitle": "Vnesi passphrase.",
+      "enter": "Vnesi BitBox passphrase.",
+      "enterInApp": "Vnesi passphrase v aplikaciji.",
+      "error": {
+        "invalidChars": "Geslinski niz vsebuje znake, ki jih na BitBoxu ni mogoče vnesti.",
+        "tooLong": "Geslinski niz mora biti dolg največ 149 znakov."
+      }
+    },
     "restoreFromMnemonic": {
       "e104": "Ponastavitev iz semenskih besed je bilo ustavljeno.",
-      "failed": "Obnova iz seznama besed ni uspela. Poskusite znova."
+      "failed": "Obnova iz seznama besed ni uspela. Poskusite znova.",
+      "securityNotice": "Obnavljanje denarnice, ki ni ustvarjena na BitBoxu? Denarnica, ustvarjena drugje, morda nima enake varnosti kot denarnica, ustvarjena na BitBoxu. Če nisi prepričan, priporočam, da tukaj nastaviš novo denarnico in premakneš sredstva vanjo."
     },
     "stepBackup": {
       "beforeProceed": "Pred nadaljevanjem preberite naslednje pomembne varnostne vidike:",
@@ -383,15 +442,19 @@
     "check": "Preverite varnostno kopijo",
     "continue": "Nadaljujte",
     "copy": "Kopiraj",
+    "copyAddress": "Kopiraj naslov",
     "create": "Ustvari",
     "dismiss": "Zavrnite",
     "done": "Potrdi izbiro",
     "download": "Prenesi",
     "next": "Naprej",
     "ok": "OK",
+    "openInBrowser": "Odpri v brskalniku.",
     "previous": "Nazaj",
     "proceedOnBitBox": "Nadaljujte na napravi",
     "restore": "Obnovi",
+    "review": "Preglej",
+    "save": "Shrani",
     "select": "Izberite",
     "unlock": "Odklenite denarnico",
     "update": "Shrani",
@@ -408,8 +471,12 @@
       "bankTransfer": "Bančno nakazilo",
       "bestDeal": "Najboljša ponudba",
       "buy": "Kupi",
+      "buyServices": "Kupi storitve",
       "creditCard": "Kreditna karica",
       "description_bitrefill": "Kupi darilne kartice in mnogo več",
+      "description_btcdirect-otc": "BTC Direct - Private trading desk",
+      "description_pocket-otc": "Pocket Private",
+      "description_swapkit": "Decentralizirano menjavanje BTC, ETH, USDT itd",
       "fast": "Hitro",
       "fee": "provizija",
       "infoContent": {
@@ -580,15 +647,55 @@
             "title": "Preverjanje identitete"
           }
         },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "info": "Aplikacija BitBoxApp ne zbira osebnih podatkov. Pocket Private zbira potrebne podatke v skladu s svojo Politiko zasebnosti, da izpolni regulatorne zahteve.",
+              "link": "Pocketova politika zasebnosti",
+              "title": "Varstvo podatkov"
+            },
+            "kyc": {
+              "info": "Preverjanje identitete je potrebno za uporabo Pocket Private. Tvoj osebni svetovalec te bo vodil skozi postopek in ti odgovoril na morebitna vprašanja.",
+              "title": "Preverjanje identitete"
+            },
+            "partnership": {
+              "text": "V partnerstvu s Pocket Private BitBox ponuja trgovanje z velikimi transakcijami za Bitcoin. Stranke Pocket Private dobijo osebnega svetovalca za osebno pomoč.",
+              "title": "Kupi in prodajaj z Pocket Private"
+            },
+            "payment": {
+              "info": [
+                "<strong>Nakup Bitcoina:</strong> Postavi velike naloge nakupa pri svojem osebnem svetovalcu in plačaj z bančnim nakazilom. Tvoj Bitcoin bo po plačilu dostavljen neposredno na tvoj BitBox.",
+                "<strong>Prodaj Bitcoin:</strong> Bančno plačilo je izvedeno, ko pošlješ Bitcoin Pocket Private. Osebna pomoč je na voljo po potrebi.",
+                "<strong>Provizije za trgovanje:</strong> Provizije temeljijo na življenjskem obsegu trgovanja, kar pomeni, da se tvoja provizija znižuje, ko se tvoj skupni obseg trgovanja poveča, ne glede na velikost naročila."
+              ],
+              "title": "Načini plačila in provizije"
+            },
+            "security": {
+              "info": "Pocket Private je zunanji servis, ki ni zajet v BitBoxov varnostni model groženj. Vendar pa Pocket Private dobro pozna izdelke BitBox in nudi varno, strokovno svetovanje. BitBox izdelki preverjajo naslove Bitcoin med transakcijami, da zagotovijo varno dostavo.",
+              "link": "BitBoxov varnostni model groženj",
+              "title": "Varnost"
+            }
+          },
+          "infobox": {
+            "intro": "Pridobi osebno pomoč in boljše provizije za večje OTC trgovanje z Bitcoinom. S Pocket Private se tvoje provizije znižujejo s tvojim življenjskim obsegom trgovanja, zato vedno dobiš najugodnejšo provizijo, ne glede na velikost naročila.",
+            "learnmore": "Več o Pocket Private",
+            "tradingVolume": "Obseg trgovanja (življenjski obseg)",
+            "transactionFee": "Transakcijska provizija"
+          }
+        },
         "region": {
           "title": "Izberite regijo, v kateri je registriran vaš bančni račun, da vidite možnosti, ki so vam na voljo."
         }
       },
       "noExchanges": "V tej regiji žal ni razpoložljivih menjalnic.",
+      "otcInfo": "Pridobi osebno pomoč in znižane provizije za velike OTC trgovanje.",
       "region": "Regija",
       "selectRegion": "Ni navedeno",
       "sell": "Prodaj",
-      "spend": "Kupi"
+      "sellServices": "Prodaj storitve",
+      "spend": "Kupi",
+      "spendServices": "Uporabi storitve",
+      "swapServices": "Zamenjaj storitve"
     },
     "info": {
       "continue": "Potrdi in nadaljuj",
@@ -650,12 +757,20 @@
     "dataMissing": "Še vedno pridobivamo informacije. Poskusite znova čez nekaj minut. Čiči pa čaki™",
     "dataOldTimestamp": "Nalagamo tečaje. Graf ne prikazuje vrednosti po {{time}}.",
     "dataUpdating": "posodabljam...",
+    "displayMode": {
+      "performance": "Izvedba",
+      "switchTo": "Preklopi na {{displayMode}}\n==WEBLATE_PART=="
+    },
     "filter": {
       "all": "Vse",
       "month": "Mesec",
       "week": "Teden",
       "year": "Leto"
-    }
+    },
+    "transactions_few": "{{count}} transakcije",
+    "transactions_one": "",
+    "transactions_other": "{{count}} transakcije",
+    "transactions_two": "{{count}} transakcije"
   },
   "checkSDcard": "preverjanje microSD kartice",
   "clickHere": "Kliknite tukaj.",
@@ -665,7 +780,8 @@
   "confirmOnDevice": "Nadgradnjo potrdite na BitBox-u",
   "connectKeystore": {
     "promptNoName": "Za nadaljevanje priklopite BitBox",
-    "promptWithName": "Za nadaljevanje vklopite vaš BitBox z imenom \"{{name}}\""
+    "promptWithName": "Za nadaljevanje vklopite vaš BitBox z imenom \"{{name}}\"",
+    "swapHint": "Prosimo povežite BitBox Multi za zamenjavo."
   },
   "darkmode": {
     "toggle": "Temen način"
@@ -700,6 +816,11 @@
         "description": "Model varnega čipa"
       },
       "title": "Informacije o napravi"
+    },
+    "deviceLanguage": {
+      "error_104": "Sprememba jezika naprave je bila prekinjena.",
+      "success": "Jezik naprave je bil uspešno spremenjen.",
+      "title": "Spremeni jezik naprave"
     },
     "expert": {
       "bip85": {
@@ -744,6 +865,7 @@
       "title": "Verzija strojne programske opreme (firmware)",
       "upToDate": "Vaša naprava je posodobljena",
       "upgradeAvailable": "Na voljo je nova nadgradnja",
+      "upgradeAvailableDescription": "Na voljo je posodobitev vdelane programske opreme. Nadgradi zdaj za najnovejše izboljšave varnosti in funkcij.",
       "version": {
         "label": "Različica"
       }
@@ -788,6 +910,20 @@
     "aoppUnsupportedKeystore": "Povezana naprava ne more podpisati sporočil za to sredstvo",
     "aoppVersion": "Neznana različica",
     "keystoreTimeout": "Čas za vklop se je iztekel. Poizkusite ponovno.",
+    "lightningAddressChangeCooldown": "Počakaj, preden ponovno spremeniš svoj Lightning naslov.",
+    "lightningAddressInvalidUsername": "Uporabi samo majhne črke in številke.",
+    "lightningAddressUsernameUnavailable": "To ime ni na voljo.",
+    "lightningAmountBelowMinimum": "Znesek mora biti vsaj {{minAmountSat}} sats.",
+    "lightningBalanceLimitExceeded": "Znesek polnjenja presega omejitev Lightning denarnice {{limit}}. Največji znesek polnjenja mora biti {{remaining}} ali manj.",
+    "lightningInsufficientFunds": "Premalo sredstev v tvoji Lightning denarnici.",
+    "lightningInvalidAmount": "Neveljaven znesek.",
+    "lightningInvalidPaymentInput": "Neveljaven račun ali zahteva za plačilo.",
+    "lightningInvoiceAlreadyUsed": "Ta Lightning račun je že bil uporabljen. Prosim, zahtevaj nov račun.",
+    "lightningPaymentFailed": "Plačilo Lightning ni uspelo. Preglej plačilo in poskusi znova.",
+    "lightningPaymentPreparationFailed": "Plačilo ni bilo mogoče pripraviti. Poskusi znova.",
+    "lightningTopUpClaimFailed": "Poskusi še enkrat zahtevati top-up.",
+    "lightningTopUpRefundFailed": "Poskusi ponovno povrniti top-up.",
+    "paymentApprovalRequired": "Strošek plačila se je povečal. Preglej in ponovno odobri.",
     "wrongKeystore": "Priključena je napačna denarnica. Vstavite pravo napravo BitBox02, ki ustreza temu računu.",
     "wrongKeystore2": "Če uporabljate frazemsko geslo (passphrase), se prepričajte, da ste ga pravilno vnesli za ta račun."
   },
@@ -831,6 +967,38 @@
           "title": "Kupi in prodaj Bitcoin s Pocketom"
         }
       }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "link": "Politika zasebnosti SwapKit",
+          "text": "BitBoxApp ne zbira ali shranjuje osebnih podatkov. SwapKit lahko zbira določene podatke, kot je navedeno v njihovi Politiki zasebnosti.",
+          "title": "Varstvo podatkov"
+        },
+        "fees": {
+          "note": "Opomba: tečaji SwapKit se lahko razlikujejo od tečajev BitBoxApp.",
+          "text": "Na vsako zamenjavo se zaračuna fiksna provizija 1,5%.",
+          "title": "Provizije"
+        },
+        "intro": {
+          "text": "SwapKit ponuja SDK/API storitev za non-custodial zamenjave. S SwapKitom sodelujemo, da omogočimo izmenjavo kriptovalut na različnih blockchainih na enem mestu. To omogoča hitro, enostavno in non-custodial trgovanje, zato ostajate v nadzoru nad svojimi sredstvi.",
+          "title": "Zamenjava kriptovalut s SwapKit"
+        },
+        "protocol": {
+          "link": "Spoznajte ponudnike SwapKit",
+          "text": "SwapKit API uporablja več ponudnikov za izvedbo zamenjav. Ponudniki se lahko s časom dodajajo ali odstranjujejo, da zadostijo najnovejšim zahtevam po zamenjavi in izboljšajo zmogljivost.",
+          "title": "Ponudniki SwapKit"
+        },
+        "security": {
+          "link": "BitBoxov varnostni model groženj",
+          "text": "SwapKit je zunanja storitev in ni zajeta v BitBoxov varnostni model groženj. Sodelujemo s SwapKitom, da izboljšamo varnost z implementacijo plačilnih zahtevkov v BitBoxov firmware. To pomeni, da BitBox pri izvedbi zamenjave prikaže ciljni naslov kot “SwapKit.”",
+          "title": "Varnost"
+        },
+        "slippage": {
+          "text": "Slippage je razlika med ceno, ki jo pričakujete, ko začnete zamenjavo, in ceno, ki jo dejansko prejmete ob dokončanju zamenjave. Ker se cene kriptovalut lahko hitro spreminjajo in likvidnost med transakcijo lahko variira, končni znesek, ki ga prejmete, je lahko nižji od ocenjenega.",
+          "title": "Slippage"
+        }
+      }
     }
   },
   "fiat": {
@@ -842,27 +1010,38 @@
     "appVersion": "Različica aplikacije:"
   },
   "generic": {
+    "beta": "Beta",
+    "bitcoinOnly": "Samo Bitcoin",
     "buy": "Kupi {{coinCode}}",
     "buySell": "Trgovina",
     "buy_bitcoin": "Kupi Bitcoin",
     "buy_crypto": "Kupi kripto",
+    "calculating": "Izračunava se…",
     "close": "Zapri",
     "enabled_false": "Onemogočeno",
     "enabled_true": "Omogočeno",
+    "insure": "Zavaruj",
     "noOptionOnIos": "Ni na voljo na iOS",
     "noOptions": "Ni možnosti",
     "paymentRequestNote": "{{name}} plačilo {{orderId}}",
     "receive": "Prejmi {{coinCode}}",
     "receive_bitcoin": "Prejmi Bitcoin",
     "receive_crypto": "Prejmi kripto",
+    "reset": "Ponastavi",
     "resetToDefault": "Ponastavi",
+    "retry": "Poskusi znova",
     "search": "Išči …",
     "searchButton": "Išči",
+    "selectAll": "Izberi vse",
     "sell": "Prodaj {{coinCode}}",
     "sell_bitcoin": "Prodaj bitcoin",
     "sell_crypto": "Prodaj kripto",
+    "send": "Pošlji",
+    "sent": "Poslano",
+    "skip": "Preskoči",
     "spend_bitcoin": "Porabi bitcoin",
-    "spend_crypto": "Porabi kripto"
+    "spend_crypto": "Porabi kripto",
+    "unknown": "Neznano"
   },
   "genericError": "Pojavila se je napaka. Če opazite kakršne koli težave, znova zaženite aplikacijo.",
   "goal": {
@@ -909,8 +1088,12 @@
       "title": "Kaj pomeni dohodni?"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "\"Izvoz transakcij\" pod \"Informacije o računu\" in odprite mapo prenosi, da najdete izvoženo CSV datoteko. To je lahko koristno za storitve, kot je CoinTracking, za davčno poročanje.",
+        "title": "Kako lahko izvozim zgodovino transakcij? (npr. za CoinTracking)"
+      },
       "multipleXPubs": {
-        "text": "Vsak xpub (razširjen javni ključ) je vezan na prikazan tip naslova: \"Native Segwit (bech32)\", \"Wrapped Segwit\" ali \"Taproot\" (samo za Bitcoin). To so vrste skript, ki jih uporablja {{coinName}}. Aplikacija BitBoxApp jih združuje in podpira več vrst skript na istem računu. Ker vsaka vrsta skripta daje drugačen xpub, je na računu več xpubov.\n\nČe sredstva stalno prejemate na privzeti naslov (Native Segwit), potrebujete samo \"bech32\" xpub. Če pa sredstva prejemate tudi na tip naslova \"Wrapped Segwit\" ali \"Taproot\", morate uporabiti tudi razširjene javne ključe \"Wrapped Segwit\" oziroma \"Taproot\".",
+        "text": "Vsak xpub je povezan z navedeno \"Vrsto\": bodisi \"Nativni SegWit (bech32)\", ali “Taproot” (le Bitcoin). To so skriptni tipi, ki jih uporablja {{coinName}}. BitBoxApp jih združuje in podpira več skript tipov v istem računu. Ker vsak tip skripta daje drugačen xpub, v računu je več xpubov.\n\nČe dosledno prejemate na privzeti naslov (Native SegWit), potrebujete le xpub \"bech32\". Vendar pa, če prejemate sredstva tudi na “Taproot”, morate uporabljati tudi razširjeni javni ključ \"Taproot\".",
         "title": "Zakaj je tu več xpub-ov?"
       },
       "privacy": {
@@ -943,7 +1126,7 @@
       "title": "Kako se izračunava skupni znesek?"
     },
     "accountSummaryDescription": {
-      "text": "Tu si lahko ogledate gibanje vašega skupnega portfelja skozi čas. Povzetek posameznih računov je prikazan pod grafom.",
+      "text": "Tukaj lahko vidite vrednost in donosnost vašega portfelja skozi čas. Pod grafom je prikazan povzetek vaših posameznih kripto računov.",
       "title": "Kaj prikazuje ta stran?"
     },
     "accountTransactionAttributesBTC": {
@@ -1003,7 +1186,19 @@
         "title": "Zakaj je to uporabno?"
       }
     },
+    "appearancePortfolioPercentageOptions": {
+      "listOptions": [
+        null,
+        "Uspešnost: To je denarno tehtan donos (MWR). Upošteva vloge in dvige, zato odraža uspešnost vašega portfelja."
+      ],
+      "text": "Odstotek na grafu portfelja prikazuje eno od dveh možnosti:",
+      "title": "Kaj pomenijo možnosti odstotkov portfelja?"
+    },
     "appendix": {
+      "feedback": {
+        "link": "Sporoči nam.",
+        "text": "Imate povratne informacije?"
+      },
       "link": "Kontaktirajte nas!",
       "questionService": "Imate težave z {{serviceName}}?",
       "text": "Imate še kakšno vprašanje?",
@@ -1049,6 +1244,29 @@
       "ejectSD": {
         "text": "MicroSD lahko odstranite iz BitBoxa kadarkoli, razen, ko ste v procesu ustvarjanja ali obnavljanja varnostne kopije.",
         "title": "Kdaj lahko odstranim microSD kartico?"
+      }
+    },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "To je morda zato, ker uporabljate ponudnika e-pošte, ki ga Bitrefill ne podpira. Če potrebujete račun, prosim kontaktiraj Bitrefill podporo in ti bodo posredovali vaš račun.",
+        "title": "Nisem prejel računa Bitrefill"
+      },
+      "kyc": {
+        "link": {
+          "text": "Omejitve nakupov Bitrefill"
+        },
+        "text": "Ne, Bitrefill ne zahteva identifikacije. Nakup lahko opravite brez KYC do določenih omejitev. Za popolne podrobnosti glejte Bitrefillovo politiko omejitev nakupov:",
+        "title": "Ali Bitrefill zahteva KYC?"
+      },
+      "limits": {
+        "link": {
+          "text": "Verifikacija računa Bitrefill"
+        },
+        "text": "Lahko dvigneš svoje omejitve nakupov tako, da postaneš preverjen kupec. Prosimo, obišči naslednjo povezavo, da dokončaš postopek preverjanja:",
+        "title": "Kako lahko povečam svoje omejitve nakupov pri Bitrefillu?"
       }
     },
     "bitsurance": {
@@ -1107,6 +1325,10 @@
         "title": "Zakaj prikazujemo model varnega čipa?"
       }
     },
+    "disclaimer": {
+      "link": "Poglej {{provider}} izjava o omejitvah odgovornosti",
+      "title": "Poglej {{provider}} izjava o omejitvah odgovornosti"
+    },
     "guideTitle": {
       "account": "Vodič po računih",
       "accountInformation": "Vodič po računih",
@@ -1115,11 +1337,71 @@
       "appearance": "Kako nastaviti izgled",
       "buySell": "Kako kupiti ali prodati ",
       "insurance": "O zavarovanju",
+      "lightningReceive": "Prejmi vodič po Lightningu",
+      "lightningSend": "Pošlji vodič po Lightningu",
       "manageAccount": "Vodič po upravljanju računov",
       "manageDevice": "Vodič po upravljanju naprave",
       "receive": "Kako prejeti kovance",
       "send": "Kako poslati kovance",
       "walletConnect": "Vodič po WalletConnect"
+    },
+    "lightning": {
+      "multipleDevices": {
+        "text": "Ja, preprosto povežiš BitBox z drugo napravo in v BitBoxApp vklopiš Lightning. Lightning denarnica bo enaka tisti iz prejšnje naprave, če uporabljaš isto denarnico.",
+        "title": "Ali lahko svojo Lightning denarnico uporabljaš na več napravah?"
+      },
+      "multipleWallets": {
+        "text": "Ne, trenutno ne moreš ustvariti več Lightning denarnic s istim BitBoxom, niti uporabljati več Lightning denarnic v isti BitBoxApp, tudi če imaš več BitBoxes.",
+        "title": "Ali lahko ustvariš več Lightning denarnic?"
+      },
+      "privateKey": {
+        "text": "BitBoxApp Lightning denarnica ni pod nadzorom tretje osebe (non-custodial), kar pomeni, da do ključev dostopaš sam. Privatni ključi so shranjeni v BitBoxApp. Zato je tvoja Lightning denarnica vroča denarnica, saj so ključi Lightning na računalniku ali telefonu, namesto na BitBoxu. Zato shrani samo majhno količino kovancev na tvoji Lightning denarnici.",
+        "title": "Kje so shranjeni moji zasebni ključi za Lightning?"
+      },
+      "providers": {
+        "text": "Da, Lightning denarnica uporablja Spark preko Breez SDK. BitBoxApp nadzoruje tvoje ključe Lightning, medtem ko Spark zagotavlja zunanje infrastrukturo potrebna za pošiljanje in prejemanje Lightning plačil. Pri uporabi storitve se lahko zaračunajo provizije.",
+        "title": "Ali so pri tej rešitvi vključene zunanje stranke?"
+      },
+      "receive": {
+        "fee": {
+          "text": "Ne, prejemnik ne plača provizije za prejem Lightning plačila. Pošiljatelj plača provizijo.",
+          "title": "Ali plačaš provizijo pri prejemu?"
+        },
+        "invoiceOrAddress": {
+          "text": "Ustvari račun, kadar želiš zahtevati natančen znesek. Račun je za eno plačilo in poteče po 30 dneh. Namesto tega deli svoj Lightning naslov, ko naj pošiljatelj izbere znesek ali ko želiš, da ga shrani za prihodnja plačila. Po želji lahko dodaš opis računu, ki ti pomaga kasneje identificirati plačilo.",
+          "title": "Kdaj naj ustvariš račun, namesto da deliš svoj naslov?"
+        },
+        "payment": {
+          "text": "Lahko deliš svoj Lightning naslov, ki ga je mogoče uporabiti večkrat, ali ustvariš BOLT11 račun za eno plačilo. Deli QR kodo ali prikazano besedilo pošiljatelju. Aplikacija BitBoxApp ne potrebuje ostati odprta, medtem ko čakaš na plačilo.",
+          "title": "Kako lahko prejmeš Lightning plačilo?"
+        },
+        "reuseAddress": {
+          "text": "Da. Za razliko od računa se lahko tvoj Lightning naslov uporablja za več plačil. Pošiljatelj izbere znesek, njihova denarnica pa samodejno zahteva podatke za plačilo. To ni e-poštni naslov, čeprav deluje kot takšen.",
+          "title": "Lahko svoj Lightning naslov ponovno uporabiš?"
+        }
+      },
+      "securedByBitBox": {
+        "text": "Ne. BitBox se uporablja le za ustvarjanje in obnovo tvoje Lightning denarnice. Ko je tvoja Lightning denarnica ustvarjena, je \"hot wallet\".",
+        "title": "Je moja Lightning denarnica zaščitena z BitBoxom?"
+      },
+      "send": {
+        "cancel": {
+          "text": "Ne. Lightning plačila se ne da preklicati ali povrniti, ko so poslana. Vedno preveri prejemnika, znesek, opis in provizijo pred pošiljanjem. Če potrebuješ vračilo, prosi prejemnika, naj vrne sredstva. Neplačani račun se sčasoma poteče.",
+          "title": "Ali lahko prekličeš ali povrneš Lightning plačilo?"
+        },
+        "fee": {
+          "text": "Provizija je odvisna od zneska plačila in razpoložljivih poti v tistem trenutku, zato se izračuna tik pred pošiljanjem. Provizija in skupni znesek, ki bo odštet z tvojega stanja, se prikaže preden potrdiš.",
+          "title": "Kako se izračuna provizija za Lightning plačilo?"
+        },
+        "invoiceAndAddress": {
+          "text": "Račun BOLT11 je ustvarjen za eno plačilo. Morda že določa znesek ali pa te prosi, da vneseš znesek. Računi potečejo in se lahko plačajo samo enkrat. Lightning naslov je mogoče ponovno uporabiti in ti omogoča izbiro zneska v mejah, ki jih določi prejemnik.",
+          "title": "Kakšna je razlika med računom in Lightning naslovom?"
+        },
+        "payment": {
+          "text": "Skeniraj ali prilepi BOLT11 račun, zahtevo LNURL-Pay ali Lightning naslov. Lightning naslov izgleda kot e-poštni naslov, vendar se uporablja za plačila.",
+          "title": "Kako pošljem Lightning plačilo?"
+        }
+      }
     },
     "receive": {
       "address": {
@@ -1131,7 +1413,7 @@
         "title": "Kdaj se naslovi spremenijo?"
       },
       "addressFormats": {
-        "text": "Privzet tip naslova je \"Native Segwit\" t.i. bech32 tip naslova. Podprt je že v mnogih drugih denarnicah in menjalnicah, saj ponuja najnižje provizije na transakcije. Poleg tega, lahko izbirate še med drugimi tipi naslovov. Novejši je Taproot (velja samo za Bitcoin), starejši pa \"Wrapped Segwit\".\n",
+        "text": "Privzeto je tip naslova Native SegWit. Ta tip naslova je široko uporabljen pri drugih denarnicah in menjalnicah ter omogoča najboljše tarife omrežnine za vsakodnevne transakcije. Vendar pa lahko izbereš tudi pošiljanje na Taproot (le Bitcoin), ki je najnovejši tip naslova, vendar morda še ni široko podprt.",
         "title": "Kdaj uporabiti »Spremenite tip naslova«?"
       },
       "howVerify": {
@@ -1151,7 +1433,7 @@
         "title": "Zakaj toliko naslovov?"
       },
       "whyVerify": {
-        "text": "Vašemu računalniku ne zaupajte, da ustvarja in prikazuje pristne naslove. Zaradi velike kompleksnosti je bistveno lažja tarča in bolj občutljiv kot denarnica s strojno opremo. \nZa BitBox01 - gumb za preverjanje naslova varno pošlje naslov na seznanjen mobilni telefon, iz katerega lahko tudi skenirate in preverite QR kodo. \nNa BitBox lahko naslov preverite neposredno na zaslonu.",
+        "text": "Ne zaupaj računalniku pri generiranju in prikazovanju avtentičnih naslovov. Velika izpostavljenost temu naredi bistveno bolj ranljivega kot strojna denarnica. Naslov je mogoče preveriti neposredno na zaslonu BitBoxa.\n==WEBLATE_PART==",
         "title": "Zakaj moram varno preveriti naslov?"
       }
     },
@@ -1315,6 +1597,277 @@
   "language": {
     "title": "Izberite jezik"
   },
+  "lightning": {
+    "accountLabel": "Lightning",
+    "activate": {
+      "connect": {
+        "content": "Poveži svoj BitBox, da ustvariš svojo Lightning denarnico",
+        "title": "Poveži svojo napravo"
+      },
+      "disclaimer": {
+        "content": "Vaša Lightning denarnica bo ustvarjena z ključem, ki izhaja iz vašega BitBoxa. Tako boste vedno lahko obnovili svojo Lightning denarnico z BitBoxom ali z varnostno kopijo.\n\nVendar, za razliko od BitBoxa, je Lightning denarnica <strong>vroča denarnica</strong>. To pomeni, da so ključi za vašo Lightning denarnico shranjeni v BitBoxApp, ne v BitBoxu. Ne smete uporabljati Lightning denarnice za večje zneske sredstev ali dolgo časovno shrambo.\n\nPoleg tega je funkcija Lightning trenutno v beta fazi, kar pomeni, da se lahko soočite z napakami, zanesljivostnimi težavami ali pa denarnica morda ne bo delovala.",
+        "title": "Kako deluje z BitBoxApp?"
+      },
+      "intro": {
+        "content": "Lightning je kanalna druga plast Bitcoina. Omogoča ti takojšnjo porabo in prejem kovancev po zelo nizki proviziji.",
+        "title": "Kaj je Lightning?"
+      },
+      "success": {
+        "message": "Uspešno, vaša Lightning denarnica je pripravljena!"
+      },
+      "title": "Ustvari Lightning denarnico",
+      "wait": {
+        "activating": "Omogočanje Lightning denarnice...",
+        "confirm": "Potrdi na BitBoxu, da želiš ustvariti Lightning denarnico.",
+        "title": "Ustvari Lightning denarnico"
+      }
+    },
+    "betaWarning": "Lightning je v beta različici. Uporabljaj ga le z manjšim zneskom sredstev.",
+    "bitcoinDeposit": {
+      "claim": "Zahtevaj dopolnitev ali vračilo",
+      "label": "Polnitev z Bitcoinom",
+      "state": {
+        "claiming": "Prevzem pologa",
+        "confirming": "Čakanje na potrditve",
+        "refundPending": "Vračilo čaka na oddajo.",
+        "unclaimed": "Zahteva za prevzem je potrebna"
+      },
+      "stateShort": {
+        "claiming": "Prevzemanje",
+        "confirming": "Potrjevanje",
+        "refundPending": "Vračilo v čakanju.",
+        "unclaimed": "Zahteva za prevzem je potrebna"
+      }
+    },
+    "claimTopUp": {
+      "claimButton": "Prevzemi dopolnitev",
+      "claimFee": "Provizija za zahtevek",
+      "claimUnavailable": "Zahtevek ni na voljo",
+      "confirm": {
+        "amount": "Neprevzeto polnjenje",
+        "claimButton": "Potrdi zahtevek",
+        "claimTitle": "Potrdi zahtevek za polnjenje",
+        "fee": "Provizija",
+        "feeRate": "Stopnja provizije",
+        "refundButton": "Potrdi vračilo",
+        "refundDestination": "Cilj vračila",
+        "refundTitle": "Potrdi vračilo polnjenja"
+      },
+      "description": "Zahtevajte to polnjenje, da dodate sredstva v svojo Lightning denarnico.",
+      "empty": "Ni najdenega neprevzetega polnjenja",
+      "failure": {
+        "claimFailedMessage": "Zahtevek za polnjenje ni uspel",
+        "claimFailedTryRefund": "Poskusite ga vrniti na Bitcoin račun namesto tega",
+        "refundFailedMessage": "Vračilo polnjenja ni uspelo",
+        "refundFailedTryAgain": "Poskusite znova"
+      },
+      "feeRate": "{{feeRate}} sat/vByte",
+      "refundButton": "Vračilo polnjenja",
+      "refundFee": "Stopnja provizije vračila",
+      "refundPending": "Vračilo ni doseglo omrežja Bitcoin. Samodejno ga bodo poskusili znova. Prav tako ga lahko poskusite znova z trenutnimi pristojbinami.",
+      "refundUnavailable": "Vračilo ni na voljo",
+      "success": {
+        "claimTitle": "Prevzemi dopolnitev",
+        "deferredMessage": "Načrtovana zahteva za polnitev.",
+        "deferredNote": "Zahteva za polnitev še ni bila uveljavljena. Samodejno bo ponovljena, ko bo dovoljena pod omejitvijo pristojbin.",
+        "refundMessage": "==WEBLATE_PART==\nZahteva za vračilo",
+        "refundNote": "Vračilo se bo pojavilo v vaši denarnici na verigi, ko bo transakcija potrjena.",
+        "refundTitle": "Vračilo polnjenja",
+        "settledMessage": "Polnitev je bila uveljavljena.",
+        "settledNote": "Sredstva so zdaj na voljo v tvoji Lightning denarnici.",
+        "submittedMessage": "Zahteva za polnitev oddana.",
+        "submittedNote": "Zahteva se obdeluje. Sredstva se bodo pojavila v tvoji Lightning denarnici, ko bo postopek končan."
+      },
+      "title": "Prevzemi dopolnitev",
+      "topUp": "Neprevzeto polnjenje",
+      "viewTransaction": "Ogled transakcije",
+      "warning": "Lahko bodisi izkoristite top-up ali ga povrnete. Pri obeh možnostih velja pristojbina."
+    },
+    "closeWithdrawFunds": {
+      "accountDestination": "Kovanci računa bodo poslani na",
+      "confirm": "Potrdite zapiranje Lightning denarnice",
+      "description": "To bo zaprlo vašo Lightning denarnico in poslalo vse preostale kovance na vaš BitBox",
+      "failure": {
+        "message": "Zapiranje Lightning denarnice ni uspelo",
+        "tryAgain": "Poskusite znova"
+      },
+      "fee": "Provizija",
+      "incomingFunds": "Prihajajoča sredstva",
+      "incomingWarning": "Prihajajoča sredstva ni mogoče dvigniti ob zapiranju Lightning denarnice. Prosimo poskusite pozneje, da dvignete vsa sredstva.",
+      "incomingWarningConfirm": "Razumem, da prihajajoča sredstva ne bodo dvignjena.",
+      "lightningBalanceToBeSent": "Stanje Lightning denarnice, ki bo poslano",
+      "partialFailure": {
+        "action": "Izklopi denarnico",
+        "message": "Sredstva so bila dvignjena, vendar zapiranje Lightning denarnice ni bilo mogoče. Prosimo, izklopite jo ločeno.\n==WEBLATE_PART=="
+      }
+    },
+    "contacts": {
+      "add": "Dodaj stik",
+      "addAfterPayment": "Dodaj <strong>{{address}}</strong> v vaše stike",
+      "addressPlaceholder": "satoshi@bitbox.cash",
+      "delete": "Izbriši stik",
+      "deleteAction": "Izbriši"
+    },
+    "disclaimer": {
+      "backups": {
+        "title": "Varnostne kopije"
+      },
+      "continue": "Potrdi in nadaljuj",
+      "fees": {
+        "title": "Provizije"
+      },
+      "securityModel": {
+        "title": "Model varnostnega sistema"
+      },
+      "trustModel": {
+        "content": "Lightning integracija v BitBoxApp uporablja Spark infrastrukturo in Breez SDK. Upoštevaj, da trenutno enostranski izhod tvojih kovancev ni mogoč, ker Breez SDK tega ne podpira. Zato izhod kovancev iz tvoje Lightning denarnice temelji na tem, da je Spark infrastruktura na spletu in sodeluje.",
+        "sparkLink": "O Sparku",
+        "title": "Model zaupanja"
+      }
+    },
+    "initializationFailed": "Med inicializacijo Lightninga je prišlo do napake. Prosimo, znova zaženite BitBoxApp in poskusite znova.",
+    "initializing": "Inicializacija Lightning računa...",
+    "limit": {
+      "accountWarning": "Znesek denarnice presega limit {{limit}} za {{excess}}. Priporočamo, da premakneš nekaj kovancev v svojo BitBox denarnico za večjo varnost.",
+      "createInvoiceWarning": "Znesek računa presega limit {{limit}} za {{excess}}. Račun še vedno lahko ustvariš.",
+      "invoiceWarning": "Znesek računa presega limit {{limit}} za {{excess}}. Račun lahko še vedno uporabljaš.",
+      "moveCoins": "Premakni kovance."
+    },
+    "lnurlAddress": {
+      "availability": {
+        "available": "To ime je na voljo.",
+        "checking": "Preverjanje razpoložljivosti...",
+        "taken": "To ime je zasedeno."
+      },
+      "choose": "Spodaj lahko izbereš svoj naslov ali ga ustvariš.",
+      "description": "LNURL naslov je berljiv naslov, ki ga lahko enostavno deliš za prejemanje Lightning plačil",
+      "generate": "Ustvari naslov",
+      "label": "LNURL uporabniško ime",
+      "notice": "Upoštevaj, naslov lahko spremeniš le <strong> enkrat na 24 ur </strong>.",
+      "success": {
+        "message": "Tvoja LNURL adresa je nastavljena."
+      },
+      "title": "Nastavi LNURL adreso"
+    },
+    "paymentDescription": "Opis računa.",
+    "payments": {
+      "header": {
+        "amount": "Znesek",
+        "date": "Datum",
+        "description": "Opis",
+        "type": "Tip"
+      },
+      "placeholder": "Še ni bilo plačil.",
+      "title": "Zgodovina plačil"
+    },
+    "receive": {
+      "address": {
+        "label": "Lightning naslov",
+        "scanQRCode": "Skeniraj QR kodo za prejem"
+      },
+      "amountSats": {
+        "label": "Sats",
+        "placeholder": "Vnesi znesek"
+      },
+      "description": {
+        "label": "Opis",
+        "optional": "Neobvezno",
+        "placeholder": "Vnesi opis"
+      },
+      "invoice": {
+        "copied": "Račun kopiran!",
+        "create": "Ustvari račun",
+        "creating": "Ustvarjanje računa",
+        "edit": "Uredi račun",
+        "newInvoice": "Nov račun",
+        "title": "Skeniraj QR kodo za prejem"
+      },
+      "openChannelWarning": "Ob odprtju novega kanala se bo odštelo {{feeSat}} sats.",
+      "subtitle": "Ustvari Lightning račun",
+      "success": {
+        "message": "Lightning plačilo prejeto!\n==WEBLATE_PART=="
+      },
+      "title": "Prejmi Lightning"
+    },
+    "send": {
+      "activationRequired": "Aktiviraj Lightning pred plačilom. Po nastavitvi ponovno odpri povezavo za plačilo.",
+      "confirm": {
+        "amount": "Znesek",
+        "note": "Opomba",
+        "receiver": "Prejemnik",
+        "title": "Potrdi podrobnosti transakcije"
+      },
+      "enterInvoice": "Vnesite naslov ali račun",
+      "invoice": {
+        "label": "Vnesite podatke o plačilu",
+        "placeholder": "Podatki o plačilu"
+      },
+      "lnurlPay": {
+        "invalidAmount": "Vnesite znesek med {{minAmount}} in {{maxAmount}} sats."
+      },
+      "onChain": "Na verigi",
+      "pasteClipboard": "Prilepi iz odložišča",
+      "qrCode": {
+        "label": "Skeniraj naslov ali račun"
+      },
+      "scanInstruction": "Usmeri kamero na QR kodo računa",
+      "sending": {
+        "connecting": "Pripravljam plačilo",
+        "message": "Pošiljam plačilo"
+      },
+      "success": {
+        "message": "Transakcija potrjena in poslana!"
+      },
+      "title": "Pošlji Lightning"
+    },
+    "settings": {
+      "closeAndWithdrawFunds": "Zapri in dvigni sredstva",
+      "disableWallet": "Onemogoči Lightning denarnico",
+      "enableDebugLogs": "Omogoči Lightning dnevniške zapise",
+      "enableWallet": "Omogoči Lightning denarnico",
+      "enableWalletDescription": "Lightning omogoča takojšnja plačila z nizkimi stroški.",
+      "expert": "Strokovnjak",
+      "serviceProvider": "Ponudnik storitev",
+      "setLightningAddress": "Lightning naslov",
+      "status": "Status",
+      "statusConnected": "Povezano",
+      "title": "Nastavitve omrežja Lightning",
+      "wallet": "Denarnica"
+    },
+    "sparkStatus": {
+      "degraded": "Omrežje Spark deluje z zmanjšano zmogljivostjo. Lightning plačila so lahko zamaknjena.",
+      "major": "Omrežje Spark ima večji izpad. Lightning plačila niso na voljo.",
+      "partial": "Omrežje Spark je delno nedosegljivo. Lightning plačila so lahko nedosegljiva.",
+      "unknown": "Stanje omrežja Spark je neznano. Lightning plačila so lahko nedosegljiva."
+    },
+    "testnetWarning": {
+      "message": "Lightning kovanci imajo resnično vrednost, tudi kadar uporabljate aplikacijo v načinu testne mreže. Nadaljevati?",
+      "title": "Opozorilo"
+    },
+    "topUp": {
+      "action": "Naloži sredstva",
+      "available": "Na voljo",
+      "claimFeeInfo": "Pristojbina bo odšteta iz zneska polnjenja. Dejanska pristojbina se lahko razlikuje glede na razmere omrežja Bitcoin v času zahteve.",
+      "confirm": {
+        "amount": "Znesek",
+        "continue": "Nadaljuj na svoji BitBox.",
+        "networkFee": "Omrežnina",
+        "receiver": "Prejemnik",
+        "title": "Potrdi in pošlji transakcijo",
+        "total": "Skupaj"
+      },
+      "estimatedClaimFee": "Ocenjena pristojbina zahteve.",
+      "from": "Od",
+      "noBitcoinAccounts": "Ni aktivnih Bitcoin računov. Prosimo, aktivirajte Bitcoin račun.",
+      "note": "Polnitev z Lightning",
+      "success": {
+        "message": "Polnitev ustvarjena!",
+        "note": "Transakcija polnitve bo v seznamu plačil prikazana kot čakajoča na prvo potrditvijo. Samodejno bo prevzeta, ko potrditve in provizije to dovolijo. Običajni prevzemi zahtevajo tri potrditve; zgodnejši prevzemi se lahko zaključijo prej."
+      },
+      "title": "Polnitev z Lightning denarnice",
+      "to": "Za"
+    }
+  },
   "loading": "nalaganje…",
   "manageAccounts": {
     "accountHidden": "Ta račun je bil skrit in ga ni več na seznamu opazovalnih računov. Če ga želite videti ponovno, priklopite vaš Bitbox.",
@@ -1337,6 +1890,13 @@
     "about": {
       "appVersion": {
         "title": "Verzija aplikacije"
+      },
+      "licenses": {
+        "description": "Ogled licenc odprtokodnih knjižnic in odvisnosti, ki jih uporablja ta aplikacija.",
+        "error": "Nalaganje licenc ni uspelo.",
+        "packagesInfo": "Ta aplikacija uporablja naslednje odprtokodne odvisnosti ({{packageCount}} paketov).",
+        "title": "Licence",
+        "unavailableLicenseText": "Besedilo licence ni na voljo."
       }
     },
     "advancedSettings": {
@@ -1383,6 +1943,14 @@
         "description": "Izberite jezik, ki ga želite uporabiti v BitBoxApp-u.",
         "title": "Jezik"
       },
+      "portfolioPerformance": {
+        "description": "Izberite, kako bo izračunan odstotek portfelja.",
+        "options": {
+          "moneyWeightedReturn": "Izvedba",
+          "value": "Vrednost skozi čas"
+        },
+        "title": "Odstotek portfelja"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "Zdaj si lahko ogledate račune, povezane s to denarnico, ne da bi BitBox vstavili v računalnik ali telefon. Seveda je BitBox še vedno potreben za izvajanje transakcij in prikaz prejemnih naslovov."
@@ -1424,6 +1992,7 @@
   },
   "passphrase": {
     "considerations": {
+      "button": "Razmislek o varnostni kopiji",
       "message": "Geselska fraza zagotavlja dodaten nivo zaščite varnostni kopiji vaše denarnice (bodisi na microSD kartici ali 24 besedam). Če nekdo pridobi dostop do vaše varnostne kopije (na kartici ali besede), bo za dostop do vaše denarnice potreboval tudi geselsko frazo.\n\nTo pa pomeni, da boste potrebovali <strong>oboje - geselsko frazo in varnostno kopijo denarnice</strong>, da bi obnovili tako zaščiteno denarnico, če se vaš BitBox pokvari ali ga izgubite. Če pozabite ali izgubite to geslo, boste izgubili dostop do vseh kovancev v tej denarnici!\n\nGeselsko frazo shranjujte ločeno od varnostne kopije. S tem preprečite vdor v denarnico, če nekdo najde le njeno varnostno kopijo.",
       "title": "Razmislek o varnostni kopiji"
     },
@@ -1608,13 +2177,17 @@
     },
     "edit": "Uredi transakcijo",
     "error": {
+      "accountNotSynced": "Račun se še ni sinhroniziral. Počakaj, dokler sinhronizacija ni končana, in poskusi znova.",
+      "broadcastUncertain": "Transakcija se lahko še vedno izvede. Aplikacija bo poskušala znova oddati transakcijo. Pred pošiljanjem ponovno preverite zgodovino transakcij, da se izognete plačilu dvakrat.",
       "erc20InsufficientGasFunds": "Kot kaže na vašem računu ni dovolj ETH za plačilo transakcije za premik ERC02 žetona. Poskrbite za zadostno količino ETH na vašem Ethereum računu.",
       "feeTooLow": "Omrežnina je prenizka",
       "feesNotAvailable": "Provizije ni moč oceniti",
       "insufficientFunds": "nezadostna sredstva",
       "invalidAddress": "neveljaven naslov",
       "invalidAmount": "neveljaven znesek",
-      "invalidData": "neveljavni podatki"
+      "invalidData": "neveljavni podatki",
+      "paymentRequestAccountMismatch": "Ta zahteva za plačilo je za drugo omrežje ali sredstvo. Odprite ustrezen račun in poskusite znova.",
+      "syncInProgress": "Račun se še sinhronizira. Počakaj, dokler sinhronizacija ni končana, in poskusi znova."
     },
     "fee": {
       "customPlaceholder": "Vnesite znesek",
@@ -1662,7 +2235,12 @@
     "noFeeTargets": "Generirane provizije trenutno niso dostopne. Prosimo poizkusite ponovno ali vnesite poljubno višino provizije.",
     "priority": "Omrežnina",
     "scanQR": "Skenirajte QR kodo",
+    "scanQRInstruction": "Usmeri kamero na QR kodo naslova",
     "scanQRNoCameraMessage": "Kamera ni zaznana. Prepričajte se, da vaša naprava podpira kamero in da so pravice aplikaciji dodeljene.",
+    "scanQRToggleFlash": "Preklopi bliskavico",
+    "sendToAccount": {
+      "placeholder": "Izberite račun"
+    },
     "success": "Transakcija je bila podpisana in poslana.",
     "title": "Pošlji {{accountName}}",
     "toggleCoinControl": "Odpri nadzor nad kovanci",
@@ -1672,6 +2250,22 @@
     "about": "O aplikaciji",
     "advancedSettings": "Napredne nastavitve",
     "appearance": "Izgled",
+    "balanceStatement": {
+      "export": {
+        "description": "Izvozi PDF izpis stanja vaših sredstev za izbran datum posnetka.",
+        "dialog": {
+          "accountsLabel": "Računi za vključitev",
+          "dateLabel": "Datum posnetka",
+          "description": "Izberi datum in določi, katere račune vključiti v posnetek stanja.",
+          "generate": "Generiraj PDF",
+          "noAccounts": "Aktivnih računov ni na voljo."
+        },
+        "errors": {
+          "sepoliaBalanceStatementUnsupported": "Ethereum Sepolia ni mogoče izvoziti, ker zgodovinske vrednosti stanja niso na voljo. Odznačite račune Sepolia, da izvozite ostale račune."
+        },
+        "title": "Izvozi izpis stanja"
+      }
+    },
     "electrum": {
       "add": "Dodaj strežnik",
       "add-server": "Dodaj",
@@ -1700,6 +2294,16 @@
       "title-tltc": "Strežniki Litecoin Testnet Electrum-a"
     },
     "expert": {
+      "clearCache": {
+        "description": "Počisti predpomnilnik BitBoxApp. To lahko pomaga odpraviti težave v aplikaciji.",
+        "dialog": {
+          "description": "Počisti predpomnilnik BitBoxApp. Če imate težave z BitBoxApp, vam to lahko pomaga odpraviti težave.",
+          "note": "Imena vaših računov, opombe in denarnice niso prizadete.",
+          "primaryCTA": "Počisti predpomnilnik"
+        },
+        "success": "Predpomnilnik uspešno izpražen",
+        "title": "Počisti predpomnilnik"
+      },
       "coinControl": "Omogoči nadzor nad kovanci (Coin control)",
       "electrum": {
         "description": "Povežete lahko svoje Electrum vozlišče.",
@@ -1748,7 +2352,11 @@
       },
       "title": "Uredi zapiske"
     },
+    "other": "Drugo",
     "restart": "Znova zaženite BitBoxApp, da spremembe začnejo veljati.",
+    "search": {
+      "noResults": "Nastavitve niso na voljo."
+    },
     "services": {
       "title": "Storitve"
     },
@@ -1760,6 +2368,20 @@
     "device": "Upravljanje naprave",
     "leave": "Zapusti",
     "settings": "Nastavitve"
+  },
+  "signMessage": {
+    "addressLabel": "Naslov",
+    "emptyMessage": "Vnesite sporočilo za podpis.",
+    "error": "Podpis sporočila ni uspel. Prosimo, poskusite znova.",
+    "messageLabel": "Sporočilo",
+    "messagePlaceholder": "Vnesite sporočilo za podpis.",
+    "resultDescription": "Sporočilo je podpisano.",
+    "signButton": "Podpiši na napravi",
+    "signMessage": "Podpiši sporočilo",
+    "signOnBitBoxSubtitle": "Podpiši sporočilo na BitBoxu",
+    "signatureLabel": "Podpis",
+    "signing": "Potrdi sporočilo na napravi.",
+    "unsupportedTaproot": "Podpisovanje sporočila za naslove Taproot še ni podprto. Prosimo, pojdite nazaj in spremenite tip naslova."
   },
   "success": {
     "create": {
@@ -1775,6 +2397,11 @@
       "title": "Uspelo je!"
     }
   },
+  "swap": {
+    "noRouteFoundForPair": "Ni poti iz {{sellCoin}} v {{buyCoin}}. Poskusi vnesti večji znesek. V nasprotnem primeru poskusi pozneje.",
+    "providersUnavailable": "Ponudniki menjave trenutno niso na voljo za izbrano sredstvo za prodajo. Prosimo poskusite pozneje.",
+    "routesPlaceholder": "Poti se bodo pojavile tukaj po vnosu zneska."
+  },
   "testWallet": {
     "connect": {
       "description": "Testna denarnica za testiranje brez naprave v testnet-u.",
@@ -1786,6 +2413,11 @@
     },
     "prompt": {
       "button": "Odkleni",
+      "info": [
+        "Testna denarnica uporablja programsko shrambo ključev v aplikaciji.",
+        "Različna gesla odklenijo različne denarnice. To je isto kot uporaba passphrase.",
+        "Lahko odklenete brez gesla, da vstopite v privzeto testno denarnico."
+      ],
       "passwordLabel": "Geslo testne denarnice",
       "title": "Odkleni testno denarnico"
     }
@@ -1815,8 +2447,10 @@
       "type": "Tip"
     },
     "explorer": "ID transakcije",
+    "explorerError": "Brskalnika ni mogoče odpreti.",
     "explorerTitle": "Odpri v zunanjem raziskovalcu",
     "fee": "Omrežnina",
+    "feeRate": "Stopnja provizije",
     "fiatHistorical": "Zgodovinsko",
     "gas": "Gas",
     "no-results": "V nobeni transakciji ne najdem \"{{searchTerm}}",
@@ -1861,6 +2495,10 @@
       "e109_touch": "$t(unlock.error.e109_normal) Naslednja prijava zahteva daljše držanje gumba na dotik.",
       "e113": "Zaradi prevelikega števila poskusov prijave, morate za novo prijavo pridržati tipko za dotik vsaj 4 sekunde."
     },
+    "forgotPassword": {
+      "stillHavingIssues": "Imate še vedno težave?",
+      "supportLink": "Vprašaj podporo"
+    },
     "input": {
       "label": "Geslo naprave",
       "placeholder": "...vnesite tukaj."
@@ -1868,6 +2506,7 @@
     "unlocking": "Odklepanje..."
   },
   "upgradeFirmware": {
+    "banner": "Na voljo je posodobitev BitBox. <updateLink>Posodobi zdaj</updateLink> za najnovejše izboljšave varnosti in funkcije.",
     "button": "Nadgradite strojno programsko opremo",
     "description": "Ali želite nadgraditi strojno programsko opremo iz različice {{currentVersion}} na {{newVersion}}?",
     "label": "Vaš BitBox zahteva nadgradnjo strojne programske opreme.",
@@ -1882,7 +2521,8 @@
     "connect": {
       "button": "Poveži",
       "dappLabel": "Vnesi URI naslov za DApp",
-      "invalidPairingUri": "Napačen povezovalni URI"
+      "invalidPairingUri": "Napačen povezovalni URI",
+      "scanInstruction": "Usmeri kamero na WalletConnect QR kodo"
     },
     "dashboard": {
       "allSessions": "Vse seje",
@@ -1893,8 +2533,12 @@
     },
     "pairingRequest": {
       "approve": "Potrdi povezavo",
+      "chains": "Verige",
+      "readOnly": "Ta povezava lahko pregleda naslov, vendar ne more zahtevati podpisov ali transakcij.",
       "reject": "Zavrni",
-      "title": "Zahteva za novo povezavo od"
+      "rejectionFailed": "Zahteva ni bila zavrnjena, vendar se seja ni ustvarila.",
+      "title": "Zahteva za novo povezavo od",
+      "unsupported": "Ta zahteva za povezavo ni podprta."
     },
     "pairingSuccess": "DApp je uspešno povezana. Nadaljujete lahko na spletni strani te DApp.",
     "signingRequest": {
