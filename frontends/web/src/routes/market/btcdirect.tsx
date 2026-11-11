@@ -28,6 +28,7 @@ import {
   type TVendorIframeMessageTarget,
 } from '@/hooks/vendor-iframe-message';
 import { Message } from '@/components/message/message';
+import { TermsPage } from '@/components/terms/terms-page';
 import style from './iframe.module.css';
 
 // Map languages supported by BTC Direct
@@ -224,6 +225,16 @@ export const BTCDirect = ({
 
   const syncInProgress = !btcdirectInfo?.success && btcdirectInfo?.errorMessage === 'syncInProgress';
 
+  if (!agreedTerms) {
+    return (
+      <TermsPage
+        title={title}
+        guide={<MarketGuide vendor="btcdirect" translationContext={translationContext} terms={<BTCDirectTerms account={account} readOnly />} />}>
+        <BTCDirectTerms account={account} />
+      </TermsPage>
+    );
+  }
+
   return (
     <div className="contentWithGuide">
       <div className="container">
@@ -232,48 +243,42 @@ export const BTCDirect = ({
             <Header variant="navigation" mobileBackButton title={title} />
           </div>
           <div ref={containerRef} className={style.container}>
-            { !agreedTerms ? (
-              <BTCDirectTerms
-                account={account}
-              />
-            ) : (
-              <div style={{ height }}>
-                <UseDisableBackButton />
-                {!iframeLoaded && (
-                  syncInProgress ? (
-                    <Spinner text={t('account.syncing')} />
-                  ) : (
-                    <Spinner text={t('loading')} />
-                  )
-                )}
-                {blocking && (
-                  <div className={style.blocking}></div>
-                )}
-                { btcdirectInfo?.success ? (
-                  <iframe
-                    onLoad={() => {
-                      onIframeLoad();
-                    }}
-                    ref={iframeRef}
-                    title="BTC Direct"
-                    width="100%"
-                    height={height}
-                    frameBorder="0"
-                    className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
-                    allow="camera; clipboard-write;"
-                    src={btcdirectInfo.url}>
-                  </iframe>
+            <div style={{ height }}>
+              <UseDisableBackButton />
+              {!iframeLoaded && (
+                syncInProgress ? (
+                  <Spinner text={t('account.syncing')} />
                 ) : (
-                  btcdirectInfo?.success === false && (
-                    <Message type="error">
-                      {btcdirectInfo?.errorMessage
-                        ? btcdirectInfo.errorMessage
-                        : t('genericError')}
-                    </Message>
-                  )
-                )}
-              </div>
-            )}
+                  <Spinner text={t('loading')} />
+                )
+              )}
+              {blocking && (
+                <div className={style.blocking}></div>
+              )}
+              { btcdirectInfo?.success ? (
+                <iframe
+                  onLoad={() => {
+                    onIframeLoad();
+                  }}
+                  ref={iframeRef}
+                  title="BTC Direct"
+                  width="100%"
+                  height={height}
+                  frameBorder="0"
+                  className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
+                  allow="camera; clipboard-write;"
+                  src={btcdirectInfo.url}>
+                </iframe>
+              ) : (
+                btcdirectInfo?.success === false && (
+                  <Message type="error">
+                    {btcdirectInfo?.errorMessage
+                      ? btcdirectInfo.errorMessage
+                      : t('genericError')}
+                  </Message>
+                )
+              )}
+            </div>
           </div>
         </div>
       </div>

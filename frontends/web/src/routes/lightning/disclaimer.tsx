@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
 import { Header, Main } from '@/components/layout';
-import { View, ViewButtons, ViewContent } from '@/components/view/view';
+import { TermsLayout } from '@/components/terms/terms-layout';
 import { SimpleMarkup } from '@/utils/markup';
 import termsStyles from '@/components/terms/terms.module.css';
 
@@ -18,58 +18,49 @@ export const LightningDisclaimerContent = ({ children, title }: TProps) => {
   const { t } = useTranslation();
 
   return (
-    <View scrollableContent>
-      <ViewContent fullWidth>
-        <div className={termsStyles.disclaimerContainerLightning}>
-          <div className={termsStyles.disclaimer}>
-            {title && <h2 className={termsStyles.title}>{title}</h2>}
-            <h2 className={termsStyles.title}>
-              {t('lightning.disclaimer.securityModel.title')}
-            </h2>
-            <SimpleMarkup tagName="p" markup={t('lightning.disclaimer.securityModel.content')} />
+    <TermsLayout buttons={children}>
+      {title && <h2 className={termsStyles.title}>{title}</h2>}
+      <h2 className={termsStyles.title}>
+        {t('lightning.disclaimer.securityModel.title')}
+      </h2>
+      <SimpleMarkup tagName="p" markup={t('lightning.disclaimer.securityModel.content')} />
 
-            <h2 className={termsStyles.title}>
-              {t('lightning.disclaimer.backups.title')}
-            </h2>
-            <p>{t('lightning.disclaimer.backups.content')}</p>
+      <h2 className={termsStyles.title}>
+        {t('lightning.disclaimer.backups.title')}
+      </h2>
+      <p>{t('lightning.disclaimer.backups.content')}</p>
 
-            <h2 className={termsStyles.title}>
-              {t('lightning.disclaimer.trustModel.title')}
-            </h2>
-            <p>{t('lightning.disclaimer.trustModel.content')}</p>
-            <p>
-              <A href="https://www.spark.money/">
-                {t('lightning.disclaimer.trustModel.sparkLink')}
-              </A>
-              <br />
-              <A href="https://breez.technology/sdk/">
-                {t('lightning.disclaimer.trustModel.breezLink')}
-              </A>
-            </p>
+      <h2 className={termsStyles.title}>
+        {t('lightning.disclaimer.trustModel.title')}
+      </h2>
+      <p>{t('lightning.disclaimer.trustModel.content')}</p>
+      <p>
+        <A href="https://www.spark.money/">
+          {t('lightning.disclaimer.trustModel.sparkLink')}
+        </A>
+        <br />
+        <A href="https://breez.technology/sdk/">
+          {t('lightning.disclaimer.trustModel.breezLink')}
+        </A>
+      </p>
 
-            <h2 className={termsStyles.title}>
-              {t('lightning.disclaimer.fees.title')}
-            </h2>
-            <h2 className={termsStyles.title}>
-              {t('lightning.disclaimer.fees.receiving.title')}
-            </h2>
-            <p>{t('lightning.disclaimer.fees.receiving.content')}</p>
-            <h2 className={termsStyles.title}>
-              {t('lightning.disclaimer.fees.sending.title')}
-            </h2>
-            <p>{t('lightning.disclaimer.fees.sending.content')}</p>
+      <h2 className={termsStyles.title}>
+        {t('lightning.disclaimer.fees.title')}
+      </h2>
+      <h2 className={termsStyles.title}>
+        {t('lightning.disclaimer.fees.receiving.title')}
+      </h2>
+      <p>{t('lightning.disclaimer.fees.receiving.content')}</p>
+      <h2 className={termsStyles.title}>
+        {t('lightning.disclaimer.fees.sending.title')}
+      </h2>
+      <p>{t('lightning.disclaimer.fees.sending.content')}</p>
 
-            <h2 className={termsStyles.title}>
-              {t('lightning.disclaimer.beta.title')}
-            </h2>
-            <p>{t('lightning.disclaimer.beta.content')}</p>
-          </div>
-        </div>
-      </ViewContent>
-      <ViewButtons>
-        {children}
-      </ViewButtons>
-    </View>
+      <h2 className={termsStyles.title}>
+        {t('lightning.disclaimer.beta.title')}
+      </h2>
+      <p>{t('lightning.disclaimer.beta.content')}</p>
+    </TermsLayout>
   );
 };
 
