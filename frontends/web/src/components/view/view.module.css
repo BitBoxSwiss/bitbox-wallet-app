@@ -299,6 +299,20 @@
     .buttons {
         padding: 0 var(--space-half);
     }
+    .paymentReview {
+        margin-bottom: calc(var(--main-bottom-navigation-space, 0px) + 103px);
+    }
+    .paymentReview::after {
+        display: none;
+    }
+    .paymentReview .buttons {
+        background-color: var(--background);
+        border-top: 1px solid var(--bottom-navigation-border-color);
+        bottom: var(--main-bottom-navigation-space, 0px);
+        left: env(safe-area-inset-left, 0px);
+        position: fixed;
+        right: env(safe-area-inset-right, 0px);
+    }
     .fit .buttons {
         margin-top: 0;
         padding: var(--space-half);

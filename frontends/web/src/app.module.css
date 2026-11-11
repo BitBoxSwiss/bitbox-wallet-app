@@ -31,6 +31,7 @@
     }
 
     .appContent.hasBottomNavigation {
+       --main-bottom-navigation-space: var(--bottom-navigation-scroll-space);
        height: 100dvh;
        max-height: 100dvh;
     }
