@@ -193,6 +193,13 @@
       "understand": "Rozumím, že nesprávné heslo pro obnovení vytvoří jinou peněženku."
     },
     "showMnemonic": {
+      "availableIn_few": "Dostupné za {{count}} sekundy",
+      "availableIn_one": "Dostupné za {{count}} sekundu",
+      "availableIn_other": "Dostupné za {{count}} sekund",
+      "instructions": "BitBox zobrazí tvá obnovovací slova. <strong>Zapiš je na papír.</strong>",
+      "safetyWarnings": {
+        "noAppsOrWebsites": "Nikdy je nezadávej do aplikace ani na web"
+      },
       "title": "Zobrazit slova pro obnovení",
       "warning": "<strong> Nikdy nikomu nesdělujte svá slova pro obnovení.</strong> Vaše slova pro obnovení poskytují plný přístup k vaší peněžence. Pokud vás někdo žádá o vaše slova pro obnovení, jedná se o podvodníka, nesdílejte je!"
     },
@@ -201,7 +208,6 @@
   "bb02Bootloader": {
     "abort": "Neaktualizovat - zpět",
     "abort_noUpgrade": "Zpět",
-    "additionalUpgradeFollows1": "Další upgrade bude následovat ihned po tomto.",
     "additionalUpgradeFollows2": "Nechte prosím svůj BitBox zapojený, dokud nebudou dokončeny všechny aktualizace.",
     "advanced": {
       "label": "Rozšířená nastavení",
@@ -1856,7 +1862,7 @@
       "enableWalletDescription": "Lightning umožňuje okamžité platby s nízkými poplatky.",
       "expert": "Pokročilý",
       "serviceProvider": "Poskytovatel služby",
-      "setLightningAddress": "Nastavit Lightning adresu",
+      "setLightningAddress": "Lightning adresa",
       "status": "Stav",
       "statusConnected": "Připojeno",
       "title": "Nastavení Lightning",
@@ -1867,6 +1873,9 @@
       "major": "Síť Spark má rozsáhlý výpadek. Lightning platby mohou být nedostupné.",
       "partial": "Síť Spark je částečně nedostupná. Lightning platby nemusí fungovat.",
       "unknown": "Stav sítě Spark není znám. Lightning platby mohou být nedostupné."
+    },
+    "testnetWarning": {
+      "title": "Upozornění"
     },
     "topUp": {
       "action": "Dobít",

@@ -213,13 +213,13 @@
   "bb02Bootloader": {
     "abort": "Non aggiornare - riportami indietro",
     "abort_noUpgrade": "Indietro",
-    "additionalUpgradeFollows1": "Un aggiornamento aggiuntivo seguirà immediatamente dopo questo.",
     "additionalUpgradeFollows2": "Per favore, mantieni connesso il tuo BitBox finché tutti gli aggiornamenti non sono stati completati.",
     "advanced": {
       "label": "Impostazioni avanzate",
       "toggleShowFirmwareHash": "Mostrami l'hash del firmware ogni volta all'avvio"
     },
     "flipscreen": "Capovolgi schermo",
+    "furtherUpgrades": "Seguiranno ulteriori aggiornamenti.",
     "orientation": "Orientamento del dispositivo sbagliato?",
     "success": "Aggiornamento riuscito!",
     "success_install": "Installazione riuscita!",
@@ -861,6 +861,12 @@
       },
       "title": "Informazioni sul dispositivo"
     },
+    "deviceLanguage": {
+      "description": "Cambia la lingua del tuo BitBox.",
+      "error_104": "La modifica della lingua sul dispositivo è stata annullata.",
+      "success": "Lingua del dispositivo modificata con successo.",
+      "title": "Cambia lingua del dispositivo"
+    },
     "deviceSettings": {
       "title": "Impostazioni del dispositivo"
     },
@@ -961,6 +967,7 @@
     "lightningInvalidAmount": "Importo invalido.",
     "lightningInvalidPaymentInput": "Fattura o richiesta di pagamento non valida.",
     "lightningInvoiceAlreadyUsed": "Questa fattura Lightning è già stata utilizzata. Richiedi una nuova fattura.",
+    "lightningPaymentFailed": "Pagamento Lightning non riuscito. Controlla i dettagli del pagamento prima di riprovare.",
     "lightningPaymentPreparationFailed": "Impossibile preparare il pagamento. Riprova.",
     "lightningTopUpClaimFailed": "Prova a riscattare nuovamente la ricarica.",
     "lightningTopUpRefundFailed": "Riprova a rimborsare la ricarica.",
@@ -1102,6 +1109,7 @@
     "retry": "Riprova",
     "search": "Cerca…",
     "searchButton": "Cerca",
+    "selectAll": "Seleziona tutto",
     "sell": "Vendi {{coinCode}}",
     "sell_bitcoin": "Vendi Bitcoin",
     "sell_crypto": "Vendi crypto",
@@ -1408,6 +1416,10 @@
         "text": "Questa informazione mostra il modello del secure chip. Quello più aggiornato è ATECC608B, con funzionalità di sicurezza migliorate rispetto ai modelli precedenti.",
         "title": "Perchè mostrare il modello del secure chip?"
       }
+    },
+    "disclaimer": {
+      "link": "Visualizza disclaimer {{provider}}",
+      "title": "Disclaimer {{provider}}"
     },
     "guideTitle": {
       "account": "Guida all'account",
@@ -1918,6 +1930,7 @@
       "title": "Ricevi Lightning"
     },
     "send": {
+      "activationRequired": "Attiva Lightning prima di pagare. Dopo la configurazione, riapri il link di pagamento.",
       "confirm": {
         "amount": "Importo",
         "note": "Note",
@@ -1950,6 +1963,7 @@
     "settings": {
       "closeAndWithdrawFunds": "Chiudi e preleva fondi",
       "disableWallet": "Disabilita il wallet Lightning",
+      "enableDebugLogs": "Abilita i log di debug di Lightning",
       "enableWallet": "Abilita il wallet Lightning",
       "enableWalletDescription": "Lightning abilita pagamenti istantanei e con commissioni basse.",
       "expert": "Avanzate",
@@ -2394,6 +2408,22 @@
     "about": "About",
     "advancedSettings": "Impostazioni avanzate",
     "appearance": "Aspetto",
+    "balanceStatement": {
+      "export": {
+        "description": "Esporta in PDF un rendiconto degli asset detenuti alla data di riferimento selezionata.",
+        "dialog": {
+          "accountsLabel": "Account da includere",
+          "dateLabel": "Data di riferimento",
+          "description": "Scegli la data e seleziona i conti da includere nella situazione dei saldi.",
+          "generate": "Genera PDF",
+          "noAccounts": "Nessun account attivo disponibile."
+        },
+        "errors": {
+          "sepoliaBalanceStatementUnsupported": "Gli account Ethereum Sepolia non possono essere esportati perché i valori storici del saldo non sono disponibili. Deseleziona gli account Sepolia per esportare gli altri account."
+        },
+        "title": "Esporta riepilogo del saldo"
+      }
+    },
     "electrum": {
       "add": "Aggiungi un server",
       "add-server": "Aggiungi",
@@ -2478,6 +2508,7 @@
       },
       "title": "Gestisci le note"
     },
+    "other": "Altro",
     "restart": "Si prega di riavviare la BitBoxApp affinché le modifiche abbiano effetto.",
     "search": {
       "noResults": "Nessuna impostazione trovata"

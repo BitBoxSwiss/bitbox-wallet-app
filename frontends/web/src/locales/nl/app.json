@@ -14,11 +14,13 @@
     "maybeProxyError": "De Tor Proxy staat ingeschakeld. Zorg ervoor dat deze correct werkt, of schakel de proxy-instelling uit.",
     "reconnecting": "Verbinding verbroken, opnieuw aan het verbinden...",
     "syncedAddressesCount": "{{count}} adressen gescand",
+    "syncing": "Bezig met het synchroniseren van het account, even geduld…",
     "uncoveredFunds": "Je heb coins op de volgende niet-verzekerde addressen van je <strong>{{name}}</strong> account: {{uncovered}}.\nJe account is verzekerd, maar alleen coins die via het <strong>Native Segwit</strong> adrestype ontvangen worden, zijn gedekt. Coins op een ander adrestype zijn niet gedekt, ook al zijn de adressen onderdeel van hetzelfde account.\nStuur alsjeblieft al je coins van de niet-ondersteunde adrestypes naar het <strong>Native Segwit</strong> adrestype, zodat alle coins op dit account verzekerd zijn.",
     "uncoveredFundsLink": "Volg deze handleiding over hoe je je coins kunt verplaatsen.",
     "warning": "Waarschuwing!"
   },
   "accountInfo": {
+    "accountDetails": "Accountgegevens",
     "address": "Adres",
     "buyCTA": {
       "information": {
@@ -26,11 +28,14 @@
         "start": "Begin door coins naar deze wallet te sturen, of direct vanuit de BitBoxApp te kopen."
       }
     },
+    "exportTransactions": "Transactiegeschiedenis exporteren",
+    "exportTransactionsDisabled": "Geen transacties",
     "extendedPublicKey": "Uitgebreide publieke sleutel",
     "label": "Accountinformatie",
     "scriptType": "Script-type",
     "title": "Accountinformatie",
     "verify": "Verifieer op je adres",
+    "viewAccountDetails": "Bekijk accountgegevens",
     "xpubTypeChangeBtn": {
       "p2pkh": "Legacy P2PKH uitgebreide publieke sleutel weergeven",
       "p2tr": "Taproot weergeven",
@@ -44,6 +49,7 @@
     "name": "Accountnaam",
     "noAccount": "Er zijn geen accounts om weer te geven",
     "portfolio": "Portfolio",
+    "searchPlaceholder": "Zoek transacties…",
     "title": "Mijn portfolio",
     "total": "Totaal",
     "transactionHistory": "Transactiegeschiedenis"
@@ -67,6 +73,34 @@
       "title": "Account toegevoegd"
     },
     "title": "Account toevoegen"
+  },
+  "addresses": {
+    "columnAddress": "Adres",
+    "detail": {
+      "address": "Adres"
+    },
+    "emptyFiltered": "==WEBLATE_PART==\nGeen adressen komen overeen met uw filters.",
+    "filter": {
+      "changeAddresses": "Adressen wijzigen",
+      "receiveAddresses": "Adressen ontvangen"
+    },
+    "listDescriptionPrefix": "Deze pagina toont alle gebruikte adressen van het account.",
+    "loadFailed": "Kan gebruikte adressen niet laden.",
+    "loadNotSupported": "Gebruikte adressen zijn niet beschikbaar voor dit type account.",
+    "loadSyncInProgress": "Gebruikte adressen worden nog gesynchroniseerd. Probeer het binnenkort opnieuw.",
+    "new": "Nieuw adres",
+    "notFound": "Adres niet gevonden.",
+    "searchPlaceholder": "Adres zoeken",
+    "skipDeviceVerification": "Apparaatverificatie overslaan",
+    "skipVerifyBody": "Het niet verifiëren van het adres op het apparaat kan ertoe leiden dat je een adres kopieert dat niet bij jouw BitBox hoort.",
+    "skipVerifyConfirm": "Ja, verificatie overslaan",
+    "skipVerifyQuestion": "Weet je zeker dat je door wilt gaan?",
+    "skipVerifyTitle": "Apparaatverificatie overslaan?",
+    "skipVerifyWarning": "Waarschuwing",
+    "title": "Gebruikte adressen",
+    "unverifiedAddressWarning": "Dit adres is nog niet geverifieerd op het apparaat.",
+    "verifyConnectFailed": "Kan geen verbinding maken met het geselecteerde apparaat.",
+    "verifyFailed": "Adresverificatie mislukt."
   },
   "aopp": {
     "addressRequest": "Er wordt een ontvangstadres aangevraagd door {{host}}",
@@ -97,6 +131,7 @@
   },
   "backup": {
     "check": {
+      "aborted": "==WEBLATE_PART==\nHet controleren van de back-up op het apparaat is afgebroken.",
       "checking": "Backup aan het controleren...",
       "confirmTitle": "Controleer backup",
       "notOK": "De backup komt NIET overeen met de wallet",
@@ -133,6 +168,7 @@
     "restore": {
       "confirmTitle": "Backup herstellen",
       "error": {
+        "e104": "Het herstellen van de back-up is afgebroken.",
         "e200": "microSD kaart niet gevonden",
         "general": "Fout tijdens het herstellen van de backup"
       },
@@ -145,18 +181,29 @@
       "restoring": "Backup aan het herstellen",
       "selectedBackup": "De backup <strong>{{backupName}}</strong>, aangemaakt op {{createdDateTime}}, wordt hersteld",
       "subtitle": "Selecteer een backup om door te gaan",
-      "title": "Herstellen"
+      "title": "Herstellen",
+      "understand": "Ik begrijp dat een onjuist herstelwachtwoord een andere wallet zal aanmaken."
     },
     "showMnemonic": {
+      "availableIn_one": "Beschikbaar in {{count}} seconde",
+      "availableIn_other": "Beschikbaar in {{count}} seconden",
+      "instructions": "De BitBox toont je herstelwoorden. <strong>Schrijf ze op papier.</strong>",
+      "safetyWarnings": {
+        "noAppsOrWebsites": "Voer ze nooit in een app of op een website in.",
+        "noDigitalCopies": "Maak er geen foto van en sla ze niet digitaal op.",
+        "noSharing": "BitBox-ondersteuning of een ander bedrijf zal je nooit vragen om je herstelwoorden te delen.",
+        "noSpeaking": "Zeg ze niet hardop.",
+        "safeStorage": "Ze zijn niet met een wachtwoord beschermd. Bewaar ze op een veilige plek."
+      },
+      "scamWarning": "Als iemand je hierom vraagt, leg dan op. Het is een oplichterij.",
       "title": "Herstelwoorden tonen",
-      "warning": "<strong>Deel je herstelwoorden nooit, met wie dan ook!</strong> Met je herstelwoorden kan iemand volledige toegang tot je wallet krijgen. Als iemand je om je herstelwoorden vraagt, is dit vrijwel altijd een oplichter."
+      "warning": "<strong>Nooit je herstelwoorden delen. </strong>Iedereen met deze woorden kan toegang krijgen tot je wallet."
     },
     "title": "Backups beheren"
   },
   "bb02Bootloader": {
     "abort": "Terug - doe de update niet",
     "abort_noUpgrade": "Breng me terug",
-    "additionalUpgradeFollows1": "Een tweede upgrade zal direct na deze volgen.",
     "additionalUpgradeFollows2": "Houd je BitBox aangesloten tot alle upgrades voltooid zijn",
     "advanced": {
       "label": "Geavanceerde instellingen",
@@ -191,8 +238,15 @@
       "alertDisabled": "De bluetooth van je BitBox is nu uitgeschakeld. Als je in de toekomst met een iPhone wilt verbinden, zul je het opnieuw aan moeten zetten.",
       "alertEnabled": "Bluetooth is nu ingeschakeld",
       "description": "Bluetooth wordt nu gebruikt om met iPhones te verbinden",
+      "error_104": "Het wijzigen van de Bluetooth-instelling is afgebroken.",
       "titleDisabled": "Bluetooth inschakelen",
       "titleEnabled": "Bluetooth uitschakelen"
+    },
+    "changePassword": {
+      "description": "Wijzig het BitBox-apparaatwachtwoord.",
+      "error_104": "Het wijzigen van het wachtwoord is afgebroken.",
+      "success": "Wachtwoord succesvol gewijzigd.",
+      "title": "BitBox-wachtwoord veranderen"
     },
     "deviceName": {
       "current": "Huidige naam",
@@ -234,6 +288,7 @@
       "userConfirmation5mnemonic": "Ik snap dat ik mijn herstelwoorden NOOIT in een computer, telefoon, printer of ieder ander apparaat dat geen BitBox is moet invoeren"
     },
     "create": {
+      "button": "Apparaatnaam opgeven en doorgaan.",
       "info": "Dit zijn de stappen die je gaat nemen om je BitBox in te stellen:",
       "inputTitle": "Walletnaam",
       "point1": "Geef je BitBox een naam",
@@ -253,9 +308,21 @@
       "title": "Verifieer koppelcode",
       "unpaired": "Er is een nieuwe BitBox gedetecteerd. Controleer dat onderstaande code overeenkomt met wat er op je BitBox staat"
     },
+    "passphrase": {
+      "confirmHostEntry": "Bevestig op de BitBox om de passphrase in de app in te voeren.",
+      "confirmTitle": "Bevestig de passphrase op de BitBox.",
+      "dialogTitle": "Voer de passphrase in.",
+      "enter": "Voer de BitBox-passphrase in.",
+      "enterInApp": "Voer de passphrase in de app in.",
+      "error": {
+        "invalidChars": "De passphrase bevat tekens die op de BitBox niet kunnen worden ingevoerd.",
+        "tooLong": "De passphrase mag maximaal 149 tekens lang zijn."
+      }
+    },
     "restoreFromMnemonic": {
       "e104": "Het herstellen is afgebroken",
-      "failed": "Herstel is niet gelukt, probeer het nog eens."
+      "failed": "Herstel is niet gelukt, probeer het nog eens.",
+      "securityNotice": "Het herstellen van een wallet die niet op een BitBox is aangemaakt? Een wallet die elders is aangemaakt, heeft mogelijk niet dezelfde beveiliging als een op je BitBox aangemaakte wallet. Als je het niet zeker weet, raden we aan hier een nieuwe wallet aan te maken en je fondsen daarnaartoe te verplaatsen."
     },
     "stepBackup": {
       "beforeProceed": "Lees deze belangrijke veiligheidsoverwegingen voordat je verder gaat:",
@@ -365,6 +432,10 @@
     "connected": "Verbonden",
     "connectionFailed": "mislukt",
     "connectionIssues": "Heb je verbindingsproblemen?",
+    "disabledGloballyDescription": "Schakel Bluetooth in om verbinding te maken met je BitBox.",
+    "disabledGloballyTitle": "Bluetooth-toegang is uitgeschakeld.",
+    "disabledPermissionDescription": "Sta Bluetooth toe om verbinding te maken met je BitBox.",
+    "disabledPermissionTitle": "Bluetooth-toegang is uitgeschakeld voor BitBoxApp.",
     "enable": "Zet je bluetooth aan",
     "select": "Selecteer je BitBox"
   },
@@ -382,15 +453,19 @@
     "check": "Backup controleren",
     "continue": "Verder",
     "copy": "Kopiëren",
+    "copyAddress": "Adres kopiëren.",
     "create": "Aanmaken",
     "dismiss": "Sluiten",
     "done": "Klaar",
     "download": "Download",
     "next": "Volgende",
     "ok": "OK",
+    "openInBrowser": "In browser openen.",
     "previous": "Vorige",
     "proceedOnBitBox": "Ga door op je BitBox",
     "restore": "Herstellen",
+    "review": "Controle",
+    "save": "Opslaan",
     "select": "Selecteren",
     "unlock": "Ontgrendelen",
     "update": "Updaten",
@@ -407,8 +482,12 @@
       "bankTransfer": "Bankoverschrijving",
       "bestDeal": "Beste deal",
       "buy": "Kopen",
+      "buyServices": "Diensten kopen",
       "creditCard": "Creditcard",
       "description_bitrefill": "Koop cadeaukaarten, beltegoed, en meer",
+      "description_btcdirect-otc": "BTC Direct - Private trading desk",
+      "description_pocket-otc": "Pocket Private",
+      "description_swapkit": "Decentrale ruil BTC, ETH, USDT, enz.",
       "fast": "Snel",
       "fee": "transactiekosten",
       "infoContent": {
@@ -442,6 +521,10 @@
               "link": "BitBox Beveiligings- en Risicomodel",
               "text": "Bitrefill is een externe dienst die niet onder het BitBox Beveiligings- en Risicomodel valt. Als je een aankoop maakt, stuur je een transactie naar een Bitrefill adres; je BitBox kan niet verifiëren dat dit adres correct is.",
               "title": "Beveiligingswaarschuwing"
+            },
+            "validEmail": {
+              "text": "Diverse tijdelijke e-mailproviders worden niet ondersteund door Bitrefill en daardoor ontvang je mogelijk je factuur niet. Je cadeauboncode/-voucher blijft aan het einde van de workflow wel aanwezig.",
+              "title": "Geldige e-mailadressen."
             }
           },
           "infobox": {
@@ -589,15 +672,55 @@
             "title": "Identiteitsverificatie"
           }
         },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "info": "De BitBoxApp verzamelt geen persoonlijke gegevens. Pocket Private verzamelt de benodigde informatie conform hun privacybeleid om aan de regelgeving te voldoen.",
+              "link": "Pocket's privacy policy",
+              "title": "Databescherming"
+            },
+            "kyc": {
+              "info": "Identiteitsverificatie is vereist om Pocket Private te gebruiken. Je accountmanager begeleidt je door het proces en beantwoordt eventuele vragen.",
+              "title": "Identiteitsverificatie."
+            },
+            "partnership": {
+              "text": "In samenwerking met Pocket Private biedt BitBox grootschalige handel in Bitcoin-transacties. Pocket Private-klanten krijgen een accountmanager voor persoonlijke assistentie.",
+              "title": "Koop en verkoop met Pocket Private\n==WEBLATE_PART=="
+            },
+            "payment": {
+              "info": [
+                "<strong>Bitcoin kopen:</strong> Plaats grote kooporders via je accountmanager en betaal via een bankoverschrijving. Jouw Bitcoin wordt na betaling rechtstreeks naar je BitBox geleverd.",
+                "<strong>Bitcoin verkopen:</strong> Bankbetaling wordt gedaan zodra je bitcoin naar Pocket Private verzendt. Persoonlijke bijstand is beschikbaar indien nodig.",
+                "<strong>Handelskosten:</strong> Handelskosten zijn gebaseerd op het totale volume over de levensduur, wat betekent dat je tarief afneemt naarmate je totale handelsvolume toeneemt, ongeacht de ordergrootte."
+              ],
+              "title": "Betaalmethoden en kosten"
+            },
+            "security": {
+              "info": "Pocket Private is een externe dienst die niet onder het BitBox-dreigingsmodel valt. Pocket Private is echter goed bekend met BitBox-producten en biedt veilige, deskundige begeleiding. BitBox-producten verifiëren Bitcoin-adressen tijdens transacties om veilige levering te garanderen.",
+              "link": "BitBox Beveiligings- en Risicomodel",
+              "title": "Beveiliging"
+            }
+          },
+          "infobox": {
+            "intro": "[X0X]Krijg persoonlijke bijstand en lagere tarieven voor OTC-transacties met hoge waarde in Bitcoin. Met Pocket Private dalen je tarieven naarmate je levensduurvolume toeneemt, zodat je altijd het beste tarief krijgt, ongeacht de ordergrootte.",
+            "learnmore": "[X0X]Lees meer over Pocket Private",
+            "tradingVolume": "[X0X]Handelsvolume (levensduurvolume)",
+            "transactionFee": "[X0X]Transactiekosten"
+          }
+        },
         "region": {
           "title": "Selecteer het land waarin je bankrekening is geregistreerd om de beschikbare opties te zien"
         }
       },
       "noExchanges": "Sorry, er zijn geen exchanges beschikbaar in jouw regio",
+      "otcInfo": "[X0X]Krijg persoonlijke bijstand en verlaagde tarieven voor OTC-handel met een groot volume.",
       "region": "Regio",
       "selectRegion": "Niet aangegeven",
       "sell": "Verkopen",
-      "spend": "Uitgeven"
+      "sellServices": "[X0X]Diensten verkopen",
+      "spend": "Uitgeven",
+      "spendServices": "[X0X]Diensten uitgeven",
+      "swapServices": "[X0X]Diensten ruilen"
     },
     "info": {
       "continue": "Akkoord, verder",
@@ -659,12 +782,20 @@
     "dataMissing": "Datahistorie aan het verzamelen... even geduld.",
     "dataOldTimestamp": "Historische wisselkoersen aan het updaten. De grafiek toont geen data van na {{time}}.",
     "dataUpdating": "Data aan het updaten...",
+    "displayMode": {
+      "performance": "Prestaties",
+      "switchTo": "Schakel over naar {{displayMode}}",
+      "totalValue": "Waarde in de loop der tijd",
+      "unavailableSwitchTo": "{{displayMode}} niet beschikbaar. Schakel over naar {{nextDisplayMode}}"
+    },
     "filter": {
       "all": "Alle",
       "month": "Maand",
       "week": "Week",
       "year": "Jaar"
-    }
+    },
+    "transactions_one": "{{count}} transactie",
+    "transactions_other": "{{count}} transacties"
   },
   "checkSDcard": "microSD kaart aan het controleren",
   "clickHere": "Klik hier",
@@ -674,7 +805,8 @@
   "confirmOnDevice": "Bevestig op je BitBox",
   "connectKeystore": {
     "promptNoName": "Verbind je BitBox om verder te gaan",
-    "promptWithName": "Verbind de BitBox die je \"{{name}}\" hebt genoemd om verder te gaan"
+    "promptWithName": "Verbind de BitBox die je \"{{name}}\" hebt genoemd om verder te gaan",
+    "swapHint": "[X0X]Verbind een BitBox Multi om te ruilen."
   },
   "darkmode": {
     "toggle": "Donkere kleurstelling"
@@ -695,12 +827,19 @@
       },
       "title": "Backups"
     },
+    "bluetoothFirmware": {
+      "title": "Bluetooth-firmware."
+    },
     "deviceInformation": {
       "attestation": {
         "description": "De BitBoxApp controleert of je apparaat echt is."
       },
       "deviceName": {
         "description": "Verander de naam van je apparaat."
+      },
+      "passwordStretchingAlgo": {
+        "description": "Het algoritme dat wordt gebruikt om de seed op je BitBox te versleutelen.",
+        "title": "Ontgrendelingsalgoritme."
       },
       "rootFingerprint": {
         "description": "Deze vingerafdruk is een unieke identificatie voor de wallet die je op dit moment gebruikt. Het kan je helpen om verschillende wallets uit elkaar te houden, bijvoorbeeld als je een passphrase gebruikt."
@@ -710,12 +849,21 @@
       },
       "title": "Apparaatinformatie"
     },
+    "deviceLanguage": {
+      "description": "==WEBLATE_PART==\nWijzig de taal die op je BitBox wordt gebruikt.",
+      "error_104": "Het wijzigen van de apparaattaal is afgebroken.",
+      "success": "De apparaattaal is succesvol gewijzigd.",
+      "title": "Wijzig de apparaattaal."
+    },
+    "deviceSettings": {
+      "title": "Apparaatinstellingen."
+    },
     "expert": {
       "bip85": {
         "description": "Subsleutels genereren uit je BitBox wallet.",
         "disclaimer": "Ik snap hoe subsleutels werken en wat de veiligheidsoverwegingen hiervan zijn",
         "how": {
-          "description": "De subsleutels worden als woordenlijst op je BitBox weergegeven. Je kunt zo veel subsleutels genereren als je wilt. Om een subsleutel te tonen, word je om het gewenste subnummer gevraagd (bv. 1e, 2e, 3e, etc.) en de gewenste lengte van de woordenlijst (12, 18 of 24 woorden). Onthoud dat je <strong>zowel het subnummer als de hoeveelheid woorden</strong> moet onthouden om dezelfde woordenlijst later nogmaals te kunnen tonen.",
+          "description": "De child keys worden op je BitBox weergegeven als mnemonic. Je kunt zoveel child keys maken als je wilt. Om een child key te tonen, wordt je gevraagd naar het <strong>child number</strong> en de gewenste lengte van de mnemonic (12 of 24 herstelwoorden). Onthoud dat je <strong>child number</strong> en het aantal woorden</strong> moet bijhouden om later dezelfde mnemonic weer te geven.\n==WEBLATE_PART==",
           "title": "Hoe werkt het?"
         },
         "recover": {
@@ -734,8 +882,8 @@
         }
       },
       "factoryReset": {
-        "description": "Zet je BitBox terug naar de fabrieksinstellingen; dit verwijdert de wallet uit je BitBox02!",
-        "title": "Terugzetten naar fabrieksinstellingen"
+        "description": "Verwijder de wallet en de gegevens uit de BitBox",
+        "title": "Wallet verwijderen uit BitBox"
       },
       "goToStartupSettings": {
         "description": "Ga naar de bootloader van de BitBox. Je kunt hier het laten zien van de \"firmware hash\" inschakelen."
@@ -752,7 +900,8 @@
       },
       "title": "Firmware",
       "upToDate": "Je BitBox is up-to-date",
-      "upgradeAvailable": "Een nieuwe upgrade is beschikbaar",
+      "upgradeAvailable": "Nieuwe BitBox-update beschikbaar",
+      "upgradeAvailableDescription": "Er is een firmware-update beschikbaar. Upgrade nu voor de nieuwste beveiligingsverbeteringen en functies.",
       "version": {
         "label": "Versie"
       }
@@ -797,8 +946,34 @@
     "aoppUnsupportedKeystore": "Het verbonden apparaat kan voor deze crypto geen berichten ondertekenen.",
     "aoppVersion": "Onbekende versie.",
     "keystoreTimeout": "Walletaanvraag verlopen. Probeer het opnieuw.",
+    "lightningAddressChangeCooldown": "Wacht even voordat je je Lightning-adres opnieuw wijzigt.",
+    "lightningAddressInvalidUsername": "Gebruik alleen kleine letters en cijfers.\n==WEBLATE_PART==",
+    "lightningAddressUsernameUnavailable": "Deze naam is niet beschikbaar.",
+    "lightningAmountBelowMinimum": "Het bedrag moet minimaal {{minAmountSat}} sats zijn.",
+    "lightningBalanceLimitExceeded": "Het opwaardeerbedrag overschrijdt de limiet van de Lightning-wallet van {{limit}}. Het maximale opwaardeerbedrag moet {{remaining}} of minder zijn.",
+    "lightningInsufficientFunds": "Onvoldoende saldo in je Lightning-wallet.",
+    "lightningInvalidAmount": "Ongeldig bedrag.",
+    "lightningInvalidPaymentInput": "Ongeldige factuur of betalingsverzoek.",
+    "lightningInvoiceAlreadyUsed": "Deze Lightning-factuur is al gebruikt. Vraag een nieuwe factuur aan.",
+    "lightningPaymentFailed": "Lightning-betaling mislukt. Controleer de betaling voordat je het opnieuw probeert.\n==WEBLATE_PART==",
+    "lightningPaymentPreparationFailed": "Betaling kon niet worden voorbereid. Probeer het opnieuw.",
+    "lightningTopUpClaimFailed": "Probeer de top-up opnieuw te claimen.",
+    "lightningTopUpRefundFailed": "Probeer de top-up opnieuw terug te storten.",
+    "paymentApprovalRequired": "Betalingskosten zijn verhoogd. Bekijk het opnieuw en keur opnieuw goed.",
     "wrongKeystore": "Verkeerde wallet verbonden. Zorg ervoor dat je de juiste BitBox02 voor dit account verbindt.",
     "wrongKeystore2": "Als je de optionele passphrase hebt ingeschakeld, zorg er dan voor dat je de juiste passphrase voor dit account hebt ingevoerd."
+  },
+  "evmChains": {
+    "arbitrumOne": "Arbitrum One",
+    "base": "Base",
+    "bnbSmartChain": "BNB Smart Chain",
+    "ethereumMainnet": "Ethereum mainnet",
+    "ethereumSepoliaTestnet": "Ethereum Sepolia testnet",
+    "gnosis": "Gnosis",
+    "hyperEVM": "HyperEVM",
+    "optimism": "Optimism",
+    "polygon": "Polygon",
+    "sonic": "Sonic"
   },
   "exchange": {
     "btcdirect": {
@@ -824,6 +999,7 @@
           "title": "Betaalmethodes en kosten"
         },
         "kyc": {
+          "info": "Pocket kan identificatiedocumenten vereisen. Raadpleeg hun FAQ's voor meer informatie.",
           "link": "Lees Pocket's veelgestelde vragen",
           "title": "KYC/AML (Know Your Customer / Anti-Money Laundering)"
         },
@@ -837,6 +1013,31 @@
         "welcome": {
           "p1": "We werken met Pocket, een Zwitsers handelsbedrijf, om het kopen en verkopen van Bitcoin in de BitBoxApp makkelijk te maken. Deze dienst is overal in Europa beschikbaar, zo lang je een SEPA overschrijving kunt maken.",
           "title": "Bitcoin kopen en verkopen met Pocket"
+        }
+      }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "link": "[X0X]SwapKit-privacybeleid",
+          "text": "[X0X]De BitBoxApp verzamelt geen persoonlijke gegevens en houdt deze ook niet bij. SwapKit kan wel bepaalde gegevens verzamelen, zoals beschreven in hun privacybeleid.",
+          "title": "Databescherming"
+        },
+        "fees": {
+          "note": "[X0X]Opmerking: de wisselkoersen van SwapKit kunnen afwijken van die van BitBoxApp.",
+          "text": "[X0X]Een vast tarief van 1,5% wordt toegepast op elke swap.",
+          "title": "Transactiekosten"
+        },
+        "intro": {
+          "text": "[X0X]SwapKit biedt een SDK/API-service voor niet-custodiale swaps. We werken samen met SwapKit om cryptocurrency-swaps over verschillende blockchains op één plek mogelijk te maken. Het maakt snelle, eenvoudige en niet-custodiale handel mogelijk, zodat jij de controle over je activa behoudt.",
+          "title": "[X0X]Cryptocurrency ruilen met SwapKit"
+        },
+        "protocol": {
+          "link": "[X0X]Leer meer over SwapKit-aanbieders."
+        },
+        "security": {
+          "link": "BitBox Beveiligings- en Risicomodel",
+          "title": "Beveiliging"
         }
       }
     }
@@ -858,27 +1059,43 @@
     "title": "Gap-limiet handmatig instellen"
   },
   "generic": {
+    "beta": "Beta",
+    "bitcoinOnly": "Alleen Bitcoin",
     "buy": "{{coinCode}} kopen",
     "buySell": "Marktplaats",
     "buy_bitcoin": "Bitcoin kopen",
     "buy_crypto": "Crypto kopen",
+    "calculating": "Bezig met berekenen…",
     "close": "Sluiten",
+    "enable": "Inschakelen",
     "enabled_false": "Uitgeschakeld",
     "enabled_true": "Ingeschakeld",
+    "iHaveReadTheInformation": "Ik heb bovenstaande informatie gelezen.",
+    "insure": "Verzekeren",
     "noOptionOnIos": "Niet beschikbaar op iOS",
     "noOptions": "Geen opties gevonden",
     "paymentRequestNote": "{{name}} betaling {{orderId}}",
     "receive": "{{coinCode}} ontvangen",
+    "receiveWithoutCoinCode": "Ontvangen",
     "receive_bitcoin": "Bitcoin ontvangen",
     "receive_crypto": "Crypto ontvangen",
+    "received": "Ontvangen",
+    "reset": "Reset",
     "resetToDefault": "Terugzetten naar standaardwaarden",
+    "retry": "==WEBLATE_PART==\nOpnieuw proberen",
     "search": "Zoeken...",
     "searchButton": "Zoeken",
+    "selectAll": "Alles selecteren",
     "sell": "{{coinCode}} verkopen",
     "sell_bitcoin": "Bitcoin verkopen",
     "sell_crypto": "Crypto verkopen",
+    "send": "Verzenden",
+    "sent": "Verzonden",
+    "skip": "Overslaan",
     "spend_bitcoin": "Bitcoin uitgeven",
-    "spend_crypto": "Crypto uitgeven"
+    "spend_crypto": "Crypto uitgeven",
+    "unavailable": "Niet beschikbaar",
+    "unknown": "Onbekend"
   },
   "genericError": "Er is een fout opgetreden. Start de applicatie opnieuw op als je problemen tegenkomt.",
   "goal": {
@@ -925,8 +1142,12 @@
       "title": "Wat zijn binnenkomende transacties?"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "\"Export transactions\" onder \"Account info\" en open je downloads-map om het geëxporteerde CSV-bestand te vinden. Dit kan handig zijn voor diensten zoals CoinTracking voor belastingaangifte.",
+        "title": "Hoe kan ik mijn transactiegeschiedenis exporteren? (bijv. voor CoinTracking)"
+      },
       "multipleXPubs": {
-        "text": "Iedere xpub is gekoppeld aan het getoonde 'type': dit is \"Native segwit (bech32)\", \"Wrapped segwit\" of \"Taproot\" (alleen bij Bitcoin). Dit zijn scrypttypes die gebruikt worden door {{coinName}}. De BitBoxApp combineert ze door meerdere scripttypes in dezelfde account te ondersteunen. Omdat ieder scripttype een andere xpub heeft, heb je meerdere xpubs per account.\n\nAls je altijd op het standaardadres ontvangt, heb je alleen de 'bech32' xpub nodig. Als je echter ook (handmatig) ontvangt op je compatibiliteitsadres, staan deze onder de \"oudere Segwit\" of \"Taproot\" uitgebreide publieke sleutel (xpub).",
+        "text": "Elke xpub is gekoppeld aan het getoonde Type: ofwel Native SegWit (bech32), ofwel Taproot (Bitcoin). Dit zijn scripttypes die door {{coinName}} worden gebruikt. De BitBoxApp combineert ze en ondersteunt meerdere scripttypes in hetzelfde account. Omdat elk scripttype een andere xpub oplevert, zijn er meerdere xpubs per account.\n\nAls je consequent op het standaardadres ontvangt (Native SegWit), heb je alleen de bech32-xpub nodig. Als je ook fondsen ontvangt op Taproot, moet je ook de Taproot-uitgebreide publieke sleutel gebruiken.",
         "title": "Waarom heb ik meerdere xpubs?"
       },
       "privacy": {
@@ -959,8 +1180,17 @@
       "title": "Hoe wordt de totale balans berekend?"
     },
     "accountSummaryDescription": {
-      "text": "Hier kun je de prestaties van je gehele portfolio gedurende verschillende tijdsbestekken bekijken. Een overzicht van je individuele crypto-accounts wordt onder de grafiek weergegeven.",
+      "text": "Hier zie je de waarde en de prestaties van je portefeuille in de loop der tijd. Een samenvatting van je individuele crypto-accounts wordt onder de grafiek weergegeven.",
       "title": "Wat zie ik op deze pagina?"
+    },
+    "accountSummaryPercentageMeaning": {
+      "listOptions": [
+        "Waarde in de loop der tijd: Dit is de verandering van de waarde van je portefeuille in de loop der tijd, inclusief stortingen en opnames.",
+        "Prestatie: Dit is het geldgewogen rendement (MWR). Het houdt rekening met stortingen en opnames, zodat het de prestaties van je portefeuille weerspiegelt."
+      ],
+      "outro": "Je kunt schakelen tussen prestatie en waarde in de loop der tijd door op het percentage te klikken, of in Instellingen onder Weergave. Standaard toont de app waarde in de loop der tijd.",
+      "text": "Het percentage op je portefeuillegrafiek toont een van de twee opties voor het geselecteerde tijdsinterval:",
+      "title": "Wat betekent het percentage?"
     },
     "accountTransactionAttributesBTC": {
       "text": "Grootte: De daadwerkelijke grootte van de transactie in bytes zoals berekend volgens de onderliggende blockchain.\nVirtuele grootte: Dit bepaalt de netwerkkosten. Je bespaart op kosten als de virtuele grootte kleiner is dan de transactiegrootte.\nGewicht: Een nieuwe meeteenheid die geïntroduceerd is met Segwit om de grootte van transacties en blokken te evalueren. Iedere 'segregated witness' byte telt als één gewichtseenheid (weight unit), alle andere data telt als vier. In plaats van één megabyte is de grootte van een block nu vier miljoen weight units.",
@@ -1019,7 +1249,19 @@
         "title": "Waar is dit goed voor?"
       }
     },
+    "appearancePortfolioPercentageOptions": {
+      "listOptions": [
+        "Waarde in de loop der tijd: Dit is de verandering van de waarde van je portefeuille in de loop der tijd, inclusief stortingen en opnames.",
+        "Prestatie: Dit is het geldgewogen rendement (MWR). Het houdt rekening met stortingen en opnames, zodat het de prestaties van je portefeuille weerspiegelt."
+      ],
+      "text": "==WEBLATE_PART==\nHet percentage in je portefeuillegrafiek toont een van de twee opties:",
+      "title": "Wat betekenen de opties voor het portefeuillepercentage?"
+    },
     "appendix": {
+      "feedback": {
+        "link": "Laat het ons weten.",
+        "text": "Heb je feedback?"
+      },
       "link": "Neem contact met ons op!",
       "questionService": "Heb je problemen met {{serviceName}}?",
       "text": "Nog een vraag?",
@@ -1065,6 +1307,29 @@
       "ejectSD": {
         "text": "Je kunt de microSD kaart op ieder moment handmatig uit je BitBox halen, zo lang je niet op dat moment een backup aan het maken of herstellen bent.",
         "title": "Hoe kan ik de microSD kaart uitwerpen?"
+      }
+    },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "Dit kan komen doordat je een e-mailprovider gebruikt die Bitrefill niet ondersteunt. Als je de factuur nodig hebt, neem dan contact op met de Bitrefill-ondersteuning en zij kunnen je voorzien van je factuur.",
+        "title": "Ik heb geen factuur ontvangen van Bitrefill."
+      },
+      "kyc": {
+        "link": {
+          "text": "Bitrefill aankooplimieten"
+        },
+        "text": "Nee, Bitrefill vereist geen identiteitsverificatie. Je kunt aankopen doen zonder KYC tot aan bepaalde limieten. Voor alle details, bekijk het beleid voor aankooplimieten van Bitrefill:",
+        "title": "Heeft Bitrefill KYC nodig?"
+      },
+      "limits": {
+        "link": {
+          "text": "Bitrefill-accountverificatie"
+        },
+        "text": "Je aankooplimieten kun je verhogen door een geverifieerde klant te worden. Bezoek de volgende link om het verificatieproces te voltooien:",
+        "title": "Hoe verhoog je je aankooplimieten bij Bitrefill?"
       }
     },
     "bitsurance": {
@@ -1123,6 +1388,10 @@
         "title": "Waarom wordt het secure chip modelnummer getoond?"
       }
     },
+    "disclaimer": {
+      "link": "Bekijk {{provider}} disclaimer",
+      "title": "{{provider}} disclaimer"
+    },
     "guideTitle": {
       "account": "Handleiding voor accounts",
       "accountInformation": "Handleiding over accountinformatie",
@@ -1131,11 +1400,67 @@
       "appearance": "Handleiding voor ",
       "buySell": "Marktplaatshandleiding",
       "insurance": "Handleiding voor verzekeringen",
+      "lightningReceive": "Lightning-handleiding ontvangen",
+      "lightningSend": "Lightning-handleiding verzenden",
       "manageAccount": "Handleiding voor accountbeheer",
       "manageDevice": "Handleiding voor apparaatbeheer",
       "receive": "Handleiding voor ontvangen",
       "send": "Handleiding voor verzenden",
       "walletConnect": "Handleiding voor WalletConnect"
+    },
+    "lightning": {
+      "multipleDevices": {
+        "text": "Ja, sluit je BitBox aan op een ander apparaat en activeer Lightning in de BitBoxApp. De Lightning-wallet blijft dezelfde als op je vorige apparaat als je dezelfde wallet gebruikt.",
+        "title": "Kan ik mijn Lightning-wallet op meerdere apparaten gebruiken?"
+      },
+      "multipleWallets": {
+        "text": "Nee, momenteel kun je geen meerdere Lightning-wallets aanmaken met dezelfde BitBox, noch meerdere Lightning-wallets op dezelfde BitBoxApp gebruiken, ook niet als je meerdere BitBoxes hebt.",
+        "title": "Kan ik meerdere Lightning-wallets aanmaken?"
+      },
+      "privateKey": {
+        "text": "De BitBoxApp Lightning-wallet is niet-custodial, wat betekent dat alleen jij toegang hebt tot de sleutels. De privésleutels worden opgeslagen in de BitBoxApp. Dit maakt je Lightning-wallet een “Hot wallet”, aangezien de Lightning-sleutels op je computer/telefoon staan in plaats van op je BitBox. Bewaar daarom slechts een klein bedrag aan munten op je Lightning-wallet.",
+        "title": "Waar worden mijn Lightning-sleutels opgeslagen?"
+      },
+      "providers": {
+        "text": "Ja, de Lightning-wallet maakt gebruik van Spark via de Breez SDK. De BitBoxApp beheert je Lightning-sleutels, terwijl Spark de externe infrastructuur levert die nodig is om Lightning-betalingen te verzenden en te ontvangen. Er kunnen kosten van toepassing zijn bij het gebruik van de dienst.",
+        "title": "Zijn er externe partijen betrokken bij deze oplossing?"
+      },
+      "receive": {
+        "fee": {
+          "text": "Nee, de ontvanger betaalt geen vergoeding voor het ontvangen van een Lightning-betaling. De verzender betaalt de kosten.",
+          "title": "Betaal ik kosten bij het ontvangen?"
+        },
+        "invoiceOrAddress": {
+          "text": "Maak een factuur aan wanneer je een specifiek bedrag wilt opvragen. Een factuur is voor één betaling en verloopt na 30 dagen. Deel je Lightning-adres in plaats daarvan wanneer de afzender het bedrag mag kiezen, of wanneer je wilt dat zij het voor toekomstige betalingen bewaren. Je kunt optioneel een beschrijving toevoegen aan een factuur om de betaling later te helpen identificeren.",
+          "title": "Wanneer moet ik een factuur aanmaken in plaats van mijn adres te delen?"
+        },
+        "payment": {
+          "text": "Je kunt je herbruikbare Lightning-adres delen of een BOLT11-factuur voor één betaling aanmaken. Deel de QR-code of de weergegeven tekst met de afzender. De BitBoxApp hoeft niet open te blijven terwijl je op de betaling wacht.",
+          "title": "Hoe kan ik een Lightning-betaling ontvangen?"
+        },
+        "reuseAddress": {
+          "text": "Ja. In tegenstelling tot een factuur kan je Lightning-adres voor meerdere betalingen worden gebruikt. De afzender kiest het bedrag, en hun wallet vraagt automatisch om de betalingsgegevens. Het is geen e-mailadres, ook al lijkt het daarop.",
+          "title": "Kan ik mijn Lightning-adres hergebruiken?"
+        }
+      },
+      "securedByBitBox": {
+        "text": "Nee, de BitBox wordt alleen gebruikt om je Lightning-wallet aan te maken en te herstellen. Zodra je Lightning-wallet is aangemaakt, is het een “hot wallet”.",
+        "title": "Is mijn Lightning-wallet beveiligd door mijn BitBox?"
+      },
+      "send": {
+        "cancel": {
+          "text": "Nee. Lightning-betalingen kunnen niet worden geannuleerd of teruggedraaid nadat ze zijn verzonden. Controleer altijd de ontvanger, het bedrag, de beschrijving en de kosten voordat je verzendt. Als je een terugbetaling nodig hebt, vraag de ontvanger de fondsen terug te sturen. Een onbetaalde factuur vervalt uiteindelijk.",
+          "title": "Kan ik een Lightning-betaling annuleren of terugdraaien?"
+        },
+        "fee": {
+          "text": "De kosten hangen af van het betaalbedrag en de route die op dat moment beschikbaar is, dus ze worden kort voor verzending berekend. De kosten en het totale bedrag dat van je saldo wordt afgetrokken, worden weergegeven voordat je bevestigt.",
+          "title": "Hoe worden de Lightning-betalingskosten berekend?"
+        },
+        "invoiceAndAddress": {
+          "text": "Een BOLT11-factuur wordt aangemaakt voor één betaling. Het kan al het bedrag specificeren, of het kan je vragen een bedrag in te voeren. Facturen verlopen en kunnen maar één keer worden betaald. Een Lightning-adres is herbruikbaar en laat je binnen de door de ontvanger vastgestelde limieten een bedrag kiezen.",
+          "title": "Wat is het verschil tussen een factuur en een Lightning-adres?"
+        }
+      }
     },
     "receive": {
       "address": {
@@ -1147,7 +1472,7 @@
         "title": "Wanneer veranderen mijn adressen?"
       },
       "addressFormats": {
-        "text": "Het standaardadrestype is Native Segwit. Dit adrestype is het meest gebruikt door andere wallets en exchanges en zorgt ervoor dat je de laagste transactiekosten betaalt. Je kunt er echter voor kiezen om bitcointransacties naar Taproot-adressen te doen, wat het nieuwste adresformaat is, maar nog niet overal ondersteund wordt. Als je problemen ondervind met het versturen naar een Native Segwit adres, kun je ervoor kiezen om een Wrapped Segwit adres te gebruiken, wat met vrijwel alle andere wallets en exchanges compatibel is. ",
+        "text": "Standaard is het adres-type Native Segwit. Dit adres-type wordt door andere wallets/exchanges veel gebruikt en levert de laagste transactiekosten op voor dagelijkse transacties. Je kunt er echter ook voor kiezen om naar Taproot te sturen (alleen Bitcoin), wat het nieuwste adres-type is maar mogelijk nog niet breed wordt ondersteund.",
         "title": "Wanneer moet ik \"Adrestype wijzigen\" gebruiken?"
       },
       "howVerify": {
@@ -1167,7 +1492,7 @@
         "title": "Waarom zo veel adressen?"
       },
       "whyVerify": {
-        "text": "Je kunt je computer niet vertrouwen om authentieke adressen te genereren en weer te geven. Je computer heeft een veel hoger aanvalsrisico dan een hardware wallet, waardoor de kans op virussen en malware vele malen hoger is. \nHet adres kan direct op het scherm van je BitBox geverifieerd worden.",
+        "text": "Je moet je computer niet vertrouwen om authentieke adressen te genereren en weer te geven. Het grote aanvalsoppervlak maakt het aanzienlijk kwetsbaarder dan een hardwarewallet. Het adres kan direct op de BitBox-display worden geverifieerd.",
         "title": "Waarom moet ik mijn adressen verifiëren. "
       }
     },
@@ -1331,6 +1656,295 @@
   "language": {
     "title": "Selecteer je taal"
   },
+  "lightning": {
+    "bitcoinDeposit": {
+      "state": {
+        "refundPending": "Terugbetaling in afwachting van uitzending."
+      },
+      "stateShort": {
+        "claiming": "Claimen",
+        "confirming": "Bevestigen",
+        "refundPending": "Terugbetaling in afwachting.",
+        "unclaimed": "Claim vereist"
+      }
+    },
+    "claimTopUp": {
+      "claimButton": "Top-up claimen",
+      "claimFee": "Claimvergoeding",
+      "claimUnavailable": "Claim niet beschikbaar",
+      "confirm": {
+        "amount": "Ongeclaimde top-up",
+        "claimButton": "Claim bevestigen",
+        "claimTitle": "Top-up-claim bevestigen",
+        "fee": "Kosten",
+        "feeRate": "Netwerktarief",
+        "refundButton": "Terugbetaling bevestigen",
+        "refundDestination": "Terugbetalingsbestemming",
+        "refundTitle": "Top-up-terugbetaling bevestigen"
+      },
+      "description": "Claim deze top-up om het bedrag aan je Lightning-wallet toe te voegen.",
+      "empty": "Geen ongeclaimde top-up gevonden.",
+      "failure": {
+        "claimFailedMessage": "Top-up-claim mislukt.",
+        "claimFailedTryRefund": "Probeer het terug te betalen naar een Bitcoin-account.",
+        "refundFailedMessage": "Top-up-terugbetaling mislukt.",
+        "refundFailedTryAgain": "Probeer het opnieuw."
+      },
+      "feeRate": "{{feeRate}} sat/vByte",
+      "refundButton": "Terugbetalingsopwaardering",
+      "refundFee": "==WEBLATE_PART==\nTerugbetalingskostenpercentage",
+      "refundPending": "De terugbetaling is nog niet bij het Bitcoin-netwerk aangekomen. Deze wordt automatisch opnieuw geprobeerd. U kunt ook opnieuw proberen met het huidige tarief.",
+      "refundUnavailable": "Terugbetaling niet beschikbaar",
+      "success": {
+        "claimTitle": "Top-up claimen",
+        "deferredMessage": "Top-up gepland.",
+        "deferredNote": "De top-up is nog niet geclaimd. Deze wordt automatisch opnieuw geprobeerd zodra deze binnen de kostenlimiet valt.",
+        "refundMessage": "Terugbetaling aangevraagd",
+        "refundNote": "De terugbetaling verschijnt terug in je on-chain wallet zodra de transactie is bevestigd.",
+        "refundTitle": "Terugbetalingsopwaardering",
+        "settledMessage": "Top-up geclaimd.",
+        "settledNote": "Het geld is nu beschikbaar in je Lightning-wallet.",
+        "submittedMessage": "Top-up claim ingediend.",
+        "submittedNote": "De claim wordt verwerkt. Het geld verschijnt in je Lightning-wallet zodra deze is voltooid."
+      },
+      "title": "Top-up claimen",
+      "topUp": "Ongeclaimde top-up",
+      "viewTransaction": "Transactie bekijken",
+      "warning": "Je kunt de top-up claimen of terugbetalen. Beide opties brengen kosten met zich mee."
+    },
+    "closeWithdrawFunds": {
+      "accountDestination": "Accountcoins worden verzonden naar",
+      "confirm": "Lightning-wallet afsluiten bevestigen",
+      "description": "Hiermee wordt je Lightning-wallet gesloten en worden alle resterende munten naar je BitBox gestuurd.",
+      "failure": {
+        "message": "Het sluiten van de Lightning-wallet is mislukt.",
+        "tryAgain": "Probeer het opnieuw."
+      },
+      "fee": "Kosten",
+      "incomingFunds": "Inkomende fondsen",
+      "incomingWarning": "Inkomende fondsen kunnen niet worden opgenomen bij het sluiten van je Lightning-wallet. Probeer het later opnieuw om al het geld op te nemen.",
+      "incomingWarningConfirm": "Ik begrijp dat inkomende fondsen niet zullen worden opgenomen.",
+      "lightningBalanceToBeSent": "Lightning-saldo te verzenden",
+      "partialFailure": {
+        "action": "Wallet afsluiten\n==WEBLATE_PART==",
+        "message": "Fondsen zijn opgenomen, maar de Lightning-wallet kon niet worden afgesloten. Sluit deze apart af."
+      },
+      "success": {
+        "message": "Lightning-wallet succesvol afgesloten. Munten worden verzonden naar de on-chain-portemonnee.",
+        "note": "Je munten verschijnen in je portemonnee zodra de transactie is bevestigd."
+      },
+      "viewTransaction": "Transactie bekijken"
+    },
+    "contacts": {
+      "add": "Contact toevoegen",
+      "addAfterPayment": "Voeg <strong>{{address}}</strong> toe aan je contacten",
+      "addressPlaceholder": "satoshi@bitbox.cash",
+      "delete": "Contact verwijderen",
+      "deleteAction": "==WEBLATE_PART==\nVerwijder",
+      "deleteConfirmation": "Weet je zeker dat je dit contact wilt verwijderen?",
+      "deleteError": "Kan het contact niet verwijderen. Probeer het opnieuw.",
+      "details": "Contactgegevens",
+      "duplicateAddress": "Deze Lightning-adres staat al in je contacten.",
+      "empty": "Nog geen contacten",
+      "invalidAddress": "Voer een geldig Lightning-adres in.",
+      "loadError": "Kan contacten niet laden. Probeer het opnieuw.",
+      "myAccounts": "Mijn accounts",
+      "name": "Naam",
+      "namePlaceholder": "Voer een naam in",
+      "notFound": "Contact niet gevonden.",
+      "optional": "optioneel",
+      "saveError": "Kan het contact niet opslaan. Probeer het opnieuw.",
+      "saved": "Contact opgeslagen",
+      "sendTo": "Verzenden naar",
+      "title": "Contacten"
+    },
+    "deactivate": {
+      "intro": {
+        "content": "Het afsluiten van je Lightning-wallet zal je loskoppelen van de server en je zult je Lightning-wallet niet langer kunnen gebruiken om te verzenden en te ontvangen. Fondsen op je Lightning-wallet blijven onaangetast; je kunt er weer toegang toe krijgen door Lightning in de instellingen in te schakelen en de BitBox te verbinden die is gebruikt om die wallet aan te maken."
+      },
+      "success": {
+        "message": "Gelukt, je Lightning-wallet is nu uitgeschakeld"
+      },
+      "wait": {
+        "title": "Lightning-wallet uitschakelen..."
+      }
+    },
+    "disclaimer": {
+      "backups": {
+        "content": "De privésleutel van de Lightning-wallet is afgeleid van de BitBox. Dit betekent dat je je Lightning-wallet kunt herstellen met dezelfde BitBox die is gebruikt om deze aan te maken.",
+        "title": "Backups"
+      },
+      "beta": {
+        "content": "De Lightning-implementatie in de BitBoxApp is bèta. Dit betekent dat je bugs kunt tegenkomen of dat het helemaal kan stoppen met werken. Begrijp de risico's voordat je het gebruikt en laad je Lightning-wallet niet op met meer munten dan je bereid bent te verliezen.",
+        "title": "Beta"
+      },
+      "continue": "Akkoord, verder",
+      "fees": {
+        "receiving": {
+          "content": "Het ontvangen van Lightning-transacties is gratis. De afzender betaalt de kosten.",
+          "title": "Ontvangen"
+        },
+        "sending": {
+          "content": "De vergoeding hangt af van het betalingsbedrag en de op dat moment beschikbare route, dus deze wordt kort voor verzending berekend. De vergoeding en het totale bedrag dat van je saldo wordt afgetrokken, worden weergegeven voordat je bevestigt.",
+          "title": "Verzenden"
+        },
+        "title": "Transactiekosten"
+      },
+      "securityModel": {
+        "content": "De Lightning-wallet is een <strong>hot wallet</strong>. Dit betekent dat de sleutels in de app worden opgeslagen en daardoor niet door de BitBox worden beschermd. Dit stelt je in staat om je Lightning-wallet te gebruiken zonder dat je een BitBox nodig hebt. Zorg ervoor dat je slechts een klein bedrag aan fondsen in je Lightning-wallet bewaart.",
+        "title": "Bedreigingsmodel"
+      },
+      "title": "Lightning-disclaimer",
+      "trustModel": {
+        "breezLink": "Leer over Breez SDK",
+        "content": "De Lightning-integratie in de BitBoxApp maakt gebruik van de Spark-infrastructuur en Breez SDK. Houd er rekening mee dat, op dit moment, éénzijdig uitzetten van je munten niet mogelijk is omdat de Breez SDK dit momenteel niet ondersteunt. Daarom is het verlaten van je munten uit je Lightning-wallet afhankelijk van dat de Spark-infrastructuur online en meewerkend is.",
+        "sparkLink": "Leer over Spark",
+        "title": "Vertrouwensmodel"
+      }
+    },
+    "initializationFailed": "Er is een fout opgetreden bij het initialiseren van Lightning. Start BitBoxApp opnieuw op om het opnieuw te proberen.",
+    "initializing": "Lightning-account initialiseren...",
+    "limit": {
+      "accountWarning": "Het bedrag in de wallet overschrijdt de {{limit}}-limiet met {{excess}}. We raden je aan wat munten naar je BitBox-wallet te verplaatsen voor betere beveiliging.",
+      "createInvoiceWarning": "Het bedrag van de factuur overschrijdt de {{limit}}-limiet met {{excess}}. Je kunt de factuur nog steeds aanmaken.",
+      "invoiceWarning": "Het bedrag van de factuur overschrijdt de {{limit}}-limiet met {{excess}}. Je kunt de factuur nog steeds gebruiken.",
+      "moveCoins": "Verplaats munten"
+    },
+    "lnurlAddress": {
+      "availability": {
+        "available": "Deze naam is beschikbaar",
+        "checking": "Beschikbaarheid controleren...",
+        "taken": "Deze naam is al in gebruik."
+      },
+      "choose": "Je kunt hieronder je eigen adres kiezen of er een genereren.",
+      "description": "Een LNURL-adres is een menselijk leesbaar adres dat je gemakkelijk kunt delen om Lightning-betalingen te ontvangen.",
+      "generate": "Adres genereren",
+      "label": "LNURL-gebruikersnaam",
+      "notice": "Let op: je adres kan slechts <strong> één keer per 24 uur worden gewijzigd. </strong>",
+      "success": {
+        "message": "Je LNURL-adres is ingesteld."
+      },
+      "title": "LNURL-adres instellen."
+    },
+    "paymentDescription": "Factuurbeschrijving",
+    "payments": {
+      "header": {
+        "amount": "Hoeveelheid",
+        "date": "Datum",
+        "description": "Omschrijving",
+        "type": "Type"
+      },
+      "placeholder": "Nog geen betalingen.",
+      "title": "Betalingsgeschiedenis"
+    },
+    "receive": {
+      "address": {
+        "label": "Lightning-adres",
+        "scanQRCode": "Scan de QR-code om te ontvangen."
+      },
+      "amountSats": {
+        "label": "sats",
+        "placeholder": "Hoeveelheid invoeren"
+      },
+      "description": {
+        "label": "Omschrijving",
+        "optional": "==WEBLATE_PART==\nOptioneel",
+        "placeholder": "Beschrijving invoeren"
+      },
+      "invoice": {
+        "copied": "Factuur gekopieerd!",
+        "create": "Factuur aanmaken",
+        "creating": "Factuur aanmaken...",
+        "edit": "Factuur bewerken",
+        "newInvoice": "Nieuwe factuur",
+        "title": "Scan de QR-code om te ontvangen."
+      },
+      "openChannelWarning": "Er wordt een vergoeding van {{feeSat}} sats afgetrokken om een nieuw kanaal te openen.",
+      "subtitle": "Lightning-factuur aanmaken",
+      "success": {
+        "message": "Lightning-betaling ontvangen!"
+      },
+      "title": "Lightning ontvangen"
+    },
+    "send": {
+      "activationRequired": "Activeer Lightning vóór betaling. Open na de installatie de betalingslink opnieuw.",
+      "confirm": {
+        "amount": "Hoeveelheid",
+        "note": "Notitie",
+        "receiver": "Ontvanger",
+        "title": "Transactiegegevens bevestigen"
+      },
+      "enterInvoice": "Voer adres of factuur in",
+      "invoice": {
+        "label": "Voer betalingsgegevens in",
+        "placeholder": "Betalingsinformatie"
+      },
+      "lnurlPay": {
+        "invalidAmount": "Voer een bedrag in tussen {{minAmount}} en {{maxAmount}} sats."
+      },
+      "onChain": "On-chain",
+      "pasteClipboard": "Plakken uit klembord\n==WEBLATE_PART==",
+      "qrCode": {
+        "label": "Scan een adres of factuur"
+      },
+      "scanInstruction": "Richt je camera op een factuur-QR-code",
+      "sending": {
+        "connecting": "Betaling voorbereiden",
+        "message": "Betaling verzenden"
+      },
+      "success": {
+        "message": "Transactie bevestigd en verzonden!"
+      },
+      "title": "Lightning verzenden"
+    },
+    "settings": {
+      "closeAndWithdrawFunds": "Sluit af en neem fondsen op",
+      "disableWallet": "Lightning-wallet uitschakelen",
+      "enableDebugLogs": "Lightning-debuglogs inschakelen",
+      "enableWallet": "Lightning-wallet inschakelen",
+      "enableWalletDescription": "Lightning maakt directe betalingen met lage kosten mogelijk.",
+      "expert": "Expert",
+      "serviceProvider": "Dienstverlener",
+      "setLightningAddress": "Lightning-adres",
+      "status": "Status",
+      "statusConnected": "Verbonden",
+      "title": "Lightning-instellingen",
+      "wallet": "Wallet"
+    },
+    "sparkStatus": {
+      "degraded": "Het Spark-netwerk werkt met verminderde prestaties. Lightning-betalingen kunnen vertragingen oplopen.",
+      "major": "Het Spark-netwerk heeft een grote storing. Lightning-betalingen kunnen niet beschikbaar zijn.",
+      "partial": "Het Spark-netwerk is gedeeltelijk niet beschikbaar. Lightning-betalingen kunnen niet beschikbaar zijn.",
+      "unknown": "De status van het Spark-netwerk is onbekend. Lightning-betalingen kunnen niet beschikbaar zijn."
+    },
+    "testnetWarning": {
+      "message": "Lightning-munten hebben echte waarde, zelfs wanneer de app in testnetmodus wordt gebruikt. Doorgaan?",
+      "title": "Waarschuwing"
+    },
+    "topUp": {
+      "action": "Opwaarderen",
+      "available": "Beschikbaar",
+      "claimFeeInfo": "Afgerekend van je top-up-bedrag. De werkelijke vergoeding kan variëren afhankelijk van de Bitcoin-netwerkcondities op het moment van claim.",
+      "confirm": {
+        "amount": "Hoeveelheid",
+        "continue": "Ga verder op je BitBox.",
+        "networkFee": "Netwerkkosten",
+        "receiver": "Ontvanger",
+        "title": "Bevestigen & transactie versturen",
+        "total": "Totaal"
+      },
+      "estimatedClaimFee": "Geschatte claimvergoeding",
+      "from": "Van",
+      "noBitcoinAccounts": "Geen Bitcoin-accounts actief. Activeer een Bitcoin-account.",
+      "note": "Lightning-opwaardering",
+      "success": {
+        "message": "Opwaardering aangemaakt!",
+        "note": "De opwaarderingstransactie verschijnt als in afwachting in de betalingslijst voordat de eerste bevestiging binnenkomt. Deze wordt automatisch opgeëist wanneer bevestigingen en vergoedingen dit toelaten. Standaardclaims vereisen drie bevestigingen; vroege claims kunnen eerder voltooien."
+      },
+      "title": "Lightning-wallet opladen.",
+      "to": "Naar"
+    }
+  },
   "loading": "laden...",
   "manageAccounts": {
     "accountHidden": "Deze account is verborgen in je alleen-kijken accounts. Om hem weer te zien moet je je BitBox verbinden.",
@@ -1353,6 +1967,21 @@
     "about": {
       "appVersion": {
         "title": "App versie"
+      },
+      "feedbackLink": {
+        "description": "Als je algemene feedback hebt",
+        "title": "Feedback"
+      },
+      "licenses": {
+        "description": "Bekijk de licenties van de in deze app gebruikte open-source bibliotheken en afhankelijkheden",
+        "error": "Licenties laden mislukt.",
+        "packagesInfo": "Deze toepassing maakt gebruik van de volgende open-source afhankelijkheden ({{packageCount}} pakketten).",
+        "title": "Licenties",
+        "unavailableLicenseText": "Licentietekst niet beschikbaar."
+      },
+      "supportLink": {
+        "description": "Als je een probleem hebt of hulp nodig hebt",
+        "title": "Ondersteuning"
       }
     },
     "advancedSettings": {
@@ -1398,6 +2027,14 @@
       "language": {
         "description": "De taal waarin je de BitBoxApp wilt gebruiken.",
         "title": "Taal"
+      },
+      "portfolioPerformance": {
+        "description": "Kies hoe het portefeuillepercentage wordt berekend.",
+        "options": {
+          "moneyWeightedReturn": "Prestaties",
+          "value": "Waarde in de loop der tijd"
+        },
+        "title": "Portefeuillepercentage"
       },
       "remebmerWallet": {
         "enable": {
@@ -1515,7 +2152,7 @@
     }
   },
   "receive": {
-    "bitsuranceWarning": "Dit is een verzekerde account, wat betekent dat het alleen kan ontvangen naar Native Segwit adressen. Dit is om te voorkomen dat je geen bitcoin naar adressen stuurt die niet gedekt zijn.",
+    "bitsuranceWarning": "Dit is een verzekerd account, wat betekent dat het alleen Native Segwit-ontvangsten kan ontvangen. Ontvangst naar Taproot is niet verzekerd.",
     "changeScriptType": "Adrestype wijzigen",
     "label": "Jouw adres",
     "onlyThisCoin": {
@@ -1532,7 +2169,8 @@
     "title": "{{accountName}} ontvangen",
     "verify": "Verifieer veilig je adres ",
     "verifyBitBox02": "Verifieer het adres op je BitBox",
-    "verifyInstruction": "Verifieer of het volgende adres hetzelfde is als het adres wat op je BitBox wordt getoond."
+    "verifyInstruction": "Verifieer of het volgende adres hetzelfde is als het adres wat op je BitBox wordt getoond.",
+    "verifyTestnetWarning": "Dit is een testnet-account. Munten die naar dit adres zijn ontvangen, hebben geen waarde."
   },
   "reset": {
     "description": "Alle data zal van dit apparaat worden verwijderd, inclusief je privésleutel!",
@@ -1626,16 +2264,22 @@
     },
     "edit": "Transactie aanpassen",
     "error": {
+      "accountNotSynced": "Het account is nog niet gesynchroniseerd. Wacht tot de synchronisatie is voltooid en probeer het opnieuw.",
+      "broadcastUncertain": "De transactie kan nog steeds doorgaan. De app blijft proberen deze te verzenden. Controleer je transactiegeschiedenis voordat je opnieuw verzendt om dubbele betaling te voorkomen.\n==WEBLATE_PART==",
       "erc20InsufficientGasFunds": "Je hebt niet genoeg Ether in je wallet voor deze transactie. Stort meer Ether in je wallet om de transactie uit te voeren.",
       "feeTooLow": "netwerkkosten te laag",
       "feesNotAvailable": "Schatting van netwerkkosten niet beschikbaar",
       "insufficientFunds": "ontoereikende balans",
       "invalidAddress": "ongeldig adres",
       "invalidAmount": "ongeldige hoeveelheid",
-      "invalidData": "ongeldige data"
+      "invalidData": "ongeldige data",
+      "paymentRequestAccountMismatch": "Dit betalingsverzoek is voor een ander netwerk of activum. Open het bijpassende account en probeer het opnieuw.",
+      "syncInProgress": "Het account is nog steeds aan het synchroniseren. Wacht tot de synchronisatie is voltooid en probeer het opnieuw."
     },
     "fee": {
       "customPlaceholder": "Hoeveelheid invoeren",
+      "highFee": "Hoge kosten",
+      "highFeeWarning": "De vergoeding is {{percentage}}% van het verzendbedrag. Doorgaan?",
       "label": "Netwerkkosten",
       "placeholder": "Niet beschikbaar"
     },
@@ -1680,7 +2324,13 @@
     "noFeeTargets": "Schattingen van de transactiekosten zijn op dit moment niet beschikbaar. Probeer het later opnieuw of stel zelf de hoogte in.",
     "priority": "Prioriteit",
     "scanQR": "QR-code scannen",
+    "scanQRInstruction": "Richt je camera op een adres-QR-code",
     "scanQRNoCameraMessage": "Camera niet gevonden. Zorg er alsjeblieft voor dat je apparaat een camera heeft en dat je de BitBoxApp hier toegang toe hebt verleend.",
+    "scanQRToggleFlash": "Zaklamp aan/uit",
+    "sendToAccount": {
+      "placeholder": "Selecteer een account",
+      "title": "Naar account verzenden"
+    },
     "success": "De transactie is ondertekend en verzonden.",
     "title": "Verstuur {{accountName}}",
     "toggleCoinControl": "Coin control",
@@ -1690,6 +2340,22 @@
     "about": "Over",
     "advancedSettings": "Geavanceerde instellingen ",
     "appearance": "Uiterlijk",
+    "balanceStatement": {
+      "export": {
+        "description": "Exporteer een PDF-overzicht van je bezittingen op een geselecteerde momentopname-datum.",
+        "dialog": {
+          "accountsLabel": "Accounts om op te nemen",
+          "dateLabel": "Momentopname-datum",
+          "description": "Kies de datum en geef aan welke accounts je opneemt in de balansmomentopname.",
+          "generate": "PDF-genereren",
+          "noAccounts": "Geen actieve accounts beschikbaar."
+        },
+        "errors": {
+          "sepoliaBalanceStatementUnsupported": "Ethereum Sepolia kan niet geëxporteerd worden omdat historische balanswaarden niet beschikbaar zijn. Deselecteer Sepolia-rekeningen om je andere rekeningen te exporteren."
+        },
+        "title": "Balansoverzicht exporteren"
+      }
+    },
     "electrum": {
       "add": "Server toevoegen",
       "add-server": "Toevoegen",
@@ -1712,11 +2378,22 @@
       "step3-text": "Controleer de verbinding en voeg de server toe.",
       "step4": "4",
       "step4-text": "Start de wallet opnieuw op. Als je de standaard servers niet verwijderd, wordt je eigen node als backup-server toegevoegd.",
+      "title-btc": "Bitcoin Electrum-servers",
       "title-ltc": "Litecoin Electrum servers",
       "title-tbtc": "Bitcoin Testnet Electrum servers",
       "title-tltc": "Litecoin Testnet Electrum servers"
     },
     "expert": {
+      "clearCache": {
+        "description": "Verwijder de cache van de BitBoxApp. Dit kan helpen problemen in de app op te lossen.",
+        "dialog": {
+          "description": "Verwijder de cache van de BitBoxApp. Als je problemen ondervindt met de BitBoxApp, kan dit helpen deze op te lossen.",
+          "note": "Je accountnamen, notities en wallets worden niet beïnvloed.",
+          "primaryCTA": "Cache legen"
+        },
+        "success": "Cache succesvol geleegd.",
+        "title": "Cache legen"
+      },
       "coinControl": "Coin control aanzetten",
       "electrum": {
         "description": "Je kunt hier met je eigen Electrum-fullnode verbinden.",
@@ -1761,7 +2438,11 @@
       },
       "title": "Notities beheren"
     },
+    "other": "Overig",
     "restart": "Start de BitBoxApp opnieuw op om de veranderde instellingen in te schakelen.",
+    "search": {
+      "noResults": "Geen instellingen gevonden"
+    },
     "services": {
       "title": "Diensten"
     },
@@ -1773,6 +2454,20 @@
     "device": "Apparaat beheren",
     "leave": "Verlaten",
     "settings": "Instellingen"
+  },
+  "signMessage": {
+    "addressLabel": "Adres",
+    "emptyMessage": "Voer een bericht in om te ondertekenen.",
+    "error": "Bericht ondertekenen mislukt. Probeer het opnieuw.",
+    "messageLabel": "Bericht",
+    "messagePlaceholder": "Voer het bericht in dat ondertekend moet worden.",
+    "resultDescription": "Bericht ondertekend",
+    "signButton": "Onderteken op apparaat",
+    "signMessage": "Bericht ondertekenen",
+    "signOnBitBoxSubtitle": "Bericht ondertekenen op BitBox",
+    "signatureLabel": "Handtekening",
+    "signing": "Bevestig het bericht op je apparaat.",
+    "unsupportedTaproot": "Het ondertekenen van berichten wordt nog niet ondersteund voor Taproot-adressen. Ga terug en wijzig het adresstype."
   },
   "success": {
     "create": {
@@ -1788,6 +2483,16 @@
       "title": "Gelukt"
     }
   },
+  "swap": {
+    "insufficientGasFunds": "Je hebt meer ETH nodig in je <strong>{{accountName}}</strong> account om de netwerkkosten te betalen. <buyLink>Koop nu ETH</buyLink>\n==WEBLATE_PART==",
+    "noRouteFoundForPair": "Geen route gevonden van {{sellCoin}} naar {{buyCoin}}. Voer een groter bedrag in. Probeer het anders later opnieuw.",
+    "oneRouteAvailable": "1 route beschikbaar",
+    "providersUnavailable": "Swap-aanbieders zijn momenteel niet beschikbaar voor het geselecteerde verkoopactief. Probeer het later opnieuw.",
+    "recommended": "Aanbevolen",
+    "route": "Ruilroute",
+    "routesPlaceholder": "Routes verschijnen hier nadat je een bedrag hebt ingevoerd.",
+    "unexpectedError": "Er is een onverwachte fout opgetreden."
+  },
   "testWallet": {
     "connect": {
       "description": "Een software testwallet om zonder apparaat in Testnet te testen",
@@ -1799,6 +2504,11 @@
     },
     "prompt": {
       "button": "Ontgrendelen",
+      "info": [
+        "De testwallet gebruikt een software-keystore in de app.",
+        "Verschillende wachtwoorden ontgrendelen verschillende portefeuilles. Het is hetzelfde als het gebruik van een wachtwoordzin.",
+        "Je kunt zonder wachtwoord ontgrendelen om de standaard testwallet te openen."
+      ],
       "passwordLabel": "Testwachtwoord",
       "title": "Testwallet ontgrendelen"
     }
@@ -1816,6 +2526,7 @@
     }
   },
   "transaction": {
+    "advanced": "Geavanceerd",
     "confirmation": "Bevestigingen",
     "details": {
       "activity": "Activiteit",
@@ -1823,13 +2534,16 @@
       "amount": "Hoeveelheid",
       "date": "Datum",
       "fiatAmount": "Hoeveelheid in fiat",
+      "sentToSelf": "Verzonden naar jezelf",
       "status": "Status",
       "title": "Transactiedetails",
       "type": "Type"
     },
     "explorer": "Transactie-ID",
+    "explorerError": "Kan de browser niet openen.",
     "explorerTitle": "In externe block explorer openen",
     "fee": "Netwerkkosten",
+    "feeRate": "Netwerktarief",
     "fiatHistorical": "Historie",
     "gas": "Gas",
     "no-results": "Geen transacties met \"{{searchTerm}}\" gevonden",
@@ -1857,7 +2571,9 @@
       "receive_pending": "Ontvangen op",
       "send_complete": "Verzonden naar",
       "send_failed": "Mislukte verzending naar",
-      "send_pending": "Verzonden naar"
+      "send_pending": "Verzonden naar",
+      "send_to_self": "Verzonden <amount /> naar jezelf",
+      "send_to_self_failed": "Verzenden van <amount /> naar jezelf mislukt"
     },
     "vsize": "Virtuele grootte",
     "weight": "Gewicht"
@@ -1874,6 +2590,10 @@
       "e109_touch": "$t(unlock.error.e109_normal) Met de volgende login moet je de touchknop ingedrukt houden.",
       "e113": "Omdat je tevaak geprobeerd hebt in te loggen, moet je de touchknop 4 seconden ingedrukt houden bij de volgende login."
     },
+    "forgotPassword": {
+      "stillHavingIssues": "Heb je nog steeds problemen?",
+      "supportLink": "Neem contact op voor ondersteuning"
+    },
     "input": {
       "label": "Apparaatwachtwoord",
       "placeholder": "Voer je apparaatwachtwoord in om je BitBox te ontgrendelen"
@@ -1881,6 +2601,7 @@
     "unlocking": "Ontgrendelen..."
   },
   "upgradeFirmware": {
+    "banner": "BitBox-update beschikbaar. <updateLink>Nu bijwerken</updateLink> voor de nieuwste beveiligingsverbeteringen en functies.",
     "button": "Firmware updaten",
     "description": "Wil je de firmware updaten van versie {{currentVersion}} naar versie {{newVersion}}?",
     "label": "Je BitBox heeft een firmwareupdate nodig.",
@@ -1895,7 +2616,8 @@
     "connect": {
       "button": "Verbinden",
       "dappLabel": "Voer het URI-address van de DApp in",
-      "invalidPairingUri": "Ongeldige koppel-URI"
+      "invalidPairingUri": "Ongeldige koppel-URI",
+      "scanInstruction": "Richt je camera op de WalletConnect-QR-code"
     },
     "dashboard": {
       "allSessions": "Alle sessies",
@@ -1906,8 +2628,12 @@
     },
     "pairingRequest": {
       "approve": "Koppeling goedkeuren",
+      "chains": "Ketens",
+      "readOnly": "Deze verbinding kan je adres bekijken, maar kan geen handtekeningen of transacties aanvragen.",
       "reject": "Afwijzen",
-      "title": "Nieuw koppelverzoek van"
+      "rejectionFailed": "Het verzoek kon niet worden geweigerd, maar er is geen sessie aangemaakt.",
+      "title": "Nieuw koppelverzoek van",
+      "unsupported": "Dit verbindingsverzoek wordt niet ondersteund."
     },
     "pairingSuccess": "DApp met success verbonden. Je kunt verdergaan op de website van de DApp",
     "signingRequest": {

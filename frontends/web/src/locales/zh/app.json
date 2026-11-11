@@ -22,10 +22,28 @@
     "total": "总计"
   },
   "addAccount": {
+    "chooseName": {
+      "nextButton": "添加账户"
+    },
+    "selectCoin": {
+      "nextButton": "下一个"
+    },
     "title": "添加账户"
+  },
+  "addresses": {
+    "columnAddress": "地址",
+    "detail": {
+      "address": "地址"
+    }
+  },
+  "aopp": {
+    "labelAddress": "地址"
   },
   "app": {
     "upgrade": "该应用程序有新版本可用！请从 {{current}} 升级至 {{version}}。"
+  },
+  "auth": {
+    "dismissButton": "取消"
   },
   "backup": {
     "check": {
@@ -99,9 +117,13 @@
     }
   },
   "bitbox02Interact": {
-    "followInstructions": "请按照BitBox02上的说明进行操作。"
+    "followInstructions": "请按照BitBox02上的说明进行操作。",
+    "followInstructionsMnemonicTitle": "通过助记词还原"
   },
   "bitbox02Settings": {
+    "changePassword": {
+      "title": "更改设备密码"
+    },
     "deviceName": {
       "current": "当前设备名称",
       "input": "BitBox02 名称",
@@ -179,6 +201,11 @@
       "title": "您已准备就绪！"
     }
   },
+  "bitsurance": {
+    "insure": {
+      "title": "开始吧"
+    }
+  },
   "bootloader": {
     "button": "立即升级固件",
     "progress": "升级",
@@ -197,10 +224,23 @@
     "ok": "好的",
     "previous": "上一个",
     "restore": "恢复",
+    "review": "签名并发送",
     "select": "选择",
     "unlock": "解锁(设备)",
     "update": "更新",
     "upgrade": "升级"
+  },
+  "buy": {
+    "info": {
+      "disclaimer": {
+        "payment": {
+          "table": {
+            "fee": "(交易)费用"
+          }
+        }
+      },
+      "next": "下一个"
+    }
   },
   "changePin": {
     "newTitle": "新设备密码",
@@ -252,6 +292,9 @@
   },
   "footer": {
     "appVersion": "App版本"
+  },
+  "generic": {
+    "resetToDefault": "重置为默认值"
   },
   "genericError": "发生错误。如果发现任何问题，请重新启动应用程序。",
   "goal": {
@@ -314,6 +357,9 @@
     "accountSendDisabled": {
       "text": "当余额超过零时，将激活“发送”按钮。",
       "title": "我为什么不能进行发送 {{unit}}？"
+    },
+    "accountSummaryDescription": {
+      "title": "该页面向我显示了什么？"
     },
     "accountTransactionAttributesBTC": {
       "text": "虚拟大小：决定网络费用。如果虚拟大小小于实际大小，则可以成功节省费用。\n实际大小：底层区块链序列化时，实际交易的大小（以字节为单位），。\n重量：隔离见证（Segwit）引入的一种新指标，用于评估交易和区块大小。每个隔离见证字节计为1(个重量单位)，其他所有字节计为4(个重量单位)。因此区块实际大小的限制(上限)不再是一兆字节(1MB)，区块大小的限制(上限)是四百万个重量单位。",
@@ -507,9 +553,50 @@
   "language": {
     "title": "选择语言"
   },
+  "lightning": {
+    "claimTopUp": {
+      "confirm": {
+        "fee": "(交易)费用"
+      }
+    },
+    "closeWithdrawFunds": {
+      "fee": "(交易)费用"
+    },
+    "payments": {
+      "header": {
+        "amount": "金额"
+      }
+    },
+    "receive": {
+      "amountSats": {
+        "placeholder": "输入金额"
+      }
+    },
+    "send": {
+      "confirm": {
+        "amount": "金额"
+      }
+    },
+    "settings": {
+      "wallet": "钱包"
+    },
+    "topUp": {
+      "confirm": {
+        "amount": "金额",
+        "networkFee": "网络费",
+        "title": "确认交易",
+        "total": "总计"
+      }
+    }
+  },
   "loading": "载入中...",
   "notification": {
     "newTxs_other": "{{count}} 新交易： {{accountName}}"
+  },
+  "passphrase": {
+    "summary": {
+      "title": "摘要"
+    }
   },
   "password": {
     "show": "显示 {{label}}",
@@ -628,6 +715,7 @@
         "economy": "24个区块（Bitcoin比特币大约需4小时，Litecoin莱特币大约需1小时）",
         "high": "2个区块（Bitcoin比特币大约需20分钟，Litecoin莱特币大约需5分钟）",
         "low": "12个区块（Bitcoin比特币大约需2小时，Litecoin莱特币大约需30分钟）",
+        "mHalfHour": "2个区块（Bitcoin比特币大约需20分钟，Litecoin莱特币大约需5分钟）",
         "normal": "6个区块（Bitcoin比特币大约需1小时，Litecoin莱特币大约需15分钟）"
       },
       "estimate": "预计等待时间：",
@@ -635,6 +723,8 @@
         "economy": "经济",
         "high": "高",
         "low": "低",
+        "mFastest": "高",
+        "mHour": "低",
         "normal": "正常/普通"
       },
       "placeholder": "正在进行费用估算…"
@@ -646,6 +736,7 @@
     "toggleCoinControl": "切换coin控制"
   },
   "settings": {
+    "advancedSettings": "高级设置",
     "electrum": {
       "add": "添加服务器",
       "add-server": "添加",
@@ -694,6 +785,9 @@
     "leave": "离开",
     "settings": "设置"
   },
+  "signMessage": {
+    "addressLabel": "地址"
+  },
   "success": {
     "create": {
       "info1": "您的钱包已安全备份到microSD卡。取出microSD卡并安全保存。",
@@ -708,8 +802,17 @@
       "title": "成功"
     }
   },
+  "testWallet": {
+    "prompt": {
+      "button": "解锁(设备)"
+    }
+  },
   "transaction": {
     "confirmation": "确认",
+    "details": {
+      "address": "地址",
+      "amount": "金额"
+    },
     "explorer": "交易ID",
     "explorerTitle": "在外部区块浏览器中打开",
     "fee": "(交易)费用",
@@ -717,6 +820,14 @@
     "gas": "Gas",
     "pending": "待处理的交易",
     "size": "(区块)大小",
+    "status": {
+      "failed": "失败",
+      "pending_send_to_self": "待处理的交易"
+    },
+    "statusShort": {
+      "failed": "失败",
+      "pending_receive": "传入"
+    },
     "vsize": "(区块)虚拟大小",
     "weight": "(区块)重量"
   },

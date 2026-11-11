@@ -193,21 +193,33 @@
       "understand": "Entiendo que una contraseña de recuperación incorrecta creará una billetera diferente"
     },
     "showMnemonic": {
+      "availableIn_many": "Disponible en {{count}} de segundos",
+      "availableIn_one": "Disponible en {{count}} segundo",
+      "availableIn_other": "Disponible en {{count}} segundos",
+      "instructions": "La BitBox mostrará tus palabras de recuperación. <strong>Anótalas en papel.</strong>",
+      "safetyWarnings": {
+        "noAppsOrWebsites": "Nunca los introduzcas en una app o sitio web",
+        "noDigitalCopies": "No les tomes fotos ni las guardes digitalmente",
+        "noSharing": "El soporte de BitBox ni ninguna otra empresa te pedirá que compartas tus palabras de recuperación.",
+        "noSpeaking": "No las digas en voz alta",
+        "safeStorage": "No están protegidas por contraseña. Guárdalas en un lugar seguro."
+      },
+      "scamWarning": "Si alguien te pide que hagas esto, cuelga. Es una estafa.",
       "title": "Mostrar palabras de recuperación",
-      "warning": "<strong>Nunca compartas tus palabras de recuperación con nadie.</strong> Tus palabras de recuperación dan acceso completo a tu billetera. Si alguien te pide tus palabras de recuperación, es un estafador, ¡no las compartas!"
+      "warning": "<strong>Nunca compartas tus palabras de recuperación. </strong>Cualquiera que las tenga puede acceder a tu billetera."
     },
     "title": "Administrar copias de seguridad"
   },
   "bb02Bootloader": {
     "abort": "No actualizar - volver atrás",
     "abort_noUpgrade": "Volver atrás",
-    "additionalUpgradeFollows1": "Una actualización adicional seguirá inmediatamente después de esta.",
     "additionalUpgradeFollows2": "Por favor, mantén tu BitBox conectada mientras se completan todas las actualizaciones.",
     "advanced": {
       "label": "Configuración avanzada",
       "toggleShowFirmwareHash": "Mostrar el hash del firmware en cada inicio"
     },
     "flipscreen": "Girar pantalla",
+    "furtherUpgrades": "A continuación, se realizarán más actualizaciones.",
     "orientation": "¿Está el dispositivo orientado de manera incorrecta?",
     "success": "¡Actualización exitosa!",
     "success_install": "¡Instalación exitosa!",
@@ -305,6 +317,17 @@
       "paired": "Has confirmado el siguiente código en tu dispositivo. Por favor continua.",
       "title": "Verifica el código de emparejamiento",
       "unpaired": "Se ha detectado una BitBox no emparejada. Verifica que el código de emparejamiento coincida con lo que se muestra en tu BitBox."
+    },
+    "passphrase": {
+      "confirmHostEntry": "Confirma en la BitBox para introducir la passphrase en la app",
+      "confirmTitle": "Confirma la passphrase en la BitBox",
+      "dialogTitle": "Introducir passphrase",
+      "enter": "Introduce la passphrase de la BitBox",
+      "enterInApp": "Introduce la passphrase en la app",
+      "error": {
+        "invalidChars": "La passphrase contiene caracteres que no se pueden introducir en la BitBox.",
+        "tooLong": "La passphrase debe tener como máximo 149 caracteres."
+      }
     },
     "restoreFromMnemonic": {
       "e104": "Se canceló la restauración desde las palabras de recuperación.",
@@ -448,6 +471,7 @@
     "download": "Descargar",
     "next": "Siguiente",
     "ok": "OK",
+    "openInBrowser": "Abrir en el navegador",
     "previous": "Anterior",
     "proceedOnBitBox": "Seguir en la BitBox",
     "restore": "Restaurar",
@@ -780,7 +804,10 @@
       "month": "Mes",
       "week": "Semana",
       "year": "Año"
-    }
+    },
+    "transactions_many": "{{count}} de transacciones",
+    "transactions_one": "{{count}} transacción",
+    "transactions_other": "{{count}} transacciones"
   },
   "checkSDcard": "comprobando tarjeta micro SD",
   "clickHere": "Haz clic aquí.",
@@ -833,6 +860,12 @@
         "description": "El modelo del chip seguro."
       },
       "title": "Información del dispositivo"
+    },
+    "deviceLanguage": {
+      "description": "Cambiar el idioma de tu BitBox.",
+      "error_104": "Se abortó el cambio de idioma del dispositivo.",
+      "success": "Idioma del dispositivo cambiado correctamente.",
+      "title": "Cambiar idioma del dispositivo"
     },
     "deviceSettings": {
       "title": "Configuración del dispositivo"
@@ -934,6 +967,7 @@
     "lightningInvalidAmount": "Importe no válido.",
     "lightningInvalidPaymentInput": "Factura o solicitud de pago no válida.",
     "lightningInvoiceAlreadyUsed": "Esta factura de Lightning ya se ha utilizado. Solicita una nueva factura.",
+    "lightningPaymentFailed": "El pago de Lightning falló. Revisa el pago antes de intentarlo de nuevo.",
     "lightningPaymentPreparationFailed": "No se pudo preparar el pago. Por favor, inténtalo de nuevo.",
     "lightningTopUpClaimFailed": "Por favor, intenta reclamar la recarga de nuevo.",
     "lightningTopUpRefundFailed": "Por favor, intenta reembolsar la recarga de nuevo.",
@@ -1075,6 +1109,7 @@
     "retry": "Reintentar",
     "search": "Buscar…",
     "searchButton": "Buscar",
+    "selectAll": "Seleccionar todo",
     "sell": "Vender {{coinCode}}",
     "sell_bitcoin": "Vender Bitcoin",
     "sell_crypto": "Vender criptomonedas",
@@ -1382,6 +1417,10 @@
         "title": "¿Por qué mostrar el modelo de chip seguro?"
       }
     },
+    "disclaimer": {
+      "link": "Ver aviso legal de {{provider}}",
+      "title": "Aviso legal de {{provider}}"
+    },
     "guideTitle": {
       "account": "Guía de cuentas",
       "accountInformation": "Guía de información de cuentas",
@@ -1682,11 +1721,13 @@
       "state": {
         "claiming": "Reclamar depósito",
         "confirming": "Esperando confirmaciones",
+        "refundPending": "Reembolso pendiente de transmisión",
         "unclaimed": "Reclamación requerida"
       },
       "stateShort": {
         "claiming": "Reclamando",
         "confirming": "Confirmando",
+        "refundPending": "Reembolso pendiente",
         "unclaimed": "Reclamación requerida"
       }
     },
@@ -1704,7 +1745,7 @@
         "refundDestination": "Destino del reembolso",
         "refundTitle": "Confirmar reembolso de recarga"
       },
-      "description": "Necesitarás crear una transacción para reclamar los fondos atascados.",
+      "description": "Reclama esta recarga para añadir los fondos a tu billetera de Lightning.",
       "empty": "No se encontró ninguna recarga sin reclamar.",
       "failure": {
         "claimFailedMessage": "Reclamación de recarga fallida.",
@@ -1715,12 +1756,19 @@
       "feeRate": "{{feeRate}} sat/vByte",
       "refundButton": "Reembolsar recarga",
       "refundFee": "Tasa de comisión de reembolso",
+      "refundPending": "El reembolso no ha llegado a la red de Bitcoin. Se reintentará automáticamente. También puedes reintentar con la tasa de comisión actual.",
       "refundUnavailable": "Reembolso no disponible",
       "success": {
         "claimTitle": "Reclamar recarga",
-        "refundMessage": "Transacción de reembolso realizada",
+        "deferredMessage": "Solicitud de recarga programada",
+        "deferredNote": "La recarga aún no ha sido reclamada. Se reintentará automáticamente cuando esté dentro del límite de comisiones.",
+        "refundMessage": "Reembolso solicitado",
         "refundNote": "El reembolso aparecerá de nuevo en tu billetera on-chain una vez que se confirme la transacción.",
-        "refundTitle": "Reembolsar recarga"
+        "refundTitle": "Reembolsar recarga",
+        "settledMessage": "Recarga reclamada",
+        "settledNote": "Los fondos ya están disponibles en tu billetera de Lightning.",
+        "submittedMessage": "Solicitud de recarga enviada",
+        "submittedNote": "La reclamación está en proceso. Los fondos aparecerán en tu billetera de Lightning cuando se complete."
       },
       "title": "Reclamar recarga",
       "topUp": "Recarga sin reclamar",
@@ -1749,6 +1797,29 @@
         "note": "Tus monedas aparecerán en tu billetera una vez que la transacción se confirme."
       },
       "viewTransaction": "Ver transacción"
+    },
+    "contacts": {
+      "add": "Añadir contacto",
+      "addAfterPayment": "Añadir <strong>{{address}}</strong> a tus contactos",
+      "addressPlaceholder": "satoshi@bitbox.cash",
+      "delete": "Eliminar contacto",
+      "deleteAction": "Eliminar",
+      "deleteConfirmation": "¿Estás seguro de que quieres eliminar este contacto?",
+      "deleteError": "No se pudo eliminar el contacto. Por favor, inténtalo de nuevo.",
+      "details": "Detalles de contacto",
+      "duplicateAddress": "Esta dirección de Lightning ya está en tus contactos.",
+      "empty": "Aún no hay contactos",
+      "invalidAddress": "Introduce una dirección de Lightning válida.",
+      "loadError": "No se pudieron cargar los contactos. Inténtalo de nuevo.",
+      "myAccounts": "Mis cuentas",
+      "name": "Nombre",
+      "namePlaceholder": "Introduce un nombre",
+      "notFound": "Contacto no encontrado.",
+      "optional": "opcional",
+      "saveError": "No se pudo guardar el contacto. Inténtalo de nuevo.",
+      "saved": "Contacto guardado",
+      "sendTo": "Enviar a",
+      "title": "Contactos"
     },
     "deactivate": {
       "intro": {
@@ -1818,6 +1889,7 @@
       },
       "title": "Establecer dirección LNURL"
     },
+    "paymentDescription": "Descripción de la factura",
     "payments": {
       "header": {
         "amount": "Cantidad",
@@ -1858,6 +1930,7 @@
       "title": "Recibir por Lightning"
     },
     "send": {
+      "activationRequired": "Activa Lightning antes de pagar. Después de configurarlo, vuelve a abrir el enlace de pago.",
       "confirm": {
         "amount": "Cantidad",
         "note": "Nota",
@@ -1890,6 +1963,7 @@
     "settings": {
       "closeAndWithdrawFunds": "Cerrar y retirar fondos",
       "disableWallet": "Desactivar billetera de Lightning",
+      "enableDebugLogs": "Activar registros de depuración de Lightning",
       "enableWallet": "Activar billetera de Lightning",
       "enableWalletDescription": "Lightning permite pagos instantáneos y de bajas comisiones.",
       "expert": "Experto",
@@ -1913,6 +1987,7 @@
     "topUp": {
       "action": "Recargar",
       "available": "Disponible",
+      "claimFeeInfo": "Deducido de tu recarga. La comisión real puede variar según las condiciones de la red Bitcoin en el momento de reclamar.",
       "confirm": {
         "amount": "Cantidad",
         "continue": "Continúa en tu BitBox.",
@@ -1921,12 +1996,13 @@
         "title": "Confirmar y enviar transacción",
         "total": "Total"
       },
+      "estimatedClaimFee": "Comisió de reclamación estimada",
       "from": "De",
       "noBitcoinAccounts": "No hay cuentas de Bitcoin activas. Activa una cuenta de Bitcoin.",
       "note": "Recarga de Lightning",
       "success": {
         "message": "¡Recarga creada!",
-        "note": "La transacción de recarga aparecerá tras una confirmación y se completará tras tres confirmaciones. Esto suele tardar más de 30 minutos."
+        "note": "La transacción de recarga aparecerá como pendiente en la lista de pagos antes de su primera confirmación. Se acredita automáticamente cuando las confirmaciones y las comisiones lo permiten. Las acreditaciones estándar requieren tres confirmaciones; las acreditaciones anticipadas pueden completarse antes."
       },
       "title": "Recargar billetera de Lightning",
       "to": "A"
@@ -1962,6 +2038,13 @@
       "feedbackLink": {
         "description": "Si tienes comentarios generales",
         "title": "Comentarios"
+      },
+      "licenses": {
+        "description": "Ver las licencias de las bibliotecas y dependencias de código abierto usadas en esta app",
+        "error": "Error al cargar las licencias.",
+        "packagesInfo": "Esta aplicación utiliza las siguientes dependencias de código abierto ({{packageCount}} paquetes).",
+        "title": "Licencias",
+        "unavailableLicenseText": "Texto de la licencia no disponible."
       },
       "supportLink": {
         "description": "Si tienes algún problema o necesitas ayuda",
@@ -2250,6 +2333,7 @@
     "edit": "Editar transacción",
     "error": {
       "accountNotSynced": "La cuenta aún no está sincronizada. Espera a que termine la sincronización e inténtalo de nuevo.",
+      "broadcastUncertain": "La transacción aún podría completarse. La app seguirá intentando enviarla. Revisa tu historial de transacciones antes de volver a enviar para evitar pagar dos veces.",
       "erc20InsufficientGasFunds": "Parece que no tienes suficiente Ether para pagar esta transacción ERC20. Por favor, carga Ether a tu billetera e intenta de nuevo.",
       "feeTooLow": "La tarifa de red es demasiado baja",
       "feesNotAvailable": "No se pueden estimar las tarifas de red",
@@ -2262,6 +2346,8 @@
     },
     "fee": {
       "customPlaceholder": "Introduzca la cantidad",
+      "highFee": "Comisión alta",
+      "highFeeWarning": "La comisión es {{percentage}}% del importe a enviar. ¿Proceder?",
       "label": "Tarifa de red",
       "placeholder": "No disponible"
     },
@@ -2322,6 +2408,22 @@
     "about": "Acerca de",
     "advancedSettings": "Configuración avanzada",
     "appearance": "Apariencia",
+    "balanceStatement": {
+      "export": {
+        "description": "Exportar un extracto en PDF de tus tenencias en la fecha de corte seleccionada.",
+        "dialog": {
+          "accountsLabel": "Cuentas para incluir",
+          "dateLabel": "Fecha de corte",
+          "description": "Elige la fecha y selecciona qué cuentas incluir en el extracto.",
+          "generate": "Generar PDF",
+          "noAccounts": "No hay cuentas activas disponibles."
+        },
+        "errors": {
+          "sepoliaBalanceStatementUnsupported": "Ethereum Sepolia no se puede exportar porque los valores de saldo históricos no están disponibles. Deselecciona las cuentas de Sepolia para exportar tus otras cuentas."
+        },
+        "title": "Exportar extracto de saldo"
+      }
+    },
     "electrum": {
       "add": "Añadir un servidor",
       "add-server": "Añadir",
@@ -2357,6 +2459,7 @@
           "note": "Los nombres de tus cuentas, las notas y las billeteras no se verán afectados.",
           "primaryCTA": "Borrar caché"
         },
+        "success": "Caché borrada correctamente",
         "title": "Borrar caché"
       },
       "coinControl": "Activar control de monedas",
@@ -2405,6 +2508,7 @@
       },
       "title": "Administrar notas"
     },
+    "other": "Otro",
     "restart": "Por favor, reinicia la BitBoxApp para que los cambios tengan efecto.",
     "search": {
       "noResults": "No se encontraron ajustes"
@@ -2455,10 +2559,12 @@
     "fastest": "Más rápido",
     "fetchQuotesError": "No se pueden obtener cotizaciones ahora mismo. Inténtalo de nuevo.",
     "fetchingRoutes": "Obteniendo rutas...",
+    "insufficientGasFunds": "Necesitas más ETH en tu cuenta <strong>{{accountName}}</strong> para pagar las comisiones de la red. <buyLink>Comprar ETH ahora</buyLink>",
     "new": "Nuevo intercambio",
     "noRouteFound": "No se encontró ruta",
     "noRouteFoundForPair": "No se encontró ruta desde {{sellCoin}} a {{buyCoin}}. Intenta introducir una cantidad mayor. De lo contrario, inténtalo de nuevo más tarde.",
     "oneRouteAvailable": "Una ruta disponible",
+    "providersUnavailable": "Los proveedores de intercambio no están disponibles actualmente para el activo seleccionado para la venta. Inténtalo de nuevo más tarde.",
     "recommended": "Recomendado",
     "route": "Ruta de intercambio",
     "routesPlaceholder": "Las rutas aparecerán aquí después de introducir una cantidad",
@@ -2513,6 +2619,7 @@
       "type": "Tipo"
     },
     "explorer": "ID de transacción",
+    "explorerError": "No se puede abrir el navegador.",
     "explorerTitle": "Abrir en explorador de bloques",
     "fee": "Tarifa de red",
     "feeRate": "Tasa de comisión",

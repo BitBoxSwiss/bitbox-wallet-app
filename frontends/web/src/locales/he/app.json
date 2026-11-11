@@ -25,10 +25,28 @@
     "transactionHistory": "היסטוריית עסקאות"
   },
   "addAccount": {
+    "chooseName": {
+      "nextButton": "הוספת חשבון"
+    },
+    "selectCoin": {
+      "nextButton": "הבא"
+    },
     "title": "הוספת חשבון"
+  },
+  "addresses": {
+    "columnAddress": "כתובת",
+    "detail": {
+      "address": "כתובת"
+    }
+  },
+  "aopp": {
+    "labelAddress": "כתובת"
   },
   "app": {
     "upgrade": "גרסה חדשה של תכנה זו זמינה! אנא עדכן מ{{current}} ל{{version}}"
+  },
+  "auth": {
+    "dismissButton": "בטל"
   },
   "backup": {
     "check": {
@@ -107,9 +125,13 @@
     "confirmDateText": ".התאריך ישמש ליצירת הגיבוי",
     "confirmName": "אשר את השם בביטבוקס02",
     "followInstructions": "אנא התקדם לפי הוראות בביטבוקס02",
-    "followInstructionsMnemonic": "mnemonic seed -המשך עם ההוראות לפי המופיע בביטבוקס02 שלך כדי לשחזר מ"
+    "followInstructionsMnemonic": "mnemonic seed -המשך עם ההוראות לפי המופיע בביטבוקס02 שלך כדי לשחזר מ",
+    "followInstructionsMnemonicTitle": "mnemonic seed -שיחזור"
   },
   "bitbox02Settings": {
+    "changePassword": {
+      "title": "החלף סיסמת התקן"
+    },
     "deviceName": {
       "current": "שם התקן נוכחי",
       "input": "שם ביטבוקס02",
@@ -195,6 +217,11 @@
       "title": "!אתה מוכן להמשיך"
     }
   },
+  "bitsurance": {
+    "insure": {
+      "title": "התחל"
+    }
+  },
   "blink": {
     "button": "הבהוב"
   },
@@ -216,10 +243,23 @@
     "ok": "בסדר",
     "previous": "הקודם",
     "restore": "שחזר",
+    "review": "סקירה",
     "select": "בחר",
     "unlock": "בטל נעילה",
     "update": "עדכן",
     "upgrade": "שדרג"
+  },
+  "buy": {
+    "info": {
+      "disclaimer": {
+        "payment": {
+          "table": {
+            "fee": "עמלה"
+          }
+        }
+      },
+      "next": "הבא"
+    }
   },
   "changePin": {
     "newTitle": "סיסמת התקן חדשה",
@@ -285,7 +325,8 @@
   },
   "generic": {
     "enabled_false": "מושבת",
-    "enabled_true": "מופעל"
+    "enabled_true": "מופעל",
+    "resetToDefault": "אתחל לברירת מחדל"
   },
   "genericError": "שגיאה התרחשה. אם אתה מבחין בחריגות, התחל מחדש את התכנה.",
   "goal": {
@@ -576,6 +617,46 @@
   "language": {
     "title": "בחר שפה"
   },
+  "lightning": {
+    "claimTopUp": {
+      "confirm": {
+        "fee": "עמלה"
+      }
+    },
+    "closeWithdrawFunds": {
+      "fee": "עמלה"
+    },
+    "payments": {
+      "header": {
+        "amount": "סכום",
+        "date": "תאריך",
+        "type": "סוג"
+      }
+    },
+    "receive": {
+      "amountSats": {
+        "placeholder": "הכנס סכום"
+      }
+    },
+    "send": {
+      "confirm": {
+        "amount": "סכום",
+        "note": "הערה"
+      }
+    },
+    "settings": {
+      "status": "מצב",
+      "wallet": "ארנק"
+    },
+    "topUp": {
+      "confirm": {
+        "amount": "סכום",
+        "networkFee": "עמלת רשת",
+        "title": "אשר ובצע עסקה",
+        "total": "סכום סופי"
+      }
+    }
+  },
   "loading": "...טוען",
   "mobile": {
     "usingMobileDataWarning": ".כדי להימנע משימוש בנתונים ניידים WiFi-שימוש בנתונים ניידים: יישום זה עשוי להוריד עד כמה מאות מגה-בייט של נתוני כותרות מהבלוקצ׳יין לאחר ביטול נעילת חשבון. אנא התחבר ל\n.לאחר הביטול, הודעה זו לא תוצג שוב"
@@ -591,6 +672,11 @@
     "newTxs_one": "עסקה חדשה ב: {{accountName}}",
     "newTxs_other": "{{count}} עסקה חדשה ב: {{accountName}}",
     "newTxs_two": ""
+  },
+  "passphrase": {
+    "summary": {
+      "title": "סיכום"
+    }
   },
   "password": {
     "show": "הצג {{label}}",
@@ -715,6 +801,7 @@
         "high_ltc": "(חמש דקות (2 בלוקים",
         "low": "(בלוקים: 12 (סביב השעתיים לביטקויין, 30 דקות ללייטקויין",
         "low_ltc": "(חצי שעה (12 בלוקים",
+        "mHalfHour": "(בלוקים: 2 (סביב ה20 דקות לביטקויין, 5 דקות ללייטקויין",
         "normal": "(בלוקים: 6 (סביב השעה לביטקויין, רבע שעה ללייטקויין",
         "normal_ltc": "(רבע שעה (6 בלוקים"
       },
@@ -724,6 +811,8 @@
         "economy": "חסכוני",
         "high": "גבוה",
         "low": "נמוך",
+        "mFastest": "גבוה",
+        "mHour": "נמוך",
         "normal": "רגיל"
       },
       "placeholder": "...מחשב הערכת עמלה"
@@ -737,6 +826,7 @@
     "transactionDetails": "פרטי עסקה"
   },
   "settings": {
+    "advancedSettings": "הגדרות מתקדמות",
     "electrum": {
       "add": "הוסף שרת",
       "add-server": "הוסף",
@@ -790,6 +880,9 @@
     "leave": "עזוב",
     "settings": "הגדרות"
   },
+  "signMessage": {
+    "addressLabel": "כתובת"
+  },
   "success": {
     "create": {
       "info1": "הארנק שלך גובה באופן מאובטח לכרטיס הזיכרון. הסר ושמור אותו בבטחה.",
@@ -802,6 +895,11 @@
     "restore": {
       "summary": ".שיחזרת בהצלחה ארנק מתוך הגיבוי",
       "title": "הצלחה"
+    }
+  },
+  "testWallet": {
+    "prompt": {
+      "button": "בטל נעילה"
     }
   },
   "transaction": {
@@ -825,7 +923,15 @@
     "status": {
       "complete": "הושלם",
       "failed": "נכשל",
-      "pending": "ממתין"
+      "pending": "ממתין",
+      "pending_send_to_self": "עסקה ממתינה"
+    },
+    "statusShort": {
+      "complete": "הושלם",
+      "failed": "נכשל",
+      "pending": "ממתין",
+      "pending_receive": "נכנס",
+      "pending_send_to_self": "ממתין"
     },
     "vsize": "גודל וירטואלי",
     "weight": "משקל"

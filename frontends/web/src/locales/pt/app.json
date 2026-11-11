@@ -68,6 +68,12 @@
     },
     "title": "Adicionar conta"
   },
+  "addresses": {
+    "columnAddress": "Endereço",
+    "detail": {
+      "address": "Endereço"
+    }
+  },
   "aopp": {
     "addressRequest": "{{host}} está solicitando um endereço de recebimento.",
     "addressRequestWithLogo": "está solicitando um endereço de recebimento",
@@ -157,7 +163,6 @@
   "bb02Bootloader": {
     "abort": "Não atualizar - Leve-me de volta",
     "abort_noUpgrade": "Me leve de volta",
-    "additionalUpgradeFollows1": "Uma atualização adicional ocorrerá imediatamente após esta.",
     "additionalUpgradeFollows2": "Por favor, mantenha sua BitBox conectada até que todas as atualizações sejam concluídas.",
     "advanced": {
       "label": "Configurações avançadas",
@@ -194,6 +199,9 @@
       "description": "Bluetooth é usado para conectar-se com o iPhone",
       "titleDisabled": "Ativar Bluetooth.",
       "titleEnabled": "Desativar Bluetooth"
+    },
+    "changePassword": {
+      "title": "Mudar senha do dispositivo"
     },
     "deviceName": {
       "current": "Nome atual do dispositivo",
@@ -392,6 +400,7 @@
     "previous": "Anterior",
     "proceedOnBitBox": "Prossiga em sua BitBox",
     "restore": "Restaurar",
+    "review": "Revisar",
     "select": "Selecionar",
     "unlock": "Desbloquear",
     "update": "Atualizar",
@@ -588,6 +597,24 @@
             "info": "Requer apenas verificação de identidade acima dos limites diários e anuais.",
             "link": "Encontre os limites atuais aqui",
             "title": "Verificação de Identidade"
+          }
+        },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "Política de privacidade da Pocket",
+              "title": "Proteção de Dados"
+            },
+            "kyc": {
+              "title": "Verificação de identidade"
+            },
+            "payment": {
+              "title": "Métodos de pagamento e taxas"
+            },
+            "security": {
+              "link": "Modelo de ameaça de segurança BitBox",
+              "title": "Segurança"
+            }
           }
         },
         "region": {
@@ -841,6 +868,20 @@
           "title": "Compre e venda bitcoin com a Pocket"
         }
       }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "title": "Proteção de Dados"
+        },
+        "fees": {
+          "title": "Taxas"
+        },
+        "security": {
+          "link": "Modelo de ameaça de segurança BitBox",
+          "title": "Segurança"
+        }
+      }
     }
   },
   "fiat": {
@@ -1067,6 +1108,13 @@
       "ejectSD": {
         "text": "Você pode remover o cartão microSD da BitBox a qualquer momento, desde que não esteja criando ou restaurando um backup.",
         "title": "Como posso ejetar o cartão microSD?"
+      }
+    },
+    "bitrefill": {
+      "kyc": {
+        "link": {
+          "text": "Limites de compra do Bitrefill"
+        }
       }
     },
     "bitsurance": {
@@ -1332,6 +1380,64 @@
   "invalidFormat": "Formato Inválido",
   "language": {
     "title": "Selecione o idioma"
+  },
+  "lightning": {
+    "claimTopUp": {
+      "confirm": {
+        "fee": "Taxa",
+        "feeRate": "Taxa"
+      }
+    },
+    "closeWithdrawFunds": {
+      "fee": "Taxa"
+    },
+    "disclaimer": {
+      "backups": {
+        "title": "Backups"
+      },
+      "continue": "Concordo e continue",
+      "fees": {
+        "title": "Taxas"
+      },
+      "securityModel": {
+        "title": "Modelo de segurança"
+      }
+    },
+    "payments": {
+      "header": {
+        "amount": "Valor",
+        "date": "Data",
+        "description": "Descrição",
+        "type": "Tipo"
+      }
+    },
+    "receive": {
+      "amountSats": {
+        "placeholder": "Insira o valor"
+      },
+      "description": {
+        "label": "Descrição"
+      }
+    },
+    "send": {
+      "confirm": {
+        "amount": "Valor",
+        "note": "Nota"
+      }
+    },
+    "settings": {
+      "status": "Status",
+      "wallet": "Carteira"
+    },
+    "topUp": {
+      "confirm": {
+        "amount": "Valor",
+        "networkFee": "Taxa de rede",
+        "title": "Confirmar e enviar transação",
+        "total": "Total"
+      },
+      "to": "Para"
+    }
   },
   "loading": "carregando…",
   "manageAccounts": {
@@ -1684,6 +1790,9 @@
     "priority": "Prioridade",
     "scanQR": "Escanear QR code",
     "scanQRNoCameraMessage": "Câmera não encontrada. Certifique-se de que seu dispositivo suporta uma câmera e que as permissões estão definidas corretamente.",
+    "sendToAccount": {
+      "placeholder": "Selecione a conta"
+    },
     "success": "A transação foi assinada e enviada.",
     "title": "Enviar {{accountName}}",
     "toggleCoinControl": "Controle de moedas",
@@ -1780,6 +1889,11 @@
     "leave": "Sair",
     "settings": "Configurações"
   },
+  "signMessage": {
+    "addressLabel": "Endereço",
+    "messageLabel": "Mensagem",
+    "signMessage": "Assinar mensagem"
+  },
   "success": {
     "create": {
       "info1": "Sua carteira foi armazenada com segurança no cartão microSD. Remova-o e mantenha-o seguro.",
@@ -1836,6 +1950,7 @@
     "explorer": "ID da transação",
     "explorerTitle": "Abrir no explorador de blocos externo",
     "fee": "Taxa",
+    "feeRate": "Taxa",
     "fiatHistorical": "Histórico",
     "gas": "Gas",
     "no-results": "Nenhuma transação encontrada correspondendo a \"{{searchTerm}}\"",
@@ -1879,6 +1994,10 @@
       "e109_normal": "Senha do dispositivo errada. {{remainingAttempts}} tentativas restantes antes que o dispositivo seja resetado.",
       "e109_touch": "$t(unlock.error.e109_normal) O próximo login requer que segure o botão touch.",
       "e113": "Devido a muitas tentativas de login, o próximo login requer que o botão touch seja pressionado por 4 segundos."
+    },
+    "forgotPassword": {
+      "stillHavingIssues": "Ainda tendo problemas?",
+      "supportLink": "Contate o suporte"
     },
     "input": {
       "label": "Senha do dispositivo",
