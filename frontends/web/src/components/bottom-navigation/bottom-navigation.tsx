@@ -8,7 +8,6 @@ import { useLoad } from '@/hooks/api';
 import { getVersion } from '@/api/bitbox02';
 import { useDarkmode } from '@/hooks/darkmode';
 import { MenuItem } from './menu-item';
-import { useAndroidKeyboardVisible } from './use-android-keyboard-visible';
 import { useSlidingIndicator } from './use-sliding-indicator';
 import { getBottomNavIndex, getBottomNavItems, getBottomNavKey, type TBottomNavItem } from './utils';
 import styles from './bottom-navigation.module.css';
@@ -62,14 +61,9 @@ export const BottomNavigation = ({
     indicatorStyle,
     labelRefs,
   } = useSlidingIndicator(activeIndex, navItems.map(item => menuItems[item].label).join(':'));
-  const androidKeyboardVisible = useAndroidKeyboardVisible();
   const setLabelRef = (item: TBottomNavItem) => (element: HTMLSpanElement | null) => {
     labelRefs.current[navItems.indexOf(item)] = element;
   };
-
-  if (androidKeyboardVisible) {
-    return null;
-  }
 
   return (
     <>
