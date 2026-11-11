@@ -71,6 +71,7 @@ type TProps = {
   slim?: boolean;
   centered?: boolean;
   noSidebarOffset?: boolean;
+  initialFocusRef?: React.RefObject<HTMLElement>;
   onClose?: () => void;
   children: React.ReactNode;
   open: boolean;
@@ -84,6 +85,7 @@ export const Dialog = ({
   slim,
   centered,
   noSidebarOffset = false,
+  initialFocusRef,
   onClose,
   children,
   open,
@@ -97,6 +99,23 @@ export const Dialog = ({
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   useFocusTrap(modalRef, status === 'open');
+
+  useEffect(() => {
+    const modal = modalRef.current;
+    if (!open || status !== 'open' || !modal || !initialFocusRef) {
+      return;
+    }
+    let cancelled = false;
+    // Focusing an offscreen mobile sheet can make Android pan the WebView when the keyboard opens.
+    Promise.allSettled(modal.getAnimations().map(animation => animation.finished)).then(() => {
+      if (!cancelled && !modal.contains(document.activeElement)) {
+        initialFocusRef.current?.focus({ preventScroll: true });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, status, initialFocusRef, isMobile]);
 
   // create a stable ref so deactivate() doesn't recreate
   // on every parent re-render
