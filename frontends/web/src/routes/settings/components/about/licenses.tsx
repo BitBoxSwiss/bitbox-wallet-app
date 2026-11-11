@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '../settingsItem/settingsItem';
 import { Dialog, DialogScrollContent } from '@/components/dialog/dialog';
@@ -10,7 +10,7 @@ import styles from './licenses.module.css';
 
 type TPackage = {
   name: string;
-  version: string;
+  versions: string[];
   license: string | null;
   repository: string | null;
   licenseText: string | null;
@@ -23,9 +23,14 @@ const Package = (pkg: TPackage) => {
       <summary className={styles.summary}>
         <strong>{pkg.name}</strong>
         {' '}
-        <Badge>
-          v{pkg.version}
-        </Badge>
+        {pkg.versions.map(version => (
+          <Fragment key={version}>
+            <Badge>
+              v{version}
+            </Badge>
+            {' '}
+          </Fragment>
+        ))}
         {' '}
         <Badge type="info">
           {pkg.license ?? 'Unknown license'}
@@ -136,7 +141,7 @@ export const Licenses = () => {
 
               {licenses.map(pkg => (
                 <Package
-                  key={`${pkg.name}@${pkg.version}`}
+                  key={`${pkg.name}@${pkg.versions.join(',')}`}
                   {...pkg}
                 />
               ))}
