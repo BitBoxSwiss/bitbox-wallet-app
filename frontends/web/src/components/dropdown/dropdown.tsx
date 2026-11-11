@@ -13,6 +13,7 @@ import Select, {
   ActionMeta,
 } from 'react-select';
 import { useMediaQuery } from '@/hooks/mediaquery';
+import { runningOnMobile } from '@/utils/env';
 import { MobileFullscreenSelector } from './mobile-fullscreen-selector';
 import { ChevronDownDark } from '@/components/icon';
 import styles from './dropdown.module.css';
@@ -141,12 +142,13 @@ export const Dropdown = <T, IsMulti extends boolean = false, TExtra = object, TO
   isOpen,
   onOpenChange,
   options,
+  isSearchable = true,
   ...props
 }: SelectProps<T, IsMulti, TExtra, TOptionExt>) => {
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  const isGrouped = isGroupedOptions(options);
+  const isCompact = useMediaQuery('(max-width: 768px)');
+  const hasTabletDimensions = useMediaQuery('(min-width: 600px) and (min-height: 600px)');
 
-  if (isMobile && mobileFullScreen) {
+  if (isCompact && mobileFullScreen) {
     return (
       <MobileFullscreenSelector
         title={title}
@@ -162,6 +164,14 @@ export const Dropdown = <T, IsMulti extends boolean = false, TExtra = object, TO
       />
     );
   }
+
+  const isGrouped = isGroupedOptions(options);
+  const optionCount = (
+    isGrouped
+      ? options.reduce((count, group) => count + group.options.length, 0)
+      : options?.length ?? 0
+  );
+  const searchable = isSearchable && (runningOnMobile() ? !hasTabletDimensions : optionCount >= 10);
 
   const componentOverrides: ReactSelectProps<TOption<T>>['components'] = {
     DropdownIndicator,
@@ -204,6 +214,7 @@ export const Dropdown = <T, IsMulti extends boolean = false, TExtra = object, TO
       classNamePrefix={classNamePrefix}
       isClearable={false}
       hideSelectedOptions={false}
+      isSearchable={searchable}
       options={options}
       components={componentOverrides}
       onChange={(selected, actionMeta) => {
@@ -215,6 +226,7 @@ export const Dropdown = <T, IsMulti extends boolean = false, TExtra = object, TO
         handleChange(selected as any, actionMeta);
       }}
       {...props}
+      inputValue={searchable ? props.inputValue : ''}
     />
   );
 };
