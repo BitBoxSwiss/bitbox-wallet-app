@@ -11,6 +11,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/bridgecommon"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/devices/usb"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 )
@@ -28,6 +29,8 @@ const (
 	AuthResultCancel string = string(backend.AuthResultCancel)
 	// AuthResultMissing exports backend.AuthResultMissing.
 	AuthResultMissing string = string(backend.AuthResultMissing)
+	// ErrUserAbort lets native code return a cancellation through the gomobile error bridge.
+	ErrUserAbort string = string(errp.ErrUserAbort)
 )
 
 func init() {
@@ -80,6 +83,15 @@ type GoEnvironmentInterface interface {
 	DeleteLightningEncryptionKey(string) error
 	BluetoothConnect(string)
 	UserAgentPlatform() string
+}
+
+func systemOpen(environment GoEnvironmentInterface, url string) error {
+	err := environment.SystemOpen(url)
+	// gomobile transfers native exceptions as error messages, losing the Go error type.
+	if err != nil && err.Error() == ErrUserAbort {
+		return errp.ErrUserAbort
+	}
+	return err
 }
 
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
@@ -193,7 +205,9 @@ func Serve(dataDir string, testnet bool, environment GoEnvironmentInterface, goA
 				}
 				return []usb.DeviceInfo{deviceInfo{i}}
 			},
-			SystemOpenFunc:                   environment.SystemOpen,
+			SystemOpenFunc: func(url string) error {
+				return systemOpen(environment, url)
+			},
 			UsingMobileDataFunc:              environment.UsingMobileData,
 			NativeLocaleFunc:                 environment.NativeLocale,
 			NumberFormatFunc:                 func() *backend.NumberFormat { return nil },
