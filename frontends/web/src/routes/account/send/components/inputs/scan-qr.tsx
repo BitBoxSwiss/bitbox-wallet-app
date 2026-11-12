@@ -3,6 +3,7 @@
 import { MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBackButton } from '@/hooks/backbutton';
+import { useMountedRef } from '@/hooks/mount';
 import { useQRScanner } from '@/hooks/qrcodescanner';
 import { CloseXWhite, FlashWhite, FlashYellow } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
@@ -17,7 +18,7 @@ type TRequestClose = (onClosed?: () => void) => void;
 type TResetLastResult = () => void;
 
 type TProps = {
-  onResult: (result: string) => void | boolean | Promise<void | boolean>;
+  onResult: (result: string, isActive: () => boolean) => void | boolean | Promise<void | boolean>;
   onClose: () => void;
   instruction: string;
   fullscreen?: boolean;
@@ -34,6 +35,7 @@ export const ScanQR = ({
   children,
 }: TProps) => {
   const { t } = useTranslation();
+  const mounted = useMountedRef();
   const videoRef = useRef<HTMLVideoElement>(null);
   const scanRegionCenterY = (
     fullscreen
@@ -83,8 +85,13 @@ export const ScanQR = ({
     processedRef.current = text;
     busyRef.current = true;
     setProcessing(true);
+    // Async consumers must ignore results once this scanner closes or unmounts.
+    const isActive = () => mounted.current && !closingRef.current;
     try {
-      const accepted = await onResult(text);
+      const accepted = await onResult(text, isActive);
+      if (!isActive()) {
+        return;
+      }
       if (accepted === false) {
         busyRef.current = false;
         setProcessing(false);
@@ -93,11 +100,14 @@ export const ScanQR = ({
       triggerLongHapticFeedback();
       requestClose();
     } catch (error) {
+      if (!isActive()) {
+        return;
+      }
       console.error(error);
       busyRef.current = false;
       setProcessing(false);
     }
-  }, [onResult, requestClose]);
+  }, [mounted, onResult, requestClose]);
 
   const { initErrorMessage, hasFlash, isFlashOn, toggleFlash } = useQRScanner(videoRef, {
     onStart: () => setCameraReady(true),

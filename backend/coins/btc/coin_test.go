@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"os"
 	"path"
+	"strings"
 	"testing"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
@@ -19,6 +20,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/BitBoxSwiss/block-client-go/electrum/types"
 	"github.com/btcsuite/btcd/chaincfg/v2"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -157,6 +159,119 @@ func (s *testSuite) TestParseAmount() {
 	intAmount, err = coinAmount.Int64()
 	s.Require().NoError(err)
 	s.Require().Equal(intSatAmount, intAmount)
+}
+
+// Bare addresses and payment URIs are validated without initializing a blockchain connection.
+func TestParsePaymentInput(t *testing.T) {
+	for _, tc := range []struct {
+		code    coin.Code
+		net     *chaincfg.Params
+		scheme  string
+		address string
+	}{
+		{coin.CodeBTC, &chaincfg.MainNetParams, "bitcoin", "1GM1Wp6t3hJf6U5aq6dG62Pg3c9ePbiUQ9"},
+		{coin.CodeTBTC, &chaincfg.TestNet3Params, "bitcoin", "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL"},
+		{coin.CodeLTC, &ltc.MainNetParams, "litecoin", "ltc1qzr0n0a4xs0404fy5l7pl7pj8yj8q34ml27rlcs"},
+		{coin.CodeTLTC, &ltc.TestNet4Params, "litecoin", "tltc1q2n65aaawmc94xsyznyr5939uztwjdz3rhvveq0"},
+	} {
+		t.Run(string(tc.code), func(t *testing.T) {
+			accountCoin := &Coin{code: tc.code, net: tc.net, formatUnit: coin.BtcUnitDefault}
+			for _, input := range []string{tc.address, " \n" + tc.address + "\t", tc.scheme + ":" + tc.address} {
+				parsedInput, err := accountCoin.ParsePaymentInput(input)
+				require.NoError(t, err)
+				require.Equal(t, &coin.ParsedPaymentInput{Recipient: tc.address}, parsedInput)
+			}
+			parsedInput, err := accountCoin.ParsePaymentInput(
+				strings.ToUpper(tc.scheme) + ":" + tc.address + "?amount=0.001&label=Coffee%20shop&message=Order",
+			)
+			require.NoError(t, err)
+			amount := "0.00100000"
+			require.Equal(t, &coin.ParsedPaymentInput{Recipient: tc.address, Amount: &amount}, parsedInput)
+		})
+	}
+}
+
+// URI amounts use BTC even in satoshi mode and must retain their exact value.
+func TestParsePaymentInputSatoshis(t *testing.T) {
+	accountCoin := &Coin{code: coin.CodeBTC, net: &chaincfg.MainNetParams, formatUnit: coin.BtcUnitSats}
+	const address = "1GM1Wp6t3hJf6U5aq6dG62Pg3c9ePbiUQ9"
+	for amount, want := range map[string]string{"0.001": "100000", ".00000001": "1", "1.": "100000000", "0": "0"} {
+		parsedInput, err := accountCoin.ParsePaymentInput("bitcoin:" + address + "?amount=" + amount)
+		require.NoError(t, err)
+		require.Equal(t, &want, parsedInput.Amount)
+	}
+}
+
+// Field errors belong to successfully parsed inputs, preserving values for correction.
+// Unsupported formats and account mismatches reject the scan without returning form data.
+func TestParsePaymentInputInvalid(t *testing.T) {
+	accountCoin := &Coin{code: coin.CodeBTC, net: &chaincfg.MainNetParams, formatUnit: coin.BtcUnitDefault}
+	const address = "1GM1Wp6t3hJf6U5aq6dG62Pg3c9ePbiUQ9"
+	for _, tc := range []struct {
+		input     string
+		err       error
+		wantInput *coin.ParsedPaymentInput
+	}{
+		{"", nil, &coin.ParsedPaymentInput{ValidationError: errors.ErrInvalidAddress}},
+		{"not-an-address", nil, &coin.ParsedPaymentInput{Recipient: "not-an-address", ValidationError: errors.ErrInvalidAddress}},
+		{address[:len(address)-1] + "8", nil, &coin.ParsedPaymentInput{Recipient: address[:len(address)-1] + "8", ValidationError: errors.ErrInvalidAddress}},
+		{"bitcoin:not-an-address", nil, &coin.ParsedPaymentInput{Recipient: "not-an-address", ValidationError: errors.ErrInvalidAddress}},
+		{"bitcoin:myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL", nil, &coin.ParsedPaymentInput{Recipient: "myY3Bbvj5mjwqqvubtu5Hfy2nuCeBfvNXL", ValidationError: errors.ErrInvalidAddress}},
+		{"bc1pfeessrawgf", nil, &coin.ParsedPaymentInput{Recipient: "bc1pfeessrawgf", ValidationError: errors.ErrInvalidAddress}},
+		{"https://example.com", coin.ErrInvalidPaymentInput, nil},
+		{"litecoin:" + address, coin.ErrPaymentInputAccountMismatch, nil},
+		{"bitcoin://" + address, coin.ErrInvalidPaymentInput, nil},
+		{"bitcoin:" + address + "#fragment", coin.ErrInvalidPaymentInput, nil},
+		{"bitcoin:" + address + "?label=%ZZ", coin.ErrInvalidPaymentInput, nil},
+		{"bitcoin:" + address + "?req-unknown=1", coin.ErrInvalidPaymentInput, nil},
+		{"bitcoin:" + address + "?amount=1&amount=2", nil, &coin.ParsedPaymentInput{Recipient: address, Amount: new(string), ValidationError: errors.ErrInvalidAmount}},
+	} {
+		t.Run(tc.input, func(t *testing.T) {
+			parsedInput, err := accountCoin.ParsePaymentInput(tc.input)
+			require.Equal(t, tc.err, errp.Cause(err))
+			require.Equal(t, tc.wantInput, parsedInput)
+		})
+	}
+	for _, unit := range []coin.BtcUnit{coin.BtcUnitDefault, coin.BtcUnitSats} {
+		accountCoin.formatUnit = unit
+		for _, amount := range []string{"", "-1", "1/2", "1e5", "NaN", "1,000", "0.000000001", "92233720368.54775808"} {
+			parsedInput, err := accountCoin.ParsePaymentInput("bitcoin:" + address + "?amount=" + amount)
+			require.NoError(t, err, amount)
+			require.Equal(t, &coin.ParsedPaymentInput{
+				Recipient: address, Amount: new(string), ValidationError: errors.ErrInvalidAmount,
+			}, parsedInput)
+		}
+	}
+}
+
+// A bad recipient must not discard a valid URI amount or return it in the wrong display unit.
+func TestParsePaymentInputInvalidAddressAmount(t *testing.T) {
+	for unit, wantAmount := range map[coin.BtcUnit]string{
+		coin.BtcUnitDefault: "0.00100000",
+		coin.BtcUnitSats:    "100000",
+	} {
+		accountCoin := &Coin{code: coin.CodeBTC, net: &chaincfg.MainNetParams, formatUnit: unit}
+		parsedInput, err := accountCoin.ParsePaymentInput("bitcoin:invalid-address?amount=0.001")
+		require.NoError(t, err)
+		require.Equal(t, &coin.ParsedPaymentInput{
+			Recipient: "invalid-address", Amount: &wantAmount, ValidationError: errors.ErrInvalidAddress,
+		}, parsedInput)
+	}
+}
+
+// Silent-payment addresses use the existing validator, including its network restrictions.
+func TestParsePaymentInputSilentPayment(t *testing.T) {
+	const address = "sp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc9pkqwv"
+	accountCoin := &Coin{code: coin.CodeBTC, net: &chaincfg.MainNetParams}
+	for _, input := range []string{address, "bitcoin:" + address} {
+		parsedInput, err := accountCoin.ParsePaymentInput(input)
+		require.NoError(t, err)
+		require.Equal(t, address, parsedInput.Recipient)
+	}
+	accountCoin.net = &chaincfg.TestNet3Params
+	parsedInput, err := accountCoin.ParsePaymentInput(address)
+	require.NoError(t, err)
+	require.Equal(t, &coin.ParsedPaymentInput{Recipient: address, ValidationError: errors.ErrInvalidAddress}, parsedInput)
 }
 
 func (s *testSuite) TestAddressToPkScript() {

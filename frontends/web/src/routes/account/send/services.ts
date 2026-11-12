@@ -10,7 +10,7 @@ export type TProposalError = {
   feeError?: string;
 };
 
-export const txProposalErrorHandling = (
+export const handleSendError = (
   errorCode?: TTxProposalErrorCode,
   errorMessage?: string,
 ): TProposalError => {
