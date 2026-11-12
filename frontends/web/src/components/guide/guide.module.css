@@ -165,6 +165,10 @@
         z-index: 4002;
     }
 
+    :global(.os-ios) .guide:not(.show) {
+        will-change: auto;
+    }
+
     .guide.show {
         transform: translateX(0%);
     }
