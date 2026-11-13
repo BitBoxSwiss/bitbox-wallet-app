@@ -7,11 +7,12 @@ import { useQRScanner } from '@/hooks/qrcodescanner';
 import { CloseXWhite, FlashWhite, FlashYellow } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { triggerHapticFeedback, triggerLongHapticFeedback } from '@/utils/transport-mobile';
+import { runningInAndroid } from '@/utils/env';
 import style from './scan-qr.module.css';
 
 const ANIMATION_MS = 300;
 const DEFAULT_SCAN_REGION_CENTER_Y = 0.5;
-const FULLSCREEN_SCAN_REGION_CENTER_Y = 0.35;
+const FULLSCREEN_SCAN_REGION_CENTER_Y = 0.5; //
 
 type TRequestClose = (onClosed?: () => void) => void;
 type TResetLastResult = () => void;
@@ -34,6 +35,8 @@ export const ScanQR = ({
   children,
 }: TProps) => {
   const { t } = useTranslation();
+  const isAndroid = runningInAndroid();
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const scanRegionCenterY = (
     fullscreen
@@ -139,7 +142,7 @@ export const ScanQR = ({
         )}
 
         <video
-          className={style.video}
+          className={isAndroid ? style.videoOnAndroid : style.video}
           ref={videoRef}
           poster={`data:image/svg+xml,${encodeURIComponent(
             '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="48"/>'
@@ -147,13 +150,15 @@ export const ScanQR = ({
         />
 
         <div className={style.overlay}>
-          <div className={`${style.focus || ''} ${guideHidden ? style.focusHidden || '' : ''}`}>
-            <span className={`${style.corner || ''} ${style.topLeft || ''}`} />
-            <span className={`${style.corner || ''} ${style.topRight || ''}`} />
-            <span className={`${style.corner || ''} ${style.bottomLeft || ''}`} />
-            <span className={`${style.corner || ''} ${style.bottomRight || ''}`} />
-            <p className={style.instruction}>{instruction}</p>
-          </div>
+          {!isAndroid && (
+            <div className={`${style.focus || ''} ${guideHidden ? style.focusHidden || '' : ''}`}>
+              <span className={`${style.corner || ''} ${style.topLeft || ''}`} />
+              <span className={`${style.corner || ''} ${style.topRight || ''}`} />
+              <span className={`${style.corner || ''} ${style.bottomLeft || ''}`} />
+              <span className={`${style.corner || ''} ${style.bottomRight || ''}`} />
+              <p className={style.instruction}>{instruction}</p>
+            </div>
+          )}
           {content && (
             <div className={style.contentSlot}>
               {content}

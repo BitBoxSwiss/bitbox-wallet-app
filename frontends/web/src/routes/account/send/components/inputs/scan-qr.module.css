@@ -53,6 +53,14 @@
   object-fit: cover;
 }
 
+.videoOnAndroid {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
+}
+
 .spinnerContainer {
   position: absolute;
   top: var(--scan-qr-focus-top);
