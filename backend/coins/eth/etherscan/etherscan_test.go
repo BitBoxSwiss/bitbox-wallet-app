@@ -304,6 +304,8 @@ func TestTokenTransactionsByContractPaginationDedup(t *testing.T) {
 	require.Equal(t, 2, dupCount)
 }
 
+// Native and token balances use the requested block, including the decimal blockno
+// required by tokenbalancehistory instead of eth_call's latest-only snapshot.
 func TestBalancesAtBlock(t *testing.T) {
 	address := common.Address{19: 2}
 	client := newTestEtherScan(func(req *http.Request) *http.Response {
@@ -331,21 +333,62 @@ func TestBalancesAtBlock(t *testing.T) {
 	token := erc20.NewToken("0x0000000000000000000000000000000000000001", 6)
 	client = newTestEtherScan(func(req *http.Request) *http.Response {
 		params := req.URL.Query()
-		require.Equal(t, "eth_call", params.Get("action"))
-		require.Equal(t, token.ContractAddress().Hex(), params.Get("to"))
-		require.Equal(t, "0x70a082310000000000000000000000000000000000000000000000000000000000000002", params.Get("data"))
-		require.Equal(t, "0x64", params.Get("tag"))
-		return jsonRPCResponse(t, `{"jsonrpc":"2.0","result":"0x0000000000000000000000000000000000000000000000000000000000004e20"}`)
+		require.Equal(t, "account", params.Get("module"))
+		require.Equal(t, "tokenbalancehistory", params.Get("action"))
+		require.Equal(t, token.ContractAddress().Hex(), params.Get("contractaddress"))
+		require.Equal(t, address.Hex(), params.Get("address"))
+		require.Equal(t, "100", params.Get("blockno"))
+		require.Empty(t, params.Get("tag"))
+		return jsonRPCResponse(t, `{"status":"1","result":"20000"}`)
 	})
 	balance, err = client.ERC20Balance(address, token, big.NewInt(100))
 	require.NoError(t, err)
 	require.Equal(t, big.NewInt(20000), balance)
+}
 
-	client = newTestEtherScan(func(*http.Request) *http.Response {
-		return jsonRPCResponse(t, `{"jsonrpc":"2.0","result":"0x"}`)
-	})
-	_, err = client.ERC20Balance(address, token, big.NewInt(100))
-	require.Error(t, err)
+// Active-account probes without a block still use balanceOf at latest and reject invalid ABI data.
+func TestERC20BalanceLatest(t *testing.T) {
+	address := common.Address{19: 2}
+	token := erc20.NewToken("0x0000000000000000000000000000000000000001", 6)
+	for _, result := range []string{
+		"0x0000000000000000000000000000000000000000000000000000000000004e20",
+		"0x",
+	} {
+		client := newTestEtherScan(func(req *http.Request) *http.Response {
+			params := req.URL.Query()
+			require.Equal(t, "eth_call", params.Get("action"))
+			require.Equal(t, token.ContractAddress().Hex(), params.Get("to"))
+			require.Equal(t, "0x70a082310000000000000000000000000000000000000000000000000000000000000002", params.Get("data"))
+			require.Equal(t, "latest", params.Get("tag"))
+			return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","result":%q}`, result))
+		})
+		balance, err := client.ERC20Balance(address, token, nil)
+		if result == "0x" {
+			require.Error(t, err)
+		} else {
+			require.NoError(t, err)
+			require.Equal(t, big.NewInt(20000), balance)
+		}
+	}
+}
+
+// Invalid historical responses must fail rather than silently returning a balance from latest.
+func TestERC20BalanceAtBlockInvalidResponse(t *testing.T) {
+	for _, body := range []string{
+		`{"status":"0","result":"unavailable"}`,
+		`{"status":"1"}`,
+		`{"status":"1","result":"invalid"}`,
+		`{"status":"1","result":"-1"}`,
+	} {
+		t.Run(body, func(t *testing.T) {
+			client := newTestEtherScan(func(req *http.Request) *http.Response {
+				require.Equal(t, "tokenbalancehistory", req.URL.Query().Get("action"))
+				return jsonRPCResponse(t, body)
+			})
+			_, err := client.ERC20Balance(common.Address{}, erc20.NewToken("0x0000000000000000000000000000000000000001", 6), big.NewInt(100))
+			require.Error(t, err)
+		})
+	}
 }
 
 func TestSendTransactionPreservesRPCError(t *testing.T) {

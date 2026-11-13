@@ -25,8 +25,10 @@ var pollInterval = 5 * time.Minute
 
 var activeProbeInterval = time.Minute
 var activeProbeLeaseDuration = 90 * time.Second
-var activeProbeRetryDelay = 30 * time.Second
+var balanceChangeRetryDelay = 30 * time.Second
 var activeProbeBackoffDuration = 5 * time.Minute
+
+const balanceChangeRetryAttempts = 3
 
 // BalanceAndBlockNumberFetcher is an interface that defines a method to fetch balances for a list of addresses,
 // as well as the block number for a chain.
@@ -74,6 +76,9 @@ type Updater struct {
 	activeAccountLeases     map[*Account]time.Time
 	activeProbeBackoffUntil time.Time
 	timeNow                 func() time.Time
+
+	historyRetriesLock locker.Locker
+	historyRetries     map[*Account]struct{}
 }
 
 // NewUpdater creates a new Updater instance.
@@ -93,6 +98,7 @@ func NewUpdater(
 		log:                     logging.Get().WithGroup("ethupdater"),
 		activeAccountLeases:     map[*Account]time.Time{},
 		timeNow:                 time.Now,
+		historyRetries:          map[*Account]struct{}{},
 	}
 }
 
@@ -146,18 +152,38 @@ func (u *Updater) setActiveProbeBackoff() {
 	u.activeProbeBackoffUntil = u.timeNow().Add(activeProbeBackoffDuration)
 }
 
-func (u *Updater) scheduleAccountUpdate(account *Account, delay time.Duration) {
+// scheduleHistoryRetries coalesces balance changes into one bounded retry sequence per account.
+// An unchanged balance does not establish that Etherscan has finished indexing history.
+func (u *Updater) scheduleHistoryRetries(account *Account) {
+	defer u.historyRetriesLock.Lock()()
+	if _, pending := u.historyRetries[account]; pending || account.isClosed() {
+		return
+	}
+	u.historyRetries[account] = struct{}{}
 	go func() {
+		defer func() {
+			defer u.historyRetriesLock.Lock()()
+			delete(u.historyRetries, account)
+		}()
+		delay := balanceChangeRetryDelay
 		timer := time.NewTimer(delay)
 		defer timer.Stop()
-		select {
-		case <-u.quit:
-			return
-		case <-timer.C:
-		}
-		select {
-		case <-u.quit:
-		case u.enqueueUpdateForAccount <- account:
+		for range balanceChangeRetryAttempts {
+			select {
+			case <-u.quit:
+				return
+			case <-timer.C:
+			}
+			if account.isClosed() {
+				return
+			}
+			select {
+			case <-u.quit:
+				return
+			case u.enqueueUpdateForAccount <- account:
+			}
+			delay *= 2
+			timer.Reset(delay)
 		}
 	}()
 }
@@ -289,14 +315,8 @@ func (u *Updater) probeActiveAccountBalances(
 	if len(changedAccounts) == 0 {
 		return
 	}
-	// The probed balances are from the latest block. Refresh at a single block so balances and
-	// outgoing transactions are consistent.
+	// Refresh balances together with outgoing transactions and history.
 	u.UpdateBalancesAndBlockNumber(changedAccounts, etherScanClient)
-	// Etherscan can report a new balance before indexing the transaction. Refresh again after
-	// 30 seconds to pick up missing transactions without waiting for the next five-minute poll.
-	for _, account := range changedAccounts {
-		u.scheduleAccountUpdate(account, activeProbeRetryDelay)
-	}
 }
 
 // UpdateBalancesAndBlockNumber updates the balances of the accounts in the provided slice.
@@ -408,11 +428,17 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 			}
 			confirmedTransactions = prefetched
 		}
+		balanceChanged := account.remoteBalance().Cmp(balance) != 0
 		if err := account.Update(balance, blockNumber, confirmedTransactions, outgoingRecords[key]); err != nil {
 			u.log.WithError(err).Errorf("Could not update balance for address %s", address.Address.Hex())
 			account.SetOffline(err)
 		} else {
 			account.SetOffline(nil)
+			// Etherscan can report a new balance before indexing the transaction. Retry after
+			// any balance change, including changes found during initial or regular refreshes.
+			if balanceChanged {
+				u.scheduleHistoryRetries(account)
+			}
 		}
 	}
 }
