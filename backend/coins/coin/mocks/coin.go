@@ -4,11 +4,10 @@
 package mocks
 
 import (
-	"math/big"
-	"sync"
-
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"math/big"
+	"sync"
 )
 
 // Ensure, that CoinMock does implement coin.Coin.
@@ -50,6 +49,9 @@ var _ coin.Coin = &CoinMock{}
 //			},
 //			ParseAmountFunc: func(amount string) (coin.Amount, error) {
 //				panic("mock out the ParseAmount method")
+//			},
+//			ParsePaymentInputFunc: func(input string) (*coin.ParsedPaymentInput, error) {
+//				panic("mock out the ParsePaymentInput method")
 //			},
 //			SetAmountFunc: func(amount *big.Rat, isFee bool) coin.Amount {
 //				panic("mock out the SetAmount method")
@@ -99,6 +101,9 @@ type CoinMock struct {
 
 	// ParseAmountFunc mocks the ParseAmount method.
 	ParseAmountFunc func(amount string) (coin.Amount, error)
+
+	// ParsePaymentInputFunc mocks the ParsePaymentInput method.
+	ParsePaymentInputFunc func(input string) (*coin.ParsedPaymentInput, error)
 
 	// SetAmountFunc mocks the SetAmount method.
 	SetAmountFunc func(amount *big.Rat, isFee bool) coin.Amount
@@ -156,6 +161,11 @@ type CoinMock struct {
 			// Amount is the amount argument value.
 			Amount string
 		}
+		// ParsePaymentInput holds details about calls to the ParsePaymentInput method.
+		ParsePaymentInput []struct {
+			// Input is the input argument value.
+			Input string
+		}
 		// SetAmount holds details about calls to the SetAmount method.
 		SetAmount []struct {
 			// Amount is the amount argument value.
@@ -189,6 +199,7 @@ type CoinMock struct {
 	lockName                              sync.RWMutex
 	lockObserve                           sync.RWMutex
 	lockParseAmount                       sync.RWMutex
+	lockParsePaymentInput                 sync.RWMutex
 	lockSetAmount                         sync.RWMutex
 	lockSmallestUnit                      sync.RWMutex
 	lockToUnit                            sync.RWMutex
@@ -491,6 +502,38 @@ func (mock *CoinMock) ParseAmountCalls() []struct {
 	mock.lockParseAmount.RLock()
 	calls = mock.calls.ParseAmount
 	mock.lockParseAmount.RUnlock()
+	return calls
+}
+
+// ParsePaymentInput calls ParsePaymentInputFunc.
+func (mock *CoinMock) ParsePaymentInput(input string) (*coin.ParsedPaymentInput, error) {
+	if mock.ParsePaymentInputFunc == nil {
+		panic("CoinMock.ParsePaymentInputFunc: method is nil but Coin.ParsePaymentInput was just called")
+	}
+	callInfo := struct {
+		Input string
+	}{
+		Input: input,
+	}
+	mock.lockParsePaymentInput.Lock()
+	mock.calls.ParsePaymentInput = append(mock.calls.ParsePaymentInput, callInfo)
+	mock.lockParsePaymentInput.Unlock()
+	return mock.ParsePaymentInputFunc(input)
+}
+
+// ParsePaymentInputCalls gets all the calls that were made to ParsePaymentInput.
+// Check the length with:
+//
+//	len(mockedCoin.ParsePaymentInputCalls())
+func (mock *CoinMock) ParsePaymentInputCalls() []struct {
+	Input string
+} {
+	var calls []struct {
+		Input string
+	}
+	mock.lockParsePaymentInput.RLock()
+	calls = mock.calls.ParsePaymentInput
+	mock.lockParsePaymentInput.RUnlock()
 	return calls
 }
 

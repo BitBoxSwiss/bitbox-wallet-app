@@ -2,7 +2,7 @@
 
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import { i18n as interfacei18n } from 'i18next';
-import { txProposalErrorHandling } from './services';
+import { handleSendError } from './services';
 import { alertUser } from '@/components/alert/Alert';
 
 vi.mock('i18next', async () => {
@@ -24,60 +24,60 @@ vi.mock('@/components/alert/Alert', () => ({
 }));
 
 describe('send services', () => {
-  describe('txProposalErrorHandling', () => {
+  describe('handleSendError', () => {
     beforeEach(() => vi.clearAllMocks());
 
     it('returns invalid address message on invalidAddress error', () => {
-      const result = txProposalErrorHandling('invalidAddress');
+      const result = handleSendError('invalidAddress');
       expect(result).toEqual({ addressError: 'send.error.invalidAddress' });
     });
 
     it('returns invalid amount message on invalidAmount error', () => {
-      const result = txProposalErrorHandling('invalidAmount');
+      const result = handleSendError('invalidAmount');
       expect(result).toEqual({ amountError: 'send.error.invalidAmount', proposedFee: undefined });
     });
 
     it('returns insufficient funds message on insufficientFunds error', () => {
-      const result = txProposalErrorHandling('insufficientFunds');
+      const result = handleSendError('insufficientFunds');
       expect(result).toEqual({ amountError: 'send.error.insufficientFunds', proposedFee: undefined });
     });
 
     it('returns fee too low message on feeTooLow error', () => {
-      const result = txProposalErrorHandling('feeTooLow');
+      const result = handleSendError('feeTooLow');
       expect(result).toEqual({ feeError: 'send.error.feeTooLow' });
     });
 
     it('returns fees not available message on feesNotAvailable error', () => {
-      const result = txProposalErrorHandling('feesNotAvailable');
+      const result = handleSendError('feesNotAvailable');
       expect(result).toEqual({ feeError: 'send.error.feesNotAvailable' });
     });
 
     it('alerts the user with the backend error message', () => {
-      const result = txProposalErrorHandling(undefined, 'Failed to create transaction proposal');
+      const result = handleSendError(undefined, 'Failed to create transaction proposal');
       expect(result).toEqual({});
       expect(alertUser).toHaveBeenCalledWith('Failed to create transaction proposal');
     });
 
     it('does not interpret an error message as a validation code', () => {
-      const result = txProposalErrorHandling(undefined, 'invalidAddress');
+      const result = handleSendError(undefined, 'invalidAddress');
       expect(result).toEqual({});
       expect(alertUser).toHaveBeenCalledWith('invalidAddress');
     });
 
     it('uses the translated validation error when a backend message is also provided', () => {
-      const result = txProposalErrorHandling('invalidAddress', 'Backend error details');
+      const result = handleSendError('invalidAddress', 'Backend error details');
       expect(result).toEqual({ addressError: 'send.error.invalidAddress' });
       expect(alertUser).not.toHaveBeenCalled();
     });
 
     it('falls back to the error code when no message is provided', () => {
-      const result = txProposalErrorHandling('accountNotSynced');
+      const result = handleSendError('accountNotSynced');
       expect(result).toEqual({});
       expect(alertUser).toHaveBeenCalledWith('accountNotSynced');
     });
 
     it('prefers the backend message for an unhandled error code', () => {
-      const result = txProposalErrorHandling('accountNotSynced', 'Account is not synced');
+      const result = handleSendError('accountNotSynced', 'Account is not synced');
       expect(result).toEqual({});
       expect(alertUser).toHaveBeenCalledWith('Account is not synced');
     });

@@ -246,7 +246,7 @@ func NewHandlers(
 	getAPIRouterNoError(apiRouter)("/keystore/{rootFingerprint}/features", handlers.getKeystoreFeatures).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/keystore-name", handlers.getKeystoreName).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts", handlers.getAccounts).Methods("GET")
-	getAPIRouterNoError(apiRouter)("/account/{code}/parse-ethereum-payment-request", handlers.postParseEthereumPaymentRequest).Methods("POST")
+	getAPIRouterNoError(apiRouter)("/account/{code}/parse-payment-input", handlers.getParsePaymentInput).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/accounts", handlers.getSwapAccounts).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/swap/status", handlers.getSwapStatus).Methods("GET")
 	getAPIRouterNoError(apiRouter)("/accounts/balance-summary", handlers.getAccountsBalanceSummary).Methods("GET")
@@ -928,40 +928,26 @@ func (handlers *Handlers) lookupEthAccountCode(r *http.Request) interface{} {
 	}
 }
 
-func (handlers *Handlers) postParseEthereumPaymentRequest(r *http.Request) interface{} {
-	var request struct {
-		URI string `json:"uri"`
-	}
+func (handlers *Handlers) getParsePaymentInput(r *http.Request) interface{} {
 	type response struct {
-		Success   bool   `json:"success"`
-		Recipient string `json:"recipient,omitempty"`
-		Amount    string `json:"amount,omitempty"`
+		Success bool `json:"success"`
+		*coinpkg.ParsedPaymentInput
 		ErrorCode string `json:"errorCode,omitempty"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		return response{Success: false}
-	}
 	account, err := handlers.backend.GetAccountFromCode(accountsTypes.Code(mux.Vars(r)["code"]))
 	if err != nil {
 		return response{Success: false}
 	}
-	accountCoin, ok := account.Coin().(*eth.Coin)
-	if !ok {
-		return response{Success: false}
-	}
-	paymentRequest, err := accountCoin.ParsePaymentRequest(request.URI)
+	// The account supplies the network/asset context; its coin owns parsing and validation.
+	parsedInput, err := account.Coin().ParsePaymentInput(r.URL.Query().Get("input"))
 	if err != nil {
 		if errCode, ok := errp.Cause(err).(errp.ErrorCode); ok {
 			return response{Success: false, ErrorCode: string(errCode)}
 		}
 		return response{Success: false}
 	}
-	return response{
-		Success:   true,
-		Recipient: paymentRequest.Recipient,
-		Amount:    paymentRequest.Amount,
-	}
+	return response{Success: true, ParsedPaymentInput: parsedInput}
 }
 
 func (handlers *Handlers) postBtcFormatUnit(r *http.Request) interface{} {

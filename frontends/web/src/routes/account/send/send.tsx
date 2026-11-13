@@ -7,7 +7,7 @@ import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
 import * as accountApi from '@/api/account';
 import { syncdone } from '@/api/accountsync';
-import { convertFromCurrency, convertToCurrency, parseExternalBtcAmount, type BtcUnit } from '@/api/coins';
+import { convertFromCurrency, convertToCurrency, type BtcUnit } from '@/api/coins';
 import { View, ViewContent } from '@/components/view/view';
 import { alertUser } from '@/components/alert/Alert';
 import { Balance } from '@/components/balance/balance';
@@ -17,7 +17,7 @@ import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, GuideWrapper, GuidedContent, Header, Main, ResponsiveGrid } from '@/components/layout';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { FeeTargets } from './feetargets';
-import { isBitcoinBased, isBitcoinOnly } from '@/utils/coin';
+import { isBitcoinOnly } from '@/utils/coin';
 import { ConfirmSend } from './components/confirm/confirm';
 import { SendGuide } from './send-guide';
 import { SendResult } from './components/result';
@@ -26,7 +26,7 @@ import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { FiatValue } from '@/components/amount/fiat-value';
-import { TProposalError, txProposalErrorHandling } from './services';
+import { TProposalError, handleSendError } from './services';
 import { CoinControl } from './coin-control';
 import { connectKeystore } from '@/api/keystores';
 import { SubTitle } from '@/components/title';
@@ -83,7 +83,14 @@ export const Send = ({
   const [isUpdatingProposal, setIsUpdatingProposal] = useState<boolean>(false);
   const [note, setNote] = useState<string>('');
   const [customFee, setCustomFee] = useState<string>('');
+  // Proposal and conversion errors are refreshed when transaction inputs change.
   const [errorHandling, setErrorHandling] = useState<TProposalError>({});
+  // Scan validation does not require an amount. Its errors block proposals until the
+  // affected field is edited or another scan replaces the input.
+  const [scanErrors, setScanErrors] = useState<TProposalError>({});
+  const hasScanErrors = Boolean(scanErrors.addressError || scanErrors.amountError);
+  const addressError = scanErrors.addressError ?? errorHandling.addressError;
+  const amountError = scanErrors.amountError ?? errorHandling.amountError;
 
   const [proposedFee, setProposedFee] = useState<accountApi.TAmountWithConversions>();
   const [highFeePercentage, setHighFeePercentage] = useState<string>();
@@ -100,6 +107,7 @@ export const Send = ({
   const balance = useAccountBalance(account.code, btcUnit);
 
   const handleContinue = () => {
+    setScanErrors({});
     setSendAll(false);
     setIsConfirming(false);
     setRecipientInput('');
@@ -142,6 +150,7 @@ export const Send = ({
   const getValidTxInputData = useCallback((): Required<accountApi.TTxInput> | false => {
     if (
       !recipientInput
+      || hasScanErrors
       || feeTarget === undefined
       || (!sendAll && !amount)
       || (feeTarget === 'custom' && !customFee)
@@ -158,7 +167,7 @@ export const Send = ({
       paymentRequest: null,
       useHighestFee: false
     };
-  }, [recipientInput, feeTarget, sendAll, amount, customFee]);
+  }, [recipientInput, feeTarget, sendAll, amount, customFee, hasScanErrors]);
 
   const convertToFiat = useCallback(async (amount: string) => {
     if (amount) {
@@ -216,7 +225,7 @@ export const Send = ({
         convertToFiat(result.amount.amount);
       }
     } else {
-      const errorHandling = txProposalErrorHandling(result.errorCode, result.errorMessage);
+      const errorHandling = handleSendError(result.errorCode, result.errorMessage);
       setErrorHandling(errorHandling);
       setIsUpdatingProposal(false);
       setProposedTotal(undefined);
@@ -344,6 +353,7 @@ export const Send = ({
   };
 
   const handleFiatInput = (fiatAmount: string) => {
+    setScanErrors(errors => ({ ...errors, amountError: undefined }));
     setFiatAmount(fiatAmount);
     convertFromFiat(fiatAmount);
   };
@@ -360,6 +370,7 @@ export const Send = ({
 
   // when user types in the input field or selects from dropdown
   const handleRecipientInputChange = (input: string) => {
+    setScanErrors(errors => ({ ...errors, addressError: undefined }));
     setRecipientInput(input.replace(/\s/g, ''));
     setRecipientDisplayAddress('');
     setUpdateFiat(true);
@@ -367,81 +378,51 @@ export const Send = ({
   };
 
 
-  const parseQRResult = async (uri: string, onReset?: () => void) => {
-    let qrAddress = uri;
-    let qrAmount = '';
-    let url: URL | undefined;
+  const parseQRResult = async (input: string, isActive: () => boolean, onReset?: () => void) => {
+    // Send the raw scan so the backend owns URI parsing, address checks, and amount units.
+    let parsedInput;
     try {
-      url = new URL(uri);
-    } catch {
-      url = undefined;
-    }
-    if (url) {
-      if (url.protocol === 'ethereum:') {
-        let paymentRequest;
-        try {
-          paymentRequest = await accountApi.parseEthereumPaymentRequest(account.code, uri);
-        } catch (error) {
-          alertUser(t('unknownError', { errorMessage: String(error) }));
-          return;
-        }
-        if (!paymentRequest.success) {
-          alertUser(t(paymentRequest.errorCode === 'accountMismatch'
-            ? 'send.error.paymentRequestAccountMismatch'
-            : 'invalidFormat'));
-          return;
-        }
-        qrAddress = paymentRequest.recipient;
-        qrAmount = paymentRequest.amount || '';
-      } else {
-        if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:') {
-          alertUser(t('invalidFormat'));
-          return;
-        }
-        qrAddress = url.pathname;
-        if (isBitcoinBased(account.coinCode)) {
-          qrAmount = url.searchParams.get('amount') || '';
-        }
+      parsedInput = await accountApi.parsePaymentInput(account.code, input);
+    } catch (error) {
+      if (isActive()) {
+        alertUser(t('unknownError', { errorMessage: String(error) }));
       }
+      return;
     }
-    qrAddress = qrAddress.replace(/\s/g, '');
-
-    if (qrAmount) {
-      if (account.coinCode === 'btc' || account.coinCode === 'tbtc') {
-        const result = await parseExternalBtcAmount(qrAmount);
-        if (result.success) {
-          setAmount(result.amount);
-        } else {
-          onReset?.();
-          setRecipientInput(qrAddress);
-          setSendAll(false);
-          setFiatAmount('');
-          setErrorHandling({ amountError: t('send.error.invalidAmount') });
-          return;
-        }
-      } else {
-        setAmount(qrAmount);
-      }
+    if (!isActive()) {
+      return;
+    }
+    if (!parsedInput.success) {
+      alertUser(t(parsedInput.errorCode === 'accountMismatch'
+        ? 'send.error.paymentRequestAccountMismatch'
+        : 'invalidFormat'));
+      return;
+    }
+    setScanErrors(handleSendError(parsedInput.validationError));
+    const { recipient, amount: qrAmount } = parsedInput;
+    // Apply the backend's display-unit amount, including an explicit clear; omission keeps the entry.
+    if (qrAmount !== undefined) {
+      setAmount(qrAmount);
+      setFiatAmount('');
     }
     onReset?.();
-    setRecipientInput(qrAddress);
+    setRecipientInput(recipient);
     setRecipientDisplayAddress('');
     setSelectedReceiverAccount(null);
     setSendAll(false);
-    if (qrAmount) {
-      setFiatAmount('');
-    }
-    convertToFiat(qrAmount || amount);
+    convertToFiat(qrAmount ?? amount);
     setUpdateFiat(true);
   };
 
   const handleCoinAmountChange = (amount: string) => {
+    setScanErrors(errors => ({ ...errors, amountError: undefined }));
     convertToFiat(amount);
     setAmount(amount);
     setUpdateFiat(true);
   };
 
   const handleSendAllChange = (sendAll: boolean) => {
+    setScanErrors(errors => ({ ...errors, amountError: undefined }));
     if (!sendAll) {
       convertToFiat(amount);
     }
@@ -487,7 +468,7 @@ export const Send = ({
                   <ReceiverAddressInput
                     account={account}
                     activeAccounts={activeAccounts}
-                    addressError={errorHandling.addressError}
+                    addressError={addressError}
                     onInputChange={handleRecipientInputChange}
                     onAccountChange={setSelectedReceiverAccount}
                     recipientAddress={recipientInput}
@@ -500,7 +481,7 @@ export const Send = ({
                     onAmountChange={handleCoinAmountChange}
                     onSendAllChange={handleSendAllChange}
                     sendAll={sendAll}
-                    amountError={errorHandling.amountError}
+                    amountError={amountError}
                     proposedAmount={proposedAmount}
                     amount={amount}
                     hasSelectedUTXOs={hasSelectedUTXOs()}
@@ -510,7 +491,7 @@ export const Send = ({
                   <FiatInput
                     onFiatChange={handleFiatInput}
                     disabled={sendAll}
-                    error={errorHandling.amountError}
+                    error={amountError}
                     fiatAmount={fiatAmount}
                     label={defaultCurrency}
                   />

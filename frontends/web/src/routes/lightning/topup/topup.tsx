@@ -19,7 +19,7 @@ import { useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
 import { getDisplayedCoinUnit, isBitcoinOnly } from '@/utils/coin';
-import { txProposalErrorHandling, type TProposalError } from '@/routes/account/send/services';
+import { handleSendError, type TProposalError } from '@/routes/account/send/services';
 import { RatesContext } from '@/contexts/RatesContext';
 import { TopUpConfirm } from './topup-confirm';
 import { TopUpForm } from './topup-form';
@@ -203,7 +203,7 @@ export const LightningTopUp = () => {
           result.errorCode === lightningBalanceLimitErrorCode
             || result.errorCode === TLightningErrorCode.AMOUNT_BELOW_MINIMUM
             ? {}
-            : txProposalErrorHandling(result.errorCode)
+            : handleSendError(result.errorCode)
         );
       } catch (error) {
         if (proposePromise === lastProposal.current && mounted.current) {

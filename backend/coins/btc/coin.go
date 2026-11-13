@@ -5,8 +5,11 @@ package btc
 import (
 	"fmt"
 	"math/big"
+	"net/url"
 	"os"
 	"path"
+	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
@@ -244,6 +247,72 @@ func (coin *Coin) ParseAmount(amount string) (coinpkg.Amount, error) {
 		amountRat = coinpkg.Sat2Btc(amountRat)
 	}
 	return coin.SetAmount(amountRat, false), nil
+}
+
+// ParsePaymentInput implements coin.Coin.
+func (coin *Coin) ParsePaymentInput(input string) (*coinpkg.ParsedPaymentInput, error) {
+	input = strings.TrimSpace(input)
+	parsed, err := url.Parse(input)
+	if err != nil {
+		return nil, coinpkg.ErrInvalidPaymentInput
+	}
+	// Without a scheme, the entire input must pass address validation as a bare address.
+	parsedInput := &coinpkg.ParsedPaymentInput{Recipient: input}
+	if parsed.Scheme != "" {
+		scheme := strings.ToLower(parsed.Scheme)
+		if scheme != "bitcoin" && scheme != "litecoin" {
+			return nil, coinpkg.ErrInvalidPaymentInput
+		}
+		isLitecoin := coin.code == coinpkg.CodeLTC || coin.code == coinpkg.CodeTLTC
+		if (scheme == "litecoin") != isLitecoin {
+			return nil, coinpkg.ErrPaymentInputAccountMismatch
+		}
+		if parsed.Opaque == "" || parsed.Fragment != "" {
+			return nil, coinpkg.ErrInvalidPaymentInput
+		}
+		parsedInput.Recipient = parsed.Opaque
+		parameters, err := url.ParseQuery(parsed.RawQuery)
+		if err != nil {
+			return nil, coinpkg.ErrInvalidPaymentInput
+		}
+		// Unknown optional parameters can be ignored, but req- extensions must be understood.
+		for key := range parameters {
+			if strings.HasPrefix(key, "req-") {
+				return nil, coinpkg.ErrInvalidPaymentInput
+			}
+		}
+		values := parameters["amount"]
+		if len(values) > 0 {
+			// A supplied but invalid amount clears an earlier form entry instead of reusing it.
+			parsedInput.Amount = new(string)
+			// URI amounts use plain decimal notation; SendAmount checks their precision below.
+			amountRE := regexp.MustCompile(`^(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)$`)
+			if len(values) != 1 || !amountRE.MatchString(values[0]) {
+				parsedInput.ValidationError = errors.ErrInvalidAmount
+				return parsedInput, nil
+			}
+			// URI amounts are always in BTC/LTC, independently of the display unit.
+			// Preserve an explicit zero for the form; transaction creation checks spendability.
+			parsedAmount, err := coinpkg.NewSendAmount(values[0]).Amount(big.NewInt(unitSatoshi), true)
+			if err != nil {
+				parsedInput.ValidationError = errors.ErrInvalidAmount
+				return parsedInput, nil
+			}
+			if _, err := parsedAmount.Int64(); err != nil {
+				parsedInput.ValidationError = errors.ErrInvalidAmount
+				return parsedInput, nil
+			}
+			*parsedInput.Amount = coin.FormatAmount(parsedAmount, false)
+		}
+	}
+	// Reuse the address checks from Account.newTx. Silent payments need a separate validator
+	// because their output script depends on the transaction's inputs.
+	if err := coin.ValidateSilentPaymentAddress(parsedInput.Recipient); err != nil {
+		if _, err := coin.decodeAddress(parsedInput.Recipient); err != nil {
+			parsedInput.ValidationError = errors.ErrInvalidAddress
+		}
+	}
+	return parsedInput, nil
 }
 
 // Blockchain connects to a blockchain backend.

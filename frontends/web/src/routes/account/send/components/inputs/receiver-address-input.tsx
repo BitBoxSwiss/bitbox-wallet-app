@@ -17,7 +17,7 @@ type TReceiverAddressInputProps = {
   addressError?: string;
   onInputChange: (value: string) => void;
   onAccountChange?: (account: accountApi.TAccount | null) => void;
-  parseQRResult: (uri: string, onReset?: () => void) => void;
+  parseQRResult: (input: string, isActive: () => boolean, onReset?: () => void) => Promise<void>;
   recipientAddress: string;
 };
 
@@ -71,8 +71,9 @@ export const ReceiverAddressInput = ({
     setActiveScanQR(true);
   }, []);
 
-  const handleParseQRResult = useCallback((result: string) => {
-    parseQRResultRef.current(result, resetAccountRef.current);
+  const handleParseQRResult = useCallback((result: string, isActive: () => boolean) => {
+    // Forward the promise so ScanQR waits for backend parsing before completing the scan.
+    return parseQRResultRef.current(result, isActive, resetAccountRef.current);
   }, []);
 
   return (
