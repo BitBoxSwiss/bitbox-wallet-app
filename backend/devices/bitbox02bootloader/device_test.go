@@ -5,7 +5,6 @@ package bitbox02bootloader
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"testing"
@@ -55,17 +54,19 @@ func mockBootloaderCommunication(version uint32, firmwareHash []byte) communicat
 	}
 }
 
-// A correctly installed v9.28.0 must not be treated as an interrupted installation.
+// A correctly installed latest firmware must not be treated as an interrupted installation.
 func TestLatestFirmwareInfo(t *testing.T) {
-	for product, versions := range releaseFirmwareHashes {
+	for product := range bundledFirmwares {
 		for _, broken := range []bool{false, true} {
 			t.Run(fmt.Sprintf("%s/broken=%t", product, broken), func(t *testing.T) {
-				hash, err := hex.DecodeString(versions[57])
+				firmware, err := bundledFirmware(product)
+				require.NoError(t, err)
+				hash, err := firmware.firmwareHash()
 				require.NoError(t, err)
 				if broken {
 					hash[0] ^= 0xFF
 				}
-				communication := mockBootloaderCommunication(57, hash)
+				communication := mockBootloaderCommunication(firmware.monotonicVersion, hash)
 				device := NewDevice("deviceID", semver.NewSemVer(1, 2, 3), product, &communication)
 				info, err := device.Info()
 				require.NoError(t, err)
