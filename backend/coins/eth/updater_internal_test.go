@@ -64,6 +64,7 @@ func TestActiveAccountBalanceUpdates(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
 		account := newAccountWithOptions(t, true, nil)
 		defer account.Close()
+		require.NoError(t, account.Update(big.NewInt(0), big.NewInt(100), nil, nil))
 
 		var remoteBalance atomic.Int64
 		requests := make(chan string, 10)

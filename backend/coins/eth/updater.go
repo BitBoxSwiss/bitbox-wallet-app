@@ -287,11 +287,6 @@ func (u *Updater) probeActiveAccountBalances(
 	}
 	// The probe only reads balances, the full update also refreshes the transactions.
 	u.UpdateBalancesAndBlockNumber(changedAccounts, etherScanClient)
-	// Etherscan can report a new balance before indexing the transaction. Refresh again after
-	// 30 seconds to pick up missing transactions without waiting for the next five-minute poll.
-	for _, account := range changedAccounts {
-		u.scheduleAccountUpdate(account, activeProbeRetryDelay)
-	}
 }
 
 // UpdateBalancesAndBlockNumber updates the balances of the accounts in the provided slice.
@@ -388,11 +383,16 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 			}
 			confirmedTransactions = prefetched
 		}
+		wasSynced, previousBalance := account.Synced(), account.remoteBalance()
 		if err := account.Update(balance, blockNumber, confirmedTransactions, outgoingRecords[key]); err != nil {
 			u.log.WithError(err).Errorf("Could not update balance for address %s", address.Address.Hex())
 			account.SetOffline(err)
 		} else {
 			account.SetOffline(nil)
+			// Etherscan can report a new balance before indexing its transaction.
+			if wasSynced && previousBalance.Cmp(balance) != 0 {
+				u.scheduleAccountUpdate(account, activeProbeRetryDelay)
+			}
 		}
 	}
 }
