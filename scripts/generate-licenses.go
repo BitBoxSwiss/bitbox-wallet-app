@@ -18,7 +18,6 @@ import (
 type Module struct {
 	Path    string
 	Version string
-	Dir     string
 	Main    bool
 	Replace *Module
 }
@@ -40,6 +39,12 @@ type Entry struct {
 	LicenseText *string  `json:"licenseText"`
 }
 
+type LicenseFile struct {
+	// Directory whose license applies to this package.
+	Dir  string
+	Text string
+}
+
 func ptr(s string) *string {
 	return &s
 }
@@ -49,15 +54,13 @@ func fail(err error) {
 	os.Exit(1)
 }
 
-// Run go list in vendor mode, explicitly disabling network access.
+// Discover dependencies using vendored packages only.
 func listPackages(cwd string, patterns []string) ([]byte, error) {
 	args := []string{"list", "-mod=vendor", "-deps", "-json"}
 	args = append(args, patterns...)
 
 	cmd := exec.Command("go", args...)
 	cmd.Dir = cwd
-
-	// Prevent Go from downloading modules or toolchains.
 	cmd.Env = append(os.Environ(),
 		"GOPROXY=off",
 		"GOSUMDB=off",
@@ -78,7 +81,7 @@ func listPackages(cwd string, patterns []string) ([]byte, error) {
 	return data, nil
 }
 
-// Return a source repository URL where it can be inferred,
+// Return a repository URL when it can be inferred,
 // otherwise link to pkg.go.dev.
 func repository(path string) *string {
 	parts := strings.Split(path, "/")
@@ -87,10 +90,6 @@ func repository(path string) *string {
 		switch parts[0] {
 		case "github.com", "bitbucket.org":
 			return ptr("https://" + strings.Join(parts[:3], "/"))
-
-		case "gitlab.com":
-			// Nested GitLab namespaces are ambiguous.
-			// Prefer the documentation page rather than guessing.
 		}
 	}
 
@@ -110,9 +109,9 @@ var licenseName = regexp.MustCompile(
 	`(?i)^(LICENSE|LICENCE|COPYING)([._-].*)?$`,
 )
 
-// Read a license from a directory or its immediate
+// Find a license in this directory or its immediate
 // legal/metadata subdirectories.
-func licenseFile(dir string) *string {
+func licenseFile(dir string) *LicenseFile {
 	if dir == "" {
 		return nil
 	}
@@ -142,7 +141,10 @@ func licenseFile(dir string) *string {
 				continue
 			}
 
-			return ptr(string(data))
+			return &LicenseFile{
+				Dir:  dir,
+				Text: string(data),
+			}
 		}
 	}
 
@@ -201,30 +203,11 @@ func identify(t *string) *string {
 	return nil
 }
 
-// Locate the closest applicable license in vendor/.
-//
-// A module may be nested within another module's path.
-// We therefore stop at the module's vendor root and never
-// accidentally attribute a parent module's license.
-func vendorLicense(vendorRoot, modulePath, packageDir string) *string {
-	moduleDir := filepath.Join(
-		vendorRoot,
-		filepath.FromSlash(modulePath),
-	)
-
-	// First try the module root.
-	if text := licenseFile(moduleDir); text != nil {
-		return text
-	}
-
-	// Some packages have their own license in a subdirectory.
-	// Search from the package directory upward to the module root.
-	if packageDir == "" {
-		return nil
-	}
-
-	dir := filepath.Clean(packageDir)
+// Check the package directory first, then ascend toward
+// the module root. Never leave the module directory.
+func vendorLicense(moduleDir, packageDir string) *LicenseFile {
 	root := filepath.Clean(moduleDir)
+	dir := filepath.Clean(packageDir)
 
 	rel, err := filepath.Rel(root, dir)
 	if err != nil || rel == ".." ||
@@ -232,19 +215,47 @@ func vendorLicense(vendorRoot, modulePath, packageDir string) *string {
 		return nil
 	}
 
-	for dir != root {
-		if text := licenseFile(dir); text != nil {
-			return text
+	for {
+		if license := licenseFile(dir); license != nil {
+			return license
 		}
 
-		parent := filepath.Dir(dir)
-		if parent == dir {
+		if dir == root {
 			break
 		}
-		dir = parent
+
+		dir = filepath.Dir(dir)
 	}
 
 	return nil
+}
+
+// Convert a license directory into a module or package name.
+//
+// Example:
+// vendor/github.com/example/lib/crypto
+// becomes github.com/example/lib/crypto.
+func licenseEntryName(
+	modulePath, moduleDir, licenseDir string,
+) (string, error) {
+	rel, err := filepath.Rel(moduleDir, licenseDir)
+	if err != nil {
+		return "", err
+	}
+
+	if rel == "." {
+		return modulePath, nil
+	}
+
+	if rel == ".." ||
+		strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf(
+			"license directory outside module: %s",
+			licenseDir,
+		)
+	}
+
+	return modulePath + "/" + filepath.ToSlash(rel), nil
 }
 
 func main() {
@@ -262,12 +273,11 @@ func main() {
 
 	vendorRoot := filepath.Join(cwd, "vendor")
 
-	// Ensure we're running from a vendored Go project.
 	if _, err := os.Stat(
 		filepath.Join(vendorRoot, "modules.txt"),
 	); err != nil {
 		fail(fmt.Errorf(
-			"vendor/modules.txt not found; run from the project root: %w",
+			"vendor/modules.txt not found; run from project root: %w",
 			err,
 		))
 	}
@@ -283,7 +293,16 @@ func main() {
 	}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
+
+	// Deduplicate entries by module, version, and
+	// license directory. Multiple packages can inherit
+	// the same license.
 	entries := make(map[string]Entry)
+
+	// Track module versions whose root license is already
+	// included, and cache module-root license lookups.
+	moduleRoots := make(map[string]*LicenseFile)
+	moduleSeen := make(map[string]bool)
 
 	for {
 		var p Package
@@ -305,7 +324,6 @@ func main() {
 
 		m := p.Module
 		if m == nil || m.Main || m.Path == "" {
-			// Skip standard library and main module packages.
 			continue
 		}
 
@@ -314,69 +332,112 @@ func main() {
 			version = "(local)"
 		}
 
-		key := m.Path + "\x00" + version
+		moduleKey := m.Path + "\x00" + version
+		moduleDir := filepath.Join(
+			vendorRoot,
+			filepath.FromSlash(m.Path),
+		)
 
-		// Deduplicate before reading license files.
+		repoPath := m.Path
+		if m.Replace != nil &&
+			m.Replace.Path != "" &&
+			m.Replace.Version != "" {
+			repoPath = m.Replace.Path
+		}
+		repo := repository(repoPath)
+
+		// Check the module root once. Its license becomes
+		// the default entry for the module.
+		rootLicense, checked := moduleRoots[moduleKey]
+		if !checked {
+			rootLicense = licenseFile(moduleDir)
+			moduleRoots[moduleKey] = rootLicense
+		}
+
+		if !moduleSeen[moduleKey] {
+			moduleSeen[moduleKey] = true
+
+			if rootLicense != nil {
+				text := ptr(rootLicense.Text)
+				key := moduleKey + "\x00" + moduleDir
+
+				entries[key] = Entry{
+					Name:        m.Path,
+					Versions:    []string{version},
+					License:     identify(text),
+					Repository:  repo,
+					LicenseText: text,
+				}
+			}
+		}
+
+		// Check every package, including those belonging
+		// to a module already encountered.
+		license := vendorLicense(moduleDir, p.Dir)
+
+		if license == nil {
+			fmt.Fprintf(
+				os.Stderr,
+				"Missing license file: %s (%s@%s)\n",
+				p.ImportPath,
+				m.Path,
+				version,
+			)
+			continue
+		}
+
+		// A package inherits the module's default license
+		// when the text is identical.
+		if rootLicense != nil &&
+			license.Text == rootLicense.Text {
+			continue
+		}
+
+		name, err := licenseEntryName(
+			m.Path,
+			moduleDir,
+			license.Dir,
+		)
+		if err != nil {
+			fail(err)
+		}
+
+		// Group packages inheriting the same override.
+		key := moduleKey + "\x00" + license.Dir
 		if _, exists := entries[key]; exists {
 			continue
 		}
 
-		// In vendor mode, package directories normally point
-		// directly into the vendor/ directory.
-		packageDir := p.Dir
-
-		// Resolve license files using the original module path.
-		// Local replacements may require special handling.
-		lt := vendorLicense(
-			vendorRoot,
-			m.Path,
-			packageDir,
-		)
-
-		if lt == nil {
-			fmt.Fprintf(
-				os.Stderr,
-				"Missing license file: %s@%s\n",
-				m.Path,
-				version,
-			)
-		}
-
-		lic := identify(lt)
-
-		if lic == nil && lt != nil {
-			fmt.Fprintf(
-				os.Stderr,
-				"Unrecognized license: %s@%s\n",
-				m.Path,
-				version,
-			)
-		}
-
-		repo := repository(m.Path)
-
-		if m.Replace != nil &&
-			m.Replace.Path != "" &&
-			m.Replace.Version != "" {
-			repo = repository(m.Replace.Path)
-		}
-
+		text := ptr(license.Text)
 		entries[key] = Entry{
-			Name:        m.Path,
+			Name:        name,
 			Versions:    []string{version},
-			License:     lic,
+			License:     identify(text),
 			Repository:  repo,
-			LicenseText: lt,
+			LicenseText: text,
 		}
 	}
 
 	result := make([]Entry, 0, len(entries))
+
 	for _, entry := range entries {
+		if entry.LicenseText != nil && entry.License == nil {
+			fmt.Fprintf(
+				os.Stderr,
+				"Unrecognized license: %s@%s\n",
+				entry.Name,
+				entry.Versions[0],
+			)
+		}
+
 		result = append(result, entry)
 	}
 
 	sort.Slice(result, func(i, j int) bool {
-		return result[i].Name < result[j].Name
+		if result[i].Name != result[j].Name {
+			return result[i].Name < result[j].Name
+		}
+		return result[i].Versions[0] < result[j].Versions[0]
 	})
 
 	data, err = json.MarshalIndent(result, "", "  ")
@@ -400,8 +461,9 @@ func main() {
 	}
 
 	fmt.Printf(
-		"Generated %s (%d dependencies)\n",
+		"Generated %s (%d license entries, %d modules)\n",
 		*output,
 		len(result),
+		len(moduleSeen),
 	)
 }
