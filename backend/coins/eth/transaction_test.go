@@ -351,8 +351,14 @@ func TestSignTransactionUntrackedBroadcastResult(t *testing.T) {
 	for _, test := range []struct {
 		name          string
 		sendErr       error
+		foundByHash   bool
 		expectedCause error
 	}{
+		{
+			name:        "transaction found after a failed response",
+			sendErr:     errp.New("request timed out"),
+			foundByHash: true,
+		},
 		{
 			name:          "transport outcome is uncertain",
 			sendErr:       errp.New("request timed out"),
@@ -383,6 +389,11 @@ func TestSignTransactionUntrackedBroadcastResult(t *testing.T) {
 			acct := newAccountWithOptions(t, true, make(chan struct{}, 1))
 			defer acct.Close()
 			setTransactionSigningKeystore(t, acct, 10)
+			if test.foundByHash {
+				client.TransactionByHashFunc = func(context.Context, common.Hash) (*gethtypes.Transaction, bool, error) {
+					return gethtypes.NewTx(&gethtypes.LegacyTx{}), false, nil
+				}
+			}
 
 			_, err := SignTransaction(SignTransactionArgs{
 				ChainID: 10, Broadcast: true, Transaction: validTransactionRequest(acct),

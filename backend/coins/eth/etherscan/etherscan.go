@@ -635,6 +635,9 @@ func (etherScan *EtherScan) TransactionByHash(
 	if result == nil {
 		return nil, false, ethereum.NotFound
 	}
+	if result.Hash() != hash {
+		return nil, false, errp.New("unexpected transaction hash from EtherScan")
+	}
 	return &result.Transaction, result.BlockNumber == nil, nil
 }
 

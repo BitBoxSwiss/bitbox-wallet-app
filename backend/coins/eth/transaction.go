@@ -141,10 +141,14 @@ func SignTransaction(
 func sendUntrackedTransaction(client rpcclient.Interface, transaction *types.Transaction) error {
 	err := client.SendTransaction(context.TODO(), transaction)
 	rpcErr, _ := errp.Cause(err).(rpcclient.RPCError)
-	if rpcErr.Message == "already known" {
+	if err == nil || rpcErr.Message == "already known" {
 		return nil
 	}
-	if err == nil || rpcErr.Rejected() || errp.Cause(err) == rpcclient.ErrRequestRejected {
+	// The response can be lost or malformed after the node accepted the transaction.
+	if known, _, lookupErr := client.TransactionByHash(context.TODO(), transaction.Hash()); lookupErr == nil && known != nil {
+		return nil
+	}
+	if rpcErr.Rejected() || errp.Cause(err) == rpcclient.ErrRequestRejected {
 		return err
 	}
 	return errp.WithMessage(ErrBroadcastUncertain, err.Error())

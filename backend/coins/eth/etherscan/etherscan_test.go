@@ -348,6 +348,24 @@ func TestBalancesAtBlock(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestTransactionByHashRejectsOtherTransaction(t *testing.T) {
+	tx := types.NewTransaction(0, common.Address{1}, big.NewInt(1), 21000, big.NewInt(1), nil)
+	txJSON, err := tx.MarshalJSON()
+	require.NoError(t, err)
+	client := newTestEtherScan(func(*http.Request) *http.Response {
+		return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","result":%s}`, txJSON))
+	})
+
+	found, _, err := client.TransactionByHash(t.Context(), tx.Hash())
+	require.NoError(t, err)
+	require.Equal(t, tx.Hash(), found.Hash())
+
+	found, _, err = client.TransactionByHash(t.Context(), common.Hash{1})
+	require.Error(t, err)
+	require.NotErrorIs(t, err, ethereum.NotFound)
+	require.Nil(t, found)
+}
+
 func TestSendTransactionPreservesRPCError(t *testing.T) {
 	client := newTestEtherScan(func(*http.Request) *http.Response {
 		return jsonRPCResponse(t, `{"jsonrpc":"2.0","error":{"code":-32000,"message":"insufficient funds"}}`)
