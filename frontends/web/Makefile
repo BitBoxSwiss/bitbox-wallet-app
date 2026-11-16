@@ -19,3 +19,5 @@ serve:
 	npm run serve
 test-e2e:
 	npm run test-e2e
+licenses:
+	npm run generate-licenses
