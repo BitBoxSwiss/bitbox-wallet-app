@@ -32,8 +32,6 @@ var activeProbeBackoffDuration = 5 * time.Minute
 //
 //go:generate moq -pkg mocks -out mocks/balanceandblocknumberfetcher.go . BalanceAndBlockNumberFetcher
 type BalanceAndBlockNumberFetcher interface {
-	// Balances returns balances at the specified block, or the latest if nil, for a list of addresses.
-	Balances(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error)
 	// BalancesSnapshot returns the latest block number with the native balances of addresses and the
 	// ERC20 balances of {token contract, holder} pairs at that block. Unreadable balances are omitted.
 	BalancesSnapshot(
@@ -236,15 +234,9 @@ func (u *Updater) probeActiveAccountBalances(
 		return
 	}
 
-	nativeAccountsByAddress := map[common.Address][]*Account{}
-	nativeAddresses := []common.Address{}
-	changedAccounts := []*Account{}
-	addChangedAccount := func(account *Account, remoteBalance *big.Int) {
-		if account.remoteBalance().Cmp(remoteBalance) != 0 {
-			changedAccounts = append(changedAccounts, account)
-		}
-	}
-
+	probedAccounts := []*Account{}
+	addresses := []common.Address{}
+	tokenHolders := [][2]common.Address{}
 	for _, account := range ethAccounts {
 		if account.isClosed() {
 			u.SetAccountActivity(account, false)
@@ -255,46 +247,45 @@ func (u *Updater) probeActiveAccountBalances(
 			u.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Code)
 			continue
 		}
+		probedAccounts = append(probedAccounts, account)
 		if IsERC20(account) {
-			balance, err := account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token, nil)
-			if err != nil {
-				u.log.WithError(err).Errorf("Could not probe ERC20 balance for address %s", address.Address.Hex())
-				u.setActiveProbeBackoff()
-				continue
-			}
-			addChangedAccount(account, balance)
-			continue
+			tokenHolders = append(tokenHolders, [2]common.Address{account.coin.erc20Token.ContractAddress(), address.Address})
+		} else {
+			addresses = append(addresses, address.Address)
 		}
-		if _, ok := nativeAccountsByAddress[address.Address]; !ok {
-			nativeAddresses = append(nativeAddresses, address.Address)
-		}
-		nativeAccountsByAddress[address.Address] = append(nativeAccountsByAddress[address.Address], account)
+	}
+	if len(probedAccounts) == 0 {
+		return
 	}
 
-	if len(nativeAddresses) > 0 {
-		balances, err := etherScanClient.Balances(context.TODO(), nativeAddresses, nil)
-		if err != nil {
-			u.log.WithError(err).Error("Could not probe ETH account balances")
-			u.setActiveProbeBackoff()
+	_, balances, tokenBalances, err := etherScanClient.BalancesSnapshot(context.TODO(), addresses, tokenHolders)
+	if err != nil {
+		u.log.WithError(err).Error("Could not probe ETH account balances")
+		u.setActiveProbeBackoff()
+		return
+	}
+	changedAccounts := []*Account{}
+	for _, account := range probedAccounts {
+		var balance *big.Int
+		var ok bool
+		if IsERC20(account) {
+			balance, ok = tokenBalances[[2]common.Address{account.coin.erc20Token.ContractAddress(), account.address.Address}]
 		} else {
-			for address, accounts := range nativeAccountsByAddress {
-				balance, ok := balances[address]
-				if !ok {
-					u.log.Errorf("Could not find probed balance for address %s", address.Hex())
-					continue
-				}
-				for _, account := range accounts {
-					addChangedAccount(account, balance)
-				}
-			}
+			balance, ok = balances[account.address.Address]
+		}
+		if !ok {
+			u.log.Errorf("Could not find probed balance for address %s", account.address.Address.Hex())
+			continue
+		}
+		if account.remoteBalance().Cmp(balance) != 0 {
+			changedAccounts = append(changedAccounts, account)
 		}
 	}
 
 	if len(changedAccounts) == 0 {
 		return
 	}
-	// The probed balances are from the latest block. Refresh at a single block so balances and
-	// outgoing transactions are consistent.
+	// The probe only reads balances, the full update also refreshes the transactions.
 	u.UpdateBalancesAndBlockNumber(changedAccounts, etherScanClient)
 	// Etherscan can report a new balance before indexing the transaction. Refresh again after
 	// 30 seconds to pick up missing transactions without waiting for the next five-minute poll.

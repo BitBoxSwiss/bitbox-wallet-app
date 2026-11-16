@@ -64,8 +64,6 @@ func TestActiveAccountBalanceUpdates(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
 		account := newAccountWithOptions(t, true, nil)
 		defer account.Close()
-		address, err := account.Address()
-		require.NoError(t, err)
 
 		var remoteBalance atomic.Int64
 		requests := make(chan string, 10)
@@ -73,16 +71,10 @@ func TestActiveAccountBalanceUpdates(t *testing.T) {
 			query := request.URL.Query()
 			action := query.Get("action")
 			requests <- action + " " + query.Get("tag")
-			var body string
-			switch action {
-			case "balancemulti":
-				body = fmt.Sprintf(`{"status":"1","result":[{"account":%q,"balance":"%d"}]}`, address.Address.Hex(), remoteBalance.Load())
-			case "eth_call":
-				return balancesSnapshotResponse(t, big.NewInt(101), big.NewInt(remoteBalance.Load())), nil
-			default:
+			if action != "eth_call" {
 				return nil, fmt.Errorf("unexpected action: %s", action)
 			}
-			return &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(body))}, nil
+			return balancesSnapshotResponse(t, big.NewInt(101), big.NewInt(remoteBalance.Load())), nil
 		})}
 		updater := NewUpdater(nil, client, rate.NewLimiter(rate.Inf, 1), func() error { return nil })
 		defer updater.Close()
@@ -93,14 +85,14 @@ func TestActiveAccountBalanceUpdates(t *testing.T) {
 		time.Sleep(time.Minute)
 		synctest.Wait()
 		require.Len(t, requests, 1)
-		require.Equal(t, "balancemulti latest", <-requests)
+		require.Equal(t, "eth_call latest", <-requests)
 
 		remoteBalance.Store(1000)
 		updater.SetAccountActivity(account, true)
 		time.Sleep(time.Minute)
 		synctest.Wait()
 		require.Len(t, requests, 2)
-		require.Equal(t, "balancemulti latest", <-requests)
+		require.Equal(t, "eth_call latest", <-requests)
 		require.Equal(t, "eth_call latest", <-requests)
 		require.Equal(t, big.NewInt(1000), account.remoteBalance())
 		unlock := account.updateLock.RLock()
@@ -119,7 +111,7 @@ func TestActiveAccountBalanceUpdates(t *testing.T) {
 		time.Sleep(30 * time.Second)
 		synctest.Wait()
 		require.Len(t, requests, 1)
-		require.Equal(t, "balancemulti latest", <-requests)
+		require.Equal(t, "eth_call latest", <-requests)
 	})
 }
 
@@ -127,8 +119,6 @@ func TestActiveAccountProbesDoNotOverlap(t *testing.T) {
 	synctest.Test(t, func(t *testing.T) {
 		account := newAccountWithOptions(t, true, nil)
 		defer account.Close()
-		address, err := account.Address()
-		require.NoError(t, err)
 		release := make(chan struct{})
 		defer close(release)
 		var calls atomic.Int32
@@ -136,8 +126,7 @@ func TestActiveAccountProbesDoNotOverlap(t *testing.T) {
 			if calls.Add(1) == 1 {
 				<-release
 			}
-			body := fmt.Sprintf(`{"status":"1","result":[{"account":%q,"balance":"0"}]}`, address.Address.Hex())
-			return &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(body))}, nil
+			return balancesSnapshotResponse(t, big.NewInt(100), big.NewInt(0)), nil
 		})}
 		updater := NewUpdater(nil, client, rate.NewLimiter(rate.Inf, 1), func() error { return nil })
 		defer updater.Close()

@@ -293,17 +293,6 @@ func TestBalancesAtBlock(t *testing.T) {
 	address := common.Address{19: 2}
 	client := newTestEtherScan(func(req *http.Request) *http.Response {
 		params := req.URL.Query()
-		require.Equal(t, "balancemulti", params.Get("action"))
-		require.Equal(t, "0x64", params.Get("tag"))
-		require.Equal(t, address.Hex(), params.Get("address"))
-		return jsonRPCResponse(t, `{"status":"1","result":[{"account":"`+address.Hex()+`","balance":"20000"}]}`)
-	})
-	balances, err := client.Balances(context.Background(), []common.Address{address}, big.NewInt(100))
-	require.NoError(t, err)
-	require.Equal(t, big.NewInt(20000), balances[address])
-
-	client = newTestEtherScan(func(req *http.Request) *http.Response {
-		params := req.URL.Query()
 		require.Equal(t, "balance", params.Get("action"))
 		require.Equal(t, address.Hex(), params.Get("address"))
 		require.Equal(t, "0x64", params.Get("tag"))

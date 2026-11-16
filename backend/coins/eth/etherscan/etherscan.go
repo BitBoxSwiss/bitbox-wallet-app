@@ -11,7 +11,6 @@ import (
 	"math/big"
 	"net/http"
 	"net/url"
-	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -45,7 +44,6 @@ var historicalBalanceRateLimiter = rate.NewLimiter(2, 1)
 var requestRateLimitLock sync.Mutex
 
 const (
-	maxAddressesForBalances      = 20
 	maxGetRequestTargetLength    = 6000
 	maxTokenTransactionsPerQuery = 10000
 
@@ -744,58 +742,6 @@ func (etherScan *EtherScan) HistoricalBalanceAt(
 		params.Set("contractaddress", erc20Token.ContractAddress().Hex())
 	}
 	return etherScan.callNonNegativeInt(ctx, params, "snapshot balance")
-}
-
-// Balances returns balances at the specified block, or the latest if nil, for multiple addresses.
-func (etherScan *EtherScan) Balances(ctx context.Context, accounts []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
-	if len(accounts) == 0 {
-		return nil, nil
-	}
-
-	params := url.Values{}
-	params.Set("module", "account")
-	params.Set("action", "balancemulti")
-	if blockNumber == nil {
-		params.Set("tag", "latest")
-	} else {
-		params.Set("tag", hexutil.EncodeBig(blockNumber))
-	}
-
-	balances := make(map[common.Address]*big.Int)
-
-	type balancesResult struct {
-		Status  string
-		Message string
-		Result  []struct {
-			Account string     `json:"account"`
-			Balance jsonBigInt `json:"balance"`
-		} `json:"result"`
-	}
-
-	for addressesChunk := range slices.Chunk(accounts, maxAddressesForBalances) {
-
-		addresses := make([]string, len(addressesChunk))
-		for i, account := range addressesChunk {
-			addresses[i] = account.Hex()
-		}
-
-		params.Set("address", strings.Join(addresses, ","))
-
-		result := balancesResult{}
-		if err := etherScan.call(ctx, params, &result); err != nil {
-			return nil, err
-		}
-		if result.Status != "1" {
-			return nil, errp.New("unexpected response from EtherScan")
-		}
-
-		for _, item := range result.Result {
-			account := common.HexToAddress(item.Account)
-			balance := item.Balance.BigInt()
-			balances[account] = balance
-		}
-	}
-	return balances, nil
 }
 
 // ERC20Balance implements rpc.Interface.
