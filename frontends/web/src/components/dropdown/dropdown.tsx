@@ -161,6 +161,7 @@ export const Dropdown = <T, IsMulti extends boolean = false, TExtra = object, TO
         isMulti={props.isMulti}
         isOpen={isOpen}
         onOpenChange={onOpenChange}
+        isSearchable={isSearchable}
       />
     );
   }

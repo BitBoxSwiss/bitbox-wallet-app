@@ -17,6 +17,7 @@ type Props<T, IsMulti extends boolean = false, TExtra = object, TOptionExt = obj
   value: IsMulti extends true ? TOption<T>[] : TOption<T>;
   onSelect: (newValue: IsMulti extends true ? TOption<T>[] : TOption<T>, actionMeta: ActionMeta<TOption<T>>) => void;
   isMulti?: boolean;
+  isSearchable?: boolean;
   isOpen?: boolean;
   onOpenChange?: (isOpen: boolean) => void;
 };
@@ -30,6 +31,7 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
   value,
   onSelect,
   isMulti,
+  isSearchable,
   isOpen: controlledIsOpen,
   onOpenChange,
 }: Props<T, IsMulti, TExtra, TOptionExt>) => {
@@ -211,16 +213,18 @@ export const MobileFullscreenSelector = <T, IsMulti extends boolean = false, TEx
               <h3 className={styles.fullscreenTitle}>{title}</h3>
             </div>
 
-            <div className={styles.searchContainer}>
-              <input
-                id="search"
-                type="text"
-                className={styles.searchInput}
-                placeholder={`${t('generic.search')}`}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-            </div>
+            {isSearchable && (
+              <div className={styles.searchContainer}>
+                <input
+                  id="search"
+                  type="text"
+                  className={styles.searchInput}
+                  placeholder={`${t('generic.search')}`}
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                />
+              </div>
+            )}
 
             <div className={styles.optionsList}>
               {hasResults ? (

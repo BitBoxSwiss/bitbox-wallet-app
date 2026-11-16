@@ -179,7 +179,7 @@
         --background-focus: var(--color-softblack);
         --background-tertiary: var(--color-gray);
         --background-quaternary: var(--color-dark);
-        --background-custom-select-selected: var(--color-dark);
+        --background-custom-select-selected: rgba(var(--color-blue-rgb), .3);
         --background-session-card: var(--color-softblack);
 
         --background-tap-active: #4d4c4c;

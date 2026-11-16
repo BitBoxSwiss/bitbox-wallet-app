@@ -50,6 +50,7 @@ export const PortfolioPercentageDropdownSetting = () => {
             className={settingsDropdownStyles.select}
             renderOptions={(option) => option.label}
             isMulti={false}
+            isSearchable={false}
             options={translatedOptions}
             title={t('newSettings.appearance.portfolioPerformance.title')}
             mobileFullScreen
