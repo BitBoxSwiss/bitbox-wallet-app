@@ -91,6 +91,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Keep app contents out of the app switcher independently of authentication.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            setRecentsScreenshotEnabled(false);
+        }
+        updateScreenCaptureProtection(false);
         Util.log("lifecycle: onCreate");
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -163,18 +168,19 @@ public class MainActivity extends AppCompatActivity {
             });
         });
 
-        goViewModel.getAuthSetting().observe(this, enabled -> runOnUiThread(() -> {
-            if (enabled) {
-                // Treat the content of the window as secure, preventing it from appearing in
-                // screenshots, the app switcher, or from being viewed on non-secure displays. We
-                // are really only interested in hiding the app contents from the app switcher -
-                // screenshots unfortunately also get disabled.
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
-            } else {
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
-            }
-        }));
+        goViewModel.getAuthSetting().observe(this,
+                enabled -> runOnUiThread(() -> updateScreenCaptureProtection(enabled)));
 
+    }
+
+    void updateScreenCaptureProtection(boolean authEnabled) {
+        // Before Android 13, hiding task previews also requires blocking screenshots and
+        // non-secure displays. Keep that protection enabled even when authentication is off.
+        if (authEnabled || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        }
     }
 
     @Override
