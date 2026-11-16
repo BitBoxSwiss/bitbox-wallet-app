@@ -94,7 +94,7 @@ func TestFirmwareUpgradeSequence(t *testing.T) {
 			{"resume-after-first-bootloader-upgrade", 50, semver.NewSemVer(1, 2, 2), 56, "9.27.2", true},
 			{"from-v9.27.0", 54, semver.NewSemVer(1, 2, 2), 56, "9.27.2", false},
 			{"boot-intermediate", 56, semver.NewSemVer(1, 2, 2), 0, "", false},
-			{"resume-after-bootloader-upgrade", 56, semver.NewSemVer(1, 2, 3), 57, "9.28.0", true},
+			{"resume-after-bootloader-upgrade", 56, semver.NewSemVer(1, 2, 3), 58, "9.29.0", true},
 		} {
 			if step.upload == 36 && product != common.ProductBitBox02Multi && product != common.ProductBitBox02BTCOnly {
 				continue // The legacy intermediate is only bundled for the original BitBox02.
@@ -170,7 +170,7 @@ func TestFirmwareUpgradeSequence(t *testing.T) {
 				require.Equal(t, chunks*4096, len(written))
 				require.Equal(t, expectedFirmware, written[:len(expectedFirmware)])
 				require.Equal(t, bytes.Repeat([]byte{0xFF}, len(written)-len(expectedFirmware)), written[len(expectedFirmware):])
-				require.Equal(t, step.upload < 57, device.Status().AdditionalUpgradeFollows)
+				require.Equal(t, step.upload < 58, device.Status().AdditionalUpgradeFollows)
 				require.True(t, device.Status().UpgradeSuccessful)
 			})
 		}

@@ -87,6 +87,7 @@ func TestFirmwaresOrdered(t *testing.T) {
 	}
 }
 
+// Upgrades follow the required intermediates and then select the latest bundled firmware.
 func TestNextFirmware(t *testing.T) {
 	for product, firmwares := range bundledFirmwares {
 		switch product {
@@ -117,7 +118,7 @@ func TestNextFirmware(t *testing.T) {
 		fwInfo, err := nextFirmware(product, 56)
 		require.NoError(t, err)
 		require.Equal(t, &firmwares[len(firmwares)-1], fwInfo)
-		require.Equal(t, uint32(57), fwInfo.monotonicVersion)
+		require.Equal(t, uint32(58), fwInfo.monotonicVersion)
 	}
 }
 
