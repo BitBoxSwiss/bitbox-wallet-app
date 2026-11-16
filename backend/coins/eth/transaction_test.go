@@ -345,7 +345,7 @@ func TestSignTransactionUsesOnlyTargetChainClient(t *testing.T) {
 }
 
 // An untracked cross-chain broadcast warns about ambiguous submission errors while preserving
-// explicit rejection errors and accepting a transaction the provider already knows.
+// explicit rejection errors. A consumed nonce alone cannot identify the transaction that used it.
 func TestSignTransactionUntrackedBroadcastResult(t *testing.T) {
 	requestRejected := errp.WithMessage(rpcclient.ErrRequestRejected, "invalid request")
 	for _, test := range []struct {
@@ -370,6 +370,21 @@ func TestSignTransactionUntrackedBroadcastResult(t *testing.T) {
 			expectedCause: ErrBroadcastUncertain,
 		},
 		{
+			name:          "sequencer hand-over failure is uncertain",
+			sendErr:       rpcclient.RPCError{Code: -32000, Message: "context deadline exceeded"},
+			expectedCause: ErrBroadcastUncertain,
+		},
+		{
+			name:        "nonce too low but the signed transaction was found",
+			sendErr:     rpcclient.RPCError{Code: -32000, Message: "nonce too low"},
+			foundByHash: true,
+		},
+		{
+			name:          "nonce too low and the transaction was not found",
+			sendErr:       rpcclient.RPCError{Code: -32000, Message: "nonce too low"},
+			expectedCause: ErrBroadcastUncertain,
+		},
+		{
 			name:          "request rejected before submission",
 			sendErr:       requestRejected,
 			expectedCause: rpcclient.ErrRequestRejected,
@@ -389,10 +404,13 @@ func TestSignTransactionUntrackedBroadcastResult(t *testing.T) {
 			acct := newAccountWithOptions(t, true, make(chan struct{}, 1))
 			defer acct.Close()
 			setTransactionSigningKeystore(t, acct, 10)
-			if test.foundByHash {
-				client.TransactionByHashFunc = func(context.Context, common.Hash) (*gethtypes.Transaction, bool, error) {
-					return gethtypes.NewTx(&gethtypes.LegacyTx{}), false, nil
+			client.TransactionByHashFunc = func(_ context.Context, hash common.Hash) (*gethtypes.Transaction, bool, error) {
+				sent := client.SendTransactionCalls()[0].Tx
+				require.Equal(t, sent.Hash(), hash)
+				if test.foundByHash {
+					return sent, false, nil
 				}
+				return nil, false, ethereum.NotFound
 			}
 
 			tx, err := SignTransaction(SignTransactionArgs{
@@ -403,8 +421,14 @@ func TestSignTransactionUntrackedBroadcastResult(t *testing.T) {
 			} else {
 				require.Equal(t, test.expectedCause, errp.Cause(err))
 			}
-			require.Equal(t, err == nil || test.expectedCause == ErrBroadcastUncertain, tx != nil)
 			require.Len(t, client.SendTransactionCalls(), 1)
+			if err == nil || test.expectedCause == ErrBroadcastUncertain {
+				require.Same(t, client.SendTransactionCalls()[0].Tx, tx)
+			} else {
+				require.Nil(t, tx)
+				// A proven rejection needs no extra rate-limited request.
+				require.Empty(t, client.TransactionByHashCalls())
+			}
 		})
 	}
 }

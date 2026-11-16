@@ -145,16 +145,30 @@ func SignTransaction(
 // sendUntrackedTransaction reports any submission whose rejection is not explicit as uncertain.
 func sendUntrackedTransaction(client rpcclient.Interface, transaction *types.Transaction) error {
 	err := client.SendTransaction(context.TODO(), transaction)
-	rpcErr, _ := errp.Cause(err).(rpcclient.RPCError)
-	if err == nil || rpcErr.Message == "already known" {
+	if err == nil {
 		return nil
+	}
+	cause := errp.Cause(err)
+	rpcErr, _ := cause.(rpcclient.RPCError)
+	if rpcErr.Message == "already known" {
+		return nil
+	}
+	rejected := cause == rpcclient.ErrRequestRejected || rpcErr.Rejected()
+	if rpcErr.Code == -32000 {
+		// Rollup nodes also return this code when passing the transaction to the sequencer fails
+		// or times out. Only these messages prove a rejection. "nonce too low" does not: the
+		// provider may retry a submission that was already included.
+		rejected = slices.ContainsFunc(
+			[]string{"insufficient funds", "underpriced", "intrinsic gas too low"},
+			func(message string) bool { return strings.Contains(rpcErr.Message, message) })
+	}
+	if rejected {
+		// This transaction was signed for this attempt, so no earlier submission can be found.
+		return err
 	}
 	// The response can be lost or malformed after the node accepted the transaction.
 	if known, _, lookupErr := client.TransactionByHash(context.TODO(), transaction.Hash()); lookupErr == nil && known != nil {
 		return nil
-	}
-	if rpcErr.Rejected() || errp.Cause(err) == rpcclient.ErrRequestRejected {
-		return err
 	}
 	return errp.WithMessage(ErrBroadcastUncertain, err.Error())
 }
