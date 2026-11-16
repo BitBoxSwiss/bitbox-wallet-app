@@ -2724,6 +2724,7 @@
     },
     "pairingSuccess": "Dapp successfully connected. You can continue on the dapp website.",
     "signingRequest": {
+      "broadcastUncertain": "The transaction may still go through. Before sending again, look up this transaction in a block explorer to avoid paying twice: {{txHash}}",
       "chain": "Chain",
       "dapp": "Dapp",
       "data": "Data",

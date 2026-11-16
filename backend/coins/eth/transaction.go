@@ -42,6 +42,8 @@ type SignTransactionArgs struct {
 }
 
 // SignTransaction validates, signs, and optionally broadcasts an EVM transaction request.
+// When the broadcast may still confirm, it returns the signed transaction together with
+// ErrBroadcastUncertain so the caller can show its hash.
 func SignTransaction(
 	args SignTransactionArgs,
 	client rpcclient.Interface,
@@ -129,6 +131,9 @@ func SignTransaction(
 			err = pending.send(client, sender, txProposal.Tx)
 		} else {
 			err = sendUntrackedTransaction(client, txProposal.Tx)
+		}
+		if errp.Cause(err) == ErrBroadcastUncertain {
+			return txProposal.Tx, errp.WithStack(err)
 		}
 		if err != nil {
 			return nil, errp.WithStack(err)

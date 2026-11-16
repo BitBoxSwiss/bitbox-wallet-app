@@ -87,6 +87,7 @@ type TFailedSigningApiResult = {
   aborted?: boolean;
   errorCode?: 'firmwareUpgradeRequired' | 'insufficientFunds' | 'broadcastUncertain';
   errorMessage?: string;
+  txHash?: string;
 };
 
 const UINT64_MAX = BigInt('18446744073709551615');

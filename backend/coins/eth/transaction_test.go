@@ -395,7 +395,7 @@ func TestSignTransactionUntrackedBroadcastResult(t *testing.T) {
 				}
 			}
 
-			_, err := SignTransaction(SignTransactionArgs{
+			tx, err := SignTransaction(SignTransactionArgs{
 				ChainID: 10, Broadcast: true, Transaction: validTransactionRequest(acct),
 			}, client, acct.signingConfiguration, acct.Config().ConnectKeystore, nil, acct.log)
 			if test.expectedCause == nil {
@@ -403,6 +403,7 @@ func TestSignTransactionUntrackedBroadcastResult(t *testing.T) {
 			} else {
 				require.Equal(t, test.expectedCause, errp.Cause(err))
 			}
+			require.Equal(t, err == nil || test.expectedCause == ErrBroadcastUncertain, tx != nil)
 			require.Len(t, client.SendTransactionCalls(), 1)
 		})
 	}
