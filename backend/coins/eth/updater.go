@@ -188,6 +188,7 @@ func (u *Updater) probeActiveAccounts() {
 func (u *Updater) PollBalances() {
 	timer := time.After(0)
 	activeProbeTimer := time.After(activeProbeInterval)
+	retryDelay := activeProbeRetryDelay
 
 	for {
 		select {
@@ -199,7 +200,7 @@ func (u *Updater) PollBalances() {
 				return
 			case account := <-u.enqueueUpdateForAccount:
 				etherScanClient := etherscan.NewEtherScan(account.ETHCoin().ChainIDstr(), u.etherscanClient, u.etherscanRateLimiter)
-				u.UpdateBalancesAndBlockNumber([]*Account{account}, etherScanClient)
+				_ = u.UpdateBalancesAndBlockNumber([]*Account{account}, etherScanClient)
 				continue
 			case <-u.updateETHAccountsCh:
 			case <-timer:
@@ -208,17 +209,16 @@ func (u *Updater) PollBalances() {
 				activeProbeTimer = time.After(activeProbeInterval)
 				continue
 			}
-			u.runUpdate()
-			timer = time.After(pollInterval)
+			if err := u.updateAccounts(); err != nil {
+				timer = time.After(retryDelay)
+				retryDelay = min(2*retryDelay, pollInterval)
+			} else {
+				retryDelay = activeProbeRetryDelay
+				timer = time.After(pollInterval)
+			}
 		}
 	}
 
-}
-
-func (u *Updater) runUpdate() {
-	if err := u.updateAccounts(); err != nil {
-		u.log.WithError(err).Error("could not update ETH accounts")
-	}
 }
 
 func (account *Account) remoteBalance() *big.Int {
@@ -286,19 +286,21 @@ func (u *Updater) probeActiveAccountBalances(
 		return
 	}
 	// The probe only reads balances, the full update also refreshes the transactions.
-	u.UpdateBalancesAndBlockNumber(changedAccounts, etherScanClient)
+	_ = u.UpdateBalancesAndBlockNumber(changedAccounts, etherScanClient)
 }
 
 // UpdateBalancesAndBlockNumber updates the balances of the accounts in the provided slice.
-func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScanClient BalanceAndBlockNumberFetcher) {
+// It returns an error if the block number and balances could not be read, in which case no account
+// was updated.
+func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScanClient BalanceAndBlockNumberFetcher) error {
 	if len(ethAccounts) == 0 {
-		return
+		return nil
 	}
 	chainId := ethAccounts[0].ETHCoin().ChainID()
 	for _, account := range ethAccounts {
 		if account.ETHCoin().ChainID() != chainId {
 			u.log.Error("Cannot update balances and block number for accounts with different chain IDs")
-			return
+			return nil
 		}
 	}
 
@@ -324,7 +326,7 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 	blockNumber, balances, tokenBalances, err := etherScanClient.BalancesSnapshot(context.TODO(), ethNonErc20Addresses, tokenHolders)
 	if err != nil {
 		u.log.WithError(err).Error("Could not get block number and balances")
-		return
+		return err
 	}
 
 	reconciled := make(map[senderKey]error)
@@ -395,6 +397,7 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 			}
 		}
 	}
+	return nil
 }
 
 func (u *Updater) prefetchTokenTransactions(
