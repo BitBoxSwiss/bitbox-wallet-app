@@ -2555,7 +2555,9 @@
     "confirmOnBitBox": "Confirm swap on BitBox",
     "fastest": "Fastest",
     "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
+    "fetchStatusError": "Unable to check swap availability. Please try again.",
     "fetchingRoutes": "Fetching routes...",
+    "firmwareUpgradeRequired": "Update your BitBox to the latest firmware to swap.",
     "insufficientGasFunds": "You need more ETH in your <strong>{{accountName}}</strong> account to pay for the network fees. <buyLink>Buy ETH now</buyLink>",
     "new": "New swap",
     "noRouteFound": "No route found",
@@ -2565,7 +2567,8 @@
     "recommended": "Recommended",
     "route": "Swap route",
     "routesPlaceholder": "Routes will appear here after entering an amount",
-    "unexpectedError": "Some unexpected error occurred."
+    "unexpectedError": "Some unexpected error occurred.",
+    "updateFirmware": "Update firmware"
   },
   "testWallet": {
     "connect": {

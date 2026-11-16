@@ -93,6 +93,7 @@ export type TSwapSignResponse = {
 export type TSwapStatusResponse = {
   available: boolean;
   connectedKeystore: 'none' | 'multi' | 'btc-only';
+  firmwareUpgradeRequired: boolean;
 };
 
 export const getSwapStatus = (): Promise<TSwapStatusResponse> => {

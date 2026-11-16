@@ -19,10 +19,12 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
+	addresspkg "github.com/btcsuite/btcd/address/v2"
 	"github.com/btcsuite/btcd/chaincfg/v2"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/stretchr/testify/require"
@@ -502,6 +504,7 @@ func TestValidateSwapAccountSupportedRejectsTestnetAccounts(t *testing.T) {
 	}
 }
 
+// Signed outputs and purchase derivation survive preparation with a verified refund address.
 func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
 	sellCoin := btc.NewCoin(
 		coinpkg.CodeBTC,
@@ -536,11 +539,18 @@ func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
 		Signature: "sig",
 	}
 
+	refund, err := addresspkg.NewAddressWitnessPubKeyHash(make([]byte, 20), &chaincfg.MainNetParams)
+	require.NoError(t, err)
+	refundAddress := refund.EncodeAddress()
+	refundDerivation := &paymentrequest.Slip24AddressDerivation{
+		Btc: &paymentrequest.Slip24BtcAddressDerivation{Keypath: []uint32{2147483732, 2147483648, 2147483648, 0, 0}, ScriptType: "p2wpkh"},
+	}
+	paymentRequest.Memos = append(paymentRequest.Memos, paymentrequest.Slip24Memo{Type: "refund", Refund: &paymentrequest.Slip24Refund{Address: refundAddress}})
 	txInput, err := swapSignTxInput(paymentRequest, sellCoin, &paymentrequest.Slip24AddressDerivation{
 		Eth: &paymentrequest.Slip24EthAddressDerivation{
 			Keypath: []uint32{2147483692, 2147483708, 2147483648, 0, 0},
 		},
-	})
+	}, refundAddress, refundDerivation)
 	require.NoError(t, err)
 	require.Equal(t, "1GqULdYGDRfF3w85yGmEq8LTWecpKn8JMJ", txInput.Address)
 	require.Equal(t, "100000000", txInput.Amount)
@@ -554,6 +564,7 @@ func TestSwapSignTxInputUsesSignedOutput(t *testing.T) {
 	)
 }
 
+// BTC destination metadata remains separate from the sell-side refund derivation.
 func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
 	sellCoin := btc.NewCoin(
 		coinpkg.CodeBTC,
@@ -588,12 +599,19 @@ func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
 		Signature: "sig",
 	}
 
+	refund, err := addresspkg.NewAddressWitnessPubKeyHash(make([]byte, 20), &chaincfg.MainNetParams)
+	require.NoError(t, err)
+	refundAddress := refund.EncodeAddress()
+	refundDerivation := &paymentrequest.Slip24AddressDerivation{
+		Btc: &paymentrequest.Slip24BtcAddressDerivation{Keypath: []uint32{2147483732, 2147483648, 2147483648, 0, 0}, ScriptType: "p2wpkh"},
+	}
+	paymentRequest.Memos = append(paymentRequest.Memos, paymentrequest.Slip24Memo{Type: "refund", Refund: &paymentrequest.Slip24Refund{Address: refundAddress}})
 	txInput, err := swapSignTxInput(paymentRequest, sellCoin, &paymentrequest.Slip24AddressDerivation{
 		Btc: &paymentrequest.Slip24BtcAddressDerivation{
 			Keypath:    []uint32{2147483697, 2147483648, 2147483648, 0, 5},
 			ScriptType: "p2wpkh",
 		},
-	})
+	}, refundAddress, refundDerivation)
 	require.NoError(t, err)
 	require.NotNil(t, txInput.PaymentRequest)
 	require.NotNil(t, txInput.PaymentRequest.Memos[0].CoinPurchase)
@@ -610,6 +628,7 @@ func TestSwapSignTxInputUsesBTCDestinationDerivation(t *testing.T) {
 	)
 }
 
+// Refund metadata must not affect exact ERC20 amounts above JavaScript integer precision.
 func TestSwapSignTxInputSupportsLargeERC20Amount(t *testing.T) {
 	daiCoin := eth.NewCoin(
 		nil,
@@ -631,7 +650,13 @@ func TestSwapSignTxInputSupportsLargeERC20Amount(t *testing.T) {
 		},
 	}
 
-	txInput, err := swapSignTxInput(paymentRequest, daiCoin, nil)
+	refundAddress := "0x986f66F28C6a2BBE939dF3161D1D2b238933895c"
+	refundDerivation := &paymentrequest.Slip24AddressDerivation{Eth: &paymentrequest.Slip24EthAddressDerivation{Keypath: []uint32{2147483692, 2147483708, 2147483648, 0, 0}}}
+	paymentRequest.Memos = []paymentrequest.Slip24Memo{
+		{Type: "refund", Refund: &paymentrequest.Slip24Refund{Address: refundAddress}},
+		{Type: "coinPurchase", CoinPurchase: &paymentrequest.Slip24CoinPurchase{CoinType: 0, Amount: "1 BTC", Address: "bc1qpz7m2szz07ca7vtj3zlce43fscdnv2q8hhs0tx"}},
+	}
+	txInput, err := swapSignTxInput(paymentRequest, daiCoin, nil, refundAddress, refundDerivation)
 	require.NoError(t, err)
 	require.Equal(t, "55", txInput.Amount)
 	require.Equal(t, "55000000000000000000", txInput.PaymentRequest.Outputs[0].Amount)
@@ -903,6 +928,7 @@ func TestSwapConnectedKeystore(t *testing.T) {
 	})
 }
 
+// Swap status reports firmware requirements without hiding the swap screen or its accounts.
 func TestSwapStatus(t *testing.T) {
 	t.Run("reports availability and connected multi keystore separately", func(t *testing.T) {
 		b := newBackend(t, testnetDisabled, regtestDisabled)
@@ -919,5 +945,35 @@ func TestSwapStatus(t *testing.T) {
 		swapStatus := b.SwapStatus()
 		require.True(t, swapStatus.Available)
 		require.Equal(t, swapConnectedKeystoreNone, swapStatus.ConnectedKeystore)
+		require.False(t, swapStatus.FirmwareUpgradeRequired)
 	})
+	for _, test := range []struct {
+		name        string
+		featureErr  error
+		wantUpgrade bool
+	}{
+		{"supported firmware", nil, false},
+		{"firmware upgrade required", keystore.ErrFirmwareUpgradeRequired, true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			b := newBackend(t, testnetDisabled, regtestDisabled)
+			defer b.Close()
+			ks := makeBitBox02Multi()
+			ks.SupportsFeatureFunc = func(feature keystore.Feature) error {
+				require.Equal(t, keystore.FeatureSwapPaymentRequests, feature)
+				return test.featureErr
+			}
+			b.registerKeystore(ks)
+
+			status := b.SwapStatus()
+			require.True(t, status.Available)
+			require.Equal(t, swapConnectedKeystoreMulti, status.ConnectedKeystore)
+			require.Equal(t, test.wantUpgrade, status.FirmwareUpgradeRequired)
+			zeroAllAccountBalances(t, b)
+			swapAccounts, err := b.SwapAccounts()
+			require.NoError(t, err)
+			require.NotEmpty(t, swapAccounts.SellAccounts)
+			require.NotEmpty(t, swapAccounts.BuyAccounts)
+		})
+	}
 }

@@ -132,8 +132,7 @@ const MarketContent = ({
   };
 
   const handleGoToSwap = async () => {
-    const requiredFeature = getRequiredKeystoreFeature('swapkit', 'swap');
-    if (!await connectAny(requiredFeature)) {
+    if (!await connectAny()) {
       return;
     }
 

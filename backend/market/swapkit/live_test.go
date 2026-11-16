@@ -252,6 +252,12 @@ func btcPaymentRequest(
 					},
 				},
 			})
+		case memo.Refund != nil:
+			memos = append(memos, &messages.BTCPaymentRequestRequest_Memo{
+				Memo: &messages.BTCPaymentRequestRequest_Memo_RefundMemo_{
+					RefundMemo: &messages.BTCPaymentRequestRequest_Memo_RefundMemo{Address: memo.Refund.Address},
+				},
+			})
 		case memo.CoinPurchase != nil:
 			memos = append(memos, &messages.BTCPaymentRequestRequest_Memo{
 				Memo: &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_{

@@ -45,6 +45,9 @@ func ComputePaymentRequestSighashBytes(
 		case *messages.BTCPaymentRequestRequest_Memo_TextMemo_:
 			_ = binary.Write(sighash, binary.LittleEndian, uint32(1))
 			hashDataLenPrefixed(sighash, []byte(m.TextMemo.Note))
+		case *messages.BTCPaymentRequestRequest_Memo_RefundMemo_:
+			_ = binary.Write(sighash, binary.LittleEndian, uint32(2))
+			hashDataLenPrefixed(sighash, []byte(m.RefundMemo.Address))
 		case *messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_:
 			_ = binary.Write(sighash, binary.LittleEndian, uint32(3))
 			_ = binary.Write(sighash, binary.LittleEndian, m.CoinPurchaseMemo.CoinType)

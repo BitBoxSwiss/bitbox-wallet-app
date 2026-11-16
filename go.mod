@@ -4,7 +4,7 @@ go 1.26.10
 
 require (
 	codeberg.org/go-pdf/fpdf v0.12.0
-	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261103140118-bdd3532428a5
+	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261116092105-c50467580b7b
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d
 	github.com/breez/breez-sdk-spark-go v0.28.0
 	github.com/btcsuite/btcd v0.26.2
@@ -33,6 +33,7 @@ require (
 	golang.org/x/mobile v0.0.0-20240716161057-1ad2df20a8b6
 	golang.org/x/net v0.56.0
 	golang.org/x/time v0.15.0
+	google.golang.org/protobuf v1.36.11
 )
 
 require (
@@ -73,6 +74,5 @@ require (
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/tools v0.41.0 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

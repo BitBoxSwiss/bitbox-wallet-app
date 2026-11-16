@@ -22,7 +22,14 @@ type Slip24 struct {
 type Slip24Memo struct {
 	Type         string              `json:"type"`
 	Text         string              `json:"text,omitempty"`
+	Refund       *Slip24Refund       `json:"refund,omitempty"`
 	CoinPurchase *Slip24CoinPurchase `json:"coinPurchase,omitempty"`
+}
+
+// Slip24Refund models a signed refund address with optional local ownership metadata.
+type Slip24Refund struct {
+	Address           string                   `json:"address"`
+	AddressDerivation *Slip24AddressDerivation `json:"addressDerivation,omitempty"`
 }
 
 // Slip24CoinPurchase models a coin purchase memo.
@@ -33,7 +40,7 @@ type Slip24CoinPurchase struct {
 	AddressDerivation *Slip24AddressDerivation `json:"addressDerivation,omitempty"`
 }
 
-// Slip24AddressDerivation models optional destination-address ownership metadata.
+// Slip24AddressDerivation models local address ownership metadata, outside the signed payload.
 type Slip24AddressDerivation struct {
 	Eth *Slip24EthAddressDerivation `json:"eth,omitempty"`
 	Btc *Slip24BtcAddressDerivation `json:"btc,omitempty"`

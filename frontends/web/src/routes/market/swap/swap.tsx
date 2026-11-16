@@ -17,6 +17,7 @@ import { convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
 import {
   getSwapAccounts,
   getSwapQuote,
+  getSwapStatus,
   signSwap,
   type TSwapAccount,
   type TSwapAccounts,
@@ -25,6 +26,7 @@ import {
   type TSwapQuoteValidationErrorCode,
 } from '@/api/swap';
 import { useAppState } from '@/contexts/app-state-context';
+import { AppContext } from '@/contexts/AppContext';
 import { GuideWrapper, GuidedContent, Main, Header } from '@/components/layout';
 import { View, ViewButtons, ViewContent } from '@/components/view/view';
 import { Guide } from '@/components/guide/guide';
@@ -40,6 +42,7 @@ import { findAccount } from '@/routes/account/utils';
 import { getDisplayedCoinUnit, isBitcoinBased, isBitcoinOnly } from '@/utils/coin';
 import { useLoad } from '@/hooks/api';
 import { useAccountStatuses } from '@/hooks/account-status';
+import { useFeatureConnect } from '@/hooks/keystore';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
 import { ConfirmSwap } from './components/swap-confirm';
@@ -86,7 +89,22 @@ const getSwapDisplayAmount = async (
 export const Swap = () => {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
-  const { accounts } = useAppState();
+  const { accounts, devices, deviceIDs } = useAppState();
+  const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
+  const [swapStatusLoadAttempt, setSwapStatusLoadAttempt] = useState(0);
+  // null marks a failed check; undefined remains the loading state.
+  const swapStatus = useLoad(
+    () => getSwapStatus().catch(() => null),
+    [accounts, devices, swapStatusLoadAttempt],
+  );
+  const {
+    connect,
+    dismissFirmwareUpgrade,
+    firmwareUpgradeRequired: signingFirmwareUpgradeRequired,
+  } = useFeatureConnect();
+  useEffect(dismissFirmwareUpgrade, [accounts, devices, dismissFirmwareUpgrade]);
+  const firmwareUpgradeRequired = swapStatus?.firmwareUpgradeRequired || signingFirmwareUpgradeRequired;
+  const firmwareDeviceID = deviceIDs.find(deviceID => devices[deviceID] === 'bitbox02');
   const { activeCurrencies, btcUnit, defaultCurrency } = useContext(RatesContext);
   // accounts is added as a dependency, to reload swap accounts when the account list changes.
   const loadedSwapAccounts = useLoad(getSwapAccounts, [accounts]);
@@ -384,7 +402,10 @@ export const Swap = () => {
   }, [btcUnit, buyAccount, selectedRoute]);
 
   const handleConfirm = async () => {
-    if (confirmInFlightRef.current || buyAccountSyncing) {
+    if (
+      confirmInFlightRef.current || buyAccountSyncing || !sellAccount
+      || swapStatus?.connectedKeystore !== 'multi' || firmwareUpgradeRequired
+    ) {
       return;
     }
 
@@ -392,6 +413,10 @@ export const Swap = () => {
     setIsConfirmInFlight(true);
 
     try {
+      if (!await connect(sellAccount.keystore.rootFingerprint, 'swapPaymentRequests')) {
+        return;
+      }
+
       if (!buyAccountCode || !sellAccountCode || !selectedRouteId || !sellAmount || !buyAccount) {
         alertUser(t('genericError'));
         return;
@@ -640,11 +665,35 @@ export const Swap = () => {
                   />
                 </Message>
               )}
+              {swapStatus === null && (
+                <Message type="error" className={style.statusError}>
+                  <div>{t('swap.fetchStatusError')}</div>
+                  <Button
+                    transparent
+                    inline
+                    onClick={() => setSwapStatusLoadAttempt(attempt => attempt + 1)}>
+                    {t('generic.retry')}
+                  </Button>
+                </Message>
+              )}
+              {firmwareUpgradeRequired && (
+                <Message type="warning" className={style.firmwareWarning}>
+                  <div>{t('swap.firmwareUpgradeRequired')}</div>
+                  {firmwareDeviceID && (
+                    <Link
+                      className={style.firmwareUpdateLink}
+                      href={`/settings/device-settings/${firmwareDeviceID}`}
+                      onClick={() => setFirmwareUpdateDialogOpen(true)}>
+                      {t('swap.updateFirmware')}
+                    </Link>
+                  )}
+                </Message>
+              )}
             </ViewContent>
             <ViewButtons>
               <Button
                 primary
-                disabled={!selectedRoute || buyAccountSyncing || isConfirmInFlight || validationErrorCode === INSUFFICIENT_FUNDS_ERROR || insufficientGasFunds}
+                disabled={!selectedRoute || buyAccountSyncing || isConfirmInFlight || validationErrorCode === INSUFFICIENT_FUNDS_ERROR || insufficientGasFunds || swapStatus?.connectedKeystore !== 'multi' || firmwareUpgradeRequired}
                 onClick={handleConfirm}>
                 <span className={style.swapButtonContent}>
                   {(isConfirmInFlight || buyAccountSyncing) && (

@@ -752,12 +752,23 @@ func computePaymentRequestSighash(paymentRequest *paymentrequest.Request, slip44
 	// memos
 	_ = wire.WriteVarInt(sighash, 0, uint64(len(paymentRequest.Memos)))
 	for _, memo := range paymentRequest.Memos {
-		_ = binary.Write(sighash, binary.LittleEndian, uint32(1))
-		noteBytes := []byte{}
-		if memo.Text != nil {
-			noteBytes = []byte(memo.Text.Note)
+		switch {
+		case memo.Refund != nil:
+			_ = binary.Write(sighash, binary.LittleEndian, uint32(2))
+			hashDataLenPrefixed(sighash, []byte(memo.Refund.Address))
+		case memo.CoinPurchase != nil:
+			_ = binary.Write(sighash, binary.LittleEndian, uint32(3))
+			_ = binary.Write(sighash, binary.LittleEndian, memo.CoinPurchase.CoinType)
+			hashDataLenPrefixed(sighash, []byte(memo.CoinPurchase.Amount))
+			hashDataLenPrefixed(sighash, []byte(memo.CoinPurchase.Address))
+		default:
+			_ = binary.Write(sighash, binary.LittleEndian, uint32(1))
+			noteBytes := []byte{}
+			if memo.Text != nil {
+				noteBytes = []byte(memo.Text.Note)
+			}
+			hashDataLenPrefixed(sighash, noteBytes)
 		}
-		hashDataLenPrefixed(sighash, noteBytes)
 	}
 
 	// coinType
@@ -879,4 +890,18 @@ func TestComputePaymentRequestSighashNilTextMemo(t *testing.T) {
 	sighash, err := computePaymentRequestSighash(paymentRequest, 0, 1, "bc1q2q0j6gmfxynj40p0kxsr9jkagcvgpuqv2zgq8j")
 	require.NoError(t, err)
 	require.Len(t, sighash, sha256.Size)
+}
+
+// The simulator digest helper includes the refund address using the firmware's shared vector.
+func TestComputePaymentRequestSighashRefund(t *testing.T) {
+	request := &paymentrequest.Request{
+		RecipientName: "Test Swap",
+		Memos: []paymentrequest.Memo{
+			{CoinPurchase: &paymentrequest.CoinPurchaseMemo{CoinType: 60, Amount: "0.25 ETH", Address: "0x773A77b9D32589be03f9132AF759e294f7851be9"}},
+			{Refund: &paymentrequest.RefundMemo{Address: "bc1qaff6ey7a8nztdl8ufluu5eagpwy6sntmaf53pf"}},
+		},
+	}
+	digest, err := computePaymentRequestSighash(request, 0, 100000, "bc1qkkweqa5vk942jgevs0x0h8hsmqgfr08n6l7tu9")
+	require.NoError(t, err)
+	require.Equal(t, "eda7a0a2a0f1e24227e58add144371008744d6fbc14aca0a415f0b1281e10863", hex.EncodeToString(digest))
 }
