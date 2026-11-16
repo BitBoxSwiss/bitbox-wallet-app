@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
 import { convertFromCurrency, convertToCurrency } from '@/api/coins';
+import { connectKeystore, getKeystoreFeatures } from '@/api/keystores';
 import { useQRScanner } from '@/hooks/qrcodescanner';
 import { alertUser } from '@/components/alert/Alert';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
@@ -15,9 +16,16 @@ import { Send } from './send';
 
 vi.mock('@/api/account');
 vi.mock('@/api/coins');
+vi.mock('@/api/keystores');
 vi.mock('@/hooks/qrcodescanner');
 vi.mock('@/components/alert/Alert', () => ({ alertUser: vi.fn() }));
-vi.mock('@/api/accountsync', () => ({ syncdone: vi.fn(() => vi.fn()) }));
+vi.mock('@/api/accountsync', () => ({
+  syncdone: vi.fn(() => vi.fn()),
+  statusChanged: vi.fn(() => vi.fn()),
+}));
+vi.mock('@/components/dialog/firmware-upgrade-required-dialog', () => ({
+  FirmwareUpgradeRequiredDialog: () => null,
+}));
 vi.mock('@/i18n/i18n', async () => ({
   i18n: (await import('../../../../__mocks__/i18n')).default,
 }));
@@ -71,7 +79,7 @@ const scan = async (input: string) => {
   });
 };
 
-const renderEmptySend = async (sendAccount = account) => {
+const renderEmptySend = async (sendAccount = account, activeAccounts?: accountApi.TAccount[]) => {
   render(
     <MemoryRouter>
       <BackButtonProvider>
@@ -84,7 +92,7 @@ const renderEmptySend = async (sendAccount = account) => {
           updateDefaultCurrency: vi.fn(),
           removeFromActiveCurrencies: vi.fn(),
         }}>
-          <Send account={sendAccount} />
+          <Send account={sendAccount} activeAccounts={activeAccounts} />
         </RatesContext.Provider>
       </BackButtonProvider>
     </MemoryRouter>
@@ -159,6 +167,60 @@ describe('send', () => {
     expect(screen.queryByText(en.send.error.invalidAddress)).not.toBeInTheDocument();
     expect(accountApi.proposeTx).toHaveBeenCalledWith(account.code, expect.objectContaining({ address: 'corrected-address' }));
     expect(screen.getByRole('button', { name: 'Review' })).toBeEnabled();
+  });
+
+  // Resetting a selected recipient account must not erase the new scan's error or allow proposals.
+  it.each([false, true])('keeps scan errors after resetting an account (amount entered: %s)', async withAmount => {
+    vi.mocked(connectKeystore).mockResolvedValueOnce({ success: true });
+    vi.mocked(getKeystoreFeatures).mockResolvedValueOnce({ success: true, features: { supportsSendToSelf: true } });
+    vi.mocked(accountApi.getStatus).mockResolvedValue({
+      disabled: false, synced: true, fatalError: false, offlineError: null,
+    });
+    vi.mocked(accountApi.getReceiveAddressList).mockReturnValue(async () => ({
+      success: true,
+      addresses: [{
+        scriptType: 'p2wpkh',
+        addresses: [{ address: 'own-address', addressID: '0', displayAddress: 'own-address' }],
+      }],
+    }));
+    vi.mocked(accountApi.parsePaymentInput).mockResolvedValue({
+      success: true, recipient: 'invalid-address', validationError: 'invalidAddress',
+    });
+    await renderEmptySend(account, [account]);
+    fireEvent.keyDown(screen.getAllByRole('combobox')[0]!, { key: 'ArrowDown' });
+    await act(async () => {
+      fireEvent.click(screen.getByRole('option', { name: /Bitcoin Account/ }));
+    });
+    expect(screen.getByLabelText('Receiver address')).toHaveValue('own-address');
+    expect(screen.getByLabelText('Receiver address')).toHaveAttribute('readonly');
+    if (withAmount) {
+      fireEvent.input(screen.getByLabelText('Amount'), { target: { value: '0.001' } });
+      await advanceProposal();
+    }
+    vi.mocked(accountApi.proposeTx).mockClear();
+
+    await scan('invalid-address');
+    await advanceProposal();
+
+    expect(screen.getByLabelText(/^Receiver address/)).toHaveValue('invalid-address');
+    expect(screen.getByLabelText(/^Receiver address/)).not.toHaveAttribute('readonly');
+    expect(screen.getByText(en.send.error.invalidAddress)).toBeVisible();
+    expect(screen.getByLabelText('Amount')).toHaveValue(withAmount ? 0.001 : null);
+    expect(accountApi.proposeTx).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
+  });
+
+  // Entering an ETH address without an amount must not start a proposal or hide the priority menu.
+  it('keeps fees idle when entering an ETH address without an amount', async () => {
+    await renderEmptySend({ ...account, coinCode: 'eth' });
+    fireEvent.input(screen.getByLabelText('Receiver address'), {
+      target: { value: '0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359' },
+    });
+    await advanceProposal();
+
+    expect(accountApi.proposeTx).not.toHaveBeenCalled();
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText(en.send.feeTarget.placeholder)).not.toBeInTheDocument();
   });
 
   // The frontend applies backend values, including BTC converted to satoshis and an explicit zero.

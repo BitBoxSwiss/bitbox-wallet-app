@@ -398,7 +398,6 @@ export const Send = ({
         : 'invalidFormat'));
       return;
     }
-    setScanErrors(handleSendError(parsedInput.validationError));
     const { recipient, amount: qrAmount } = parsedInput;
     // Apply the backend's display-unit amount, including an explicit clear; omission keeps the entry.
     if (qrAmount !== undefined) {
@@ -406,6 +405,7 @@ export const Send = ({
       setFiatAmount('');
     }
     onReset?.();
+    setScanErrors(handleSendError(parsedInput.validationError));
     setRecipientInput(recipient);
     setRecipientDisplayAddress('');
     setSelectedReceiverAccount(null);
