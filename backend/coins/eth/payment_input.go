@@ -9,110 +9,115 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/ethereum/go-ethereum/common"
 )
 
 var (
-	errInvalidPaymentRequest = errp.New("invalid Ethereum payment request")
 	// Supported hexadecimal-address subset of the ERC-681 (EIP-681) URL grammar:
 	// https://eips.ethereum.org/EIPS/eip-681
 	paymentRequestTargetRE = regexp.MustCompile(`^(?:pay-)?(0x[0-9a-fA-F]{40})(?:@(\d+))?$`)
 	paymentRequestAmountRE = regexp.MustCompile(`^(\d+)(?:\.(\d+))?(?:[eE](\d+))?$`)
 )
 
-// ErrPaymentRequestAccountMismatch means that the request targets a different chain or asset than
-// the selected account.
-const ErrPaymentRequestAccountMismatch errp.ErrorCode = "accountMismatch"
-
-// PaymentRequest contains the recipient and optional amount from an ERC-681 payment request.
-type PaymentRequest struct {
-	Recipient string
-	Amount    string
-}
-
-// ParsePaymentRequest parses a supported native or ERC20 ERC-681 payment request for this coin.
-func (coin *Coin) ParsePaymentRequest(input string) (*PaymentRequest, error) {
-	parsed, err := url.Parse(strings.TrimSpace(input))
-	if err != nil || !strings.EqualFold(parsed.Scheme, "ethereum") || parsed.Fragment != "" || parsed.Opaque == "" {
-		return nil, errInvalidPaymentRequest
+// ParsePaymentInput parses a bare address or supported native/ERC20 ERC-681 payment request.
+// Address checks use IsValidEthAddress, which is also used by Account.newTx. Payment URIs
+// additionally carry chain, token, and amount information that must match the selected coin.
+func (coin *Coin) ParsePaymentInput(input string) (*coinpkg.ParsedPaymentInput, error) {
+	input = strings.TrimSpace(input)
+	parsed, err := url.Parse(input)
+	if err != nil {
+		return nil, coinpkg.ErrInvalidPaymentInput
+	}
+	if parsed.Scheme == "" {
+		// Bare addresses carry no chain or token selection; the selected account supplies that context.
+		parsedInput := &coinpkg.ParsedPaymentInput{Recipient: input}
+		if !IsValidEthAddress(input) {
+			parsedInput.ValidationError = errors.ErrInvalidAddress
+		}
+		return parsedInput, nil
+	}
+	if !strings.EqualFold(parsed.Scheme, "ethereum") || parsed.Fragment != "" || parsed.Opaque == "" {
+		return nil, coinpkg.ErrInvalidPaymentInput
 	}
 
 	pathParts := strings.Split(parsed.Opaque, "/")
 	if len(pathParts) > 2 {
-		return nil, errInvalidPaymentRequest
+		return nil, coinpkg.ErrInvalidPaymentInput
 	}
 	targetMatch := paymentRequestTargetRE.FindStringSubmatch(pathParts[0])
 	if targetMatch == nil || !IsValidEthAddress(targetMatch[1]) {
-		return nil, errInvalidPaymentRequest
+		return nil, coinpkg.ErrInvalidPaymentInput
 	}
 	if targetMatch[2] != "" && normalizeNumber(targetMatch[2]) != coin.ChainIDstr() {
-		return nil, ErrPaymentRequestAccountMismatch
+		return nil, coinpkg.ErrPaymentInputAccountMismatch
 	}
 
 	parameters, err := url.ParseQuery(parsed.RawQuery)
 	if err != nil {
-		return nil, errInvalidPaymentRequest
+		return nil, coinpkg.ErrInvalidPaymentInput
 	}
 	if len(pathParts) == 2 {
 		if pathParts[1] != "transfer" {
-			return nil, errInvalidPaymentRequest
+			return nil, coinpkg.ErrInvalidPaymentInput
 		}
 		return coin.parseERC20Transfer(targetMatch[1], parameters)
 	}
 	for key := range parameters {
 		if key != "value" {
-			return nil, errInvalidPaymentRequest
+			return nil, coinpkg.ErrInvalidPaymentInput
 		}
 	}
 	values := parameters["value"]
 	if len(values) > 1 {
-		return nil, errInvalidPaymentRequest
+		return nil, coinpkg.ErrInvalidPaymentInput
 	}
-	request := &PaymentRequest{Recipient: targetMatch[1]}
+	parsedInput := &coinpkg.ParsedPaymentInput{Recipient: targetMatch[1]}
 	if len(values) == 0 {
-		return request, nil
+		return parsedInput, nil
 	}
 	atomicAmount, ok := parsePaymentRequestAtomicAmount(values[0])
 	if !ok {
-		return nil, errInvalidPaymentRequest
+		return nil, coinpkg.ErrInvalidPaymentInput
 	}
 	if coin.erc20Token != nil {
-		return nil, ErrPaymentRequestAccountMismatch
+		return nil, coinpkg.ErrPaymentInputAccountMismatch
 	}
-	request.Amount = coin.FormatAmount(atomicAmount, false)
-	return request, nil
+	formattedAmount := coin.FormatAmount(atomicAmount, false)
+	parsedInput.Amount = &formattedAmount
+	return parsedInput, nil
 }
 
-func (coin *Coin) parseERC20Transfer(target string, parameters url.Values) (*PaymentRequest, error) {
+func (coin *Coin) parseERC20Transfer(target string, parameters url.Values) (*coinpkg.ParsedPaymentInput, error) {
 	for key := range parameters {
 		if key != "address" && key != "uint256" {
-			return nil, errInvalidPaymentRequest
+			return nil, coinpkg.ErrInvalidPaymentInput
 		}
 	}
 	recipients := parameters["address"]
 	amounts := parameters["uint256"]
 	if len(recipients) != 1 || len(amounts) > 1 {
-		return nil, errInvalidPaymentRequest
+		return nil, coinpkg.ErrInvalidPaymentInput
 	}
 	if !IsValidEthAddress(recipients[0]) {
-		return nil, errInvalidPaymentRequest
+		return nil, coinpkg.ErrInvalidPaymentInput
 	}
 	if coin.erc20Token == nil || common.HexToAddress(target) != coin.erc20Token.ContractAddress() {
-		return nil, ErrPaymentRequestAccountMismatch
+		return nil, coinpkg.ErrPaymentInputAccountMismatch
 	}
 
-	request := &PaymentRequest{Recipient: recipients[0]}
+	parsedInput := &coinpkg.ParsedPaymentInput{Recipient: recipients[0]}
 	if len(amounts) == 0 {
-		return request, nil
+		return parsedInput, nil
 	}
 	atomicAmount, ok := parsePaymentRequestAtomicAmount(amounts[0])
 	if !ok {
-		return nil, errInvalidPaymentRequest
+		return nil, coinpkg.ErrInvalidPaymentInput
 	}
-	request.Amount = coin.FormatAmount(atomicAmount, false)
-	return request, nil
+	formattedAmount := coin.FormatAmount(atomicAmount, false)
+	parsedInput.Amount = &formattedAmount
+	return parsedInput, nil
 }
 
 func normalizeNumber(number string) string {
