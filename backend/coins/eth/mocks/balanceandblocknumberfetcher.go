@@ -25,8 +25,8 @@ var _ eth.BalanceAndBlockNumberFetcher = &BalanceAndBlockNumberFetcherMock{}
 //			BalancesFunc: func(ctx context.Context, addresses []ethcommon.Address, blockNumber *big.Int) (map[ethcommon.Address]*big.Int, error) {
 //				panic("mock out the Balances method")
 //			},
-//			BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
-//				panic("mock out the BlockNumber method")
+//			BalancesSnapshotFunc: func(ctx context.Context, addresses []ethcommon.Address, tokenHolders [][2]ethcommon.Address) (*big.Int, map[ethcommon.Address]*big.Int, map[[2]ethcommon.Address]*big.Int, error) {
+//				panic("mock out the BalancesSnapshot method")
 //			},
 //		}
 //
@@ -38,8 +38,8 @@ type BalanceAndBlockNumberFetcherMock struct {
 	// BalancesFunc mocks the Balances method.
 	BalancesFunc func(ctx context.Context, addresses []ethcommon.Address, blockNumber *big.Int) (map[ethcommon.Address]*big.Int, error)
 
-	// BlockNumberFunc mocks the BlockNumber method.
-	BlockNumberFunc func(ctx context.Context) (*big.Int, error)
+	// BalancesSnapshotFunc mocks the BalancesSnapshot method.
+	BalancesSnapshotFunc func(ctx context.Context, addresses []ethcommon.Address, tokenHolders [][2]ethcommon.Address) (*big.Int, map[ethcommon.Address]*big.Int, map[[2]ethcommon.Address]*big.Int, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -52,14 +52,18 @@ type BalanceAndBlockNumberFetcherMock struct {
 			// BlockNumber is the blockNumber argument value.
 			BlockNumber *big.Int
 		}
-		// BlockNumber holds details about calls to the BlockNumber method.
-		BlockNumber []struct {
+		// BalancesSnapshot holds details about calls to the BalancesSnapshot method.
+		BalancesSnapshot []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
+			// Addresses is the addresses argument value.
+			Addresses []ethcommon.Address
+			// TokenHolders is the tokenHolders argument value.
+			TokenHolders [][2]ethcommon.Address
 		}
 	}
-	lockBalances    sync.RWMutex
-	lockBlockNumber sync.RWMutex
+	lockBalances         sync.RWMutex
+	lockBalancesSnapshot sync.RWMutex
 }
 
 // Balances calls BalancesFunc.
@@ -102,34 +106,42 @@ func (mock *BalanceAndBlockNumberFetcherMock) BalancesCalls() []struct {
 	return calls
 }
 
-// BlockNumber calls BlockNumberFunc.
-func (mock *BalanceAndBlockNumberFetcherMock) BlockNumber(ctx context.Context) (*big.Int, error) {
-	if mock.BlockNumberFunc == nil {
-		panic("BalanceAndBlockNumberFetcherMock.BlockNumberFunc: method is nil but BalanceAndBlockNumberFetcher.BlockNumber was just called")
+// BalancesSnapshot calls BalancesSnapshotFunc.
+func (mock *BalanceAndBlockNumberFetcherMock) BalancesSnapshot(ctx context.Context, addresses []ethcommon.Address, tokenHolders [][2]ethcommon.Address) (*big.Int, map[ethcommon.Address]*big.Int, map[[2]ethcommon.Address]*big.Int, error) {
+	if mock.BalancesSnapshotFunc == nil {
+		panic("BalanceAndBlockNumberFetcherMock.BalancesSnapshotFunc: method is nil but BalanceAndBlockNumberFetcher.BalancesSnapshot was just called")
 	}
 	callInfo := struct {
-		Ctx context.Context
+		Ctx          context.Context
+		Addresses    []ethcommon.Address
+		TokenHolders [][2]ethcommon.Address
 	}{
-		Ctx: ctx,
+		Ctx:          ctx,
+		Addresses:    addresses,
+		TokenHolders: tokenHolders,
 	}
-	mock.lockBlockNumber.Lock()
-	mock.calls.BlockNumber = append(mock.calls.BlockNumber, callInfo)
-	mock.lockBlockNumber.Unlock()
-	return mock.BlockNumberFunc(ctx)
+	mock.lockBalancesSnapshot.Lock()
+	mock.calls.BalancesSnapshot = append(mock.calls.BalancesSnapshot, callInfo)
+	mock.lockBalancesSnapshot.Unlock()
+	return mock.BalancesSnapshotFunc(ctx, addresses, tokenHolders)
 }
 
-// BlockNumberCalls gets all the calls that were made to BlockNumber.
+// BalancesSnapshotCalls gets all the calls that were made to BalancesSnapshot.
 // Check the length with:
 //
-//	len(mockedBalanceAndBlockNumberFetcher.BlockNumberCalls())
-func (mock *BalanceAndBlockNumberFetcherMock) BlockNumberCalls() []struct {
-	Ctx context.Context
+//	len(mockedBalanceAndBlockNumberFetcher.BalancesSnapshotCalls())
+func (mock *BalanceAndBlockNumberFetcherMock) BalancesSnapshotCalls() []struct {
+	Ctx          context.Context
+	Addresses    []ethcommon.Address
+	TokenHolders [][2]ethcommon.Address
 } {
 	var calls []struct {
-		Ctx context.Context
+		Ctx          context.Context
+		Addresses    []ethcommon.Address
+		TokenHolders [][2]ethcommon.Address
 	}
-	mock.lockBlockNumber.RLock()
-	calls = mock.calls.BlockNumber
-	mock.lockBlockNumber.RUnlock()
+	mock.lockBalancesSnapshot.RLock()
+	calls = mock.calls.BalancesSnapshot
+	mock.lockBalancesSnapshot.RUnlock()
 	return calls
 }

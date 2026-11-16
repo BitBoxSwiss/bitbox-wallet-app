@@ -28,15 +28,19 @@ var activeProbeLeaseDuration = 90 * time.Second
 var activeProbeRetryDelay = 30 * time.Second
 var activeProbeBackoffDuration = 5 * time.Minute
 
-// BalanceAndBlockNumberFetcher is an interface that defines a method to fetch balances for a list of addresses,
-// as well as the block number for a chain.
+// BalanceAndBlockNumberFetcher fetches native and ERC20 balances together with the block number they belong to.
 //
 //go:generate moq -pkg mocks -out mocks/balanceandblocknumberfetcher.go . BalanceAndBlockNumberFetcher
 type BalanceAndBlockNumberFetcher interface {
 	// Balances returns balances at the specified block, or the latest if nil, for a list of addresses.
 	Balances(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error)
-	// BlockNumber returns the current latest block number.
-	BlockNumber(ctx context.Context) (*big.Int, error)
+	// BalancesSnapshot returns the latest block number with the native balances of addresses and the
+	// ERC20 balances of {token contract, holder} pairs at that block. Unreadable balances are omitted.
+	BalancesSnapshot(
+		ctx context.Context,
+		addresses []common.Address,
+		tokenHolders [][2]common.Address,
+	) (*big.Int, map[common.Address]*big.Int, map[[2]common.Address]*big.Int, error)
 }
 
 // TokenTransactionsFetcher can prefetch token transactions for an address.
@@ -313,6 +317,7 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 	}
 
 	ethNonErc20Addresses := make([]common.Address, 0, len(ethAccounts))
+	tokenHolders := [][2]common.Address{}
 	for _, account := range ethAccounts {
 		if account.isClosed() {
 			continue
@@ -323,21 +328,17 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 			account.SetOffline(err)
 			continue
 		}
-		if !IsERC20(account) {
+		if IsERC20(account) {
+			tokenHolders = append(tokenHolders, [2]common.Address{account.coin.erc20Token.ContractAddress(), address.Address})
+		} else {
 			ethNonErc20Addresses = append(ethNonErc20Addresses, address.Address)
 		}
 	}
 
-	blockNumber, err := etherScanClient.BlockNumber(context.TODO())
+	blockNumber, balances, tokenBalances, err := etherScanClient.BalancesSnapshot(context.TODO(), ethNonErc20Addresses, tokenHolders)
 	if err != nil {
-		u.log.WithError(err).Error("Could not get block number")
+		u.log.WithError(err).Error("Could not get block number and balances")
 		return
-	}
-	updateNonERC20 := true
-	balances, err := etherScanClient.Balances(context.TODO(), ethNonErc20Addresses, blockNumber)
-	if err != nil {
-		u.log.WithError(err).Error("Could not get balances for ETH accounts")
-		updateNonERC20 = false
 	}
 
 	reconciled := make(map[senderKey]error)
@@ -373,26 +374,14 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 		}
 		account.SetOffline(nil)
 		var balance *big.Int
-		switch {
-		case IsERC20(account):
-			var err error
-			balance, err = account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token, blockNumber)
-			if err != nil {
-				u.log.WithError(err).Errorf("Could not get ERC20 balance for address %s", address.Address.Hex())
-				account.SetOffline(err)
-			}
-		case updateNonERC20:
-			var ok bool
+		var ok bool
+		if IsERC20(account) {
+			balance, ok = tokenBalances[[2]common.Address{account.coin.erc20Token.ContractAddress(), address.Address}]
+		} else {
 			balance, ok = balances[address.Address]
-			if !ok {
-				errMsg := fmt.Sprintf("Could not find balance for address %s", address.Address.Hex())
-				u.log.Error(errMsg)
-				account.SetOffline(errp.Newf(errMsg))
-			}
-		default:
-			// If we get there, this is a non-erc20 account and we failed getting balances.
-			// If we couldn't get the balances for non-erc20 accounts, we mark them as offline
-			errMsg := fmt.Sprintf("Could not get balance for address %s", address.Address.Hex())
+		}
+		if !ok {
+			errMsg := fmt.Sprintf("Could not find balance for address %s", address.Address.Hex())
 			u.log.Error(errMsg)
 			account.SetOffline(errp.Newf(errMsg))
 		}

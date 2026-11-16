@@ -24,6 +24,7 @@ import (
 	ethtypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	ethereum "github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -51,6 +52,18 @@ const (
 	// Etherscan indexes mainnet block zero at the Frontier launch on
 	// 2015-07-30 15:26:13 UTC. The genesis header itself has a zero timestamp.
 	mainnetLaunchTimestamp = 1438269973
+)
+
+const (
+	multicall3Address = "0xcA11bde05977b3631167028862bE2a173976CA11"
+
+	balancesSnapshotABI = `[
+	{"type":"function","name":"tryBlockAndAggregate","stateMutability":"payable",
+	 "inputs":[{"name":"requireSuccess","type":"bool"},{"name":"calls","type":"tuple[]","components":[{"name":"target","type":"address"},{"name":"callData","type":"bytes"}]}],
+	 "outputs":[{"name":"blockNumber","type":"uint256"},{"name":"blockHash","type":"bytes32"},{"name":"returnData","type":"tuple[]","components":[{"name":"success","type":"bool"},{"name":"returnData","type":"bytes"}]}]},
+	{"type":"function","name":"getEthBalance","stateMutability":"view",
+	 "inputs":[{"name":"addr","type":"address"}],"outputs":[{"name":"balance","type":"uint256"}]}
+]`
 )
 
 // ERC20GasErr is the error message returned from etherscan when there is not enough ETH to pay the transaction fee.
@@ -805,6 +818,88 @@ func (etherScan *EtherScan) ERC20Balance(account common.Address, erc20Token *erc
 		return nil, err
 	}
 	return values[0].(*big.Int), nil
+}
+
+// BalancesSnapshot reads the latest block number, the native balances of addresses and the ERC20
+// balances of tokenHolders ({token contract, holder} pairs) in a single Multicall3 call, so all
+// balances belong to the returned block. Balances that could not be read are omitted.
+func (etherScan *EtherScan) BalancesSnapshot(
+	ctx context.Context,
+	addresses []common.Address,
+	tokenHolders [][2]common.Address,
+) (*big.Int, map[common.Address]*big.Int, map[[2]common.Address]*big.Int, error) {
+	parsed, err := abi.JSON(strings.NewReader(balancesSnapshotABI))
+	if err != nil {
+		return nil, nil, nil, errp.WithStack(err)
+	}
+	erc20ABI, err := erc20.IERC20MetaData.GetAbi()
+	if err != nil {
+		return nil, nil, nil, errp.WithStack(err)
+	}
+	type call struct {
+		Target   common.Address
+		CallData []byte
+	}
+	multicall3 := common.HexToAddress(multicall3Address)
+	calls := make([]call, 0, len(addresses)+len(tokenHolders))
+	for _, address := range addresses {
+		data, err := parsed.Pack("getEthBalance", address)
+		if err != nil {
+			return nil, nil, nil, errp.WithStack(err)
+		}
+		calls = append(calls, call{Target: multicall3, CallData: data})
+	}
+	for _, tokenHolder := range tokenHolders {
+		data, err := erc20ABI.Pack("balanceOf", tokenHolder[1])
+		if err != nil {
+			return nil, nil, nil, errp.WithStack(err)
+		}
+		calls = append(calls, call{Target: tokenHolder[0], CallData: data})
+	}
+
+	data, err := parsed.Pack("tryBlockAndAggregate", false, calls)
+	if err != nil {
+		return nil, nil, nil, errp.WithStack(err)
+	}
+	result, err := etherScan.CallContract(ctx, ethereum.CallMsg{To: &multicall3, Data: data}, nil)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	var snapshot struct {
+		BlockNumber *big.Int
+		BlockHash   [32]byte
+		ReturnData  []struct {
+			Success    bool
+			ReturnData []byte
+		}
+	}
+	if err := parsed.UnpackIntoInterface(&snapshot, "tryBlockAndAggregate", result); err != nil {
+		return nil, nil, nil, errp.WithStack(err)
+	}
+	if len(snapshot.ReturnData) != len(calls) {
+		return nil, nil, nil, errp.New("unexpected multicall result length")
+	}
+	uint256Result := func(index int) *big.Int {
+		returned := snapshot.ReturnData[index]
+		if !returned.Success || len(returned.ReturnData) < 32 {
+			return nil
+		}
+		return new(big.Int).SetBytes(returned.ReturnData[:32])
+	}
+
+	balances := make(map[common.Address]*big.Int, len(addresses))
+	for i, address := range addresses {
+		if balance := uint256Result(i); balance != nil {
+			balances[address] = balance
+		}
+	}
+	tokenBalances := make(map[[2]common.Address]*big.Int, len(tokenHolders))
+	for i, tokenHolder := range tokenHolders {
+		if balance := uint256Result(len(addresses) + i); balance != nil {
+			tokenBalances[tokenHolder] = balance
+		}
+	}
+	return snapshot.BlockNumber, balances, tokenBalances, nil
 }
 
 // CallContract implements rpc.Interface.

@@ -18,7 +18,6 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/mocks"
 	rpcclientmocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient/mocks"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
-	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
@@ -52,7 +51,7 @@ func (m *transactionsSourceMock) Transactions(
 	return m.txs, nil
 }
 
-func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Account {
+func newAccount(t *testing.T, erc20Token *erc20.Token) *eth.Account {
 	t.Helper()
 
 	log := logging.Get().WithGroup("updater_test")
@@ -86,12 +85,6 @@ func newAccount(t *testing.T, erc20Token *erc20.Token, erc20error bool) *eth.Acc
 	client := &rpcclientmocks.InterfaceMock{
 		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
 			return big.NewInt(100), nil
-		},
-		ERC20BalanceFunc: func(address common.Address, token *erc20.Token, blockNumber *big.Int) (*big.Int, error) {
-			if erc20error {
-				return nil, errp.New("failed to fetch ERC20 balance")
-			}
-			return big.NewInt(1e16), nil // Mock balance for ERC20 token
 		},
 	}
 
@@ -134,27 +127,27 @@ func TestUpdateBalances(t *testing.T) {
 	}{
 		{
 			name:             "Single account - non erc20",
-			accounts:         []*eth.Account{newAccount(t, nil, false)},
+			accounts:         []*eth.Account{newAccount(t, nil)},
 			expectedBalances: []*big.Int{big.NewInt(1000)},
 		},
 		{
 			name:             "Single account - erc20",
-			accounts:         []*eth.Account{newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12), false)},
+			accounts:         []*eth.Account{newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12))},
 			expectedBalances: []*big.Int{big.NewInt(1e16)},
 		},
 		{
 			name: "Multiple accounts - one erc20",
 			accounts: []*eth.Account{
-				newAccount(t, nil, false),
-				newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12), false),
+				newAccount(t, nil),
+				newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12)),
 			},
 			expectedBalances: []*big.Int{big.NewInt(1000), big.NewInt(1e16)}, // 1e16 is the balance for the erc20 token
 		},
 		{
 			name: "Multiple accounts - the nonerc20 account is closed",
 			accounts: []*eth.Account{
-				newAccount(t, nil, false),
-				newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12), false),
+				newAccount(t, nil),
+				newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12)),
 			},
 			expectedBalances: []*big.Int{big.NewInt(1000), big.NewInt(1e16)},
 			accountsToClose:  []int{0},
@@ -162,18 +155,22 @@ func TestUpdateBalances(t *testing.T) {
 	}
 
 	updatedBalances := []common.Address{}
+	updatedTokenHolders := [][2]common.Address{}
 	balanceFetcher := mocks.BalanceAndBlockNumberFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
+		BalancesSnapshotFunc: func(
+			ctx context.Context, addresses []common.Address, tokenHolders [][2]common.Address,
+		) (*big.Int, map[common.Address]*big.Int, map[[2]common.Address]*big.Int, error) {
 			updatedBalances = addresses
-			// We mock the balanceFetcher to always return a balance of 1000.
+			updatedTokenHolders = tokenHolders
 			balances := make(map[common.Address]*big.Int)
 			for _, address := range addresses {
 				balances[address] = big.NewInt(1000)
 			}
-			return balances, nil
-		},
-		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
-			return big.NewInt(100), nil
+			tokenBalances := make(map[[2]common.Address]*big.Int)
+			for _, tokenHolder := range tokenHolders {
+				tokenBalances[tokenHolder] = big.NewInt(1e16)
+			}
+			return big.NewInt(100), balances, tokenBalances, nil
 		},
 	}
 
@@ -193,16 +190,21 @@ func TestUpdateBalances(t *testing.T) {
 				accountWasClosed := slices.Contains(tc.accountsToClose, i)
 				address, err := acct.Address()
 				require.NoError(t, err)
+				var tokenHolder [2]common.Address
+				if eth.IsERC20(acct) {
+					tokenHolder = [2]common.Address{acct.ETHCoin().ERC20Token().ContractAddress(), address.Address}
+				}
 				if accountWasClosed {
 					// If the account was closed, it must not have its balance updated.
 					require.NotContains(t, updatedBalances, address.Address)
+					require.NotContains(t, updatedTokenHolders, tokenHolder)
 					continue
 				}
 				assertAccountBalance(t, acct, tc.expectedBalances[i])
 				if eth.IsERC20(acct) {
-					// ERC20 accounts should not have their balances updated by the balanceFetcher
-					// since they have their own balance fetching logic.
+					// ERC20 balances are fetched per token contract, not as native balances.
 					require.NotContains(t, updatedBalances, address.Address)
+					require.Contains(t, updatedTokenHolders, tokenHolder)
 				} else {
 					// Non-closed, non-erc20 accounts should have their balances updated
 					// by the balanceFetcher.
@@ -216,26 +218,22 @@ func TestUpdateBalances(t *testing.T) {
 
 func TestUpdateBalancesWithError(t *testing.T) {
 	balanceFetcher := &mocks.BalanceAndBlockNumberFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
-			// We mock the balanceFetcher to always return an error.
-			// This simulates a failure in fetching balances which should set the account to offline.
-			return nil, errp.New("balance fetch error")
-		},
-		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
-			return big.NewInt(100), nil
+		BalancesSnapshotFunc: func(
+			ctx context.Context, addresses []common.Address, tokenHolders [][2]common.Address,
+		) (*big.Int, map[common.Address]*big.Int, map[[2]common.Address]*big.Int, error) {
+			// No balance could be read, which should set the accounts offline.
+			return big.NewInt(100), map[common.Address]*big.Int{}, map[[2]common.Address]*big.Int{}, nil
 		},
 	}
 
 	updater := eth.NewUpdater(nil, nil, nil, nil)
-	account := newAccount(t, nil, false)
+	account := newAccount(t, nil)
 	defer account.Close()
 
 	updater.UpdateBalancesAndBlockNumber([]*eth.Account{account}, balanceFetcher)
 	require.Error(t, account.Offline())
 
-	// We create an ERC20 account and pass "true" to the "erc20error" parameter to simulate an error.
-	// This way we expect the account to be set offline as well.
-	erc20Account := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12), true)
+	erc20Account := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12))
 	defer erc20Account.Close()
 
 	updater.UpdateBalancesAndBlockNumber([]*eth.Account{erc20Account}, balanceFetcher)
@@ -262,8 +260,8 @@ func makeConfirmedTx(id string) *accounts.TransactionData {
 func TestUpdateBalancesPrefetchTokenTransactions(t *testing.T) {
 	tokenA := erc20.NewToken("0x0000000000000000000000000000000000000001", 12)
 	tokenB := erc20.NewToken("0x0000000000000000000000000000000000000002", 12)
-	accountA := newAccount(t, tokenA, false)
-	accountB := newAccount(t, tokenB, false)
+	accountA := newAccount(t, tokenA)
+	accountB := newAccount(t, tokenB)
 	defer accountA.Close()
 	defer accountB.Close()
 
@@ -280,12 +278,15 @@ func TestUpdateBalancesPrefetchTokenTransactions(t *testing.T) {
 	blockNumber := big.NewInt(100)
 	tokenTxCalls := 0
 	fetcher := &mocks.TokenTransactionsFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
+		BalancesSnapshotFunc: func(
+			ctx context.Context, addresses []common.Address, tokenHolders [][2]common.Address,
+		) (*big.Int, map[common.Address]*big.Int, map[[2]common.Address]*big.Int, error) {
 			require.Len(t, addresses, 0)
-			return map[common.Address]*big.Int{}, nil
-		},
-		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
-			return blockNumber, nil
+			tokenBalances := make(map[[2]common.Address]*big.Int)
+			for _, tokenHolder := range tokenHolders {
+				tokenBalances[tokenHolder] = big.NewInt(1e16)
+			}
+			return blockNumber, map[common.Address]*big.Int{}, tokenBalances, nil
 		},
 		TokenTransactionsByContractFunc: func(
 			blockTipHeight *big.Int,
@@ -315,12 +316,15 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 	tokenTxCalls := 0
 	var tokenTxResult map[common.Address][]*accounts.TransactionData
 	fetcher := &mocks.TokenTransactionsFetcherMock{
-		BalancesFunc: func(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error) {
+		BalancesSnapshotFunc: func(
+			ctx context.Context, addresses []common.Address, tokenHolders [][2]common.Address,
+		) (*big.Int, map[common.Address]*big.Int, map[[2]common.Address]*big.Int, error) {
 			require.Len(t, addresses, 0)
-			return map[common.Address]*big.Int{}, nil
-		},
-		BlockNumberFunc: func(ctx context.Context) (*big.Int, error) {
-			return blockNumber, nil
+			tokenBalances := make(map[[2]common.Address]*big.Int)
+			for _, tokenHolder := range tokenHolders {
+				tokenBalances[tokenHolder] = big.NewInt(1e16)
+			}
+			return blockNumber, map[common.Address]*big.Int{}, tokenBalances, nil
 		},
 		TokenTransactionsByContractFunc: func(
 			blockTipHeight *big.Int,
@@ -335,7 +339,7 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 	}
 
 	t.Run("no-prefetch-falls-back-to-nil", func(t *testing.T) {
-		account := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12), false)
+		account := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12))
 		defer account.Close()
 		txSource := &transactionsSourceMock{}
 		account.ETHCoin().TstSetTransactionsSource(txSource)
@@ -353,8 +357,8 @@ func TestUpdateBalancesPrefetchNilVsEmptyFallback(t *testing.T) {
 	})
 
 	t.Run("missing-contract-is-empty-no-fallback", func(t *testing.T) {
-		accountA := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12), false)
-		accountB := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000002", 12), false)
+		accountA := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000001", 12))
+		accountB := newAccount(t, erc20.NewToken("0x0000000000000000000000000000000000000002", 12))
 		defer accountA.Close()
 		defer accountB.Close()
 		txSource := &transactionsSourceMock{}
