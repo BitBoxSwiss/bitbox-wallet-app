@@ -34,6 +34,7 @@
 - WalletConnect: use standard host-based origin in Qt to fix WalletConnect pairings on desktop
 - Ethereum: add a safety margin to suggested transaction fees to reduce delays when network fees rise
 - iOS: Hide wallet information in app-switcher previews.
+- Android: always hide app contents in app-switcher previews; screenshots are also disabled on Android versions below 13
 - Add PDF export of assets balance on chosen date
 - Marketplace: remember disclaimer acceptance and allow rereading disclaimers from the guide
 - In standard dropdown menus, hide search for all tablet lists and for desktop lists with fewer than 10 options
