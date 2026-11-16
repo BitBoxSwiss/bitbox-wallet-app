@@ -94,6 +94,7 @@ func TestEnsurePrivateDirRestrictsExistingDir(t *testing.T) {
 	}
 }
 
+// Ensuring a private directory must leave a symlink target's permissions unchanged.
 func TestEnsurePrivateDirIgnoresSymlink(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("symlink permissions require elevated privileges on windows")
@@ -104,6 +105,10 @@ func TestEnsurePrivateDirIgnoresSymlink(t *testing.T) {
 	target := parent + "/target"
 	if err := os.Mkdir(target, 0755); err != nil {
 		t.Fatalf("os.Mkdir: %v", err)
+	}
+	// Set the fixture permissions explicitly, independent of the process umask.
+	if err := os.Chmod(target, 0755); err != nil {
+		t.Fatalf("os.Chmod: %v", err)
 	}
 	link := parent + "/link"
 	if err := os.Symlink(target, link); err != nil {
@@ -122,6 +127,7 @@ func TestEnsurePrivateDirIgnoresSymlink(t *testing.T) {
 	}
 }
 
+// Both private-file helpers must leave a symlink target's permissions unchanged.
 func TestEnsurePrivateFileIgnoresSymlink(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("symlink permissions require elevated privileges on windows")
@@ -132,6 +138,10 @@ func TestEnsurePrivateFileIgnoresSymlink(t *testing.T) {
 	target := parent + "/target"
 	if err := os.WriteFile(target, []byte("{}"), 0644); err != nil {
 		t.Fatalf("os.WriteFile: %v", err)
+	}
+	// Set the fixture permissions explicitly, independent of the process umask.
+	if err := os.Chmod(target, 0644); err != nil {
+		t.Fatalf("os.Chmod: %v", err)
 	}
 	link := parent + "/link"
 	if err := os.Symlink(target, link); err != nil {
