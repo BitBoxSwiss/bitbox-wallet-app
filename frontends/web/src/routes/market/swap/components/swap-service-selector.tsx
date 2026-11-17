@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import Select, { components, SingleValueProps, OptionProps, DropdownIndicatorProps } from 'react-select';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CoinUnit, TAmountWithConversions } from '@/api/account';
 import type { TSwapQuoteRoute } from '@/api/swap';
@@ -122,7 +123,7 @@ const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
 
 type Props = {
   buyUnit: CoinUnit | undefined;
-  error?: string;
+  error?: ReactNode;
   isLoading: boolean;
   onChangeRouteId: (routeId: string) => void;
   routes: TSwapQuoteRoute[];

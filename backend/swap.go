@@ -120,6 +120,7 @@ func (backend *Backend) SwapQuote(
 	)
 	result := SwapQuoteResult{ValidationErrorCode: validationErrorCode}
 	if quoteError != nil {
+		result.Quote = quote
 		return result, quoteError
 	}
 	if err := backend.checkSwapQuoteGasFunds(sellAccountCode, quote); err != nil {

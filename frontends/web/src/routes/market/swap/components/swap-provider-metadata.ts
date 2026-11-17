@@ -27,7 +27,7 @@ const SWAP_PROVIDER_METADATA: Readonly<Record<string, TSwapProviderMetadata>> = 
   jupiter: { displayName: 'Jupiter', logo: jupiterLogoPNG },
   mayachain: { displayName: 'Mayachain', logo: mayachainLogoPNG },
   mayachain_streaming: { displayName: 'Mayachain', logo: mayachainLogoPNG },
-  near: { displayName: 'Near', logo: nearLogoPNG },
+  near: { displayName: 'NEAR', logo: nearLogoPNG },
   okx: { displayName: 'OKX', logo: okxLogoPNG },
   oneinch: { displayName: '1inch', logo: oneinchLogoPNG },
   pancakeswap: { displayName: 'PancakeSwap', logo: pancakeswapLogoPNG },

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Swap: show actionable provider errors and minimum swap amounts when no route is available
 
 ## v4.53.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.28.0 and intermediate version v9.27.2

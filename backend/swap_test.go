@@ -36,7 +36,7 @@ func (transport swapQuoteTransport) RoundTrip(request *http.Request) (*http.Resp
 	return transport(request)
 }
 
-// Quotes use the sell account's coin, and balance validation stays separate from quote retrieval errors.
+// Quotes use the sell account's coin, keep provider declines, and report balance validation separately.
 func TestSwapQuoteBalanceValidation(t *testing.T) {
 	b := newBackend(t, testnetDisabled, regtestDisabled)
 	defer b.Close()
@@ -49,12 +49,13 @@ func TestSwapQuoteBalanceValidation(t *testing.T) {
 		body           string
 		errorCode      errp.ErrorCode
 		validationCode errp.ErrorCode
-		hasQuote       bool
+		hasRoutes      bool
 	}{
-		{name: "funded", balance: 100000000, body: `{"routes":[{"routeId":"route"}]}`, hasQuote: true},
-		{name: "insufficient funds with routes", body: `{"routes":[{"routeId":"route"}]}`, validationCode: "insufficientFunds", hasQuote: true},
+		{name: "funded", balance: 100000000, body: `{"routes":[{"routeId":"route"}]}`, hasRoutes: true},
+		{name: "insufficient funds with routes", body: `{"routes":[{"routeId":"route"}]}`, validationCode: "insufficientFunds", hasRoutes: true},
 		{name: "no routes", balance: 100000000, body: `{"routes":[]}`, errorCode: swapkit.ErrNoRoutesFound},
 		{name: "insufficient funds and no routes", body: `{"routes":[]}`, errorCode: swapkit.ErrNoRoutesFound, validationCode: "insufficientFunds"},
+		{name: "provider minimum and no routes", balance: 100000000, body: `{"routes":[],"providerErrors":[{"provider":"NEAR","errorCode":"sellAssetAmountTooSmall","message":"Too small","minAmount":"0.000083"}]}`, errorCode: swapkit.ErrNoRoutesFound},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			setAccountBalance(t, b, accountCode, test.balance)
@@ -84,11 +85,14 @@ func TestSwapQuoteBalanceValidation(t *testing.T) {
 					require.Equal(t, &swapkit.APIErrorData{SellCoin: "BTC", BuyCoin: "ETH"}, quoteError.Data)
 				}
 			}
-			if test.hasQuote {
-				require.NotNil(t, result.Quote)
+			require.NotNil(t, result.Quote)
+			if test.hasRoutes {
 				require.Len(t, result.Quote.Routes, 1)
 			} else {
-				require.Nil(t, result.Quote)
+				require.Empty(t, result.Quote.Routes)
+			}
+			if test.name == "provider minimum and no routes" {
+				require.Equal(t, "0.000083", result.Quote.ProviderErrors[0].MinAmount)
 			}
 		})
 	}
