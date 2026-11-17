@@ -759,12 +759,15 @@ func (backend *Backend) updateETHAccounts() error {
 
 	}
 
+	var updateErr error
 	for chainID, ethAccounts := range accountsChainID {
 		etherScanClient := etherscan.NewEtherScan(chainID, backend.httpClient, backend.etherScanRateLimiter)
-		backend.ethupdater.UpdateBalancesAndBlockNumber(ethAccounts, etherScanClient)
+		if err := backend.ethupdater.UpdateBalancesAndBlockNumber(ethAccounts, etherScanClient); err != nil {
+			updateErr = err
+		}
 	}
 
-	return nil
+	return updateErr
 }
 
 // ManualReconnect triggers reconnecting to Electrum servers if their connection is down.

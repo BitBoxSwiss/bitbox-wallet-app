@@ -9,9 +9,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"math/big"
 	"net/http"
 	"net/url"
+	"slices"
 	"strings"
 	"testing"
 	"testing/synctest"
@@ -20,6 +22,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethereum "github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -308,17 +311,6 @@ func TestBalancesAtBlock(t *testing.T) {
 	address := common.Address{19: 2}
 	client := newTestEtherScan(func(req *http.Request) *http.Response {
 		params := req.URL.Query()
-		require.Equal(t, "balancemulti", params.Get("action"))
-		require.Equal(t, "0x64", params.Get("tag"))
-		require.Equal(t, address.Hex(), params.Get("address"))
-		return jsonRPCResponse(t, `{"status":"1","result":[{"account":"`+address.Hex()+`","balance":"20000"}]}`)
-	})
-	balances, err := client.Balances(context.Background(), []common.Address{address}, big.NewInt(100))
-	require.NoError(t, err)
-	require.Equal(t, big.NewInt(20000), balances[address])
-
-	client = newTestEtherScan(func(req *http.Request) *http.Response {
-		params := req.URL.Query()
 		require.Equal(t, "balance", params.Get("action"))
 		require.Equal(t, address.Hex(), params.Get("address"))
 		require.Equal(t, "0x64", params.Get("tag"))
@@ -346,6 +338,93 @@ func TestBalancesAtBlock(t *testing.T) {
 	})
 	_, err = client.ERC20Balance(address, token, big.NewInt(100))
 	require.Error(t, err)
+}
+
+func TestBalancesSnapshot(t *testing.T) {
+	multicall3 := common.HexToAddress("0xcA11bde05977b3631167028862bE2a173976CA11")
+	token := common.Address{19: 0xa}
+	holder1, holder2, holder3 := common.Address{19: 1}, common.Address{19: 2}, common.Address{19: 3}
+	multicallABI, err := abi.JSON(strings.NewReader(balancesSnapshotABI))
+	require.NoError(t, err)
+	erc20ABI, err := erc20.IERC20MetaData.GetAbi()
+	require.NoError(t, err)
+
+	type result struct {
+		Success    bool
+		ReturnData []byte
+	}
+	uint256 := func(value int64) result {
+		data, err := multicallABI.Methods["getEthBalance"].Outputs.Pack(big.NewInt(value))
+		require.NoError(t, err)
+		return result{true, data}
+	}
+	decodeCall := func(contract *abi.ABI, name string, data []byte) common.Address {
+		method, err := contract.MethodById(data)
+		require.NoError(t, err)
+		require.Equal(t, name, method.Name)
+		args, err := method.Inputs.Unpack(data[4:])
+		require.NoError(t, err)
+		return args[0].(common.Address)
+	}
+	// Sub-calls are keyed by {target, address argument}.
+	results := map[[2]common.Address]result{
+		{multicall3, holder1}: uint256(1),
+		{multicall3, holder2}: {false, uint256(2).ReturnData},
+		{multicall3, holder3}: uint256(3),
+		{token, holder1}:      uint256(4),
+		{token, holder2}:      {true, nil},
+	}
+
+	client := newTestEtherScan(func(req *http.Request) *http.Response {
+		params := formValues(t, req)
+		require.Equal(t, "eth_call", params.Get("action"))
+		require.Equal(t, multicall3.Hex(), params.Get("to"))
+		require.Equal(t, "latest", params.Get("tag"))
+		data, err := hexutil.Decode(params.Get("data"))
+		require.NoError(t, err)
+		method, err := multicallABI.MethodById(data)
+		require.NoError(t, err)
+		require.Equal(t, "tryBlockAndAggregate", method.Name)
+		args, err := method.Inputs.Unpack(data[4:])
+		require.NoError(t, err)
+		var request struct {
+			RequireSuccess bool
+			Calls          []struct {
+				Target   common.Address
+				CallData []byte
+			}
+		}
+		require.NoError(t, method.Inputs.Copy(&request, args))
+		require.False(t, request.RequireSuccess)
+
+		calls := [][2]common.Address{}
+		returnData := []result{}
+		for _, call := range request.Calls {
+			var key [2]common.Address
+			if call.Target == multicall3 {
+				key = [2]common.Address{multicall3, decodeCall(&multicallABI, "getEthBalance", call.CallData)}
+			} else {
+				key = [2]common.Address{call.Target, decodeCall(erc20ABI, "balanceOf", call.CallData)}
+			}
+			calls = append(calls, key)
+			returnData = append(returnData, results[key])
+		}
+		require.ElementsMatch(t, slices.Collect(maps.Keys(results)), calls)
+
+		response, err := method.Outputs.Pack(big.NewInt(100), [32]byte{}, returnData)
+		require.NoError(t, err)
+		return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"result":%q}`, hexutil.Encode(response)))
+	})
+
+	blockNumber, balances, tokenBalances, err := client.BalancesSnapshot(
+		context.Background(),
+		[]common.Address{holder1, holder2, holder3},
+		[][2]common.Address{{token, holder1}, {token, holder2}},
+	)
+	require.NoError(t, err)
+	require.Equal(t, big.NewInt(100), blockNumber)
+	require.Equal(t, map[common.Address]*big.Int{holder1: big.NewInt(1), holder3: big.NewInt(3)}, balances)
+	require.Equal(t, map[[2]common.Address]*big.Int{{token, holder1}: big.NewInt(4)}, tokenBalances)
 }
 
 func TestSendTransactionPreservesRPCError(t *testing.T) {
