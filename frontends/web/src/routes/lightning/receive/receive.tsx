@@ -22,6 +22,7 @@ import { Checked, Copy, CreateInvoice } from '@/components/icon';
 import { FormattedAmount } from '@/components/amount/amount';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { RatesContext } from '@/contexts/RatesContext';
+import { AppContext } from '@/contexts/AppContext';
 import { useSync } from '@/hooks/api';
 import { toLightningErrorMessage } from '@/api/lightning-errors';
 import { useSatFiatAmount } from '../hooks/use-sat-fiat-amount';
@@ -38,6 +39,7 @@ export function Receive() {
   const { t } = useTranslation();
   const [, navigate] = useLocation();
   const { defaultCurrency } = useContext(RatesContext);
+  const { hideAmounts } = useContext(AppContext);
   const {
     amount: invoiceAmount,
     amountSat: invoiceAmountSat,
@@ -55,6 +57,7 @@ export function Receive() {
   const lightningAddress = useSync(getLightningAddress, subscribeLightningAddress);
   const fundingLimit = lightningBalance?.fundingLimit;
   const fundingLimitError = getLightningFundingLimitError(fundingLimit, invoiceAmountSat);
+  const showFundingLimitWarning = !hideAmounts && fundingLimitError;
   const satsBalance = (
     lightningBalance?.available.unit === 'sat'
       ? lightningBalance.available.amount
@@ -70,7 +73,7 @@ export function Receive() {
     step,
   });
   const createInvoiceLimitWarning = (
-    fundingLimitError
+    showFundingLimitWarning
       ? t('lightning.limit.createInvoiceWarning', {
         excess: formatExcessLightningFundingLimit(fundingLimit, invoiceAmountSat),
         limit: formatLightningFundingLimit(fundingLimit),
@@ -78,7 +81,7 @@ export function Receive() {
       : undefined
   );
   const invoiceLimitWarning = (
-    fundingLimitError
+    showFundingLimitWarning
       ? t('lightning.limit.invoiceWarning', {
         excess: formatExcessLightningFundingLimit(fundingLimit, invoiceAmountSat),
         limit: formatLightningFundingLimit(fundingLimit),

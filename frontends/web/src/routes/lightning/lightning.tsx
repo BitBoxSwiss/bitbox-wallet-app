@@ -25,6 +25,7 @@ import { Status } from '../../components/status/status';
 import { HideAmountsButton } from '../../components/hideamountsbutton/hideamountsbutton';
 import { PaymentDetails } from './components/payment-details';
 import { RatesContext } from '@/contexts/RatesContext';
+import { AppContext } from '@/contexts/AppContext';
 import { useLoad, useSubscribe } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';
 import { useLightning } from '@/hooks/lightning';
@@ -66,9 +67,10 @@ const LightningPageLayout = ({
   statusBanners,
 }: TLightningPageLayoutProps) => {
   const { t } = useTranslation();
+  const { hideAmounts } = useContext(AppContext);
   const fundingLimit = balance?.fundingLimit;
   const canTopUp = fundingLimit !== undefined && !hasReachedLightningFundingLimit(fundingLimit);
-  const showFundingLimitWarning = hasExceededLightningFundingLimit(fundingLimit);
+  const showFundingLimitWarning = !hideAmounts && hasExceededLightningFundingLimit(fundingLimit);
 
   return (
     <GuideWrapper>

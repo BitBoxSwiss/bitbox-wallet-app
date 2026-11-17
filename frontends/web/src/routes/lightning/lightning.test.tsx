@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../__mocks__/i18n';
-import type { ReactNode } from 'react';
+import { useState, type ContextType, type ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
@@ -15,6 +15,7 @@ import { Main } from '@/components/layout';
 import { ConfigContext } from '@/contexts/ConfigContext';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
+import { AppContext } from '@/contexts/AppContext';
 import { Lightning } from './lightning';
 
 type TLightningState = {
@@ -33,10 +34,6 @@ vi.mock('@/components/status/status', () => ({
 
 vi.mock('@/components/balance/balance', () => ({
   Balance: () => <div>Balance</div>,
-}));
-
-vi.mock('@/components/hideamountsbutton/hideamountsbutton', () => ({
-  HideAmountsButton: () => null,
 }));
 
 vi.mock('@/hooks/lightning', () => ({
@@ -68,24 +65,39 @@ const balance: lightningApi.TLightningBalance = {
   incoming: amount('0'),
 };
 
-const renderLightning = () => render(
+const HideAmountsProvider = ({ children, initiallyHidden = false }: { children: ReactNode; initiallyHidden?: boolean }) => {
+  const [hideAmounts, setHideAmounts] = useState(initiallyHidden);
+  return (
+    <AppContext.Provider value={{
+      hideAmounts,
+      setHideAmounts,
+      toggleHideAmounts: () => setHideAmounts(value => !value),
+    } as ContextType<typeof AppContext>}>
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+const renderLightning = (initiallyHidden = false) => render(
   <MemoryRouter>
-    <ConfigContext.Provider value={{ config: undefined, setConfig: vi.fn() }}>
-      <RatesContext.Provider value={{
-        defaultCurrency: 'EUR',
-        activeCurrencies: ['EUR'],
-        btcUnit: 'sat',
-        rotateDefaultCurrency: vi.fn(),
-        rotateBtcUnit: vi.fn(),
-        addToActiveCurrencies: vi.fn(),
-        updateDefaultCurrency: vi.fn(),
-        removeFromActiveCurrencies: vi.fn(),
-      }}>
-        <BackButtonProvider>
-          <Lightning />
-        </BackButtonProvider>
-      </RatesContext.Provider>
-    </ConfigContext.Provider>
+    <HideAmountsProvider initiallyHidden={initiallyHidden}>
+      <ConfigContext.Provider value={{ config: undefined, setConfig: vi.fn() }}>
+        <RatesContext.Provider value={{
+          defaultCurrency: 'EUR',
+          activeCurrencies: ['EUR'],
+          btcUnit: 'sat',
+          rotateDefaultCurrency: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          addToActiveCurrencies: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+          removeFromActiveCurrencies: vi.fn(),
+        }}>
+          <BackButtonProvider>
+            <Lightning />
+          </BackButtonProvider>
+        </RatesContext.Provider>
+      </ConfigContext.Provider>
+    </HideAmountsProvider>
   </MemoryRouter>
 );
 
@@ -115,6 +127,24 @@ describe('Lightning', () => {
     expect(screen.getByRole('link', { name: 'lightning.limit.moveCoins' })).toHaveAttribute('href', '/lightning/send');
     expect(container.querySelector('a[href="/lightning/receive"]')).toBeInTheDocument();
     expect(container.querySelector('a[href="/lightning/topup"]')).not.toBeInTheDocument();
+  });
+
+  // Hide amounts removes the over-limit warning and link, including after toggling privacy on again.
+  it('hides the funding limit warning with amounts hidden', async () => {
+    const user = userEvent.setup();
+    renderLightning(true);
+
+    await screen.findByText('accountSummary.transactionHistory');
+    expect(screen.queryByText('lightning.limit.accountWarning')).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'lightning.limit.moveCoins' })).not.toBeInTheDocument();
+
+    await user.click(screen.getByText('newSettings.appearance.hideAmounts.showAmounts'));
+    expect(screen.getByText('lightning.limit.accountWarning')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'lightning.limit.moveCoins' })).toBeInTheDocument();
+
+    await user.click(screen.getByText('newSettings.appearance.hideAmounts.hideAmounts'));
+    expect(screen.queryByText('lightning.limit.accountWarning')).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'lightning.limit.moveCoins' })).not.toBeInTheDocument();
   });
 
   it('edits and clears a note while keeping the invoice description', async () => {
