@@ -142,7 +142,7 @@
       "aborted": "La vérification de la sauvegarde a été interrompue sur l'appareil",
       "checking": "Vérification de la sauvegarde…",
       "confirmTitle": "Vérifier la sauvegarde",
-      "notOK": "Aucune sauvegarde présente sur la carte microSD ne correspond au portefeuille de la BitBox. Cela peut se produire si vous avez inséré une carte microSD qui a déjà servi à configurer une autre BitBox. Veuillez retrouver la carte microSD qui a servi à configurer cette BitBox et réessayez.",
+      "notOK": "Aucune sauvegarde présente sur la carte microSD ne correspond au portefeuille du BitBox. Cela peut se produire si vous avez inséré une carte microSD ayant servi à configurer un autre BitBox. Retrouvez la carte microSD utilisée pour configurer ce BitBox, puis réessayez.",
       "ok": "La sauvegarde correspond au portefeuille.",
       "password": {
         "label": "Mot de passe de récupération",
@@ -193,8 +193,20 @@
       "understand": "Je comprends qu'un mot de passe de récupération incorrect créera un portefeuille différent"
     },
     "showMnemonic": {
+      "availableIn_many": "Disponible dans {{count}} secondes",
+      "availableIn_one": "Disponible dans {{count}} seconde",
+      "availableIn_other": "Disponible dans {{count}} secondes",
+      "instructions": "Le BitBox affichera vos mots de récupération. <strong>Notez-les sur papier.</strong>",
+      "safetyWarnings": {
+        "noAppsOrWebsites": "Ne les saisissez jamais dans une application ou sur un site web",
+        "noDigitalCopies": "Ne les photographiez pas et ne les enregistrez pas sous forme numérique",
+        "noSharing": "L’assistance BitBox, comme toute autre entreprise, ne vous demandera jamais de communiquer vos mots de récupération.",
+        "noSpeaking": "Ne les prononcez pas à voix haute",
+        "safeStorage": "Ils ne sont pas protégés par mot de passe. Conservez-les en lieu sûr."
+      },
+      "scamWarning": "Si quelqu’un vous le demande, mettez fin à la conversation. C’est une escroquerie.",
       "title": "Montrer les mots de récupération",
-      "warning": "<strong>Ne partagez jamais vos mots de récupération avec qui que ce soit.</strong> Vos mots de récupération permettent un accès intégral à votre portefeuille. Si on vous demande vos mots de récupération, il s’agit d’une escroquerie, ne les partagez jamais !"
+      "warning": "<strong>Ne partagez jamais vos mots de récupération.</strong> Toute personne qui les possède peut accéder à votre portefeuille."
     },
     "title": "Gérer les sauvegardes"
   },
@@ -207,6 +219,7 @@
       "toggleShowFirmwareHash": "Afficher le hachage du micrologiciel à chaque démarrage de l'application"
     },
     "flipscreen": "Retourner l'écran",
+    "furtherUpgrades": "D’autres mises à jour suivront.",
     "orientation": "Appareil dans le mauvais sens ?",
     "success": "Mise à jour réussie !",
     "success_install": "Installation réussie !",
@@ -304,6 +317,17 @@
       "paired": "Vous avez confirmé le code suivant sur votre appareil. Veuillez continuer.",
       "title": "Vérifier le code d'appairage",
       "unpaired": "Un BitBox non associé a été détecté. Veuillez vérifier que le code d’association correspond à celui indiqué sur votre BitBox."
+    },
+    "passphrase": {
+      "confirmHostEntry": "Confirmez sur le BitBox pour saisir la phrase secrète dans l’application",
+      "confirmTitle": "Confirmer la phrase secrète sur le BitBox",
+      "dialogTitle": "Saisir la phrase secrète",
+      "enter": "Saisir la phrase secrète du BitBox",
+      "enterInApp": "Saisir la phrase secrète dans l’application",
+      "error": {
+        "invalidChars": "La phrase secrète contient des caractères qui ne peuvent pas être saisis sur le BitBox.",
+        "tooLong": "La phrase secrète ne doit pas dépasser 149 caractères."
+      }
     },
     "restoreFromMnemonic": {
       "e104": "La restauration à partir des mots de récupération a été annulée.",
@@ -447,6 +471,7 @@
     "download": "Télécharger",
     "next": "Suivant",
     "ok": "D'accord",
+    "openInBrowser": "Ouvrir dans le navigateur",
     "previous": "Précédent",
     "proceedOnBitBox": "Procédez sur votre BitBox",
     "restore": "Restaurer",
@@ -625,7 +650,7 @@
             },
             "creditDebitCard": "Carte de crédit/débit",
             "creditDebitCardDetails": {
-              "cards": "Amex, Mastercard, Visa and Maestro"
+              "cards": "Amex, Mastercard, Visa et Maestro"
             },
             "learnMore": "Voir plus de détails sur les méthodes de paiement",
             "title": "Modes de paiement"
@@ -768,12 +793,21 @@
     "dataMissing": "Récupération de l’historique des données… veuillez patienter.",
     "dataOldTimestamp": "Mise à jour de l’historique des taux de change. Le graphique ne tient pas compte des données après {{time}}.",
     "dataUpdating": "mise à jour des données…",
+    "displayMode": {
+      "performance": "Performance",
+      "switchTo": "Passer à « {{displayMode}} »",
+      "totalValue": "Valeur dans le temps",
+      "unavailableSwitchTo": "« {{displayMode}} » n’est pas disponible. Passer à « {{nextDisplayMode}} »"
+    },
     "filter": {
       "all": "Tout",
       "month": "Mois",
       "week": "Semaine",
       "year": "Année"
-    }
+    },
+    "transactions_many": "{{count}} transactions",
+    "transactions_one": "{{count}} transaction",
+    "transactions_other": "{{count}} transactions"
   },
   "checkSDcard": "vérification de la carte microSD",
   "clickHere": "Cliquez ici.",
@@ -827,6 +861,12 @@
       },
       "title": "Informations sur l'appareil"
     },
+    "deviceLanguage": {
+      "description": "Modifier la langue utilisée sur votre BitBox.",
+      "error_104": "Le changement de langue de l’appareil a été annulé.",
+      "success": "La langue de l’appareil a été modifiée.",
+      "title": "Modifier la langue de l’appareil"
+    },
     "deviceSettings": {
       "title": "Paramètres de l’appareil"
     },
@@ -835,7 +875,7 @@
         "description": "Générez des clés enfants depuis votre portefeuille BitBox.",
         "disclaimer": "Je comprends comment fonctionnent les clés enfants et les considérations de sécurité",
         "how": {
-          "description": "Les clés enfants sont affichées sous forme de mnémonique sur votre BitBox. Vous pouvez créer autant de clés enfants que vous le souhaitez. Pour afficher une clé enfant, il vous sera demandé le numéro de la clé enfant (par exemple, 1ère, 2ème, 3ème, etc.) et la longueur souhaitée de la mnémonique (12, 18 ou 24 mots de récupération). N'oubliez pas que vous devez garder une trace du <strong>numéro de la clé enfant et du nombre de mots</strong> pour afficher la même mnémonique plus tard.",
+          "description": "Les clés enfants sont affichées sous forme de mots de récupération sur votre BitBox. Vous pouvez en créer autant que vous le souhaitez. Pour afficher une clé enfant, il vous sera demandé son numéro (par exemple, 1, 2 ou 3) et la longueur souhaitée (12 ou 24 mots de récupération). Conservez bien le <strong>numéro de la clé enfant et le nombre de mots</strong> : ils seront nécessaires pour afficher à nouveau les mêmes mots de récupération.",
           "title": "Comment cela fonctionne-t-il ?"
         },
         "recover": {
@@ -854,8 +894,8 @@
         }
       },
       "factoryReset": {
-        "description": "Réinitialisez votre appareil aux paramètres d'usine. Cela supprimera le portefeuille de votre BitBox !",
-        "title": "Réinitialisation aux paramètres d'usine"
+        "description": "Supprime le portefeuille et ses données du BitBox",
+        "title": "Supprimer le portefeuille du BitBox"
       },
       "goToStartupSettings": {
         "description": "Entrez dans le bootloader du BitBox. Vous pourrez y activer l'affichage du hachage du micrologiciel."
@@ -927,12 +967,25 @@
     "lightningInvalidAmount": "Montant invalide.",
     "lightningInvalidPaymentInput": "Facture ou demande de paiement invalide.",
     "lightningInvoiceAlreadyUsed": "Cette facture Lightning a déjà été utilisée. Veuillez demander une nouvelle facture.",
+    "lightningPaymentFailed": "Le paiement Lightning a échoué. Vérifiez les informations du paiement avant de réessayer.",
     "lightningPaymentPreparationFailed": "Impossible de préparer le paiement. Veuillez réessayer.",
-    "lightningTopUpClaimFailed": "Veuillez essayer de réclamer à nouveau le dépôt.",
+    "lightningTopUpClaimFailed": "Veuillez réessayer de récupérer le dépôt.",
     "lightningTopUpRefundFailed": "Veuillez essayer de rembourser à nouveau le dépôt.",
     "paymentApprovalRequired": "Les frais de paiement ont augmenté. Veuillez les vérifier et confirmer à nouveau.",
     "wrongKeystore": "Portefeuille connecté incorrect. Veuillez vous assurer d'insérer le bon appareil correspondant à ce compte.",
     "wrongKeystore2": " Si vous utilisez la passphrase facultative, assurez-vous bien que vous avez saisi la passphrase correspondant à ce compte."
+  },
+  "evmChains": {
+    "arbitrumOne": "Arbitrum One",
+    "base": "Base",
+    "bnbSmartChain": "BNB Smart Chain",
+    "ethereumMainnet": "Réseau principal Ethereum",
+    "ethereumSepoliaTestnet": "Réseau de test Ethereum Sepolia",
+    "gnosis": "Gnosis",
+    "hyperEVM": "HyperEVM",
+    "optimism": "Optimism",
+    "polygon": "Polygon",
+    "sonic": "Sonic"
   },
   "exchange": {
     "btcdirect": {
@@ -1039,6 +1092,7 @@
     "enable": "Activer",
     "enabled_false": "Désactivé",
     "enabled_true": "Activé",
+    "iHaveReadTheInformation": "J’ai lu les informations ci-dessus",
     "insure": "Assurer",
     "max": "Maximum",
     "new": "Nouveau",
@@ -1055,6 +1109,7 @@
     "retry": "Réessayer",
     "search": "Rechercher…",
     "searchButton": "Rechercher",
+    "selectAll": "Tout sélectionner",
     "sell": "Vendre {{coinCode}}",
     "sell_bitcoin": "Vendre du Bitcoin",
     "sell_crypto": "Vendre des cryptos",
@@ -1064,6 +1119,7 @@
     "spend_bitcoin": "Dépenser du bitcoin",
     "spend_crypto": "Dépenser des cryptos",
     "swap": "Échanger",
+    "unavailable": "Indisponible",
     "unknown": "Inconnu"
   },
   "genericError": "Une erreur est survenue. Si le problème persiste, veuillez redémarrer l'application.",
@@ -1149,8 +1205,17 @@
       "title": "Comment le montant total est-il calculé ?"
     },
     "accountSummaryDescription": {
-      "text": "Vous pouvez voir ici la performance de votre portefeuille au fil du temps. Un résumé de vos différents comptes de cryptomonnaies est affiché sous le graphique.",
+      "text": "Vous pouvez voir ici l’évolution de la valeur et de la performance de votre portefeuille au fil du temps. Un résumé de chacun de vos comptes en cryptomonnaies figure sous le graphique.",
       "title": "Que me montre cette page ?"
+    },
+    "accountSummaryPercentageMeaning": {
+      "listOptions": [
+        "Valeur dans le temps : évolution de la valeur de votre portefeuille, dépôts et retraits compris.",
+        "Performance : rendement pondéré par les flux monétaires (MWR). Il tient compte des dépôts et des retraits afin de refléter la performance de votre portefeuille."
+      ],
+      "outro": "Vous pouvez basculer entre la performance et la valeur dans le temps en cliquant sur le pourcentage ou dans Paramètres > Apparence. Par défaut, l’application affiche la valeur dans le temps.",
+      "text": "Le pourcentage du graphique de votre portefeuille peut afficher deux mesures pour la période sélectionnée :",
+      "title": "Que signifie ce pourcentage ?"
     },
     "accountTransactionAttributesBTC": {
       "text": "Taille virtuelle : détermine les frais de réseau. Vous économisez sur les frais lorsqu’elle est inférieure à la taille réelle de la transaction.\nTaille : taille réelle de la transaction en octets une fois sérialisée selon les règles de la blockchain.\nPoids : mesure introduite avec SegWit pour évaluer la taille des transactions et des blocs. Chaque octet de données de témoin compte pour une unité de poids, tandis que les autres octets comptent pour quatre unités. La limite d’un bloc n’est ainsi plus exprimée comme un mégaoctet de taille réelle, mais comme quatre millions d’unités de poids.",
@@ -1212,6 +1277,14 @@
         "text": "Les comptes sont pratiques pour gérer séparément des fonds destinés à différentes personnes ou à différents usages. Vous pouvez également partager la \"clé publique étendue\" (xpub) d’un compte sans rien révéler de vos autres comptes. Cela vous permet de recevoir des fonds à plusieurs reprises sans réutiliser d’adresses, par exemple pour recevoir votre salaire ou acheter régulièrement des cryptomonnaies.",
         "title": "Pourquoi est-ce utile ?"
       }
+    },
+    "appearancePortfolioPercentageOptions": {
+      "listOptions": [
+        "Valeur dans le temps : évolution de la valeur de votre portefeuille, dépôts et retraits compris.",
+        "Performance : rendement pondéré par les flux monétaires (MWR). Il tient compte des dépôts et des retraits afin de refléter la performance de votre portefeuille."
+      ],
+      "text": "Le pourcentage du graphique de votre portefeuille peut afficher deux mesures :",
+      "title": "À quoi correspondent les options d’affichage du pourcentage du portefeuille ?"
     },
     "appendix": {
       "feedback": {
@@ -1344,6 +1417,10 @@
         "title": "Pourquoi indiquer le modèle de puce sécurisée ?"
       }
     },
+    "disclaimer": {
+      "link": "Consulter les mentions légales de {{provider}}",
+      "title": "Mentions légales de {{provider}}"
+    },
     "guideTitle": {
       "account": "Guide du compte",
       "accountInformation": "Guide des informations du compte",
@@ -1391,7 +1468,7 @@
           "title": "Comment recevoir un paiement Lightning ?"
         },
         "reuseAddress": {
-          "text": "Oui. Contrairement à une facture, votre adresse Lightning peut être utilisée pour plusieurs paiements. L’expéditeur choisit le montant et son portefeuille récupère automatiquement les informations de paiement. Même si elle y ressemble, il ne s’agit pas d’une adresse e-mail.",
+          "text": "Oui. Contrairement à une facture, votre adresse Lightning peut être utilisée pour plusieurs paiements. L’expéditeur choisit le montant et son portefeuille récupère automatiquement les informations de paiement. Même si elle y ressemble, il ne s’agit pas d’une adresse courriel.",
           "title": "Puis-je réutiliser mon adresse Lightning ?"
         }
       },
@@ -1413,7 +1490,7 @@
           "title": "Quelle est la différence entre une facture et une adresse Lightning ?"
         },
         "payment": {
-          "text": "Scannez ou collez une facture BOLT11, une demande LNURL-Pay ou une adresse Lightning. Une adresse Lightning ressemble à une adresse e-mail, mais elle est utilisée pour les paiements.",
+          "text": "Scannez ou collez une facture BOLT11, une demande LNURL-Pay ou une adresse Lightning. Une adresse Lightning ressemble à une adresse courriel, mais elle est utilisée pour les paiements.",
           "title": "Comment envoyer un paiement Lightning ?"
         }
       }
@@ -1436,7 +1513,7 @@
         "title": "Comment puis-je vérifier une adresse en toute sécurité ?"
       },
       "plugout": {
-        "text": "Non, une fois que vous avez envoyé des fonds sur votre adresse BitBox, vous n'avez pas besoin de laisser votre BitBox branchée. Vous êtes libre de pouvoir déconnecter votre BitBox.",
+        "text": "Non, une fois que vous avez envoyé des fonds sur votre adresse BitBox, vous n'avez pas besoin de laisser votre BitBox branché. Vous pouvez déconnecter votre BitBox.",
         "title": "Dois-je laisser mon BitBox branché quand je reçois des fonds ?"
       },
       "why20": {
@@ -1463,7 +1540,7 @@
       },
       "plugout": {
         "text": "Non, une fois que vous avez effectué une transaction, il n'est pas nécessaire de laisser votre BitBox branché. Vous pouvez déconnecter votre BitBox.",
-        "title": "Dois-je laisser ma BitBox branchée pendant l'envoi ?"
+        "title": "Dois-je laisser mon BitBox branché pendant l'envoi ?"
       },
       "priority": {
         "text": "Votre transaction sera généralement confirmée plus rapidement par le réseau si les frais que vous êtes prêt à payer sont élevés.",
@@ -1505,7 +1582,7 @@
         "title": "Quelles sont les options disponibles pour faire tourner un nœud ?"
       },
       "tor": {
-        "text": "Tor est l’acronyme de « The Onion Router », un logiciel libre et gratuit qui offre de nombreux avantages en matière de confidentialité et qui est particulièrement intéressant lorsque vous utilisez Bitcoin.\nSi vous avez l’intention de vous connecter à votre nœud via Tor, assurez-vous que Tor est installé sur votre ordinateur, puis activez le proxy Tor dans les paramètres du BitBoxApp.\nSur la plupart des systèmes d’exploitation, il existe deux façons d’exécuter Tor :\n1. Navigateur Tor : téléchargez et ouvrez le navigateur Tor. Cela permettra au BitBoxApp de se connecter au réseau Tor en activant le port 9150 dans les paramètres du proxy Tor.\n2. Service d’arrière-plan Tor : installez le démon Tor, qui fonctionne en permanence en arrière-plan. La BitBoxApp peut alors se connecter en configurant le port 9050 dans les paramètres du proxy Tor.",
+        "text": "Tor est l’acronyme de « The Onion Router », un logiciel libre et gratuit qui offre de nombreux avantages en matière de confidentialité et qui est particulièrement intéressant lorsque vous utilisez Bitcoin.\nSi vous avez l’intention de vous connecter à votre nœud via Tor, assurez-vous que Tor est installé sur votre ordinateur, puis activez le proxy Tor dans les paramètres de la BitBoxApp.\nSur la plupart des systèmes d’exploitation, il existe deux façons d’exécuter Tor :\n1. Navigateur Tor : téléchargez et ouvrez le navigateur Tor. Cela permettra à la BitBoxApp de se connecter au réseau Tor en activant le port 9150 dans les paramètres du proxy Tor.\n2. Service d’arrière-plan Tor : installez le démon Tor, qui fonctionne en permanence en arrière-plan. La BitBoxApp peut alors se connecter en configurant le port 9050 dans les paramètres du proxy Tor.",
         "title": "Qu'est-ce que Tor, le proxy Tor et quel port dois-je utiliser ?"
       },
       "what": {
@@ -1637,23 +1714,25 @@
         "title": "Créer un portefeuille Lightning"
       }
     },
-    "betaWarning": "Lightning est une fonctionnalité bêta destinée à la prévisualisation et aux tests. N’utilisez Lightning qu’avec un faible montant de fonds !",
+    "betaWarning": "Lightning est en version bêta. N’y placez que de faibles montants.",
     "bitcoinDeposit": {
-      "claim": "Réclamer le dépôt ou le rembourser",
+      "claim": "Récupérer le dépôt ou demander son remboursement",
       "label": "Dépôt Bitcoin",
       "state": {
         "claiming": "Réclamation du dépôt",
         "confirming": "En attente de confirmations",
+        "refundPending": "Remboursement en attente de diffusion sur le réseau",
         "unclaimed": "Réclamation requise"
       },
       "stateShort": {
         "claiming": "Réclamation",
         "confirming": "Confirmation",
+        "refundPending": "Remboursement en attente",
         "unclaimed": "Réclamation requise"
       }
     },
     "claimTopUp": {
-      "claimButton": "Réclamer le dépôt",
+      "claimButton": "Récupérer le dépôt",
       "claimFee": "Frais de réclamation",
       "claimUnavailable": "Réclamation indisponible",
       "confirm": {
@@ -1666,7 +1745,7 @@
         "refundDestination": "Destination du remboursement",
         "refundTitle": "Confirmer le remboursement du dépôt"
       },
-      "description": "Vous devrez créer une transaction pour réclamer le montant bloqué.",
+      "description": "Récupérez ce dépôt pour ajouter les fonds à votre portefeuille Lightning.",
       "empty": "Aucun dépôt non réclamé trouvé.",
       "failure": {
         "claimFailedMessage": "La réclamation du dépôt a échoué.",
@@ -1677,17 +1756,24 @@
       "feeRate": "{{feeRate}} sat/vByte",
       "refundButton": "Rembourser le dépôt",
       "refundFee": "Taux de frais du remboursement",
+      "refundPending": "Le remboursement n’a pas encore été diffusé sur le réseau Bitcoin. Une nouvelle tentative sera effectuée automatiquement. Vous pouvez également réessayer avec le taux de frais actuel.",
       "refundUnavailable": "Remboursement indisponible",
       "success": {
-        "claimTitle": "Réclamer le dépôt",
-        "refundMessage": "Transaction de remboursement créée",
+        "claimTitle": "Récupérer le dépôt",
+        "deferredMessage": "Récupération du dépôt programmée",
+        "deferredNote": "Le dépôt n’a pas encore été récupéré. Une nouvelle tentative sera effectuée automatiquement lorsque les frais respecteront la limite définie.",
+        "refundMessage": "Remboursement demandé",
         "refundNote": "Le remboursement réapparaîtra dans votre portefeuille on-chain une fois la transaction confirmée.",
-        "refundTitle": "Rembourser le dépôt"
+        "refundTitle": "Rembourser le dépôt",
+        "settledMessage": "Dépôt récupéré",
+        "settledNote": "Les fonds sont désormais disponibles dans votre portefeuille Lightning.",
+        "submittedMessage": "Demande de récupération du dépôt envoyée",
+        "submittedNote": "La demande est en cours de traitement. Les fonds apparaîtront dans votre portefeuille Lightning une fois l’opération terminée."
       },
-      "title": "Réclamer le dépôt",
+      "title": "Récupérer le dépôt",
       "topUp": "Dépôt non réclamé",
       "viewTransaction": "Voir la transaction",
-      "warning": "Vous pouvez soit réclamer le dépôt, soit le rembourser. Dans les deux cas, des frais s’appliqueront."
+      "warning": "Vous pouvez soit récupérer le dépôt, soit demander son remboursement. Des frais s’appliqueront dans les deux cas."
     },
     "closeWithdrawFunds": {
       "accountDestination": "Les fonds seront envoyés vers",
@@ -1711,6 +1797,29 @@
         "note": "Vos fonds apparaîtront dans votre portefeuille une fois la transaction confirmée."
       },
       "viewTransaction": "Voir la transaction"
+    },
+    "contacts": {
+      "add": "Ajouter un contact",
+      "addAfterPayment": "Ajouter <strong>{{address}}</strong> à vos contacts",
+      "addressPlaceholder": "satoshi@bitbox.cash",
+      "delete": "Supprimer le contact",
+      "deleteAction": "Supprimer",
+      "deleteConfirmation": "Voulez-vous vraiment supprimer ce contact ?",
+      "deleteError": "Impossible de supprimer le contact. Veuillez réessayer.",
+      "details": "Informations du contact",
+      "duplicateAddress": "Cette adresse Lightning figure déjà dans vos contacts.",
+      "empty": "Aucun contact pour le moment",
+      "invalidAddress": "Saisissez une adresse Lightning valide.",
+      "loadError": "Impossible de charger les contacts. Veuillez réessayer.",
+      "myAccounts": "Mes comptes",
+      "name": "Nom",
+      "namePlaceholder": "Saisissez un nom",
+      "notFound": "Contact introuvable.",
+      "optional": "facultatif",
+      "saveError": "Impossible d’enregistrer le contact. Veuillez réessayer.",
+      "saved": "Contact enregistré",
+      "sendTo": "Envoyer à",
+      "title": "Contacts"
     },
     "deactivate": {
       "intro": {
@@ -1756,6 +1865,7 @@
         "title": "Modèle de confiance"
       }
     },
+    "initializationFailed": "Une erreur est survenue lors de l’initialisation de Lightning. Redémarrez la BitBoxApp pour réessayer.",
     "initializing": "Initialisation du compte Lightning…",
     "limit": {
       "accountWarning": "Le montant du portefeuille dépasse la limite de {{limit}} de {{excess}}. Nous vous recommandons de transférer une partie des fonds vers votre portefeuille BitBox pour une meilleure sécurité.",
@@ -1779,6 +1889,7 @@
       },
       "title": "Définir l’adresse LNURL"
     },
+    "paymentDescription": "Description de la facture",
     "payments": {
       "header": {
         "amount": "Montant",
@@ -1819,6 +1930,7 @@
       "title": "Recevoir avec Lightning"
     },
     "send": {
+      "activationRequired": "Activez Lightning avant d’effectuer le paiement. Une fois la configuration terminée, ouvrez à nouveau le lien de paiement.",
       "confirm": {
         "amount": "Montant",
         "note": "Note",
@@ -1828,7 +1940,7 @@
       "enterInvoice": "Saisir une adresse ou une facture",
       "invoice": {
         "label": "Saisir les informations de paiement",
-        "placeholder": "Adresse ou facture"
+        "placeholder": "Informations de paiement"
       },
       "lnurlPay": {
         "invalidAmount": "Saisissez un montant compris entre {{minAmount}} et {{maxAmount}} sats."
@@ -1851,6 +1963,7 @@
     "settings": {
       "closeAndWithdrawFunds": "Fermer et retirer les fonds",
       "disableWallet": "Désactiver le portefeuille Lightning",
+      "enableDebugLogs": "Activer les journaux de débogage Lightning",
       "enableWallet": "Activer le portefeuille Lightning",
       "enableWalletDescription": "Lightning permet des paiements instantanés avec de faibles frais.",
       "expert": "Expert",
@@ -1868,11 +1981,13 @@
       "unknown": "Le statut du réseau Spark est inconnu. Les paiements Lightning peuvent être indisponibles."
     },
     "testnetWarning": {
+      "message": "Les fonds Lightning ont une valeur réelle, même lorsque l’application est en mode testnet. Voulez-vous continuer ?",
       "title": "Avertissement"
     },
     "topUp": {
       "action": "Déposer",
       "available": "Disponible",
+      "claimFeeInfo": "Ces frais sont déduits du montant de votre dépôt. Les frais réels peuvent varier selon l’état du réseau Bitcoin au moment de la récupération.",
       "confirm": {
         "amount": "Montant",
         "continue": "Continuez sur votre BitBox.",
@@ -1881,12 +1996,13 @@
         "title": "Confirmer et envoyer la transaction",
         "total": "Total"
       },
+      "estimatedClaimFee": "Frais estimés de récupération du dépôt",
       "from": "Depuis",
       "noBitcoinAccounts": "Aucun compte Bitcoin actif. Veuillez activer un compte Bitcoin.",
       "note": "Dépôt Lightning",
       "success": {
         "message": "Dépôt créé !",
-        "note": "La transaction de dépôt apparaîtra après une confirmation et sera terminée après trois confirmations. Cela prend généralement 30 minutes ou plus."
+        "note": "La transaction de dépôt apparaîtra comme en attente dans la liste des paiements avant sa première confirmation. Les fonds seront récupérés automatiquement lorsque les confirmations et les frais le permettront. Une récupération standard nécessite trois confirmations, mais certaines récupérations anticipées peuvent aboutir plus tôt."
       },
       "title": "Déposer sur le portefeuille Lightning",
       "to": "Vers"
@@ -1922,6 +2038,13 @@
       "feedbackLink": {
         "description": "Si vous avez un retour général",
         "title": "Retour"
+      },
+      "licenses": {
+        "description": "Consulter les licences des bibliothèques et des dépendances libres utilisées par cette application",
+        "error": "Impossible de charger les licences.",
+        "packagesInfo": "Cette application utilise les dépendances libres suivantes ({{packageCount}} paquets).",
+        "title": "Licences",
+        "unavailableLicenseText": "Texte de la licence indisponible."
       },
       "supportLink": {
         "description": "Si vous rencontrez un problème ou avez besoin d’aide",
@@ -1972,6 +2095,14 @@
         "description": "Quelle langue souhaitez-vous que la BitBoxApp utilise ?",
         "title": "Langue"
       },
+      "portfolioPerformance": {
+        "description": "Choisir le mode de calcul du pourcentage de votre portefeuille.",
+        "options": {
+          "moneyWeightedReturn": "Performance",
+          "value": "Valeur dans le temps"
+        },
+        "title": "Pourcentage du portefeuille"
+      },
       "remebmerWallet": {
         "enable": {
           "description": "Vous pouvez désormais voir les comptes associés à ce portefeuille sans insérer votre appareil BitBox. Cependant, le BitBox est toujours requis pour effectuer des transactions et afficher les adresses de réception.",
@@ -2003,7 +2134,7 @@
     "description1": "Seul le BitBox02 Nova est compatible avec iOS. Pour le BitBox02, utilisez Windows, macOS, Android ou Linux. Vous pouvez acheter un BitBox02 Nova dans notre boutique en ligne :",
     "description2": "L’écran devrait s’allumer. Si ce n’est pas le cas, l’appareil n’est pas alimenté.",
     "description3": "Gardez le BitBox02 Nova à proximité de votre iPhone/iPad. Nous vous recommandons de brancher le BitBox02 Nova directement sur votre appareil.",
-    "description4": "Le BitBox02 Nova se connecte à iOS via Bluetooth. Le Bluetooth peut être désactivé ou activé depuis les paramètres du BitBoxApp sur les autres plateformes.",
+    "description4": "Le BitBox02 Nova se connecte à iOS via Bluetooth. Sur les autres plateformes, le Bluetooth peut être activé ou désactivé depuis les paramètres de la BitBoxApp.",
     "link1": "Commander un BitBox02 Nova",
     "link2": "Contacter l’assistance",
     "stillHavingIssues": "Le problème persiste ?",
@@ -2202,6 +2333,7 @@
     "edit": "Modifier la transaction",
     "error": {
       "accountNotSynced": "Le compte n’est pas encore synchronisé. Veuillez attendre la fin de la synchronisation et réessayer.",
+      "broadcastUncertain": "La transaction pourrait encore être diffusée. L’application continuera d’essayer de la transmettre. Vérifiez votre historique des transactions avant de recommencer, afin d’éviter de payer deux fois.",
       "erc20InsufficientGasFunds": "Il semblerait que vous n'ayez pas assez d'Ether pour régler cette transaction ERC20. Veuillez vous assurer que vous avez suffisamment d'Ether dans votre portefeuille.",
       "feeTooLow": "Frais pas assez élevés",
       "feesNotAvailable": "Estimation des frais impossible",
@@ -2209,11 +2341,13 @@
       "invalidAddress": "adresse invalide",
       "invalidAmount": "montant invalide",
       "invalidData": "données invalides",
-      "paymentRequestAccountMismatch": "Cette demande de paiement concerne un autre actif. Ouvrez le compte correspondant et réessayez.",
+      "paymentRequestAccountMismatch": "Cette demande de paiement concerne un autre réseau ou un autre actif. Ouvrez le compte correspondant et réessayez.",
       "syncInProgress": "Le compte est encore en cours de synchronisation. Veuillez attendre la fin de la synchronisation et réessayer."
     },
     "fee": {
       "customPlaceholder": "Entrer le montant",
+      "highFee": "Frais élevés",
+      "highFeeWarning": "Les frais représentent {{percentage}} % du montant envoyé. Voulez-vous continuer ?",
       "label": "Frais de réseau",
       "placeholder": "Indisponible"
     },
@@ -2274,6 +2408,22 @@
     "about": "À propos",
     "advancedSettings": "Paramètres avancés",
     "appearance": "Apparence",
+    "balanceStatement": {
+      "export": {
+        "description": "Exporter au format PDF un relevé de vos avoirs à une date donnée.",
+        "dialog": {
+          "accountsLabel": "Comptes à inclure",
+          "dateLabel": "Date du relevé",
+          "description": "Choisissez la date et les comptes à inclure dans le relevé des soldes.",
+          "generate": "Générer le PDF",
+          "noAccounts": "Aucun compte actif disponible."
+        },
+        "errors": {
+          "sepoliaBalanceStatementUnsupported": "Impossible d’exporter Ethereum Sepolia, car l’historique des soldes n’est pas disponible. Désélectionnez les comptes Sepolia pour exporter vos autres comptes."
+        },
+        "title": "Exporter un relevé de soldes"
+      }
+    },
     "electrum": {
       "add": "Ajouter un serveur",
       "add-server": "Ajouter",
@@ -2309,6 +2459,7 @@
           "note": "Les noms de vos comptes, vos notes et vos portefeuilles ne sont pas affectés.",
           "primaryCTA": "Effacer le cache"
         },
+        "success": "Cache vidé avec succès",
         "title": "Effacer le cache"
       },
       "coinControl": "Activer le contrôle des monnaies",
@@ -2357,6 +2508,7 @@
       },
       "title": "Gérer les notes"
     },
+    "other": "Autres",
     "restart": "Veuillez redémarrer la BitBoxApp pour que les changements prennent effet.",
     "search": {
       "noResults": "Aucun paramètre trouvé"
@@ -2407,10 +2559,12 @@
     "fastest": "Le plus rapide",
     "fetchQuotesError": "Impossible de récupérer des cotations pour le moment. Veuillez réessayer.",
     "fetchingRoutes": "Récupération des routes…",
+    "insufficientGasFunds": "Vous avez besoin de davantage d’ETH sur votre compte <strong>{{accountName}}</strong> pour payer les frais de réseau. <buyLink>Acheter des ETH maintenant</buyLink>",
     "new": "Nouvel échange",
     "noRouteFound": "Aucune route trouvée",
     "noRouteFoundForPair": "Aucune route trouvée de {{sellCoin}} vers {{buyCoin}}. Essayez de saisir un montant plus élevé. Sinon, réessayez plus tard.",
     "oneRouteAvailable": "Une route disponible",
+    "providersUnavailable": "Les fournisseurs d’échange ne sont actuellement pas disponibles pour l’actif sélectionné à la vente. Veuillez réessayer plus tard.",
     "recommended": "Recommandé",
     "route": "Route d’échange",
     "routesPlaceholder": "Les routes apparaîtront ici après saisie d’un montant",
@@ -2427,6 +2581,11 @@
     },
     "prompt": {
       "button": "Déverrouiller",
+      "info": [
+        "Le portefeuille de test utilise un dispositif logiciel de gestion des clés intégré à l’application.",
+        "Chaque mot de passe déverrouille un portefeuille différent, comme avec une phrase secrète.",
+        "Vous pouvez laisser le mot de passe vide pour accéder au portefeuille de test par défaut."
+      ],
       "passwordLabel": "Mot de passe de test",
       "title": "Déverrouiller le portefeuille de test"
     }
@@ -2460,6 +2619,7 @@
       "type": "Nature"
     },
     "explorer": "Identification de transaction",
+    "explorerError": "Impossible d’ouvrir le navigateur.",
     "explorerTitle": "Ouvrir dans un Explorateur de blocs externe",
     "fee": "Frais",
     "feeRate": "Taux de frais",
@@ -2555,8 +2715,12 @@
     },
     "pairingRequest": {
       "approve": "Approuver la connexion",
+      "chains": "Chaînes",
+      "readOnly": "Cette connexion peut consulter votre adresse, mais ne peut demander ni signature ni transaction.",
       "reject": "Rejeter",
-      "title": "Nouvelle demande de connexion de"
+      "rejectionFailed": "La demande n’a pas pu être rejetée, mais aucune session n’a été créée.",
+      "title": "Nouvelle demande de connexion de",
+      "unsupported": "Cette demande de connexion n’est pas prise en charge."
     },
     "pairingSuccess": "dApp connectée avec succès. Vous pouvez continuer sur le site de la dApp.",
     "signingRequest": {
