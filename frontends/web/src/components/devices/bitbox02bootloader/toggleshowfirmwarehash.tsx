@@ -42,7 +42,9 @@ export const ToggleShowFirmwareHash = ({ deviceID, onError }: Props) => {
 
   return (
     <div className="flex flex-row flex-between flex-items-center">
-      <p className="m-none">{t('bb02Bootloader.advanced.toggleShowFirmwareHash')}</p>
+      <label className="m-none" htmlFor="togggle-show-firmware-hash">
+        {t('bb02Bootloader.advanced.toggleShowFirmwareHash')}
+      </label>
       <Toggle
         checked={enabledState}
         id="togggle-show-firmware-hash"
