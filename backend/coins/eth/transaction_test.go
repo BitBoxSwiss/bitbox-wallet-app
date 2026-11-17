@@ -344,6 +344,59 @@ func TestSignTransactionUsesOnlyTargetChainClient(t *testing.T) {
 	require.Empty(t, outgoingTxs(t, acct))
 }
 
+// An untracked cross-chain broadcast warns about ambiguous submission errors while preserving
+// explicit rejection errors and accepting a transaction the provider already knows.
+func TestSignTransactionUntrackedBroadcastResult(t *testing.T) {
+	requestRejected := errp.WithMessage(rpcclient.ErrRequestRejected, "invalid request")
+	for _, test := range []struct {
+		name          string
+		sendErr       error
+		expectedCause error
+	}{
+		{
+			name:          "transport outcome is uncertain",
+			sendErr:       errp.New("request timed out"),
+			expectedCause: ErrBroadcastUncertain,
+		},
+		{
+			name:          "provider timeout is uncertain",
+			sendErr:       rpcclient.RPCError{Code: -32002, Message: "request timed out"},
+			expectedCause: ErrBroadcastUncertain,
+		},
+		{
+			name:          "request rejected before submission",
+			sendErr:       requestRejected,
+			expectedCause: rpcclient.ErrRequestRejected,
+		},
+		{
+			name:          "provider rejected transaction",
+			sendErr:       rpcclient.RPCError{Code: -32000, Message: "insufficient funds"},
+			expectedCause: rpcclient.RPCError{Code: -32000, Message: "insufficient funds"},
+		},
+		{
+			name:    "transaction already known",
+			sendErr: rpcclient.RPCError{Code: -32000, Message: "already known"},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			client := newTransactionRPCClient(4, 21000, big.NewInt(3), test.sendErr)
+			acct := newAccountWithOptions(t, true, make(chan struct{}, 1))
+			defer acct.Close()
+			setTransactionSigningKeystore(t, acct, 10)
+
+			_, err := SignTransaction(SignTransactionArgs{
+				ChainID: 10, Broadcast: true, Transaction: validTransactionRequest(acct),
+			}, client, acct.signingConfiguration, acct.Config().ConnectKeystore, nil, acct.log)
+			if test.expectedCause == nil {
+				require.NoError(t, err)
+			} else {
+				require.Equal(t, test.expectedCause, errp.Cause(err))
+			}
+			require.Len(t, client.SendTransactionCalls(), 1)
+		})
+	}
+}
+
 func TestSignTransactionNativeNonceUsesHigherPendingNonce(t *testing.T) {
 	acct := newAccountWithOptions(t, true, make(chan struct{}, 1))
 	defer acct.Close()

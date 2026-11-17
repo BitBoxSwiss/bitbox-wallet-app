@@ -128,13 +128,26 @@ func SignTransaction(
 		if pending != nil {
 			err = pending.send(client, sender, txProposal.Tx)
 		} else {
-			err = client.SendTransaction(context.TODO(), txProposal.Tx)
+			err = sendUntrackedTransaction(client, txProposal.Tx)
 		}
 		if err != nil {
 			return nil, errp.WithStack(err)
 		}
 	}
 	return txProposal.Tx, nil
+}
+
+// sendUntrackedTransaction reports any submission whose rejection is not explicit as uncertain.
+func sendUntrackedTransaction(client rpcclient.Interface, transaction *types.Transaction) error {
+	err := client.SendTransaction(context.TODO(), transaction)
+	rpcErr, _ := errp.Cause(err).(rpcclient.RPCError)
+	if rpcErr.Message == "already known" {
+		return nil
+	}
+	if err == nil || rpcErr.Rejected() || errp.Cause(err) == rpcclient.ErrRequestRejected {
+		return err
+	}
+	return errp.WithMessage(ErrBroadcastUncertain, err.Error())
 }
 
 // SignTypedMsg signs an Ethereum EIP-712 typed message for a supported EVM chain.
