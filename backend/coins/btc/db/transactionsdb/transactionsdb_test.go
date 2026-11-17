@@ -485,6 +485,45 @@ func TestOutputsQuick(t *testing.T) {
 	})
 }
 
+// Removing an output from current history must preserve its script and amount for later signature
+// checks, including after reopening the database, without keeping it in the active output index.
+func TestKnownOutputAfterRemoval(t *testing.T) {
+	filename := path.Join(t.TempDir(), "transactions.db")
+	db, err := NewDB(filename)
+	require.NoError(t, err)
+	defer func() { require.NoError(t, db.Close()) }()
+	outPoint := wire.OutPoint{Hash: chainhash.Hash{1}, Index: 2}
+	output := wire.NewTxOut(1234, []byte("script"))
+	tx, err := db.Begin(true)
+	require.NoError(t, err)
+	defer tx.Rollback()
+	known, err := tx.KnownOutput(outPoint)
+	require.NoError(t, err)
+	require.Nil(t, known)
+	require.NoError(t, tx.PutOutput(outPoint, output))
+	known, err = tx.KnownOutput(outPoint)
+	require.NoError(t, err)
+	require.Equal(t, output, known)
+	require.NoError(t, tx.DeleteOutput(outPoint))
+	require.NoError(t, tx.DeleteOutput(outPoint))
+	require.NoError(t, tx.Commit())
+	require.NoError(t, db.Close())
+	db, err = NewDB(filename)
+	require.NoError(t, err)
+	tx, err = db.Begin(false)
+	require.NoError(t, err)
+	defer tx.Rollback()
+	known, err = tx.KnownOutput(outPoint)
+	require.NoError(t, err)
+	require.Equal(t, output, known)
+	active, err := tx.Output(outPoint)
+	require.NoError(t, err)
+	require.Nil(t, active)
+	outputs, err := tx.Outputs()
+	require.NoError(t, err)
+	require.Empty(t, outputs)
+}
+
 func TestAddressHistory(t *testing.T) {
 	testTx(func(tx *Tx) {
 		const key1 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
