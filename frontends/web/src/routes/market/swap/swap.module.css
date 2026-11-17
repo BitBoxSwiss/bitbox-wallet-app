@@ -44,6 +44,10 @@
   text-decoration: underline;
 }
 
+.minimumAmount {
+  white-space: nowrap;
+}
+
 .buyEthLink {
   color: inherit;
   text-decoration: underline;

@@ -195,7 +195,7 @@ func TestNewQuoteFromCoinCodeUsesInjectedHTTPClient(t *testing.T) {
 			return &http.Response{
 				StatusCode: http.StatusOK,
 				Body: io.NopCloser(strings.NewReader(
-					`{"routes":[{"providers":["provider-a"],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"1.23"}]}`,
+					`{"routes":[{"providers":["provider-a"],"sellAsset":"BTC.BTC","buyAsset":"ETH.ETH","expectedBuyAmount":"1.23"}],"providerErrors":[{"provider":"FLASHNET","errorCode":"requestTimeout","message":"Timeout"}]}`,
 				)),
 				Header: make(http.Header),
 			}, nil
@@ -213,6 +213,7 @@ func TestNewQuoteFromCoinCodeUsesInjectedHTTPClient(t *testing.T) {
 	require.Len(t, response.Routes, 1)
 	require.Equal(t, "1.23", response.Routes[0].ExpectedBuyAmount)
 	require.Equal(t, []string{"provider-a"}, response.Routes[0].Providers)
+	require.Equal(t, errp.ErrorCode("requestTimeout"), response.ProviderErrors[0].ErrorCode)
 }
 
 func TestNewQuoteFromCoinCodeMapsEmptyRoutesToNoRoutesFound(t *testing.T) {
@@ -247,7 +248,8 @@ func TestNewQuoteFromCoinCodeMapsEmptyRoutesToNoRoutesFound(t *testing.T) {
 		newQuoteCoin(coinpkg.CodeBTC, "BTC"),
 		"1.23456789",
 	)
-	require.Nil(t, response)
+	require.NotNil(t, response)
+	require.Empty(t, response.Routes)
 	require.NotNil(t, apiError)
 	require.Equal(t, ErrNoRoutesFound, apiError.ErrorCode)
 	require.Equal(t, noRoutesFoundMessage, apiError.Message)
@@ -255,6 +257,45 @@ func TestNewQuoteFromCoinCodeMapsEmptyRoutesToNoRoutesFound(t *testing.T) {
 		SellCoin: "LTC",
 		BuyCoin:  "BTC",
 	}, apiError.Data)
+}
+
+// A successful quote can contain only provider declines; keep them and round minimums up to a spendable unit.
+func TestNewQuoteFromCoinCodePreservesProviderErrors(t *testing.T) {
+	sellCoin := newQuoteCoin(coinpkg.CodeBTC, "BTC").(*coinMocks.CoinMock)
+	sellCoin.DecimalsFunc = func(bool) uint { return 8 }
+	httpClient := &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+		body := `{"routes":[],"providerErrors":[` +
+			`{"provider":"NEAR","errorCode":"sellAssetAmountTooSmall","message":"Too small","minAmount":"0.000083"},` +
+			`{"provider":"FLASHNET","errorCode":"sellAssetAmountTooSmall","message":"Too small","minAmount":"0.000000001"},` +
+			`{"provider":"HARBOR","errorCode":"sellAssetAmountTooSmall","message":"Too small","minAmount":{"value":"0.000083"}},` +
+			`{"provider":"GARDEN","errorCode":"insufficientLiquidity","message":"No liquidity"}]}`
+		if req.URL.Path == "/providers" {
+			body = `[{"enabledChainIds":["bitcoin"]}]`
+		}
+		return &http.Response{StatusCode: http.StatusOK, Body: io.NopCloser(strings.NewReader(body))}, nil
+	})}
+
+	response, apiError := NewQuoteFromCoinCode(context.Background(), httpClient,
+		sellCoin, newQuoteCoin(coinpkg.CodeETH, "ETH"), "0.000001")
+	require.NotNil(t, apiError)
+	require.Equal(t, ErrNoRoutesFound, apiError.ErrorCode)
+	require.NotNil(t, response)
+	require.Empty(t, response.Routes)
+	require.Len(t, response.ProviderErrors, 4)
+	require.Equal(t, "0.000083", response.ProviderErrors[0].MinAmount)
+	require.Equal(t, "0.00000001", response.ProviderErrors[1].MinAmount)
+	require.Empty(t, response.ProviderErrors[2].MinAmount)
+	require.Equal(t, errp.ErrorCode("insufficientLiquidity"), response.ProviderErrors[3].ErrorCode)
+	require.Equal(t, "No liquidity", response.ProviderErrors[3].Message)
+}
+
+// An unexpected providerErrors shape cannot discard otherwise usable routes.
+func TestQuoteResponseToleratesChangedProviderErrorShape(t *testing.T) {
+	var response QuoteResponse
+	require.NoError(t, json.Unmarshal([]byte(`{"routes":[{"routeId":"route"}],"providerErrors":{"unexpected":"shape"}}`), &response))
+	require.Len(t, response.Routes, 1)
+	require.Equal(t, "route", response.Routes[0].RouteID)
+	require.Empty(t, response.ProviderErrors)
 }
 
 func TestNewQuoteFromCoinCodeMapsNoRouteAPIErrorToNoRoutesFound(t *testing.T) {

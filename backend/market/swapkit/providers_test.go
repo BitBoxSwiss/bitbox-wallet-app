@@ -80,7 +80,12 @@ func TestNewQuoteFromCoinCodeProviderAvailability(t *testing.T) {
 
 					response, apiError := NewQuoteFromCoinCode(context.Background(), httpClient,
 						newQuoteCoin(coinpkg.CodeBTC, "BTC"), newQuoteCoin(coinpkg.CodeETH, "ETH"), "1")
-					require.Nil(t, response)
+					if quoteCase.status == http.StatusOK {
+						require.NotNil(t, response)
+						require.Empty(t, response.Routes)
+					} else {
+						require.Nil(t, response)
+					}
 					require.NotNil(t, apiError)
 					require.Equal(t, testCase.wantError, apiError.ErrorCode)
 					require.Equal(t, &APIErrorData{SellCoin: "BTC", BuyCoin: "ETH"}, apiError.Data)
@@ -153,7 +158,8 @@ func TestNewQuoteFromCoinCodeProviderChainIDs(t *testing.T) {
 				})}
 				response, apiError := NewQuoteFromCoinCode(context.Background(), httpClient,
 					newQuoteCoin(testCase.coinCode, "SELL"), newQuoteCoin(coinpkg.CodeETH, "ETH"), "1")
-				require.Nil(t, response)
+				require.NotNil(t, response)
+				require.Empty(t, response.Routes)
 				require.NotNil(t, apiError)
 				wantError := ErrProvidersUnavailable
 				if enabled {

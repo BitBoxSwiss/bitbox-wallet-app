@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'wouter';
 import {
@@ -23,6 +23,7 @@ import {
   type TSwapAccounts,
   type TSwapQuoteErrorCode,
   type TSwapQuoteRoute,
+  type TSwapProviderError,
   type TSwapQuoteValidationErrorCode,
 } from '@/api/swap';
 import { useAppState } from '@/contexts/app-state-context';
@@ -36,6 +37,7 @@ import { Message } from '@/components/message/message';
 import { Button, Label } from '@/components/forms';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
+import { FormattedAmount } from '@/components/amount/amount';
 import { ArrowSwap } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { findAccount } from '@/routes/account/utils';
@@ -45,6 +47,7 @@ import { useAccountStatuses } from '@/hooks/account-status';
 import { useFeatureConnect } from '@/hooks/keystore';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
+import { getSwapProviderMetadata } from './components/swap-provider-metadata';
 import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -59,6 +62,15 @@ const INSUFFICIENT_FUNDS_ERROR: TSwapQuoteValidationErrorCode = 'insufficientFun
 const NO_ROUTES_FOUND_ERROR: TSwapQuoteErrorCode = 'noRoutesFound';
 const PROVIDERS_UNAVAILABLE_ERROR: TSwapQuoteErrorCode = 'providersUnavailable';
 const UNEXPECTED_ERROR: TSwapQuoteErrorCode = 'unexpectedError';
+
+type TDisplayedProviderError = TSwapProviderError & {
+  displayMinAmount?: { amount: string; unit: CoinUnit };
+};
+
+const isActionableProviderError = (error: TDisplayedProviderError) => (
+  error.errorCode === 'insufficientLiquidity'
+  || error.errorCode === 'estimatedTimeTooLong'
+);
 
 const fetchBalance = async (code: AccountCode) => {
   const response = await getBalance(code);
@@ -82,7 +94,7 @@ const getSwapDisplayAmount = async (
   const parsedAmount = await parseExternalBtcAmount(amount);
   return {
     amount: parsedAmount.success ? parsedAmount.amount : amount,
-    unit: displayedUnit,
+    unit: parsedAmount.success ? displayedUnit : coinUnit,
   };
 };
 
@@ -154,6 +166,7 @@ export const Swap = () => {
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
   const [validationErrorCode, setValidationErrorCode] = useState<TSwapQuoteValidationErrorCode | undefined>();
   const [routeError, setRouteError] = useState<string | undefined>();
+  const [providerErrors, setProviderErrors] = useState<TDisplayedProviderError[]>([]);
   // Drives the button disabled/loading state for the whole confirm flow.
   const [isConfirmInFlight, setIsConfirmInFlight] = useState(false);
   // Prevents double-submit before the button disabled state has re-rendered.
@@ -165,6 +178,9 @@ export const Swap = () => {
       : undefined,
     [sellAccounts, sellAccountCode],
   );
+  const sellCode = sellAccount?.code;
+  const sellCoinCode = sellAccount?.coinCode;
+  const sellCoinUnit = sellAccount?.coinUnit;
   const buyAccount = useMemo(
     () => buyAccountCode && buyAccounts
       ? findAccount(buyAccounts, buyAccountCode)
@@ -244,6 +260,7 @@ export const Swap = () => {
     setExpectedOutputUnit(undefined);
     setValidationErrorCode(undefined);
     setRouteError(undefined);
+    setProviderErrors([]);
   }, []);
 
   // flips sell and buy account
@@ -266,7 +283,6 @@ export const Swap = () => {
   // fetch swap quotes whenever the selected pair or sell amount changes.
   useEffect(() => {
     let isCancelled = false;
-    const sellCode = sellAccount?.code;
     const buyCoinCode = buyAccount?.coinCode;
     const amount = Number(sellAmount);
 
@@ -311,20 +327,49 @@ export const Swap = () => {
           setRouteError(t('swap.providersUnavailable'));
           return;
         }
+        const noRouteFoundMessage = (
+          !response.success
+          && response.errorData?.sellCoin
+          && response.errorData?.buyCoin
+            ? t('swap.noRouteFoundForPair', {
+              buyCoin: response.errorData.buyCoin,
+              sellCoin: response.errorData.sellCoin,
+            })
+            : t('swap.noRouteFound')
+        );
+        const quoteProviderErrors = response.quote?.providerErrors ?? [];
+        if (quoteProviderErrors.length > 0) {
+          const displayedErrors = await Promise.all(quoteProviderErrors.map(async error => {
+            if (error.errorCode !== 'sellAssetAmountTooSmall' || !error.minAmount || !sellCoinCode || !sellCoinUnit) {
+              return error;
+            }
+            try {
+              return {
+                ...error,
+                displayMinAmount: await getSwapDisplayAmount(
+                  error.minAmount,
+                  sellCoinCode,
+                  sellCoinUnit,
+                  btcUnit,
+                ),
+              };
+            } catch {
+              return {
+                ...error,
+                displayMinAmount: { amount: error.minAmount, unit: sellCoinUnit },
+              };
+            }
+          }));
+          if (!isCancelled) {
+            setProviderErrors(displayedErrors);
+            setRouteError(noRouteFoundMessage);
+          }
+          return;
+        }
         if (
           response.success
           || response.quoteErrorCode === NO_ROUTES_FOUND_ERROR
         ) {
-          const noRouteFoundMessage = (
-            !response.success
-            && response.errorData?.sellCoin
-            && response.errorData?.buyCoin
-              ? t('swap.noRouteFoundForPair', {
-                buyCoin: response.errorData.buyCoin,
-                sellCoin: response.errorData.sellCoin,
-              })
-              : t('swap.noRouteFound')
-          );
           setRouteError(noRouteFoundMessage);
           return;
         }
@@ -361,8 +406,11 @@ export const Swap = () => {
     buyAccount?.coinCode,
     buyAccountCode,
     clearQuoteState,
-    sellAccount?.code,
+    sellCode,
+    sellCoinCode,
+    sellCoinUnit,
     sellAmount,
+    btcUnit,
     t,
   ]);
 
@@ -555,6 +603,56 @@ export const Swap = () => {
     ) : undefined
   );
 
+  const actionableProviderErrors = [
+    ...providerErrors.filter(error => error.errorCode === 'sellAssetAmountTooSmall' && error.displayMinAmount),
+    ...providerErrors.filter(error => error.errorCode !== 'sellAssetAmountTooSmall' && isActionableProviderError(error)),
+  ];
+  let providerErrorContent: ReactNode;
+  if (actionableProviderErrors.length > 0) {
+    providerErrorContent = (
+      <>
+        {actionableProviderErrors.map((error, index) => {
+          const provider = getSwapProviderMetadata(error.provider).displayName;
+          return (
+            <div key={`${error.provider}-${error.errorCode}-${index}`}>
+              {error.errorCode === 'sellAssetAmountTooSmall' && error.displayMinAmount ? (
+                <Trans
+                  i18nKey="swap.providerError.minimum"
+                  values={{ provider, unit: error.displayMinAmount.unit }}
+                  components={{
+                    minimum: <span className={style.minimumAmount} />,
+                    amount: (
+                      <FormattedAmount
+                        amount={error.displayMinAmount.amount}
+                        unit={error.displayMinAmount.unit}
+                        maxDecimals={error.displayMinAmount.amount.split('.')[1]?.length ?? 0}
+                        alwaysShowAmounts
+                      />
+                    ),
+                  }}
+                />
+              ) : (
+                t('swap.providerError.reduceAmount', { provider })
+              )}
+            </div>
+          );
+        })}
+      </>
+    );
+  } else if (providerErrors.length > 0) {
+    if (providerErrors.some(error => error.errorCode === 'sellAssetAmountTooSmall')) {
+      providerErrorContent = routeError ?? t('swap.noRouteFound');
+    } else if (providerErrors.some(error => error.errorCode === 'swapHalted')) {
+      providerErrorContent = t('swap.providersUnavailable');
+    } else if (providerErrors.some(error => [
+      'invalidAsset', 'invalidChain', 'unsupportedChainId', 'unsupportedMethod',
+    ].includes(error.errorCode))) {
+      providerErrorContent = routeError ?? t('swap.noRouteFound');
+    } else {
+      providerErrorContent = t('swap.fetchQuotesError');
+    }
+  }
+
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -647,7 +745,7 @@ export const Swap = () => {
               )}
               <SwapServiceSelector
                 buyUnit={buyAccount?.coinUnit}
-                error={routeError}
+                error={providerErrorContent ?? routeError}
                 isLoading={isFetchingRoutes}
                 onChangeRouteId={setSelectedRouteId}
                 routes={routes}

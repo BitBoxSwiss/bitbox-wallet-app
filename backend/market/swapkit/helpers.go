@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"math/big"
 	"net/http"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -42,6 +43,41 @@ const (
 	// ErrProvidersUnavailable is returned when all swap providers are disabled for the sell chain.
 	ErrProvidersUnavailable errp.ErrorCode = "providersUnavailable"
 )
+
+var decimalAmountPattern = regexp.MustCompile(`^[0-9]+(\.[0-9]+)?$`)
+
+// normalizeProviderMinimums keeps provider minimums positive and rounds them up to an amount
+// the sell coin can represent. Showing a smaller rounded value would send users back to a failed quote.
+func normalizeProviderMinimums(quote *QuoteResponse, sellCoin coinpkg.Coin) {
+	var decimals uint
+	var factor *big.Int
+	for index := range quote.ProviderErrors {
+		providerError := &quote.ProviderErrors[index]
+		if providerError.ErrorCode != "sellAssetAmountTooSmall" || !decimalAmountPattern.MatchString(providerError.MinAmount) {
+			providerError.MinAmount = ""
+			continue
+		}
+		minimum, ok := new(big.Rat).SetString(providerError.MinAmount)
+		if !ok || minimum.Sign() <= 0 {
+			providerError.MinAmount = ""
+			continue
+		}
+		if factor == nil {
+			decimals = sellCoin.Decimals(false)
+			factor = new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(decimals)), nil)
+		}
+		atomicMinimum := new(big.Int).Mul(minimum.Num(), factor)
+		atomicMinimum.Quo(atomicMinimum, minimum.Denom())
+		if new(big.Rat).SetFrac(atomicMinimum, factor).Cmp(minimum) < 0 {
+			atomicMinimum.Add(atomicMinimum, big.NewInt(1))
+		}
+		formattedMinimum := new(big.Rat).SetFrac(atomicMinimum, factor).FloatString(int(decimals))
+		if decimals > 0 {
+			formattedMinimum = strings.TrimRight(strings.TrimRight(formattedMinimum, "0"), ".")
+		}
+		providerError.MinAmount = formattedMinimum
+	}
+}
 
 const (
 	noRoutesFoundMessage   = "No routes found"
@@ -244,8 +280,9 @@ func NewQuoteFromCoinCode(ctx context.Context, httpClient *http.Client, sellCoin
 			Message:   err.Error(),
 		}
 	}
+	normalizeProviderMinimums(quoteResponse, sellCoin)
 	if len(quoteResponse.Routes) == 0 {
-		return nil, noRoutesQuoteError(ctx, client, quoteRequest.SellAsset, quoteErrorData)
+		return quoteResponse, noRoutesQuoteError(ctx, client, quoteRequest.SellAsset, quoteErrorData)
 	}
 	return quoteResponse, nil
 }

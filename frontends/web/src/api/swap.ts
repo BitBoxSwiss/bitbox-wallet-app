@@ -42,6 +42,18 @@ export type TSwapQuoteRoute = {
   routeId: string;
 };
 
+export type TSwapProviderError = {
+  provider: string;
+  errorCode: string;
+  message: string;
+  minAmount?: string;
+};
+
+export type TSwapQuote = {
+  routes: TSwapQuoteRoute[];
+  providerErrors?: TSwapProviderError[];
+};
+
 export type TSwapQuoteErrorCode =
   | 'invalidRequest'
   | 'noRoutesFound'
@@ -54,11 +66,10 @@ export type TSwapQuoteResponse = {
   validationErrorCode?: TSwapQuoteValidationErrorCode;
 } & ({
   success: true;
-  quote: {
-    routes: TSwapQuoteRoute[];
-  };
+  quote: TSwapQuote;
 } | {
   success: false;
+  quote?: TSwapQuote;
   quoteErrorCode: TSwapQuoteErrorCode;
   errorData?: {
     buyCoin?: string;
