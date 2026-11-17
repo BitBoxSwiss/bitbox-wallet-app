@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import '../../../../__mocks__/i18n';
-import type { ReactNode } from 'react';
+import type { ContextType, ReactNode } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -11,6 +11,7 @@ import * as lightningApi from '@/api/lightning';
 import * as coinsApi from '@/api/coins';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
+import { AppContext } from '@/contexts/AppContext';
 import { Receive } from './receive';
 
 vi.mock('@/i18n/i18n');
@@ -69,23 +70,25 @@ const setMobileViewport = (matches: boolean) => {
   }));
 };
 
-const renderReceive = () => render(
+const renderReceive = (hideAmounts = false) => render(
   <MemoryRouter initialEntries={['/lightning/receive']}>
-    <BackButtonProvider>
-      <RatesContext.Provider value={{
-        defaultCurrency: 'EUR',
-        activeCurrencies: ['EUR'],
-        btcUnit: 'sat',
-        rotateDefaultCurrency: vi.fn(),
-        rotateBtcUnit: vi.fn(),
-        addToActiveCurrencies: vi.fn(),
-        updateDefaultCurrency: vi.fn(),
-        removeFromActiveCurrencies: vi.fn(),
-      }}>
-        <Receive />
-      </RatesContext.Provider>
-      <LocationPath />
-    </BackButtonProvider>
+    <AppContext.Provider value={{ hideAmounts } as ContextType<typeof AppContext>}>
+      <BackButtonProvider>
+        <RatesContext.Provider value={{
+          defaultCurrency: 'EUR',
+          activeCurrencies: ['EUR'],
+          btcUnit: 'sat',
+          rotateDefaultCurrency: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          addToActiveCurrencies: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+          removeFromActiveCurrencies: vi.fn(),
+        }}>
+          <Receive />
+        </RatesContext.Provider>
+        <LocationPath />
+      </BackButtonProvider>
+    </AppContext.Provider>
   </MemoryRouter>
 );
 
@@ -143,6 +146,23 @@ describe('Lightning receive', () => {
       amountSat: 250000,
       description: '',
     });
+  });
+
+  // Hidden amounts suppress both non-blocking limit warnings while invoice creation still works.
+  it('hides limit warnings on the form and generated invoice', async () => {
+    renderReceive(true);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'lightning.receive.invoice.create' }));
+    await enterSats();
+
+    expect(screen.queryByText('lightning.limit.createInvoiceWarning')).not.toBeInTheDocument();
+    const createButton = screen.getByRole('button', { name: 'lightning.receive.invoice.create' });
+    expect(createButton).toBeEnabled();
+    fireEvent.click(createButton);
+
+    expect(await screen.findByTestId('invoice-qr')).toBeInTheDocument();
+    expect(screen.queryByText('lightning.limit.invoiceWarning')).not.toBeInTheDocument();
+    expect(lightningApi.getReceivePayment).toHaveBeenCalledWith({ amountSat: 250000, description: '' });
   });
 
   it('uses the mobile header callback for the address, form, and invoice stages', async () => {
