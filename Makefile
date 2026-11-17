@@ -106,3 +106,8 @@ update-bitbox02-api-go:
 	./scripts/update-bitbox02-api-go.sh
 update-btc-checkpoints:
 	go run cmd/playground/update_btc_checkpoints/main.go
+licenses:
+	cd ${WEBROOT} && $(MAKE) licenses
+	go run scripts/generate-licenses.go \
+		-output frontends/web/public/licenses-go.json \
+		./cmd/servewallet
