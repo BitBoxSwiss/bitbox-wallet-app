@@ -40,7 +40,7 @@ var (
 	minTaprootVersion                  = semver.NewSemVer(9, 10, 0)
 	minETHTypedMessageVersion          = semver.NewSemVer(9, 12, 0)
 	minPaymentRequestVersion           = semver.NewSemVer(9, 20, 0)
-	minSwapPaymentRequestVersion       = semver.NewSemVer(9, 26, 0)
+	minSwapPaymentRequestVersion       = semver.NewSemVer(9, 29, 0)
 )
 
 func (keystore *keystore) requireFirmwareVersion(minVersion *semver.SemVer) error {
@@ -381,9 +381,11 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		if paymentRequest.TotalAmount == nil || !paymentRequest.TotalAmount.IsUint64() {
 			return errp.New("BTC payment request amount overflows uint64")
 		}
-		btcPaymentRequests = []*messages.BTCPaymentRequestRequest{
-			newBTCPaymentRequest(paymentRequest),
+		request, err := newBTCPaymentRequest(paymentRequest)
+		if err != nil {
+			return err
 		}
+		btcPaymentRequests = []*messages.BTCPaymentRequestRequest{request}
 		prIndex := uint32(0)
 		paymentRequestIndex = &prIndex
 	}
@@ -445,7 +447,10 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 	case 2:
 		var paymentRequest *messages.BTCPaymentRequestRequest
 		if txProposal.PaymentRequest != nil {
-			paymentRequest = newBTCPaymentRequest(txProposal.PaymentRequest)
+			paymentRequest, err = newBTCPaymentRequest(txProposal.PaymentRequest)
+			if err != nil {
+				return err
+			}
 		}
 		signature, err = keystore.device.ETHSignEIP1559(
 			txProposal.ChainID,
@@ -492,7 +497,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 	return nil
 }
 
-func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) *messages.BTCPaymentRequestRequest {
+func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) (*messages.BTCPaymentRequestRequest, error) {
 	memos := []*messages.BTCPaymentRequestRequest_Memo{}
 	for _, m := range txPaymentRequest.Memos {
 		var memo messages.BTCPaymentRequestRequest_Memo
@@ -504,6 +509,44 @@ func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) *messages.BT
 						Note: m.Text.Note,
 					},
 				},
+			}
+		case m.Refund != nil:
+			refund := m.Refund
+			if refund.Address == "" || (refund.EthAddressDerivation == nil) == (refund.BtcAddressDerivation == nil) {
+				return nil, errp.New("Missing or ambiguous refund address derivation")
+			}
+			refundMemo := &messages.BTCPaymentRequestRequest_Memo_RefundMemo{Address: refund.Address}
+			if derivation := refund.EthAddressDerivation; derivation != nil {
+				if len(derivation.Keypath) == 0 {
+					return nil, errp.New("Missing refund address keypath")
+				}
+				refundMemo.AddressDerivation = &messages.BTCPaymentRequestRequest_Memo_RefundMemo_Eth{
+					Eth: &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation{
+						Keypath: derivation.Keypath,
+					},
+				}
+			} else {
+				derivation := refund.BtcAddressDerivation
+				if len(derivation.Keypath) == 0 {
+					return nil, errp.New("Missing refund address keypath")
+				}
+				msgScriptType, ok := btcMsgScriptTypeMap[derivation.ScriptType]
+				if !ok {
+					return nil, errp.New("Unsupported refund address script type")
+				}
+				refundMemo.AddressDerivation = &messages.BTCPaymentRequestRequest_Memo_RefundMemo_Btc{
+					Btc: &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation{
+						ScriptConfig: &messages.BTCScriptConfigWithKeypath{
+							ScriptConfig: &messages.BTCScriptConfig{
+								Config: &messages.BTCScriptConfig_SimpleType_{SimpleType: msgScriptType},
+							},
+							Keypath: derivation.Keypath,
+						},
+					},
+				}
+			}
+			memo = messages.BTCPaymentRequestRequest_Memo{
+				Memo: &messages.BTCPaymentRequestRequest_Memo_RefundMemo_{RefundMemo: refundMemo},
 			}
 		case m.CoinPurchase != nil:
 			coinPurchaseMemo := &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo{
@@ -521,7 +564,7 @@ func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) *messages.BT
 			case m.CoinPurchase.BtcAddressDerivation != nil:
 				msgScriptType, ok := btcMsgScriptTypeMap[m.CoinPurchase.BtcAddressDerivation.ScriptType]
 				if !ok {
-					continue
+					return nil, errp.New("Unsupported payment request address script type")
 				}
 				coinPurchaseMemo.AddressDerivation = &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_Btc{
 					Btc: &messages.BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation{
@@ -542,7 +585,7 @@ func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) *messages.BT
 				},
 			}
 		default:
-			continue
+			return nil, errp.New("Payment request memo unsupported")
 		}
 		memos = append(memos, &memo)
 	}
@@ -560,7 +603,7 @@ func newBTCPaymentRequest(txPaymentRequest *paymentrequest.Request) *messages.BT
 		TotalAmount:   totalAmount,
 		Signature:     txPaymentRequest.Signature,
 		Memos:         memos,
-	}
+	}, nil
 }
 
 // SignTransaction implements keystore.Keystore.

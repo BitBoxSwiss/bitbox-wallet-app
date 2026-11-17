@@ -212,13 +212,13 @@
   "bb02Bootloader": {
     "abort": "Don't upgrade – take me back",
     "abort_noUpgrade": "Take me back",
-    "additionalUpgradeFollows1": "An additional upgrade will follow immediately after this one.",
     "additionalUpgradeFollows2": "Please keep your BitBox plugged in until all upgrades are complete.",
     "advanced": {
       "label": "Advanced settings",
       "toggleShowFirmwareHash": "Show the firmware hash every time on startup"
     },
     "flipscreen": "Flip screen",
+    "furtherUpgrades": "Further upgrades will follow.",
     "orientation": "Device oriented the wrong way?",
     "success": "Upgrade successful!",
     "success_install": "Installation successful!",
@@ -965,6 +965,7 @@
     "lightningInvalidAmount": "Invalid amount.",
     "lightningInvalidPaymentInput": "Invalid invoice or payment request.",
     "lightningInvoiceAlreadyUsed": "This Lightning invoice was already used. Please request a new invoice.",
+    "lightningPaymentFailed": "Lightning payment failed. Please review the payment before trying again.",
     "lightningPaymentPreparationFailed": "Could not prepare payment. Please try again.",
     "lightningTopUpClaimFailed": "Please try claiming the top-up again.",
     "lightningTopUpRefundFailed": "Please try refunding the top-up again.",
@@ -2554,7 +2555,9 @@
     "confirmOnBitBox": "Confirm swap on BitBox",
     "fastest": "Fastest",
     "fetchQuotesError": "Unable to fetch quotes right now. Please try again.",
+    "fetchStatusError": "Unable to check swap availability. Please try again.",
     "fetchingRoutes": "Fetching routes...",
+    "firmwareUpgradeRequired": "Update your BitBox to the latest firmware to swap.",
     "insufficientGasFunds": "You need more ETH in your <strong>{{accountName}}</strong> account to pay for the network fees. <buyLink>Buy ETH now</buyLink>",
     "new": "New swap",
     "noRouteFound": "No route found",
@@ -2564,7 +2567,8 @@
     "recommended": "Recommended",
     "route": "Swap route",
     "routesPlaceholder": "Routes will appear here after entering an amount",
-    "unexpectedError": "Some unexpected error occurred."
+    "unexpectedError": "Some unexpected error occurred.",
+    "updateFirmware": "Update firmware"
   },
   "testWallet": {
     "connect": {

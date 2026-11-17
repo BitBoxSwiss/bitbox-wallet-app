@@ -17,7 +17,7 @@ const (
 
 	bitrefillDevUrl = "/bitrefill/bitrefill.html"
 
-	bitrefillProdUrl = "https://bitboxapp.shiftcrypto.io/widgets/bitrefill/v1/bitrefill.html"
+	bitrefillProdUrl = "https://bitboxapp.shiftcrypto.io/widgets/bitrefill/v2/bitrefill.html"
 
 	bitrefillWidgetURL = "https://embed.bitrefill.com/"
 )

@@ -96,9 +96,10 @@ Run both with `npx playwright test tests/vendor-widgets.test.ts tests/vendor-ifr
 The usual Playwright webserver setup still applies. These tests do not replace
 checkout/signing smoke tests in the native app shells.
 
-The local HTML files must also be deployed to the corresponding hosted `/widgets/*/v1/`
-URLs for released apps to receive the wrapper fixes. Keep the existing
-`request-configuration` handshake and payloads when updating those shared URLs.
+The local HTML files must also be deployed to the corresponding versioned widget
+URLs configured in the backend for released apps to receive the wrapper fixes.
+Keep the existing `request-configuration` handshake and payloads when updating
+those shared URLs.
 
 ## Mobile Lightning payment links
 
@@ -158,6 +159,10 @@ Much more useful is `trace.zip`, that can be inspected with `npx playwright show
 Other options, when running locally, are to use the `--ui` or the `--debug` flags, as explained in the [official documentation](https://playwright.dev/docs/running-tests#debugging-tests).
 
 ## Host passphrase simulator checks
+
+On Android with a BitBox, confirm host entry and check the first keyboard opening:
+the passphrase field and Confirm button must remain visible. Dismiss and reopen the
+keyboard, toggle passphrase visibility, and submit. Repeat in portrait and landscape.
 
 Use firmware 9.28.0 or newer with the host-passphrase unlock workflow and a seeded simulator
 with the optional BIP39 passphrase enabled. Keep its flash in a dedicated temporary directory

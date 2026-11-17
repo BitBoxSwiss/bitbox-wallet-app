@@ -4,6 +4,7 @@
 
 ## v4.53.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.28.0 and intermediate version v9.27.2
+- BitBox02: show the firmware version being installed and indicate when further upgrades will follow
 - Support changing the BitBox device language in the app
 - Android: price widget for BTC, ETH, and LTC with 24-hour charts
 - Lightning: add contact list for Lightning addresses
@@ -33,8 +34,10 @@
 - WalletConnect: use standard host-based origin in Qt to fix WalletConnect pairings on desktop
 - Ethereum: add a safety margin to suggested transaction fees to reduce delays when network fees rise
 - iOS: Hide wallet information in app-switcher previews.
+- Android: always hide app contents in app-switcher previews; screenshots are also disabled on Android versions below 13
 - Add PDF export of assets balance on chosen date
 - Marketplace: remember disclaimer acceptance and allow rereading disclaimers from the guide
+- In standard dropdown menus, hide search for all tablet lists and for desktop lists with fewer than 10 options
 
 ## v4.52.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.27.1

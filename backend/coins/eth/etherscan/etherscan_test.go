@@ -21,6 +21,7 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/time/rate"
@@ -161,50 +162,67 @@ func TestRPCProxyUsesGETForSmallEstimateGasRequest(t *testing.T) {
 	require.Equal(t, uint64(21000), gas)
 }
 
+// Large estimates must keep chain selection in the URL and calldata in the POST body.
 func TestRPCProxyUsesPOSTForLargeEstimateGasRequest(t *testing.T) {
 	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
-	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
-		require.Equal(t, http.MethodPost, req.Method)
-		require.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
-		require.Empty(t, req.URL.RawQuery)
-		params := formValues(t, req)
-		require.Equal(t, "1", params.Get("chainId"))
-		require.Equal(t, "proxy", params.Get("module"))
-		require.Equal(t, "eth_estimateGas", params.Get("action"))
-		require.Equal(t, to.Hex(), params.Get("to"))
-		require.Greater(t, len(params.Get("data")), maxGetRequestTargetLength)
-		return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x5208"}`)
-	})
+	data := bytes.Repeat([]byte{0xab}, 3000)
+	for _, chainID := range []string{"1", "11155111"} {
+		t.Run(chainID, func(t *testing.T) {
+			etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
+				require.Equal(t, http.MethodPost, req.Method)
+				require.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+				require.Equal(t, url.Values{"chainId": {chainID}}, req.URL.Query())
+				params := formValues(t, req)
+				require.Equal(t, "proxy", params.Get("module"))
+				require.Equal(t, "eth_estimateGas", params.Get("action"))
+				require.Equal(t, to.Hex(), params.Get("to"))
+				require.Equal(t, hexutil.Encode(data), params.Get("data"))
+				return jsonRPCResponse(t, `{"jsonrpc":"2.0","id":1,"result":"0x5208"}`)
+			})
+			etherScan.chainId = chainID
 
-	gas, err := etherScan.EstimateGas(context.Background(), ethereum.CallMsg{
-		To:   &to,
-		Data: bytes.Repeat([]byte{0xab}, 3000),
-	})
-	require.NoError(t, err)
-	require.Equal(t, uint64(21000), gas)
+			gas, err := etherScan.EstimateGas(t.Context(), ethereum.CallMsg{
+				To:   &to,
+				Data: data,
+			})
+			require.NoError(t, err)
+			require.Equal(t, uint64(21000), gas)
+		})
+	}
 }
 
+// Broadcasts must route to the selected chain via the URL, including Sepolia, while
+// preserving the exact transaction bytes in the POST body for small and large payloads.
 func TestRPCProxyUsesPOSTForSendTransactionRequest(t *testing.T) {
 	to := common.HexToAddress("0x0000000000000000000000000000000000000001")
-	tx := types.NewTx(&types.LegacyTx{
-		Nonce:    1,
-		GasPrice: big.NewInt(1),
-		Gas:      100000,
-		To:       &to,
-		Value:    big.NewInt(0),
-	})
-	etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
-		require.Equal(t, http.MethodPost, req.Method)
-		require.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
-		require.Empty(t, req.URL.RawQuery)
-		params := formValues(t, req)
-		require.Equal(t, "1", params.Get("chainId"))
-		require.Equal(t, "proxy", params.Get("module"))
-		require.Equal(t, "eth_sendRawTransaction", params.Get("action"))
-		require.LessOrEqual(t, len(params.Get("hex")), maxGetRequestTargetLength)
-		return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"result":%q}`, tx.Hash().Hex()))
-	})
-	require.NoError(t, etherScan.SendTransaction(context.Background(), tx))
+	for _, chainID := range []string{"1", "11155111"} {
+		for _, dataSize := range []int{0, 3000} {
+			t.Run(fmt.Sprintf("%s/dataSize=%d", chainID, dataSize), func(t *testing.T) {
+				tx := types.NewTx(&types.LegacyTx{
+					Nonce:    1,
+					GasPrice: big.NewInt(1),
+					Gas:      100000,
+					To:       &to,
+					Value:    big.NewInt(0),
+					Data:     bytes.Repeat([]byte{0xab}, dataSize),
+				})
+				encodedTx, err := tx.MarshalBinary()
+				require.NoError(t, err)
+				etherScan := newTestEtherScan(func(req *http.Request) *http.Response {
+					require.Equal(t, http.MethodPost, req.Method)
+					require.Equal(t, "application/x-www-form-urlencoded", req.Header.Get("Content-Type"))
+					require.Equal(t, url.Values{"chainId": {chainID}}, req.URL.Query())
+					params := formValues(t, req)
+					require.Equal(t, "proxy", params.Get("module"))
+					require.Equal(t, "eth_sendRawTransaction", params.Get("action"))
+					require.Equal(t, hexutil.Encode(encodedTx), params.Get("hex"))
+					return jsonRPCResponse(t, fmt.Sprintf(`{"jsonrpc":"2.0","id":1,"result":%q}`, tx.Hash().Hex()))
+				})
+				etherScan.chainId = chainID
+				require.NoError(t, etherScan.SendTransaction(t.Context(), tx))
+			})
+		}
+	}
 }
 
 func TestTokenTransactionsByContractPaginationDedup(t *testing.T) {

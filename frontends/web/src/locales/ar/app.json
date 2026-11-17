@@ -57,6 +57,12 @@
     },
     "title": "اضافة حساب"
   },
+  "addresses": {
+    "columnAddress": "عنوان",
+    "detail": {
+      "address": "عنوان"
+    }
+  },
   "aopp": {
     "addressRequest": "الـ{{host}} يطلب عنوان استلام",
     "addressRequestWithLogo": "يطلب عنوان استلام",
@@ -74,6 +80,9 @@
   },
   "app": {
     "upgrade": "تتوفر الآن نسخة جديدة لهذا التطبيق. يرجى التحديث من {{current}} الى {{version}}"
+  },
+  "auth": {
+    "dismissButton": "الغاء"
   },
   "backup": {
     "check": {
@@ -159,6 +168,9 @@
     "followInstructionsMnemonicTitle": "قم بالاستعادة من خلال كلمات الاسترجاع"
   },
   "bitbox02Settings": {
+    "changePassword": {
+      "title": "قم بتغيير كلمة مرور الجهاز"
+    },
     "deviceName": {
       "current": "اسم الجهاز الحالي",
       "input": "اسم الـBitBox02",
@@ -249,6 +261,11 @@
       "title": "انت جاهز الآن"
     }
   },
+  "bitsurance": {
+    "insure": {
+      "title": "البدء"
+    }
+  },
   "blink": {
     "button": "رمش"
   },
@@ -274,12 +291,38 @@
     "ok": "حسناً",
     "previous": "سابق",
     "restore": "استرجاع",
+    "review": "إعادة التدقيق",
     "select": "اختر",
     "unlock": "فتح القفل",
     "update": "تحديث",
     "upgrade": "تحديث النسخة"
   },
   "buy": {
+    "exchange": {
+      "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "paymentMethods": {
+              "title": "طرق الدفع والرسوم"
+            }
+          }
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "paymentMethods": {
+              "title": "طرق الدفع والرسوم"
+            }
+          }
+        },
+        "pocket-otc": {
+          "disclaimer": {
+            "payment": {
+              "title": "طرق الدفع والرسوم"
+            }
+          }
+        }
+      }
+    },
     "info": {
       "continue": "الموافقة و الاستمرار",
       "crypto": "كريبتو",
@@ -390,6 +433,15 @@
     "aoppUnsupportedKeystore": "لا يمكن للجهاز المتصل توقيع رسائل لهذه العملة",
     "aoppVersion": "نسخة غير معروفة"
   },
+  "exchange": {
+    "pocket": {
+      "terms": {
+        "fees": {
+          "title": "طرق الدفع والرسوم"
+        }
+      }
+    }
+  },
   "fiat": {
     "default": "الخيار الاصلي",
     "setDefault": "تعيين {{code}} كخيار اصلي",
@@ -400,7 +452,8 @@
   },
   "generic": {
     "enabled_false": "عاطل",
-    "enabled_true": "مفعلة"
+    "enabled_true": "مفعلة",
+    "resetToDefault": "إعادة الحالة إلى الحالة الاصلية"
   },
   "genericError": "حدث خطأ. إذا لاحظت حصول أي مشاكل فيرجى إعادة تشغيل التطبيق",
   "goal": {
@@ -769,6 +822,57 @@
   "language": {
     "title": "اختر اللغة"
   },
+  "lightning": {
+    "claimTopUp": {
+      "confirm": {
+        "fee": "العمولة",
+        "feeRate": "معدل الرسوم"
+      }
+    },
+    "closeWithdrawFunds": {
+      "fee": "العمولة"
+    },
+    "disclaimer": {
+      "continue": "الموافقة و الاستمرار",
+      "securityModel": {
+        "title": "نظام الامن"
+      }
+    },
+    "payments": {
+      "header": {
+        "amount": "المبلغ",
+        "date": "التاريخ",
+        "description": "الوصف",
+        "type": "النوع"
+      }
+    },
+    "receive": {
+      "amountSats": {
+        "placeholder": "أدخل المبلغ"
+      },
+      "description": {
+        "label": "الوصف"
+      }
+    },
+    "send": {
+      "confirm": {
+        "amount": "المبلغ",
+        "note": "ملاحظة"
+      }
+    },
+    "settings": {
+      "status": "الحالة",
+      "wallet": "محفظة"
+    },
+    "topUp": {
+      "confirm": {
+        "amount": "المبلغ",
+        "networkFee": "رسوم الشبكة",
+        "title": "تأكيد و إرسال المعاملة",
+        "total": "المجموع"
+      }
+    }
+  },
   "loading": "جاري التحميل…",
   "manageAccounts": {
     "editAccount": "تعديل",
@@ -1004,6 +1108,7 @@
         "low": "ساعتان (12 بلوك)",
         "low_eth": "5 دقائق أو أقل",
         "low_ltc": "30 دقيقة (12 بلوك)",
+        "mHalfHour": "20 دقيقة (بلوكين)",
         "normal": "1 ساعة (6 بلوكات)",
         "normal_eth": "دقيقتان أو أقل",
         "normal_ltc": "15 دقيقة (6 بلوكات)"
@@ -1014,6 +1119,8 @@
         "economy": "توفيري",
         "high": "عالية",
         "low": "منخفضة",
+        "mFastest": "عالية",
+        "mHour": "منخفضة",
         "normal": "عادي"
       },
       "placeholder": "جاري حساب الرسوم ..."
@@ -1028,6 +1135,7 @@
     "transactionDetails": "تفاصيل المعاملة"
   },
   "settings": {
+    "advancedSettings": "اعدادات متقدمة",
     "electrum": {
       "add": "أضف السيرفير",
       "add-server": "اضافة",
@@ -1088,6 +1196,10 @@
     "leave": "الخروج",
     "settings": "إعدادات"
   },
+  "signMessage": {
+    "addressLabel": "عنوان",
+    "messageLabel": "رسالة"
+  },
   "success": {
     "create": {
       "info1": "تم نسخ محفظتك احتياطيًا بشكل آمن إلى شريحة microSD. قم بإزالته واحتفظ به بشكل آمن في مكان آمن",
@@ -1100,6 +1212,11 @@
     "restore": {
       "summary": "لقد نجحت في استعادة محفظة من نسختك الاحتياطية",
       "title": "النجاح"
+    }
+  },
+  "testWallet": {
+    "prompt": {
+      "button": "فتح القفل"
     }
   },
   "transaction": {
@@ -1116,6 +1233,7 @@
     "explorer": "رقم المعاملة",
     "explorerTitle": "فتح في مستكشف البلوكشين",
     "fee": "العمولة",
+    "feeRate": "معدل الرسوم",
     "fiatHistorical": "تاريخي",
     "gas": "عمولة الجاز",
     "pending": "عملية تداول معلقة",
@@ -1123,7 +1241,15 @@
     "status": {
       "complete": "اكتملت",
       "failed": "فشلت المحاولة",
-      "pending": "قيد الانتظار"
+      "pending": "قيد الانتظار",
+      "pending_send_to_self": "عملية تداول معلقة"
+    },
+    "statusShort": {
+      "complete": "اكتملت",
+      "failed": "فشلت المحاولة",
+      "pending": "قيد الانتظار",
+      "pending_receive": "قادمة الآن",
+      "pending_send_to_self": "قيد الانتظار"
     },
     "vsize": "الحجم الافتراضي",
     "weight": "وزن"

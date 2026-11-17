@@ -5,12 +5,18 @@ package lightning
 import (
 	"encoding/base64"
 	"errors"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+	"testing/iotest"
+	"time"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	utilconfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
@@ -305,4 +311,160 @@ func TestUnsealMnemonicUnsupportedFormat(t *testing.T) {
 	})
 	require.Empty(t, mnemonic)
 	require.ErrorContains(t, err, "unsupported encrypted mnemonic format")
+}
+
+type apiKeyTransport func(*http.Request) (*http.Response, error)
+
+func (transport apiKeyTransport) RoundTrip(request *http.Request) (*http.Response, error) {
+	return transport(request)
+}
+
+// Successful fetches replace the private cache file, which remains available to a new Lightning instance.
+func TestBreezAPIKeyCacheRefresh(t *testing.T) {
+	lightning := newTestLightning(t, nil)
+	cache := utilconfig.NewFile(lightning.lightningDirectoryPath, "breez-api-key.json")
+	var previousInfo os.FileInfo
+	for _, key := range []string{"first-key", "updated-key"} {
+		lightning.httpClient = &http.Client{
+			Timeout: time.Minute,
+			Transport: apiKeyTransport(func(request *http.Request) (*http.Response, error) {
+				require.Equal(t, http.MethodGet, request.Method)
+				require.Equal(t, breezApiKeyUrl, request.URL.String())
+				return &http.Response{
+					StatusCode: http.StatusOK,
+					Body:       io.NopCloser(strings.NewReader(" \n" + key + "\r\n")),
+				}, nil
+			}),
+		}
+		apiKey, err := lightning.getBreezApiKey()
+		require.NoError(t, err)
+		require.Equal(t, key, *apiKey)
+		require.Equal(t, time.Minute, lightning.httpClient.Timeout)
+
+		var cachedKey string
+		require.NoError(t, cache.ReadJSON(&cachedKey))
+		require.Equal(t, key, cachedKey)
+		info, err := os.Stat(cache.Path())
+		require.NoError(t, err)
+		require.Equal(t, os.FileMode(0600), info.Mode().Perm())
+		if previousInfo != nil {
+			require.False(t, os.SameFile(previousInfo, info), "cache refresh must replace the existing file")
+		}
+		previousInfo = info
+		// Refreshing an existing cache must also tighten its permissions.
+		require.NoError(t, os.Chmod(cache.Path(), 0644))
+	}
+
+	restarted := newTestLightning(t, nil)
+	restarted.lightningDirectoryPath = lightning.lightningDirectoryPath
+	restarted.httpClient.Transport = apiKeyTransport(func(*http.Request) (*http.Response, error) {
+		return nil, errors.New("server unavailable")
+	})
+	apiKey, err := restarted.getBreezApiKey()
+	require.NoError(t, err)
+	require.Equal(t, "updated-key", *apiKey)
+}
+
+// Failed or unusable responses preserve and use the cache, or return an error without a cache.
+func TestBreezAPIKeyFetchFailure(t *testing.T) {
+	for _, testCase := range []struct {
+		name       string
+		statusCode int
+		body       string
+		fetchErr   error
+		readErr    error
+	}{
+		{name: "network error", fetchErr: errors.New("server unavailable")},
+		{name: "server error", statusCode: http.StatusServiceUnavailable, body: "unavailable"},
+		{name: "empty response", statusCode: http.StatusOK},
+		{name: "whitespace response", statusCode: http.StatusOK, body: " \r\n\t"},
+		{name: "oversized response", statusCode: http.StatusOK, body: strings.Repeat("x", 4097)},
+		{name: "body read error", statusCode: http.StatusOK, readErr: errors.New("connection lost")},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			lightning := newTestLightning(t, nil)
+			cache := utilconfig.NewFile(lightning.lightningDirectoryPath, "breez-api-key.json")
+			require.NoError(t, cache.WriteJSON("cached-key"))
+			lightning.httpClient.Transport = apiKeyTransport(func(*http.Request) (*http.Response, error) {
+				if testCase.fetchErr != nil {
+					return nil, testCase.fetchErr
+				}
+				var body io.Reader = strings.NewReader(testCase.body)
+				if testCase.readErr != nil {
+					body = iotest.ErrReader(testCase.readErr)
+				}
+				return &http.Response{StatusCode: testCase.statusCode, Body: io.NopCloser(body)}, nil
+			})
+
+			apiKey, err := lightning.getBreezApiKey()
+			require.NoError(t, err)
+			require.Equal(t, "cached-key", *apiKey)
+			var cachedKey string
+			require.NoError(t, cache.ReadJSON(&cachedKey))
+			require.Equal(t, "cached-key", cachedKey)
+
+			require.NoError(t, cache.Remove())
+			apiKey, err = lightning.getBreezApiKey()
+			require.Error(t, err)
+			require.Nil(t, apiKey)
+		})
+	}
+}
+
+// An unavailable server cannot be bypassed with a corrupt or empty cached key.
+func TestBreezAPIKeyInvalidCache(t *testing.T) {
+	for _, contents := range []string{"invalid json", `""`, `" \r\n\t"`, "null"} {
+		t.Run(contents, func(t *testing.T) {
+			lightning := newTestLightning(t, nil)
+			filename := filepath.Join(lightning.lightningDirectoryPath, "breez-api-key.json")
+			require.NoError(t, os.WriteFile(filename, []byte(contents), 0600))
+			fetchErr := errors.New("server unavailable")
+			lightning.httpClient.Transport = apiKeyTransport(func(*http.Request) (*http.Response, error) {
+				return nil, fetchErr
+			})
+
+			apiKey, err := lightning.getBreezApiKey()
+			require.ErrorIs(t, err, fetchErr)
+			require.Nil(t, apiKey)
+		})
+	}
+}
+
+// A cache write failure must not block connecting with the fresh key or leave temporary files behind.
+func TestBreezAPIKeyCacheWriteFailure(t *testing.T) {
+	lightning := newTestLightning(t, nil)
+	filename := filepath.Join(lightning.lightningDirectoryPath, "breez-api-key.json")
+	require.NoError(t, os.Mkdir(filename, 0700))
+	lightning.httpClient.Transport = apiKeyTransport(func(*http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: http.StatusOK,
+			Body:       io.NopCloser(strings.NewReader("fresh-key")),
+		}, nil
+	})
+
+	apiKey, err := lightning.getBreezApiKey()
+	require.NoError(t, err)
+	require.Equal(t, "fresh-key", *apiKey)
+	entries, err := os.ReadDir(lightning.lightningDirectoryPath)
+	require.NoError(t, err)
+	require.Len(t, entries, 1)
+}
+
+// A stalled request is canceled after five seconds and falls back to the cached key.
+func TestBreezAPIKeyTimeout(t *testing.T) {
+	lightning := newTestLightning(t, nil)
+	cache := utilconfig.NewFile(lightning.lightningDirectoryPath, "breez-api-key.json")
+	require.NoError(t, cache.WriteJSON("cached-key"))
+	lightning.httpClient.Transport = apiKeyTransport(func(request *http.Request) (*http.Response, error) {
+		deadline, ok := request.Context().Deadline()
+		require.True(t, ok)
+		require.WithinDuration(t, time.Now().Add(5*time.Second), deadline, time.Second)
+		<-request.Context().Done()
+		return nil, request.Context().Err()
+	})
+
+	apiKey, err := lightning.getBreezApiKey()
+	require.NoError(t, err)
+	require.Equal(t, "cached-key", *apiKey)
+	require.Zero(t, lightning.httpClient.Timeout)
 }

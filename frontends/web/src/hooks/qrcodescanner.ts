@@ -3,6 +3,7 @@
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import QrScanner from 'qr-scanner';
 import { useTranslation } from 'react-i18next';
+import { runningInAndroid } from '@/utils/env';
 
 type TUseQRScannerOptions = {
   onStart?: () => void;
@@ -22,6 +23,8 @@ export const useQRScanner = (
   }: TUseQRScannerOptions
 ) => {
   const { t } = useTranslation();
+  const isAndroid = runningInAndroid();
+
   const [initErrorMessage, setInitErrorMessage] = useState<string | undefined>(undefined);
   const [hasFlash, setHasFlash] = useState(false);
   const [isFlashOn, setIsFlashOn] = useState(false);
@@ -62,13 +65,14 @@ export const useQRScanner = (
                 onErrorRef.current(err);
               }
             },
-            // disabled bc we draw their own scan overlay.
-            highlightScanRegion: false,
-            highlightCodeOutline: false,
+            ...(isAndroid && { maxScansPerSecond: 3 }),
+            // use qr-scanner default scan region on Android
+            highlightScanRegion: isAndroid,
+            highlightCodeOutline: isAndroid,
             calculateScanRegion: (v) => {
               const videoWidth = v.videoWidth;
               const videoHeight = v.videoHeight;
-              const factor = 0.5;
+              const factor = isAndroid ? 0.8 : 0.5;
               const size = Math.floor(Math.min(videoWidth, videoHeight) * factor);
               const y = Math.min(
                 Math.max(videoHeight * scanRegionCenterY - size / 2, 0),
@@ -121,7 +125,7 @@ export const useQRScanner = (
         }
       })();
     };
-  }, [videoRef, scanRegionCenterY, stopOnResult, t]);
+  }, [isAndroid, videoRef, scanRegionCenterY, stopOnResult, t]);
 
   const toggleFlash = useCallback(async () => {
     const stream = videoRef.current?.srcObject;

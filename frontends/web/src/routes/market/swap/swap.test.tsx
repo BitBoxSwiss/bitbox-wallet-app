@@ -2,7 +2,7 @@
 
 import '../../../../__mocks__/i18n';
 import type { TConfig } from '@/api/config';
-import type { ReactNode } from 'react';
+import type { ContextType, ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom';
 
@@ -12,9 +12,6 @@ import '@/i18n/i18n';
 
 vi.mock('@/components/alert/Alert', () => ({
   alertUser: vi.fn(),
-}));
-vi.mock('@/components/dialog/firmware-upgrade-required-dialog', () => ({
-  FirmwareUpgradeRequiredDialog: () => null,
 }));
 vi.mock('@/components/layout', () => ({
   GuideWrapper: ({ children }: { children: ReactNode }) => <div>{children}</div>,
@@ -99,9 +96,14 @@ vi.mock('@/api/swap', async (importOriginal) => {
     ...actual,
     getSwapAccounts: vi.fn(),
     getSwapQuote: vi.fn(),
+    getSwapStatus: vi.fn(),
     signSwap: vi.fn(),
   };
 });
+vi.mock('@/api/keystores', () => ({
+  connectKeystore: vi.fn(),
+  connectAnyKeystore: vi.fn(),
+}));
 vi.mock('@/contexts/ConfigProvider', () => ({
   useConfig: vi.fn(() => ({
     config: { frontend: { skipSwapkitDisclaimer: true }, backend: {} } as TConfig,
@@ -109,18 +111,21 @@ vi.mock('@/contexts/ConfigProvider', () => ({
   })),
 }));
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Route, Switch } from 'wouter';
 import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
 import * as coinsApi from '@/api/coins';
 import * as swapApi from '@/api/swap';
+import { connectKeystore } from '@/api/keystores';
+import { alertUser } from '@/components/alert/Alert';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Swap } from './swap';
 import { AppStateContext } from '@/contexts/app-state-context';
+import { AppContext } from '@/contexts/AppContext';
 
 const mockUseConfig = vi.mocked(useConfig);
 
@@ -191,9 +196,52 @@ const swapBuyTokenAccount: swapApi.TSwapAccount = {
   parentAccountCode: 'eth-account',
 };
 
+const setFirmwareUpdateDialogOpen = vi.fn<ContextType<typeof AppContext>['setFirmwareUpdateDialogOpen']>();
+const firmwareSwap = (appState: Partial<ContextType<typeof AppStateContext>> = {}) => (
+  <AppContext.Consumer>{appContext => (
+    <AppContext.Provider value={{ ...appContext, setFirmwareUpdateDialogOpen }}>
+      <BackButtonProvider>
+        <RatesContext.Provider value={{
+          activeCurrencies: [],
+          addToActiveCurrencies: vi.fn(),
+          btcUnit: 'default',
+          defaultCurrency: 'USD',
+          removeFromActiveCurrencies: vi.fn(),
+          rotateBtcUnit: vi.fn(),
+          rotateDefaultCurrency: vi.fn(),
+          updateDefaultCurrency: vi.fn(),
+        }}>
+          <AppStateContext.Provider value={{
+            accounts: [sellAccount, buyAccount],
+            activeAccounts: [sellAccount, buyAccount],
+            deviceIDs: ['test-device'],
+            devices: { 'test-device': 'bitbox02' },
+            hasAccounts: true,
+            hasBottomNavigation: false,
+            hasDevices: true,
+            lightningAccount: undefined,
+            hasLightningAccount: false,
+            ...appState,
+          }}>
+            <MemoryRouter initialEntries={['/market/swap']}>
+              <Switch>
+                <Route path="/market/swap"><Swap /></Route>
+                <Route path="/settings/device-settings/test-device">firmware settings</Route>
+              </Switch>
+            </MemoryRouter>
+          </AppStateContext.Provider>
+        </RatesContext.Provider>
+      </BackButtonProvider>
+    </AppContext.Provider>
+  )}</AppContext.Consumer>
+);
+
+const renderFirmwareSwap = () => render(firmwareSwap());
+
 describe('routes/market/swap', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    // Unused one-shot responses must not carry over to another test.
+    vi.resetAllMocks();
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
       value: vi.fn().mockImplementation((query: string) => ({
@@ -213,6 +261,10 @@ describe('routes/market/swap', () => {
       disabled: false, fatalError: false, offlineError: null, synced: true,
     });
     vi.mocked(coinsApi.parseExternalBtcAmount).mockResolvedValue({ success: false, amount: '' });
+    vi.mocked(connectKeystore).mockResolvedValue({ success: true });
+    vi.mocked(swapApi.getSwapStatus).mockResolvedValue({
+      available: true, connectedKeystore: 'multi', firmwareUpgradeRequired: false,
+    });
     vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
       success: true,
       sellAccounts: [swapSellAccount],
@@ -234,6 +286,172 @@ describe('routes/market/swap', () => {
       config: { frontend: { skipSwapkitDisclaimer: true }, backend: {} } as TConfig,
       setConfig: vi.fn(),
     });
+  });
+
+  // Older firmware keeps quotes visible but blocks swapping and links directly to the firmware update flow.
+  it.each([false, true])('shows an inline warning only when firmwareUpgradeRequired is %s', async firmwareUpgradeRequired => {
+    const user = userEvent.setup();
+    vi.mocked(swapApi.getSwapStatus).mockResolvedValue({
+      available: true, connectedKeystore: 'multi', firmwareUpgradeRequired,
+    });
+    renderFirmwareSwap();
+
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+    expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    if (firmwareUpgradeRequired) {
+      expect(screen.getByText('Update your BitBox to the latest firmware to swap.')).toBeVisible();
+      expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+      await user.click(screen.getByRole('button', { name: 'Swap' }));
+      expect(swapApi.signSwap).not.toHaveBeenCalled();
+      expect(accountApi.proposeTx).not.toHaveBeenCalled();
+      expect(accountApi.sendTx).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole('link', { name: 'Update firmware' }));
+      expect(setFirmwareUpdateDialogOpen).toHaveBeenCalledExactlyOnceWith(true);
+      expect(await screen.findByText('firmware settings')).toBeInTheDocument();
+    } else {
+      expect(screen.queryByText('Update your BitBox to the latest firmware to swap.')).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Update firmware' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled();
+    }
+  });
+
+  // A quote alone must not enable swapping before the connected device's firmware has been checked.
+  it('disables swapping while the firmware requirement is loading', async () => {
+    const user = userEvent.setup();
+    let resolveStatus!: (status: swapApi.TSwapStatusResponse) => void;
+    vi.mocked(swapApi.getSwapStatus).mockReturnValue(new Promise(resolve => {
+      resolveStatus = resolve;
+    }));
+    renderFirmwareSwap();
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+    expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+
+    await act(async () => resolveStatus({ available: true, connectedKeystore: 'multi', firmwareUpgradeRequired: false }));
+
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled();
+  });
+
+  // A rejected status check is visible and retryable; swapping stays blocked until the retry succeeds.
+  it('shows a status error and retries without losing the quote', async () => {
+    const user = userEvent.setup();
+    let resolveStatus!: (status: swapApi.TSwapStatusResponse) => void;
+    vi.mocked(swapApi.getSwapStatus)
+      .mockRejectedValueOnce(new Error('Status unavailable'))
+      .mockImplementationOnce(() => new Promise(resolve => {
+        resolveStatus = resolve;
+      }));
+    renderFirmwareSwap();
+
+    const statusError = 'Unable to check swap availability. Please try again.';
+    expect(await screen.findByText(statusError)).toBeVisible();
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+    expect(await screen.findByText('THORChain + Mayachain')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(swapApi.getSwapStatus).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText(statusError)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Retry' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+    await act(async () => resolveStatus({ available: true, connectedKeystore: 'multi', firmwareUpgradeRequired: false }));
+
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled();
+    expect(screen.getByText('THORChain + Mayachain')).toBeVisible();
+    expect(swapApi.getSwapQuote).toHaveBeenCalledTimes(1);
+    expect(alertUser).not.toHaveBeenCalled();
+  });
+
+  // Account/device changes retry failed checks, and an older rejection must not overwrite a newer success.
+  it.each(['accounts', 'devices'] as const)('reloads status when %s change and ignores stale errors', async changed => {
+    const user = userEvent.setup();
+    let rejectStatus!: (reason: Error) => void;
+    vi.mocked(swapApi.getSwapStatus)
+      .mockRejectedValueOnce(new Error('Status unavailable'))
+      .mockImplementationOnce(() => new Promise((_resolve, reject) => {
+        rejectStatus = reject;
+      }));
+    const appState = {
+      accounts: [sellAccount, buyAccount],
+      devices: { 'test-device': 'bitbox02' },
+    } satisfies Partial<ContextType<typeof AppStateContext>>;
+    const { rerender } = render(firmwareSwap(appState));
+    const statusError = 'Unable to check swap availability. Please try again.';
+    expect(await screen.findByText(statusError)).toBeVisible();
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+    await screen.findByText('THORChain + Mayachain');
+
+    const updateAppState = () => ({
+      ...appState,
+      ...(changed === 'accounts' ? { accounts: [...appState.accounts] } : { devices: { ...appState.devices } }),
+    });
+    rerender(firmwareSwap(updateAppState()));
+
+    expect(swapApi.getSwapStatus).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText(statusError)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+    rerender(firmwareSwap(updateAppState()));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled());
+    expect(swapApi.getSwapStatus).toHaveBeenCalledTimes(3);
+
+    await act(async () => rejectStatus(new Error('Stale status failure')));
+
+    expect(screen.queryByText(statusError)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled();
+  });
+
+  // Connection rejection or cancellation releases both submission guards so the user can try again.
+  it.each(['rejected', 'cancelled'] as const)('allows another attempt after a %s connection', async outcome => {
+    const user = userEvent.setup();
+    if (outcome === 'rejected') {
+      vi.mocked(connectKeystore).mockRejectedValueOnce(new Error('Connection failed'));
+    } else {
+      vi.mocked(connectKeystore).mockResolvedValueOnce({ success: false, errorCode: 'userAbort' });
+    }
+    vi.mocked(swapApi.signSwap).mockResolvedValue({ success: false, errorMessage: 'Preparation stopped' });
+    renderFirmwareSwap();
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+    await screen.findByText('THORChain + Mayachain');
+
+    await user.click(screen.getByRole('button', { name: 'Swap' }));
+
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled());
+    expect(swapApi.signSwap).not.toHaveBeenCalled();
+    expect(accountApi.proposeTx).not.toHaveBeenCalled();
+    expect(accountApi.sendTx).not.toHaveBeenCalled();
+    if (outcome === 'rejected') {
+      expect(alertUser).toHaveBeenCalledExactlyOnceWith('Connection failed');
+    } else {
+      expect(alertUser).not.toHaveBeenCalled();
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Swap' }));
+
+    expect(connectKeystore).toHaveBeenCalledTimes(2);
+    expect(swapApi.signSwap).toHaveBeenCalledTimes(1);
+  });
+
+  // Rechecking the selected keystore before preparation catches firmware changes after loading the form.
+  it('shows the inline warning if the signing-time firmware check fails', async () => {
+    const user = userEvent.setup();
+    vi.mocked(connectKeystore).mockResolvedValue({ success: false, errorCode: 'firmwareUpgradeRequired' });
+    renderFirmwareSwap();
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+    expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Swap' }));
+
+    expect(connectKeystore).toHaveBeenCalledExactlyOnceWith(sellAccount.keystore.rootFingerprint, 'swapPaymentRequests');
+    expect(await screen.findByText('Update your BitBox to the latest firmware to swap.')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(swapApi.signSwap).not.toHaveBeenCalled();
+    expect(accountApi.proposeTx).not.toHaveBeenCalled();
+    expect(accountApi.sendTx).not.toHaveBeenCalled();
   });
 
   // Quote requests identify the sell account, and the returned providers appear together.

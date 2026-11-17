@@ -68,6 +68,12 @@
     },
     "title": "アカウント追加"
   },
+  "addresses": {
+    "columnAddress": "アドレス",
+    "detail": {
+      "address": "アドレス"
+    }
+  },
   "aopp": {
     "addressRequest": "{{host}}は受け取りアドレスを要求しています",
     "addressRequestWithLogo": "受け取りアドレスを要求しています",
@@ -157,7 +163,6 @@
   "bb02Bootloader": {
     "abort": "アップグレードしない – 前の画面に戻る",
     "abort_noUpgrade": "前の画面に戻る",
-    "additionalUpgradeFollows1": "このアップグレードの直後に、追加のアップグレードが行われます。",
     "additionalUpgradeFollows2": "BitBox はアップグレードが終わるまで接続したままにしてください",
     "advanced": {
       "label": "詳細設定",
@@ -194,6 +199,9 @@
       "description": "iPhoneと接続する際にBluetoothを使用します。",
       "titleDisabled": "Bluetoothをオンにする",
       "titleEnabled": "Bluetoothをオフにする"
+    },
+    "changePassword": {
+      "title": "デバイスのパスワード変更"
     },
     "deviceName": {
       "current": "現在のデバイス名",
@@ -392,6 +400,7 @@
     "ok": "OK",
     "previous": "前へ",
     "restore": "復元",
+    "review": "レビュー",
     "select": "選択",
     "unlock": "アンロック",
     "update": "アップデート",
@@ -588,6 +597,24 @@
             "info": "日次と年次のしきい値を超える場合にのみ、身元確認が必要です。",
             "link": "現在のしきい値はこちら",
             "title": "本人確認"
+          }
+        },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "Pocketの個人情報保護方針",
+              "title": "データ保護"
+            },
+            "kyc": {
+              "title": "本人確認"
+            },
+            "payment": {
+              "title": "お支払い方法と手数料"
+            },
+            "security": {
+              "link": "BitBoxのセキュリティ脅威モデル",
+              "title": "セキュリティ"
+            }
           }
         },
         "region": {
@@ -841,6 +868,20 @@
           "title": "Pocketでビットコインを売買する"
         }
       }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "title": "データ保護"
+        },
+        "fees": {
+          "title": "手数料"
+        },
+        "security": {
+          "link": "BitBoxのセキュリティ脅威モデル",
+          "title": "セキュリティ"
+        }
+      }
     }
   },
   "fiat": {
@@ -1067,6 +1108,13 @@
       "ejectSD": {
         "text": "バックアップの作成・復元作業中でなければ、いつでもmicroSDカードをBitBoxから取り外すことができます。",
         "title": "microSDカードを取り出すにはどうしたらよいですか？"
+      }
+    },
+    "bitrefill": {
+      "kyc": {
+        "link": {
+          "text": "Bitrefillの購入上限"
+        }
       }
     },
     "bitsurance": {
@@ -1332,6 +1380,64 @@
   "invalidFormat": "無効な形式です",
   "language": {
     "title": "言語を選択してください"
+  },
+  "lightning": {
+    "claimTopUp": {
+      "confirm": {
+        "fee": "手数料",
+        "feeRate": "手数料率"
+      }
+    },
+    "closeWithdrawFunds": {
+      "fee": "手数料"
+    },
+    "disclaimer": {
+      "backups": {
+        "title": "バックアップ"
+      },
+      "continue": "同意して続ける",
+      "fees": {
+        "title": "手数料"
+      },
+      "securityModel": {
+        "title": "セキュリティモデル"
+      }
+    },
+    "payments": {
+      "header": {
+        "amount": "金額",
+        "date": "日付",
+        "description": "概要",
+        "type": "タイプ"
+      }
+    },
+    "receive": {
+      "amountSats": {
+        "placeholder": "金額を入力してください"
+      },
+      "description": {
+        "label": "概要"
+      }
+    },
+    "send": {
+      "confirm": {
+        "amount": "金額",
+        "note": "メモ"
+      }
+    },
+    "settings": {
+      "status": "ステータス",
+      "wallet": "ウォレット"
+    },
+    "topUp": {
+      "confirm": {
+        "amount": "金額",
+        "networkFee": "ネットワーク手数料",
+        "title": "トランザクションの確認と送信",
+        "total": "総額"
+      },
+      "to": "To"
+    }
   },
   "loading": "ロード中…",
   "manageAccounts": {
@@ -1682,6 +1788,9 @@
     "priority": "優先",
     "scanQR": "QRコードをスキャン",
     "scanQRNoCameraMessage": "カメラが見つかりません。デバイスがカメラをサポートしていること、および許可が正しく設定されていることを確認してください。",
+    "sendToAccount": {
+      "placeholder": "アカウント選択"
+    },
     "success": "取引は署名され送信されました。",
     "title": "{{accountName}}送信する。",
     "toggleCoinControl": "コインコントロール",
@@ -1774,6 +1883,11 @@
     "leave": "離れる",
     "settings": "設定"
   },
+  "signMessage": {
+    "addressLabel": "アドレス",
+    "messageLabel": "メッセージ",
+    "signMessage": "メッセージに署名する"
+  },
   "success": {
     "create": {
       "info1": "ウォレットは安全にmicroSDカードにバックアップされました。カードを取り外して安全な場所に保管してください。",
@@ -1830,6 +1944,7 @@
     "explorer": "取引ID",
     "explorerTitle": "外部のブロックエクスプローラで開く",
     "fee": "手数料",
+    "feeRate": "手数料率",
     "fiatHistorical": "Historical",
     "gas": "Gas",
     "no-results": "{{searchTerm}}」に一致する取引は見つかりませんでした",
@@ -1873,6 +1988,10 @@
       "e109_normal": "デバイスパスワードが間違っています。デバイスがリセットされるまで後{{remainingAttempts}}回入力できます。",
       "e109_touch": "$t(unlock.error.e109_normal) 次のログインではデバイスの長押しが必要です。",
       "e113": "ログインを試みた回数が多いため、次のログインではデバイスを4秒以上長いしする必要があります。"
+    },
+    "forgotPassword": {
+      "stillHavingIssues": "まだ問題は解決していませんか？",
+      "supportLink": "サポートへお問い合わせ"
     },
     "input": {
       "label": "デバイスパスワード",

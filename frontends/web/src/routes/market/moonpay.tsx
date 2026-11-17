@@ -18,6 +18,7 @@ import { isBitcoinOnly } from '@/utils/coin';
 import { MoonpayTerms } from '@/components/terms/moonpay-terms';
 import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
 import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
+import { TermsPage } from '@/components/terms/terms-page';
 import style from './iframe.module.css';
 
 
@@ -48,6 +49,16 @@ export const Moonpay = () => {
 
   const title = t('generic.buy', { context: translationContext });
 
+  if (!agreedTerms) {
+    return (
+      <TermsPage
+        title={title}
+        guide={<MarketGuide vendor="moonpay" translationContext={translationContext} terms={<MoonpayTerms account={account} readOnly />} />}>
+        <MoonpayTerms account={account} />
+      </TermsPage>
+    );
+  }
+
   return (
     <div className="contentWithGuide">
       <div className="container">
@@ -56,35 +67,29 @@ export const Moonpay = () => {
             <Header variant="navigation" mobileBackButton title={title} />
           </div>
           <div ref={containerRef} className={style.container}>
-            { !agreedTerms ? (
-              <MoonpayTerms
-                account={account}
-              />
-            ) : (
-              <div style={{ height }}>
-                <UseDisableBackButton />
-                {(!moonpay || moonpay.success) && !iframeLoaded && <Spinner text={t('loading')} />}
-                { moonpay?.success && (
-                  <iframe
-                    onLoad={() => {
-                      onIframeLoad();
-                    }}
-                    title="Moonpay"
-                    width="100%"
-                    height={height}
-                    frameBorder="0"
-                    className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
-                    allow="camera; payment"
-                    src={`${moonpay.url}&colorCode=%235E94BF&theme=${isDarkMode ? 'dark' : 'light'}`}>
-                  </iframe>
-                )}
-                { moonpay?.success === false && (
-                  <Message type="error">
-                    {moonpay.errorMessage || t('genericError')}
-                  </Message>
-                )}
-              </div>
-            )}
+            <div style={{ height }}>
+              <UseDisableBackButton />
+              {(!moonpay || moonpay.success) && !iframeLoaded && <Spinner text={t('loading')} />}
+              { moonpay?.success && (
+                <iframe
+                  onLoad={() => {
+                    onIframeLoad();
+                  }}
+                  title="Moonpay"
+                  width="100%"
+                  height={height}
+                  frameBorder="0"
+                  className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
+                  allow="camera; payment"
+                  src={`${moonpay.url}&colorCode=%235E94BF&theme=${isDarkMode ? 'dark' : 'light'}`}>
+                </iframe>
+              )}
+              { moonpay?.success === false && (
+                <Message type="error">
+                  {moonpay.errorMessage || t('genericError')}
+                </Message>
+              )}
+            </div>
           </div>
         </div>
       </div>

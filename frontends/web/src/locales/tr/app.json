@@ -58,6 +58,12 @@
     },
     "title": "Hesap Ekle"
   },
+  "addresses": {
+    "columnAddress": "Adres",
+    "detail": {
+      "address": "Adres"
+    }
+  },
   "aopp": {
     "addressRequest": "{{host}} alıcı adresi istiyor.",
     "addressRequestWithLogo": "alıcı adresi istiyor.",
@@ -72,6 +78,9 @@
   },
   "app": {
     "upgrade": "Bu uygulamanın yeni bir sürümü mevcut! Lütfen  {{current}} 'dan  {{version}}'a yükseltin."
+  },
+  "auth": {
+    "dismissButton": "İptal Et"
   },
   "backup": {
     "check": {
@@ -145,9 +154,13 @@
     }
   },
   "bitbox02Interact": {
-    "followInstructions": "Lütfen BitBox02 üzerindeki talimatları takip edin."
+    "followInstructions": "Lütfen BitBox02 üzerindeki talimatları takip edin.",
+    "followInstructionsMnemonicTitle": "Anımsatıcıdan geri yükle"
   },
   "bitbox02Settings": {
+    "changePassword": {
+      "title": "Cihaz Şifresini Değiştir"
+    },
     "deviceName": {
       "current": "Geçerli cihaz adı",
       "input": "BitBox02 Adı",
@@ -225,6 +238,11 @@
       "title": "Başlamaya hazırsın!"
     }
   },
+  "bitsurance": {
+    "insure": {
+      "title": "Başlarken"
+    }
+  },
   "blink": {
     "button": "Göz ardı et"
   },
@@ -241,15 +259,29 @@
     "continue": "Devam et",
     "copy": "Kopyala",
     "create": "Oluştur",
+    "done": "Bitti",
     "download": "İndir",
     "next": "Sonraki",
     "ok": "Tamam",
     "previous": "Önceki",
     "restore": "Geri Yükle",
+    "review": "İmzala ve Gönder",
     "select": "Seç",
     "unlock": "Kilidini aç",
     "update": "Güncelleştirme",
     "upgrade": "Yükselt"
+  },
+  "buy": {
+    "info": {
+      "disclaimer": {
+        "payment": {
+          "table": {
+            "fee": "Ücret"
+          }
+        }
+      },
+      "next": "Sonraki"
+    }
   },
   "changePin": {
     "newTitle": "Yeni cihazın şifresi",
@@ -301,6 +333,9 @@
   },
   "footer": {
     "appVersion": "Uygulama Sürümü:"
+  },
+  "generic": {
+    "resetToDefault": "Varsayılana sıfırla"
   },
   "genericError": "Bir hata oluştu. Herhangi bir sorunla karşılaşırsanız, lütfen uygulamayı yeniden başlatın.",
   "goal": {
@@ -363,6 +398,9 @@
     "accountSendDisabled": {
       "text": "Bakiyeniz sıfırdan fazla olduğunda \"Gönder\" butonu etkinleşir.",
       "title": "Neden hiçbir şey gönderemiyorum {{unit}}?"
+    },
+    "accountSummaryDescription": {
+      "title": "Bu sayfa bana ne gösteriyor?"
     },
     "accountTransactionAttributesGeneric": {
       "text": "Onaylar: İlk işlem yayınınız, bir madenci bir bloğa dahil edinceye kadar onaylanmaz, ardından bir onay verilir. Ağda yayınlanan her blok, işleminize başka bir onay ekler. Genel olarak, tüccarlar ve diğer ağ aktörler üç ila altı onay aldığında işlemleri gerçekleştirir.\nİşlem Kimliği: Bir blok gezgininde bir işlem aramanıza izin veren benzersiz bir kimlik numarası.\nÜcret: Madencilere, işlemleri onaylamalarını teşvik etmek için işlem ücreti ödenir. Daha fazla bilgi için, gönder düğmesine tıklayın.",
@@ -550,10 +588,51 @@
   "language": {
     "title": "Dil Seçin"
   },
+  "lightning": {
+    "claimTopUp": {
+      "confirm": {
+        "fee": "Ücret"
+      }
+    },
+    "closeWithdrawFunds": {
+      "fee": "Ücret"
+    },
+    "payments": {
+      "header": {
+        "amount": "Miktar"
+      }
+    },
+    "receive": {
+      "amountSats": {
+        "placeholder": "Miktarı girin"
+      }
+    },
+    "send": {
+      "confirm": {
+        "amount": "Miktar"
+      }
+    },
+    "settings": {
+      "wallet": "Cüzdan"
+    },
+    "topUp": {
+      "confirm": {
+        "amount": "Miktar",
+        "networkFee": "Ağ Ücreti",
+        "title": "İşlemi Onayla",
+        "total": "Toplam"
+      }
+    }
+  },
   "loading": "Yükleniyor…",
   "notification": {
     "newTxs_one": "{{accountName}}'da yeni işlem",
     "newTxs_other": "{{count}} Yeni işlem: {{accountName}}"
+  },
+  "passphrase": {
+    "summary": {
+      "title": "Özet"
+    }
   },
   "password": {
     "show": "Göster {{label}}",
@@ -647,6 +726,7 @@
       "label": "Miktar",
       "placeholder": "Miktarı girin"
     },
+    "availableBalance": "Mevcut bakiye",
     "button": "İmzala ve Gönder",
     "coincontrol": {
       "outpoint": "Çıktı",
@@ -673,6 +753,7 @@
         "economy": "24 blok (Bitcoin için yaklaşık 4 saat, Litecoin için 1 saat)",
         "high": "2 blok (Bitcoin için yaklaşık 20 dakika, Litecoin için 5 dakika)",
         "low": "12 blok (Bitcoin için yaklaşık 2 saat, Litecoin için 30 dakika)",
+        "mHalfHour": "2 blok (Bitcoin için yaklaşık 20 dakika, Litecoin için 5 dakika)",
         "normal": "6 blok (Bitcoin için yaklaşık 1 saat, Litecoin için 15 dakika)"
       },
       "estimate": "Tahmini bekleme süresi:",
@@ -680,6 +761,8 @@
         "economy": "ekonomi",
         "high": "yüksek",
         "low": "düşük",
+        "mFastest": "yüksek",
+        "mHour": "düşük",
         "normal": "normal"
       },
       "placeholder": "Hesaplanan tahmini ücret"
@@ -691,6 +774,7 @@
     "toggleCoinControl": "Kripto para kontrolünü aç"
   },
   "settings": {
+    "advancedSettings": "Gelişmiş Ayarlar",
     "electrum": {
       "add": "Bir sunucu ekle",
       "add-server": "Ekle",
@@ -739,6 +823,10 @@
     "leave": "Ayrıl",
     "settings": "Ayarlar"
   },
+  "signMessage": {
+    "addressLabel": "Adres",
+    "messageLabel": "Mesaj"
+  },
   "success": {
     "create": {
       "info1": "Cüzdanınız micro SD Karta güvenli bir şekilde yedeklendi. Çıkarın ve güvenli bir yerde saklayın.",
@@ -753,8 +841,17 @@
       "title": "Başarılı"
     }
   },
+  "testWallet": {
+    "prompt": {
+      "button": "Kilidini aç"
+    }
+  },
   "transaction": {
     "confirmation": "Onaylar",
+    "details": {
+      "address": "Adres",
+      "amount": "Miktar"
+    },
     "explorer": "İşlem Kimliği",
     "explorerTitle": "Harici explorer'da aç",
     "fee": "Ücret",
@@ -762,6 +859,14 @@
     "gas": "Gas",
     "pending": "Bekleyen işlem",
     "size": "Boyut",
+    "status": {
+      "failed": "Başarısız oldu",
+      "pending_send_to_self": "Bekleyen işlem"
+    },
+    "statusShort": {
+      "failed": "Başarısız oldu",
+      "pending_receive": "Gelen"
+    },
     "vsize": "Sanal boyut",
     "weight": "Ağırlık"
   },

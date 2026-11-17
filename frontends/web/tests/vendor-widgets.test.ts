@@ -13,6 +13,11 @@ type TTestWindow = typeof window & {
 
 const wrapperOrigin = 'https://bitboxapp.shiftcrypto.io';
 const bitrefillOrigin = 'https://embed.bitrefill.com';
+const widgetVersions: Record<TWidget, string> = {
+  'bitrefill/bitrefill.html': 'v2',
+  'btcdirect/fiat-to-coin.html': 'v1',
+  'btcdirect/coin-to-fiat.html': 'v1',
+};
 const bitrefillConfig = {
   event: 'configuration', ref: 'test', utm_source: 'BITBOX', theme: 'light', hl: 'en',
   paymentMethods: 'bitcoin', refundAddress: 'test-refund-address', paymentPending: 'true',
@@ -32,7 +37,8 @@ const payment = {
 const openWidget = async (page: Page, widget: TWidget, parent: TParent = 'https') => {
   const vendor = widget.split('/')[0]!;
   const filename = widget.split('/')[1]!;
-  const widgetURL = `${wrapperOrigin}/widgets/${vendor}/v1/${filename}`;
+  const version = widgetVersions[widget];
+  const widgetURL = `${wrapperOrigin}/widgets/${vendor}/${version}/${filename}`;
   const config = vendor === 'bitrefill' ? bitrefillConfig : btcDirectConfig;
   const html = readFileSync(join(__dirname, '../public', widget), 'utf8');
   const app = `<script>

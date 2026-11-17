@@ -17,7 +17,7 @@ apt-get install -y --no-install-recommends \
     sudo \
     less \
     net-tools \
-    nodejs \
+    nodejs=26.13.1-1nodesource1 \
     g++ \
     dnsutils \
     gcc-mingw-w64-x86-64

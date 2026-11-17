@@ -193,21 +193,33 @@
       "understand": "Rozumím, že nesprávné heslo pro obnovení vytvoří jinou peněženku."
     },
     "showMnemonic": {
+      "availableIn_few": "Dostupné za {{count}} sekundy",
+      "availableIn_one": "Dostupné za {{count}} sekundu",
+      "availableIn_other": "Dostupné za {{count}} sekund",
+      "instructions": "BitBox zobrazí tvá obnovovací slova. <strong>Zapiš je na papír.</strong>",
+      "safetyWarnings": {
+        "noAppsOrWebsites": "Nikdy je nezadávej do aplikace ani na web",
+        "noDigitalCopies": "Nefoť je ani je neukládej v digitální podobě",
+        "noSharing": "Podpora BitBoxu ani žádná jiná společnost tě nikdy nepožádá o sdílení tvých obnovovacích slov.",
+        "noSpeaking": "Neříkej je nahlas",
+        "safeStorage": "Nejsou chráněny heslem. Uložte je na bezpečné místo."
+      },
+      "scamWarning": "Pokud vám někdo říká, že to máte udělat, zavěste. Je to podvod.",
       "title": "Zobrazit slova pro obnovení",
-      "warning": "<strong> Nikdy nikomu nesdělujte svá slova pro obnovení.</strong> Vaše slova pro obnovení poskytují plný přístup k vaší peněžence. Pokud vás někdo žádá o vaše slova pro obnovení, jedná se o podvodníka, nesdílejte je!"
+      "warning": "<strong>Nikdy nesdílej svá obnovovací slova. </strong>Kdokoli, kdo je zná, může získat přístup k tvé peněžence."
     },
     "title": "Spravovat zálohy"
   },
   "bb02Bootloader": {
     "abort": "Neaktualizovat - zpět",
     "abort_noUpgrade": "Zpět",
-    "additionalUpgradeFollows1": "Další upgrade bude následovat ihned po tomto.",
     "additionalUpgradeFollows2": "Nechte prosím svůj BitBox zapojený, dokud nebudou dokončeny všechny aktualizace.",
     "advanced": {
       "label": "Rozšířená nastavení",
       "toggleShowFirmwareHash": "Zobrazit hash firmwaru při každém spuštění"
     },
     "flipscreen": "Otoč obrazovku",
+    "furtherUpgrades": "Další aktualizace budou následovat.",
     "orientation": "Špatná orientace zařízení?",
     "success": "Aktualizace úspěšná!",
     "success_install": "Instalace proběhla úspěšně!",
@@ -305,6 +317,17 @@
       "paired": "Na svém zařízení jste potvrdili následující kód. Prosím pokračujte.",
       "title": "Ověřte párovací kód",
       "unpaired": "Byl zjištěn nespárovaný BitBox. Prosím ověřte, že párovací kód odpovídá tomu, co je zobrazeno na vašem BitBoxu."
+    },
+    "passphrase": {
+      "confirmHostEntry": "Potvrďte na BitBoxu, že chcete zadat přístupovou frázi v aplikaci",
+      "confirmTitle": "Potvrďte přístupovou frázi na BitBoxu",
+      "dialogTitle": "Zadejte přístupovou frázi",
+      "enter": "Zadejte BitBox přístupovou frázi",
+      "enterInApp": "Zadejte přístupovou frázi v aplikaci",
+      "error": {
+        "invalidChars": "Přístupová fráze obsahuje znaky, které nelze zadat na BitBoxu.",
+        "tooLong": "Přístupová fráze může mít maximálně 149 znaků."
+      }
     },
     "restoreFromMnemonic": {
       "e104": "Obnovení ze slov pro obnovení bylo zrušeno.",
@@ -448,6 +471,7 @@
     "download": "Stáhnout",
     "next": "Další",
     "ok": "OK",
+    "openInBrowser": "Otevřít v prohlížeči",
     "previous": "Předchozí",
     "proceedOnBitBox": "Pokračujte na svém BitBoxu",
     "restore": "Obnovit",
@@ -769,12 +793,21 @@
     "dataMissing": "Sbíráme historická data... zůstaňte s námi.",
     "dataOldTimestamp": "Aktualizace historických směnných kurzů. V grafu se nezobrazují data po {{time}}.",
     "dataUpdating": "aktualizace dat…",
+    "displayMode": {
+      "performance": "Výkonnost",
+      "switchTo": "Přepněte na {{displayMode}}",
+      "totalValue": "Hodnota v čase",
+      "unavailableSwitchTo": "{{displayMode}} není k dispozici. Přepněte na {{nextDisplayMode}}"
+    },
     "filter": {
       "all": "Všechny",
       "month": "Měsíc",
       "week": "Týden",
       "year": "Rok"
-    }
+    },
+    "transactions_few": "{{count}} transakce",
+    "transactions_one": "{{count}} transakce",
+    "transactions_other": "{{count}} transakcí"
   },
   "checkSDcard": "kontrola microSD karty",
   "clickHere": "Klikněte zde.",
@@ -828,6 +861,12 @@
       },
       "title": "Informace o zařízení"
     },
+    "deviceLanguage": {
+      "description": "Změňte jazyk používaný na vašem BitBoxu.",
+      "error_104": "Změna jazyka zařízení byla zrušena.",
+      "success": "Jazyk zařízení byl úspěšně změněn.",
+      "title": "Změnit jazyk zařízení"
+    },
     "deviceSettings": {
       "title": "Nastavení zařízení"
     },
@@ -836,7 +875,7 @@
         "description": "Generujte child keys z BitBox peněženky.",
         "disclaimer": "Rozumím fungování child keys a bezpečnostním aspektům.",
         "how": {
-          "description": "Child keys se zobrazí jako slova (seed) na vašem BitBoxu. Můžete vytvořit libovolný počet child keys. Chcete-li zobrazit child key, budete vyzváni k zadání čísla child key (tj. 1., 2., 3. atd.) a požadované délky  (12, 18 nebo 24 slov pro obnovení). Nezapomeňte, že musíte sledovat <strong>číslo child key a počet slov</strong>, abyste mohli později zobrazit stejný seed.",
+          "description": "Child keys se zobrazí jako slova (seed) na vašem BitBoxu. Můžete vytvořit libovolný počet child keys. Chcete-li zobrazit child key, budete vyzváni k zadání čísla child key (tj. 1., 2., 3. atd.) a požadované délky  (12 nebo 24 slov pro obnovení). Nezapomeňte, že musíte sledovat <strong>číslo child key a počet slov</strong>, abyste mohli později zobrazit stejný seed.",
           "title": "Jak to funguje?"
         },
         "recover": {
@@ -855,8 +894,8 @@
         }
       },
       "factoryReset": {
-        "description": "Obnovte zařízení do továrního nastavení. Tím se smaže peněženka z vašeho BitBoxu!",
-        "title": "Obnovit do továrního nastavení"
+        "description": "Smaže peněženku a její data z BitBoxu",
+        "title": "Smazat peněženku z BitBoxu"
       },
       "goToStartupSettings": {
         "description": "Vstoupit do bootloaderu BitBoxu. Zde můžete povolit hash firmwaru."
@@ -928,12 +967,25 @@
     "lightningInvalidAmount": "Neplatná částka.",
     "lightningInvalidPaymentInput": "Neplatná faktura nebo žádost o platbu.",
     "lightningInvoiceAlreadyUsed": "Tato Lightning faktura již byla použita. Vyžádejte si prosím novou fakturu.",
+    "lightningPaymentFailed": "Platba přes Lightning se nezdařila. Před dalším pokusem ji prosím zkontrolujte.",
     "lightningPaymentPreparationFailed": "Platbu se nepodařilo připravit. Zkuste to prosím znovu.",
     "lightningTopUpClaimFailed": "Zkuste prosím znovu dokončit dobití.",
     "lightningTopUpRefundFailed": "Zkuste prosím znovu požádat o vrácení prostředků z dobití.",
     "paymentApprovalRequired": "Poplatek za platbu se zvýšil. Zkontrolujte prosím platbu a znovu ji potvrďte.",
     "wrongKeystore": "Byla připojena špatná peněženka. Ujistěte se, že jste vložili správné zařízení odpovídající tomuto účtu.",
     "wrongKeystore2": " Pokud používáte přístupovou frázi, zkontrolujte, zda jste zadali správnou přístupovou frázi pro tento účet."
+  },
+  "evmChains": {
+    "arbitrumOne": "Arbitrum One",
+    "base": "Base",
+    "bnbSmartChain": "BNB Smart Chain",
+    "ethereumMainnet": "Ethereum mainnet",
+    "ethereumSepoliaTestnet": "Ethereum Sepolia testnet",
+    "gnosis": "Gnosis",
+    "hyperEVM": "HyperEVM",
+    "optimism": "Optimism",
+    "polygon": "Polygon",
+    "sonic": "Sonic"
   },
   "exchange": {
     "btcdirect": {
@@ -1040,6 +1092,7 @@
     "enable": "Povolit",
     "enabled_false": "Vypnuto",
     "enabled_true": "Zapnuto",
+    "iHaveReadTheInformation": "Přečetl(a) jsem si výše uvedené informace",
     "insure": "Pojistit",
     "max": "Max",
     "new": "Nové",
@@ -1056,6 +1109,7 @@
     "retry": "Zkusit znovu",
     "search": "Vyhledávání…",
     "searchButton": "Hledat",
+    "selectAll": "Vybrat vše",
     "sell": "Prodat {{coinCode}}",
     "sell_bitcoin": "Prodat bitcoiny",
     "sell_crypto": "Prodat kryptoměny",
@@ -1065,6 +1119,7 @@
     "spend_bitcoin": "Utratit bitcoiny",
     "spend_crypto": "Utratit kryptoměny",
     "swap": "Směnit",
+    "unavailable": "Nedostupné",
     "unknown": "Neznámé"
   },
   "genericError": "Došlo k chybě. Pokud zaznamenáte nějaké problémy, restartujte prosím aplikaci.",
@@ -1150,8 +1205,17 @@
       "title": "Jak se vypočítá celková částka?"
     },
     "accountSummaryDescription": {
-      "text": "Zde můžete sledovat výkonnost svého portfolia v průběhu času. Pod grafem se zobrazuje přehled vašich jednotlivých účtů.",
+      "text": "Zde můžete sledovat hodnotu a výkonnost svého portfolia v čase. Pod grafem najdete přehled svých jednotlivých kryptoměnových účtů.",
       "title": "Co se mi na této stránce zobrazuje?"
+    },
+    "accountSummaryPercentageMeaning": {
+      "listOptions": [
+        "Hodnota v čase: Zobrazuje vývoj hodnoty tvého portfolia v čase včetně vkladů a výběrů.",
+        "Výkonnost: Jedná se o peněžně váženou výnosnost (MWR). Zohledňuje vklady a výběry, a odráží tak výkonnost vašeho portfolia."
+      ],
+      "outro": "Mezi výkonností a hodnotou v čase můžete přepínat kliknutím na procentuální údaj nebo v nastavení v části Vzhled. Ve výchozím nastavení aplikace zobrazuje hodnotu v čase.",
+      "text": "Procentuální údaj v grafu vašeho portfolia vyjadřuje pro vybrané časové období jednu ze dvou hodnot:",
+      "title": "Co znamená procentuální údaj?"
     },
     "accountTransactionAttributesBTC": {
       "text": "Virtuální velikost: Určuje síťový poplatek. Úspěšně jste ušetřili na poplatcích, pokud je menší než velikost transakce.\nVelikost: Skutečná velikost transakce v bajtech při serializaci podle příslušného blockchainu.\nVáha: Nová metrika zavedená se Segwitem pro vyhodnocování velikosti transakcí a bloků. Každý byte segregovaného svědka {segregated witness) se počítá jako jedna, vše ostatní jako čtyři jednotky váhy. Místo jednoho megabajtu ve skutečné velikosti je nyní limit velikosti bloku čtyři miliony váhových jednotek.",
@@ -1213,6 +1277,14 @@
         "text": "Účty jsou skvělé pro správu prostředků pro různé osoby nebo účely, protože jsou oddělené. Můžete také sdílet veřejný klíč (xpub) účtu, aniž byste prozradili cokoli o svých ostatních účtech. To vám umožňuje opakovaně přijímat finanční prostředky bez opakovaného používání adres, například při pobírání mzdy nebo pravidelném nákupu kryptoměn.",
         "title": "Proč je to užitečné?"
       }
+    },
+    "appearancePortfolioPercentageOptions": {
+      "listOptions": [
+        "Hodnota v čase: Zobrazuje vývoj hodnoty vašeho portfolia v čase včetně vkladů a výběrů.",
+        "Výkonnost: Jedná se o peněžně váženou výnosnost (MWR). Zohledňuje vklady a výběry, a odráží tak výkonnost vašeho portfolia."
+      ],
+      "text": "Procentuální údaj v grafu vašeho portfolia vyjadřuje jednu ze dvou hodnot:",
+      "title": "Co znamenají jednotlivé možnosti procentuálního zobrazení portfolia?"
     },
     "appendix": {
       "feedback": {
@@ -1344,6 +1416,10 @@
         "text": "Tato informace zobrazuje číslo modelu zabezpečeného čipu, nejnovější čip je ATECC608B s vylepšenými bezpečnostními funkcemi ve srovnání se staršími modely.",
         "title": "Proč zobrazovat model bezpečného čipu?"
       }
+    },
+    "disclaimer": {
+      "link": "Zobraz právní upozornění poskytovatele {{provider}}",
+      "title": "Právní upozornění poskytovatele {{provider}}"
     },
     "guideTitle": {
       "account": "Průvodce účtem",
@@ -1638,18 +1714,20 @@
         "title": "Vytvořit Lightning peněženku"
       }
     },
-    "betaWarning": "Lightning je funkce ve fázi beta určená k vyzkoušení a testování. Používejte ji pouze s menším množstvím prostředků!",
+    "betaWarning": "Lightning je v beta verzi. Používejte jej pouze s malou částkou.",
     "bitcoinDeposit": {
       "claim": "Nárokovat dobití nebo vrácení peněz",
       "label": "Dobití bitcoinem",
       "state": {
         "claiming": "Nárokování vkladu",
         "confirming": "Čeká se na potvrzení",
+        "refundPending": "Vrácení prostředků čeká na odeslání do sítě",
         "unclaimed": "Nutno nárokovat"
       },
       "stateShort": {
         "claiming": "Nárokování",
         "confirming": "Potvrzuje se",
+        "refundPending": "Čeká se na vrácení prostředků",
         "unclaimed": "Nutno nárokovat"
       }
     },
@@ -1667,7 +1745,7 @@
         "refundDestination": "Cíl vrácení peněz",
         "refundTitle": "Potvrdit vrácení peněz za dobití"
       },
-      "description": "Pro nárokování uvízlé částky bude nutné vytvořit transakci.",
+      "description": "Nárokujte si toto dobití a přidejte tak prostředky do své Lightning peněženky.",
       "empty": "Nebylo nalezeno žádné nenárokované dobití.",
       "failure": {
         "claimFailedMessage": "Nárokování dobití se nezdařilo.",
@@ -1678,12 +1756,19 @@
       "feeRate": "{{feeRate}} sat/vByte",
       "refundButton": "Vrátit peníze za dobití",
       "refundFee": "Sazba poplatku za vrácení peněz",
+      "refundPending": "Transakce vrácení prostředků zatím nedorazila do bitcoinové sítě. Pokus o odeslání se automaticky zopakuje. Můžete jej také zopakovat s aktuální sazbou poplatku.",
       "refundUnavailable": "Vrácení peněz není k dispozici",
       "success": {
         "claimTitle": "Nárokovat dobití",
-        "refundMessage": "Transakce pro vrácení peněz vytvořena",
+        "deferredMessage": "Nárokování dobití naplánováno",
+        "deferredNote": "Dobití zatím nebylo nárokováno. Pokus o nárokování se automaticky zopakuje, jakmile se poplatek vejde do limitu.",
+        "refundMessage": "Požádáno o vrácení prostředků",
         "refundNote": "Vrácené prostředky se ve vaší on-chain peněžence objeví po potvrzení transakce.",
-        "refundTitle": "Vrátit peníze za dobití"
+        "refundTitle": "Vrátit peníze za dobití",
+        "settledMessage": "Dobití nárokováno",
+        "settledNote": "Prostředky jsou nyní k dispozici ve vaší Lightning peněžence.",
+        "submittedMessage": "Žádost o nárokování dobití odeslána",
+        "submittedNote": "Nárokování probíhá. Po jeho dokončení se prostředky objeví ve vaší Lightning peněžence."
       },
       "title": "Nárokovat dobití",
       "topUp": "Nenárokované dobití",
@@ -1712,6 +1797,29 @@
         "note": "Vaše prostředky se ve vaší peněžence objeví po potvrzení transakce."
       },
       "viewTransaction": "Zobrazit transakci"
+    },
+    "contacts": {
+      "add": "Přidat kontakt",
+      "addAfterPayment": "Přidejte <strong>{{address}}</strong> do svých kontaktů",
+      "addressPlaceholder": "satoshi@bitbox.cash",
+      "delete": "Smazat kontakt",
+      "deleteAction": "Smazat",
+      "deleteConfirmation": "Opravdu chcete smazat tento kontakt?",
+      "deleteError": "Kontakt se nepodařilo smazat. Zkuste to prosím znovu.",
+      "details": "Podrobnosti kontaktu",
+      "duplicateAddress": "Tato Lightning adresa je již ve vašich kontaktech.",
+      "empty": "Zatím žádné kontakty",
+      "invalidAddress": "Zadejte platnou Lightning adresu.",
+      "loadError": "Kontakty se nepodařilo načíst. Zkuste to prosím znovu.",
+      "myAccounts": "Moje účty",
+      "name": "Jméno",
+      "namePlaceholder": "Zadejte jméno",
+      "notFound": "Kontakt nebyl nalezen.",
+      "optional": "nepovinné",
+      "saveError": "Kontakt se nepodařilo uložit. Zkuste to prosím znovu.",
+      "saved": "Kontakt uložen",
+      "sendTo": "Odeslat na",
+      "title": "Kontakty"
     },
     "deactivate": {
       "intro": {
@@ -1757,6 +1865,7 @@
         "title": "Model důvěry"
       }
     },
+    "initializationFailed": "Při inicializaci Lightningu došlo k chybě. Restartujte prosím BitBoxApp a zkuste to znovu.",
     "initializing": "Inicializace Lightning účtu…",
     "limit": {
       "accountWarning": "Zůstatek peněženky překračuje limit {{limit}} o {{excess}}. Pro vyšší bezpečnost doporučujeme přesunout část prostředků do vaší BitBox peněženky.",
@@ -1780,6 +1889,7 @@
       },
       "title": "Nastavit LNURL adresu"
     },
+    "paymentDescription": "Popis faktury",
     "payments": {
       "header": {
         "amount": "Částka",
@@ -1820,6 +1930,7 @@
       "title": "Přijmout přes Lightning"
     },
     "send": {
+      "activationRequired": "Před zaplacením aktivujte Lightning. Po dokončení nastavení znovu otevřete platební odkaz.",
       "confirm": {
         "amount": "Částka",
         "note": "Poznámka",
@@ -1829,7 +1940,7 @@
       "enterInvoice": "Zadejte adresu nebo fakturu",
       "invoice": {
         "label": "Zadejte platební údaje",
-        "placeholder": "Adresa nebo faktura"
+        "placeholder": "Informace o platbě"
       },
       "lnurlPay": {
         "invalidAmount": "Zadejte částku mezi {{minAmount}} a {{maxAmount}} sats."
@@ -1852,11 +1963,12 @@
     "settings": {
       "closeAndWithdrawFunds": "Zavřít a vybrat prostředky",
       "disableWallet": "Vypnout Lightning peněženku",
+      "enableDebugLogs": "Povolit debug logy Lightningu",
       "enableWallet": "Zapnout Lightning peněženku",
       "enableWalletDescription": "Lightning umožňuje okamžité platby s nízkými poplatky.",
       "expert": "Pokročilý",
       "serviceProvider": "Poskytovatel služby",
-      "setLightningAddress": "Nastavit Lightning adresu",
+      "setLightningAddress": "Lightning adresa",
       "status": "Stav",
       "statusConnected": "Připojeno",
       "title": "Nastavení Lightning",
@@ -1868,9 +1980,14 @@
       "partial": "Síť Spark je částečně nedostupná. Lightning platby nemusí fungovat.",
       "unknown": "Stav sítě Spark není znám. Lightning platby mohou být nedostupné."
     },
+    "testnetWarning": {
+      "message": "Prostředky v Lightning peněžence mají skutečnou hodnotu, i když aplikaci používáte v režimu testnet. Chcete pokračovat?",
+      "title": "Upozornění"
+    },
     "topUp": {
       "action": "Dobít",
       "available": "Dostupné",
+      "claimFeeInfo": "Odečte se z částky vašeho dobití. Skutečný poplatek se může lišit podle podmínek v bitcoinové síti v okamžiku nárokování.",
       "confirm": {
         "amount": "Částka",
         "continue": "Pokračujte na svém BitBoxu.",
@@ -1879,12 +1996,13 @@
         "title": "Potvrďte a odešlete transakci",
         "total": "Celkem"
       },
+      "estimatedClaimFee": "Odhadovaný poplatek za nárokování",
       "from": "Od",
       "noBitcoinAccounts": "Není aktivní žádný bitcoinový účet. Aktivujte prosím bitcoinový účet.",
       "note": "Dobití Lightning",
       "success": {
         "message": "Dobití vytvořeno!",
-        "note": "Transakce dobití se zobrazí po jednom potvrzení a dokončí se po třech potvrzeních. Obvykle to trvá 30 a více minut."
+        "note": "Transakce dobití se před prvním potvrzením zobrazí v seznamu plateb jako čekající. Dobití se automaticky nárokuje, jakmile to umožní počet potvrzení a výše poplatků. Standardní nárokování vyžaduje tři potvrzení; předčasné nárokování může být dokončeno dříve."
       },
       "title": "Dobít Lightning peněženku",
       "to": "Na"
@@ -1920,6 +2038,13 @@
       "feedbackLink": {
         "description": "Pokud máte obecné připomínky",
         "title": "Zpětná vazba"
+      },
+      "licenses": {
+        "description": "Zobrazte licence open-source knihoven a závislostí používaných v této aplikaci",
+        "error": "Licence se nepodařilo načíst.",
+        "packagesInfo": "Tato aplikace používá následující open-source závislosti (počet balíčků: {{packageCount}}).",
+        "title": "Licence",
+        "unavailableLicenseText": "Text licence není k dispozici."
       },
       "supportLink": {
         "description": "Pokud máte problém nebo potřebujete pomoc",
@@ -1969,6 +2094,14 @@
       "language": {
         "description": "Jaký jazyk chcete v BitBoxApp používat.",
         "title": "Jazyk"
+      },
+      "portfolioPerformance": {
+        "description": "Zvolte způsob výpočtu procentuálního údaje portfolia.",
+        "options": {
+          "moneyWeightedReturn": "Výkonnost",
+          "value": "Hodnota v čase"
+        },
+        "title": "Procentuální údaj portfolia"
       },
       "remebmerWallet": {
         "enable": {
@@ -2200,6 +2333,7 @@
     "edit": "Upravit transakci",
     "error": {
       "accountNotSynced": "Účet ještě není synchronizovaný. Počkejte prosím, dokud synchronizace nedokončí, a zkuste to znovu.",
+      "broadcastUncertain": "Transakce ještě může proběhnout. Aplikace se ji bude nadále pokoušet odeslat. Před opětovným odesláním platby zkontrolujte historii transakcí, abyste nezaplatili dvakrát.",
       "erc20InsufficientGasFunds": "Zdá se, že nemáte dostatek etherů na zaplacení této ERC20 transakce. Přidejte prosím ether do své peněženky a zkuste to znovu.",
       "feeTooLow": "poplatek příliš nízký",
       "feesNotAvailable": "Nelze odhadnout poplatky",
@@ -2207,11 +2341,13 @@
       "invalidAddress": "neplatná adresa",
       "invalidAmount": "neplatná částka",
       "invalidData": "neplatná data",
-      "paymentRequestAccountMismatch": "Tento platební požadavek je pro jiné aktivum. Otevřete odpovídající účet a zkuste to znovu.",
+      "paymentRequestAccountMismatch": "Tento platební požadavek je určen pro jinou síť nebo jiné aktivum. Otevřete odpovídající účet a zkuste to znovu.",
       "syncInProgress": "Účet se stále synchronizuje. Počkejte prosím, dokud synchronizace nedokončí, a zkuste to znovu."
     },
     "fee": {
       "customPlaceholder": "Zadejte částku",
+      "highFee": "Vysoký poplatek",
+      "highFeeWarning": "Poplatek činí {{percentage}} % odesílané částky. Chcete pokračovat?",
       "label": "Síťový poplatek",
       "placeholder": "Není dostupný"
     },
@@ -2272,6 +2408,22 @@
     "about": "O aplikaci",
     "advancedSettings": "Pokročilé nastavení",
     "appearance": "Vzhled",
+    "balanceStatement": {
+      "export": {
+        "description": "Exportujte výpis svých zůstatků k vybranému datu ve formátu PDF.",
+        "dialog": {
+          "accountsLabel": "Účty, které chcete zahrnout",
+          "dateLabel": "Stav k datu",
+          "description": "Vyberte datum a účty, které chcete zahrnout do přehledu zůstatků.",
+          "generate": "Vygenerovat PDF",
+          "noAccounts": "Nejsou k dispozici žádné aktivní účty."
+        },
+        "errors": {
+          "sepoliaBalanceStatementUnsupported": "Účty v síti Ethereum Sepolia nelze exportovat, protože nejsou k dispozici historické hodnoty zůstatků. Chcete-li exportovat ostatní účty, zrušte výběr účtů Sepolia."
+        },
+        "title": "Exportovat výpis zůstatků"
+      }
+    },
     "electrum": {
       "add": "Přidat server",
       "add-server": "Přidat",
@@ -2307,6 +2459,7 @@
           "note": "Názvy účtů, poznámky ani peněženky tím nebudou dotčeny.",
           "primaryCTA": "Vymazat mezipaměť (cache)"
         },
+        "success": "Mezipaměť byla úspěšně vymazána",
         "title": "Vymazat mezipaměť (cache)"
       },
       "coinControl": "Aktivovat coin control",
@@ -2355,6 +2508,7 @@
       },
       "title": "Správa poznámek"
     },
+    "other": "Jiné",
     "restart": "Restartujte BitBoxApp, aby se změny projevily.",
     "search": {
       "noResults": "Nebyla nalezena žádná nastavení"
@@ -2405,10 +2559,12 @@
     "fastest": "Rychle",
     "fetchQuotesError": "Nabídky se teď nepodařilo načíst. Zkuste to prosím znovu.",
     "fetchingRoutes": "Načítání možností směny…",
+    "insufficientGasFunds": "Pro úhradu síťových poplatků potřebujete na účtu <strong>{{accountName}}</strong> více ETH. <buyLink>Koupit ETH nyní</buyLink>",
     "new": "Nová směna",
     "noRouteFound": "Nenalezena žádná možnost směny",
     "noRouteFoundForPair": "Nepodařilo se najít směnu z {{sellCoin}} do {{buyCoin}}. Zkuste zadat vyšší částku. Případně to zkuste znovu později.",
     "oneRouteAvailable": "K dispozici je jedna možnost směny",
+    "providersUnavailable": "Pro vybrané aktivum, které chcete prodat, nejsou momentálně dostupní žádní poskytovatelé směny. Zkuste to prosím později.",
     "recommended": "Doporučeno",
     "route": "Možnost směny",
     "routesPlaceholder": "Po zadání částky se zde zobrazí dostupné možnosti směny",
@@ -2425,6 +2581,11 @@
     },
     "prompt": {
       "button": "Odemknout",
+      "info": [
+        "Testovací peněženka používá softwarové úložiště klíčů v aplikaci.",
+        "Různá hesla odemykají různé peněženky. Funguje to stejně jako použití přístupové fráze.",
+        "Výchozí testovací peněženku můžete odemknout bez hesla."
+      ],
       "passwordLabel": "Heslo pro testování",
       "title": "Odemknout testovací peněženku"
     }
@@ -2458,6 +2619,7 @@
       "type": "Typ"
     },
     "explorer": "ID transakce",
+    "explorerError": "Prohlížeč se nepodařilo otevřít.",
     "explorerTitle": "Otevřít v externím block exploreru",
     "fee": "Poplatek",
     "feeRate": "Výše poplatku",
@@ -2553,8 +2715,12 @@
     },
     "pairingRequest": {
       "approve": "Schválit připojení",
+      "chains": "Chains",
+      "readOnly": "Toto připojení může zobrazit vaši adresu, ale nemůže požadovat podpisy ani transakce.",
       "reject": "Odmítnout",
-      "title": "Nový požadavek na připojení od"
+      "rejectionFailed": "Požadavek se nepodařilo odmítnout, ale žádná relace nebyla vytvořena.",
+      "title": "Nový požadavek na připojení od",
+      "unsupported": "Tento požadavek na připojení není podporován."
     },
     "pairingSuccess": "Dapp se úspěšně připojil. Pokračovat můžete na dapp webu",
     "signingRequest": {

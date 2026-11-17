@@ -296,6 +296,9 @@ func (handlers *Handlers) postExportTransactions(*http.Request) (interface{}, er
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}
 	if err := handlers.account.Config().UnsafeSystemOpen(path); err != nil {
+		if errp.Cause(err) == errp.ErrUserAbort {
+			return nil, nil
+		}
 		handlers.log.WithError(err).Error("error opening file")
 		return result{Success: false, ErrorMessage: err.Error()}, nil
 	}

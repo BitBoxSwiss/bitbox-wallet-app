@@ -68,6 +68,12 @@
     },
     "title": "Tambah akaun"
   },
+  "addresses": {
+    "columnAddress": "Alamat",
+    "detail": {
+      "address": "Alamat"
+    }
+  },
   "aopp": {
     "addressRequest": "{{host}} sedang meminta alamat penerimaan.",
     "addressRequestWithLogo": "sedang meminta alamat penerima",
@@ -158,7 +164,6 @@
   "bb02Bootloader": {
     "abort": "Jangan naik taraf – bawa saya kembali",
     "abort_noUpgrade": "Bawa saya balik",
-    "additionalUpgradeFollows1": "Peningkatan tambahan akan menyusul serta-merta selepas ini.",
     "additionalUpgradeFollows2": "Sila pastikan BitBox anda dipalamkan sehingga semua peningkatan selesai.",
     "advanced": {
       "label": "Tetapan lanjutan",
@@ -403,6 +408,7 @@
     "previous": "Sebelumnya",
     "proceedOnBitBox": "Teruskan pada BitBox anda",
     "restore": "Memulihkan",
+    "review": "Semakan",
     "select": "Pilih",
     "unlock": "Buka",
     "update": "Kemas kini",
@@ -599,6 +605,24 @@
             "info": "Hanya memerlukan pengesahan identiti melebihi ambang harian dan tahunan.",
             "link": "Cari ambang semasa di sini",
             "title": "Pengesahan identiti"
+          }
+        },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "Dasar privasi poket",
+              "title": "Perlindungan Data"
+            },
+            "kyc": {
+              "title": "Pengesahan identiti"
+            },
+            "payment": {
+              "title": "Kaedah pembayaran dan yuran"
+            },
+            "security": {
+              "link": "Model ancaman keselamatan BitBox",
+              "title": "Keselamatan"
+            }
           }
         },
         "region": {
@@ -862,6 +886,20 @@
           "title": "Beli dan jual bitcoin dengan Pocket"
         }
       }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "title": "Perlindungan Data"
+        },
+        "fees": {
+          "title": "Bayaran"
+        },
+        "security": {
+          "link": "Model ancaman keselamatan BitBox",
+          "title": "Keselamatan"
+        }
+      }
     }
   },
   "fiat": {
@@ -1102,6 +1140,13 @@
       "ejectSD": {
         "text": "Anda boleh mengeluarkan kad microSD daripada BitBox pada bila-bila masa selagi anda tidak dalam proses mencipta atau memulihkan sandaran.",
         "title": "Bagaimanakah saya boleh mengeluarkan kad microSD?"
+      }
+    },
+    "bitrefill": {
+      "kyc": {
+        "link": {
+          "text": "Had pembelian bitrefill"
+        }
       }
     },
     "bitsurance": {
@@ -1367,6 +1412,64 @@
   "invalidFormat": "Format tidak sah",
   "language": {
     "title": "Pilih Bahasa"
+  },
+  "lightning": {
+    "claimTopUp": {
+      "confirm": {
+        "fee": "Yuran",
+        "feeRate": "Kadar bayaran"
+      }
+    },
+    "closeWithdrawFunds": {
+      "fee": "Yuran"
+    },
+    "disclaimer": {
+      "backups": {
+        "title": "Sandaran"
+      },
+      "continue": "Setuju dan teruskan",
+      "fees": {
+        "title": "Bayaran"
+      },
+      "securityModel": {
+        "title": "Model security"
+      }
+    },
+    "payments": {
+      "header": {
+        "amount": "Jumlah",
+        "date": "Tarikh",
+        "description": "Penerangan",
+        "type": "taip"
+      }
+    },
+    "receive": {
+      "amountSats": {
+        "placeholder": "Masukkan jumlah"
+      },
+      "description": {
+        "label": "Penerangan"
+      }
+    },
+    "send": {
+      "confirm": {
+        "amount": "Jumlah",
+        "note": "Catatan"
+      }
+    },
+    "settings": {
+      "status": "Status",
+      "wallet": "Wallet"
+    },
+    "topUp": {
+      "confirm": {
+        "amount": "Jumlah",
+        "networkFee": "Bayaran rangkaian",
+        "title": "Sahkan dan hantar transaksi",
+        "total": "Jumlah"
+      },
+      "to": "Kepada"
+    }
   },
   "loading": "memuatkan ...",
   "manageAccounts": {
@@ -1821,6 +1924,11 @@
     "leave": "Tinggalkan",
     "settings": "Tetapan"
   },
+  "signMessage": {
+    "addressLabel": "Alamat",
+    "messageLabel": "Mesej",
+    "signMessage": "Tandatangan mesej"
+  },
   "success": {
     "create": {
       "info1": "Dompet anda telah disandarkan dengan selamat ke Kad microSD. Keluarkan dan pastikan ia selamat.",
@@ -1877,6 +1985,7 @@
     "explorer": "ID Transaksi",
     "explorerTitle": "Buka dalam penjelajah blok luaran",
     "fee": "Yuran",
+    "feeRate": "Kadar bayaran",
     "fiatHistorical": "Sejarah",
     "gas": "Gas",
     "no-results": "Tiada transaksi ditemui sepadan \"{{searchTerm}}\"",
@@ -1920,6 +2029,10 @@
       "e109_normal": "Kata laluan peranti salah. Masih ada {{remainingAttempts}} percubaan sebelum peranti diset semula.",
       "e109_touch": "$t(unlock.error.e109_normal) Menahan butang sentuhan diperlukan pada log masuk berikutnya",
       "e113": "Oleh kerana banyaknya percubaan masuk, menahan butang sentuhan selama 4 saat diperlukan pada log masuk berikutnya ."
+    },
+    "forgotPassword": {
+      "stillHavingIssues": "Masih mengalami masalah?",
+      "supportLink": "Hubungi sokongan"
     },
     "input": {
       "label": "Kata laluan peranti",

@@ -34,6 +34,9 @@ export const PasswordEntry = ({ workflow }: TProps) => {
         key={workflow}
         autoPlay
         playsInline
+        poster={`data:image/svg+xml,${encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="338"/>'
+        )}`}
         ref={ref}
         className={styles.passwordGestures}
         loop

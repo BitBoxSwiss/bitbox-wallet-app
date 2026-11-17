@@ -1,5 +1,4 @@
-.disclaimerContainer,
-.disclaimerContainerLightning {
+.disclaimerContainer {
   --size-default: min(1.4rem, 24px);
   align-items: center;
   display: flex;
@@ -9,6 +8,7 @@
   flex-shrink: 1;
   justify-content: center;
   margin: 0 auto;
+  min-height: 180px;
   overflow: auto;
   padding: 0 var(--space-half) 0 var(--space-half);
   width: 100%;
@@ -25,6 +25,15 @@
   max-width: 660px;
   overflow: auto;
   padding: var(--space-quarter) var(--space-half) var(--space-half) var(--space-half);
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-shrink: 0;
+  gap: var(--space-half);
+  justify-content: center;
+  margin-bottom: calc(var(--space-half) * 3);
 }
 
 .title {
@@ -67,15 +76,8 @@
 
 
 @media (max-width: 768px) {
-  .disclaimerContainer {
-    padding-bottom: var(--space-large);
-  }
-
-  .disclaimerContainerLightning {
-    padding-bottom: 0;
-  }
-
-  .disclaimerContainerLightning .disclaimer {
-    margin-bottom: 0;
+  .buttons {
+    flex-direction: column;
+    margin-bottom: var(--space-half);
   }
 }

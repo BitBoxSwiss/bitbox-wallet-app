@@ -64,20 +64,23 @@ export const getAccounts = (): Promise<TAccount[]> => {
   return apiGet('accounts');
 };
 
-type TEthereumPaymentRequest = {
+type TParsedPaymentInput = {
+  // Parsing succeeded; field errors still require correction before creating a proposal.
   success: true;
   recipient: string;
+  // Omitted keeps the entered amount; an empty string clears it.
   amount?: string;
+  validationError?: 'invalidAddress' | 'invalidAmount';
 } | {
   success: false;
-  errorCode?: 'accountMismatch';
+  errorCode?: 'accountMismatch' | 'invalidFormat';
 };
 
-export const parseEthereumPaymentRequest = (
+export const parsePaymentInput = (
   code: AccountCode,
-  uri: string,
-): Promise<TEthereumPaymentRequest> => {
-  return apiPost(`account/${code}/parse-ethereum-payment-request`, { uri });
+  input: string,
+): Promise<TParsedPaymentInput> => {
+  return apiGet(`account/${code}/parse-payment-input?input=${encodeURIComponent(input)}`);
 };
 
 export type CoinFormattedOptionalAmount = {
@@ -359,26 +362,31 @@ export type TReceiveAddressList = {
   addresses: NonEmptyArray<TReceiveAddress>;
 };
 
+type TSlip24AddressDerivation = {
+  eth?: {
+    keypath: number[];
+  };
+  btc?: {
+    keypath: number[];
+    scriptType: ScriptType;
+  };
+};
+
 export type Slip24 = {
   recipientName: string;
   nonce: string | null;
   memos: Array<{
     type: 'text' | 'refund' | 'coinPurchase';
     text?: string;
-    refund?: string;
+    refund?: {
+      address: string;
+      addressDerivation?: TSlip24AddressDerivation;
+    };
     coinPurchase?: {
       coinType: number;
       amount: string;
       address: string;
-      addressDerivation?: {
-        eth?: {
-          keypath: number[];
-        };
-        btc?: {
-          keypath: number[];
-          scriptType: ScriptType;
-        };
-      };
+      addressDerivation?: TSlip24AddressDerivation;
     };
   }>;
   outputs: Array<{

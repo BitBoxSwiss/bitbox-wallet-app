@@ -7,7 +7,7 @@ import { useConfig } from '@/contexts/ConfigProvider';
 import { useMountedRef } from '@/hooks/mount';
 import { Button } from '@/components/forms';
 import { Message } from '@/components/message/message';
-import style from './terms.module.css';
+import { TermsLayout } from './terms-layout';
 
 type TDisclaimerKey = Extract<keyof TConfigFrontend, `skip${string}Disclaimer`>;
 
@@ -56,18 +56,15 @@ export const Terms = ({ children, configKey, readOnly = false, onContinue, testI
   };
 
   return (
-    <div className={readOnly ? style.readOnly : style.disclaimerContainer}>
-      <div className={style.disclaimer}>{children}</div>
-      {!readOnly && (
-        <>
-          {failed && <Message type="error">{t('genericError')}</Message>}
-          <div className="buttons text-center m-bottom-xlarge">
-            <Button primary disabled={saving || !config} data-testid={testId} onClick={accept}>
-              {t('buy.info.continue')}
-            </Button>
-          </div>
-        </>
-      )}
-    </div>
+    <TermsLayout
+      readOnly={readOnly}
+      error={failed && <Message type="error">{t('genericError')}</Message>}
+      buttons={(
+        <Button primary disabled={saving || !config} data-testid={testId} onClick={accept}>
+          {t('buy.info.continue')}
+        </Button>
+      )}>
+      {children}
+    </TermsLayout>
   );
 };

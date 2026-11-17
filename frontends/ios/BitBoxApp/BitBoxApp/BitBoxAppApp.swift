@@ -247,6 +247,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 /// Covers the entire scene, including presented sheets, before iOS captures its preview.
 @MainActor
 final class AppPrivacyScreen: NSObject {
+    typealias FadeOut = @MainActor (UIWindow, @escaping (Bool) -> Void) -> Void
+
     static let shared = AppPrivacyScreen()
 
     var authenticationEnabled = true {
@@ -259,6 +261,25 @@ final class AppPrivacyScreen: NSObject {
     private var waitingForAuthentication = false
     private var authenticationScreenVisible = false
     private var windows: [UIWindowScene: UIWindow] = [:]
+    private let isSceneActive: @MainActor (UIWindowScene) -> Bool
+    private let fadeOut: FadeOut
+
+    init(
+        isSceneActive: @escaping @MainActor (UIWindowScene) -> Bool = { $0.activationState == .foregroundActive },
+        fadeOut: @escaping FadeOut = { window, completion in
+            UIView.animate(
+                withDuration: UIAccessibility.isReduceMotionEnabled ? 0 : 0.2,
+                delay: 0,
+                options: [.beginFromCurrentState, .curveEaseInOut, .allowUserInteraction],
+                animations: { window.alpha = 0 },
+                completion: completion
+            )
+        }
+    ) {
+        self.isSceneActive = isSceneActive
+        self.fadeOut = fadeOut
+        super.init()
+    }
 
     func startObserving(center: NotificationCenter = .default) {
         center.addObserver(self, selector: #selector(sceneWillDeactivate), name: UIScene.willDeactivateNotification, object: nil)
@@ -339,19 +360,13 @@ final class AppPrivacyScreen: NSObject {
     }
 
     private func revealIfReady(_ scene: UIWindowScene) {
-        guard scene.activationState == .foregroundActive, !waitingForAuthentication,
+        guard isSceneActive(scene), !waitingForAuthentication,
               let window = windows[scene], window.alpha != 0 else { return }
         // On failure or cancellation the existing web authentication screen provides retry.
-        UIView.animate(
-            withDuration: UIAccessibility.isReduceMotionEnabled ? 0 : 0.2,
-            delay: 0,
-            options: [.beginFromCurrentState, .curveEaseInOut, .allowUserInteraction]
-        ) {
-            window.alpha = 0
-        } completion: { [weak self] finished in
+        fadeOut(window) { [weak self] finished in
             // A new background transition can interrupt this fade and reuse the same cover.
             guard let self, finished, window.alpha == 0,
-                  scene.activationState == .foregroundActive, !self.waitingForAuthentication,
+                  self.isSceneActive(scene), !self.waitingForAuthentication,
                   self.windows[scene] === window else { return }
             self.windows.removeValue(forKey: scene)?.isHidden = true
         }

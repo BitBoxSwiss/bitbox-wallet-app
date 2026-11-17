@@ -57,6 +57,12 @@
     },
     "title": "Добавить учётную запись"
   },
+  "addresses": {
+    "columnAddress": "Адрес",
+    "detail": {
+      "address": "Адрес"
+    }
+  },
   "aopp": {
     "addressRequest": "{{host}} запрашивает адрес получателя",
     "addressRequestWithLogo": "запрашивается адрес получателя",
@@ -74,6 +80,9 @@
   },
   "app": {
     "upgrade": "Доступна новая версия этого приложения! Обновите с {{current}} на {{version}}."
+  },
+  "auth": {
+    "dismissButton": "Отменить"
   },
   "backup": {
     "check": {
@@ -159,6 +168,9 @@
     "followInstructionsMnemonicTitle": "Восстановление из резервных слов (мнемонической фразы)"
   },
   "bitbox02Settings": {
+    "changePassword": {
+      "title": "Изменить пароль устройства"
+    },
     "deviceName": {
       "current": "Текущее имя устройства",
       "input": "Имя устройства BitBox02",
@@ -249,6 +261,11 @@
       "title": "Вы готовы к работе!"
     }
   },
+  "bitsurance": {
+    "insure": {
+      "title": "Начать"
+    }
+  },
   "blink": {
     "button": "Мерцать"
   },
@@ -274,12 +291,38 @@
     "ok": "Хорошо",
     "previous": "Предыдущее",
     "restore": "Восстановить",
+    "review": "Проверка",
     "select": "Выбрать",
     "unlock": "Разблокировать",
     "update": "Обновить",
     "upgrade": "Обновить"
   },
   "buy": {
+    "exchange": {
+      "infoContent": {
+        "btcdirect": {
+          "disclaimer": {
+            "paymentMethods": {
+              "title": "Способы оплаты и комиссии"
+            }
+          }
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "paymentMethods": {
+              "title": "Способы оплаты и комиссии"
+            }
+          }
+        },
+        "pocket-otc": {
+          "disclaimer": {
+            "payment": {
+              "title": "Способы оплаты и комиссии"
+            }
+          }
+        }
+      }
+    },
     "info": {
       "continue": "Подтвердить и продолжить",
       "crypto": "Криптовалюта",
@@ -385,6 +428,15 @@
     "aoppUnsupportedKeystore": "Подключенное устройство не может подписывать сообщения для этого актива",
     "aoppVersion": "Неизвестная версия"
   },
+  "exchange": {
+    "pocket": {
+      "terms": {
+        "fees": {
+          "title": "Способы оплаты и комиссии"
+        }
+      }
+    }
+  },
   "fiat": {
     "default": "Стандарт",
     "setDefault": "Настроить {{code}} ",
@@ -395,7 +447,8 @@
   },
   "generic": {
     "enabled_false": "Отключено",
-    "enabled_true": "Включено"
+    "enabled_true": "Включено",
+    "resetToDefault": "Восстановить на изначальные настройки"
   },
   "genericError": "Произошла ошибка. Если вы заметили какие-либо проблемы, перезапустите приложение.",
   "goal": {
@@ -736,6 +789,57 @@
   "language": {
     "title": "Выбрать язык"
   },
+  "lightning": {
+    "claimTopUp": {
+      "confirm": {
+        "fee": "Плата",
+        "feeRate": "Процент комиссии"
+      }
+    },
+    "closeWithdrawFunds": {
+      "fee": "Плата"
+    },
+    "disclaimer": {
+      "continue": "Подтвердить и продолжить",
+      "securityModel": {
+        "title": "Модель безопасности"
+      }
+    },
+    "payments": {
+      "header": {
+        "amount": "Сумма",
+        "date": "Дата",
+        "description": "Описание",
+        "type": "Тип"
+      }
+    },
+    "receive": {
+      "amountSats": {
+        "placeholder": "Внести сумму"
+      },
+      "description": {
+        "label": "Описание"
+      }
+    },
+    "send": {
+      "confirm": {
+        "amount": "Сумма",
+        "note": "Примечание"
+      }
+    },
+    "settings": {
+      "status": "Статус",
+      "wallet": "Кошелек"
+    },
+    "topUp": {
+      "confirm": {
+        "amount": "Сумма",
+        "networkFee": "Сетевая комиссия",
+        "title": "Подтвердить и отправить транзакцию",
+        "total": "Всего"
+      }
+    }
+  },
   "loading": "загрузка ...",
   "manageAccounts": {
     "editAccount": "Изменить",
@@ -967,6 +1071,7 @@
         "low": "2 часа (12 блоков)",
         "low_eth": "5 минут или меньше",
         "low_ltc": "30 минут (12 блоков)",
+        "mHalfHour": "20 минут (2 блока)",
         "normal": "1 час (6 блоков)",
         "normal_eth": "2 минуты или меньше",
         "normal_ltc": "15 минут (6 блоков)"
@@ -977,6 +1082,8 @@
         "economy": "Эконом",
         "high": "Быстро",
         "low": "Медленно",
+        "mFastest": "Быстро",
+        "mHour": "Медленно",
         "normal": "Средне"
       },
       "placeholder": "Расчет сетевой комиссии  ..."
@@ -991,6 +1098,7 @@
     "transactionDetails": "Детали транзакции"
   },
   "settings": {
+    "advancedSettings": "Дополнительные настройки",
     "electrum": {
       "add": "Добавить сервер",
       "add-server": "Добавить",
@@ -1044,6 +1152,10 @@
     "leave": "Выйти",
     "settings": "Настройки"
   },
+  "signMessage": {
+    "addressLabel": "Адрес",
+    "messageLabel": "Сообщение"
+  },
   "success": {
     "create": {
       "info1": "Резервная копия вашего кошелька была надежно сохранена на карту microSD. Выньте ее и сохраните в надежном месте.",
@@ -1056,6 +1168,11 @@
     "restore": {
       "summary": "Вы успешно восстановили кошелек из резервной копии.",
       "title": "Успешно"
+    }
+  },
+  "testWallet": {
+    "prompt": {
+      "button": "Разблокировать"
     }
   },
   "transaction": {
@@ -1072,6 +1189,7 @@
     "explorer": "Номер транзакции",
     "explorerTitle": "Открыть во внешнем проводнике блоков",
     "fee": "Плата",
+    "feeRate": "Процент комиссии",
     "fiatHistorical": "Исторический",
     "gas": "Газ",
     "pending": "Неподтвержденная транзакция",
@@ -1079,7 +1197,15 @@
     "status": {
       "complete": "Завершенная",
       "failed": "Неудавшаяся",
-      "pending": "В ожидании"
+      "pending": "В ожидании",
+      "pending_send_to_self": "Неподтвержденная транзакция"
+    },
+    "statusShort": {
+      "complete": "Завершенная",
+      "failed": "Неудавшаяся",
+      "pending": "В ожидании",
+      "pending_receive": "Ждите",
+      "pending_send_to_self": "В ожидании"
     },
     "vsize": "Виртуальный размер",
     "weight": "Вес"

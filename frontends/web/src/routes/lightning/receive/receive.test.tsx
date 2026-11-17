@@ -100,6 +100,13 @@ const enterSats = async (value = '250000') => {
   await waitFor(() => expect(screen.getByRole('button', { name: 'lightning.receive.invoice.create' })).toBeEnabled());
 };
 
+const createInvoice = async () => {
+  // Flush the mocked invoice response and the effects that register its system Back handler.
+  await act(async () => {
+    fireEvent.click(screen.getByRole('button', { name: 'lightning.receive.invoice.create' }));
+  });
+};
+
 describe('Lightning receive', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -127,7 +134,7 @@ describe('Lightning receive', () => {
     const createButton = screen.getByRole('button', { name: 'lightning.receive.invoice.create' });
     expect(createButton).toBeEnabled();
 
-    fireEvent.click(createButton);
+    await createInvoice();
 
     const invoiceWarning = await screen.findByText('lightning.limit.invoiceWarning');
     await waitFor(() => expect(screen.getByTestId('invoice-qr')).toBeInTheDocument());
@@ -151,7 +158,7 @@ describe('Lightning receive', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'lightning.receive.invoice.create' }));
     await enterSats();
-    fireEvent.click(screen.getByRole('button', { name: 'lightning.receive.invoice.create' }));
+    await createInvoice();
     expect(await screen.findByTestId('invoice-qr')).toBeInTheDocument();
 
     pressSystemBack();
@@ -164,6 +171,7 @@ describe('Lightning receive', () => {
     expect(screen.getByTestId('location-path')).toHaveTextContent('/lightning');
   });
 
+  // Back must return from a completed invoice to the populated form, including through the native callback.
   it.each(['desktop', 'mobile', 'system'] as const)('preserves invoice fields when going back via %s and creates an updated invoice', async (navigation) => {
     setMobileViewport(navigation !== 'desktop');
     renderReceive();
@@ -171,7 +179,7 @@ describe('Lightning receive', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'lightning.receive.invoice.create' }));
     await enterSats();
     fireEvent.input(screen.getByLabelText('lightning.receive.description.label'), { target: { value: 'Lunch' } });
-    fireEvent.click(screen.getByRole('button', { name: 'lightning.receive.invoice.create' }));
+    await createInvoice();
     expect(await screen.findByText('lightning.receive.invoice.title')).toBeInTheDocument();
 
     if (navigation === 'system') {
@@ -191,7 +199,7 @@ describe('Lightning receive', () => {
     });
     await enterSats('300000');
     fireEvent.input(screen.getByLabelText('lightning.receive.description.label'), { target: { value: 'Dinner' } });
-    fireEvent.click(screen.getByRole('button', { name: 'lightning.receive.invoice.create' }));
+    await createInvoice();
 
     expect(await screen.findByText('lightning.receive.invoice.title')).toBeInTheDocument();
     expect(lightningApi.getReceivePayment).toHaveBeenLastCalledWith({ amountSat: 300000, description: 'Dinner' });

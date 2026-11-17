@@ -25,6 +25,7 @@ import { Providers } from './contexts/providers';
 import { AppContext } from './contexts/AppContext';
 import { useAppState } from './contexts/app-state-context';
 import { BottomNavigation } from './components/bottom-navigation/bottom-navigation';
+import { useAndroidKeyboardVisible } from './components/bottom-navigation/use-android-keyboard-visible';
 import { getBottomNavKey } from './components/bottom-navigation/utils';
 import styles from './app.module.css';
 
@@ -43,6 +44,8 @@ const AppFrame = () => {
   } = useAppState();
 
   const tabKey = useMemo(() => getBottomNavKey(location), [location]);
+  const androidKeyboardVisible = useAndroidKeyboardVisible();
+  const showBottomNavigation = hasBottomNavigation && !androidKeyboardVisible;
 
   return (
     <>
@@ -55,7 +58,7 @@ const AppFrame = () => {
         />
         <div className={`
           ${styles.appContent || ''}
-          ${hasBottomNavigation && styles.hasBottomNavigation || ''}
+          ${showBottomNavigation && styles.hasBottomNavigation || ''}
           ${vendorIframeActive && styles.hasMarketIframe || ''}
         `}>
           <WCSigningRequest accounts={accounts} />
@@ -84,7 +87,7 @@ const AppFrame = () => {
           </GlobalBannersProvider>
           <RouterWatcher />
         </div>
-        {hasBottomNavigation && (
+        {showBottomNavigation && (
           <BottomNavigation
             devices={devices}
             activeAccounts={activeAccounts}

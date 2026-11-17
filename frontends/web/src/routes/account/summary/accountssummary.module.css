@@ -181,6 +181,7 @@
     flex-basis: 50%;
     flex-grow: 0;
     flex-shrink: 1;
+    min-height: min-content;
     min-width: 0;
 }
 

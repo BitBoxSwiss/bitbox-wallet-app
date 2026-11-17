@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { type RouteComponentProps, useLocation } from 'wouter';
 import { type TPaymentInput, TPaymentInputType, getParsePaymentInput } from '@/api/lightning';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
+import viewStyles from '@/components/view/view.module.css';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { ReviewStep } from './components/review-step';
 import { SelectPaymentInputStep } from './components/select-payment-input-step';
@@ -109,7 +110,7 @@ export const Send = ({ initialPaymentInput, initialRecipientAddress = '', onClos
   return (
     <GuideWrapper>
       <GuidedContent>
-        <Main>
+        <Main className={step === 'review' && !isSending ? viewStyles.paymentReview : undefined}>
           {isSending && <UseDisableBackButton />}
           {step !== 'add-contact' && (
             <Header

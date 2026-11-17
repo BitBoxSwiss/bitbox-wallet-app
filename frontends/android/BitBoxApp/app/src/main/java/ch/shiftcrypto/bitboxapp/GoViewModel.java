@@ -21,6 +21,7 @@ import java.util.Locale;
 import mobileserver.GoDeviceInfoInterface;
 import mobileserver.GoEnvironmentInterface;
 import mobileserver.GoReadWriteCloserInterface;
+import mobileserver.Mobileserver;
 
 public class GoViewModel extends AndroidViewModel {
     private class GoDeviceInfo implements GoDeviceInfoInterface {
@@ -144,8 +145,11 @@ public class GoViewModel extends AndroidViewModel {
         @Override
         public void systemOpen(String url) throws Exception {
             if (url.startsWith("/")) {
-                if (fileSaveHelper != null) {
-                    fileSaveHelper.promptSave(url, Util.getMimeTypeOrDefault(url));
+                FileSaveHelper helper = fileSaveHelper;
+                if (helper != null) {
+                    if (!helper.promptSave(url, Util.getMimeTypeOrDefault(url))) {
+                        throw new Exception(Mobileserver.ErrUserAbort);
+                    }
                     return;
                 }
                 throw new Exception("File save helper not available");
@@ -232,7 +236,7 @@ public class GoViewModel extends AndroidViewModel {
     private final GoEnvironment goEnvironment;
     private final GoAPI goAPI;
     private NetworkHelper networkHelper;
-    private FileSaveHelper fileSaveHelper;
+    private volatile FileSaveHelper fileSaveHelper;
 
     public NetworkHelper getNetworkHelper() {
         return networkHelper;

@@ -18,19 +18,21 @@ const getDeviceInfoSpy = vi.spyOn(bitbox01Apis, 'getDeviceInfo');
 
 const { checkSDCard } = bitbox02Apis;
 const { getDeviceInfo } = bitbox01Apis;
+const bitbox01Devices = { '000': 'bitbox' } as const;
+const bitbox02Devices = { '000': 'bitbox02' } as const;
 
 describe('useSDCard', () => {
   describe('using any valid device, should call the appropriate checking method and return proper value', () => {
 
     beforeEach(() => {
-      vi.clearAllMocks();
+      vi.resetAllMocks();
       useMountedRefSpy.mockReturnValue({ current: true });
     });
 
     it('should apply for bitbox02', async () => {
       checkSDCardSpy.mockImplementation(() => Promise.resolve(true));
 
-      const { result } = renderHook(() => useSDCard({ '000': 'bitbox02' }));
+      const { result } = renderHook(() => useSDCard(bitbox02Devices));
 
       await waitFor(() => expect(checkSDCard).toHaveBeenCalled());
       await waitFor(() => expect(result.current).toBe(true));
@@ -53,13 +55,14 @@ describe('useSDCard', () => {
 
       getDeviceInfoSpy.mockResolvedValue(MOCKED_DEVICE_INFO);
 
-      const { result } = renderHook(() => useSDCard({ '000': 'bitbox' }));
+      const { result } = renderHook(() => useSDCard(bitbox01Devices));
 
       await waitFor(() => expect(getDeviceInfo).toHaveBeenCalled());
 
       await waitFor(() => expect(result.current).toBe(true));
     });
 
+    // Only the location change starts a new check; the older response cannot overwrite its result.
     it('ignores a superseded SD card check', async () => {
       let resolveFirst = (_value: boolean) => {};
       let resolveSecond = (_value: boolean) => {};
@@ -72,7 +75,7 @@ describe('useSDCard', () => {
         }));
 
       const { result, rerender } = renderHook(
-        ({ locationKey }) => useSDCard({ '000': 'bitbox02' }, [locationKey]),
+        ({ locationKey }) => useSDCard(bitbox02Devices, [locationKey]),
         { initialProps: { locationKey: 'first' } },
       );
       await waitFor(() => expect(checkSDCard).toHaveBeenCalledTimes(1));

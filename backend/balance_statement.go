@@ -56,7 +56,7 @@ func (backend *Backend) ExportBalanceStatement(
 	// used instead.
 	isCurrentDay := snapshotEnd.After(now)
 	if isCurrentDay {
-		snapshotEnd = now
+		snapshotEnd = now.In(snapshotDate.Location())
 	}
 
 	accountsByCode := map[accountsTypes.Code]accounts.Interface{}
@@ -180,7 +180,7 @@ func (backend *Backend) ExportBalanceStatement(
 		rows,
 		fiat,
 		totalFiatLabel,
-		snapshotStart,
+		snapshotEnd,
 		hasMissingFiat,
 		hasEstimatedFiat,
 	)
@@ -250,7 +250,7 @@ func createBalanceStatementPDF(
 	rows []statementRow,
 	fiat string,
 	totalFiat string,
-	snapshotDate time.Time,
+	snapshotTime time.Time,
 	hasMissingFiat bool,
 	hasEstimatedFiat bool,
 ) ([]byte, error) {
@@ -308,7 +308,8 @@ func createBalanceStatementPDF(
 			tableTop = tableTopFirst
 			const titleLead = "Balance of assets as of "
 			text(marginLeft, 197, 15, "", titleLead)
-			text(marginLeft+pdf.GetStringWidth(titleLead), 197, 15, "B", snapshotDate.Format("02.01.2006"))
+			text(marginLeft+pdf.GetStringWidth(titleLead), 197, 15, "B",
+				snapshotTime.Format("02.01.2006 15:04:05 UTC-07:00"))
 		}
 		text(marginLeft, tableTop, 12, "B", "Asset")
 		text(amountColumn, tableTop, 12, "B", "Amount")

@@ -3,21 +3,22 @@
 import { MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBackButton } from '@/hooks/backbutton';
+import { useMountedRef } from '@/hooks/mount';
 import { useQRScanner } from '@/hooks/qrcodescanner';
 import { CloseXWhite, FlashWhite, FlashYellow } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
 import { triggerHapticFeedback, triggerLongHapticFeedback } from '@/utils/transport-mobile';
+import { runningInAndroid } from '@/utils/env';
 import style from './scan-qr.module.css';
 
 const ANIMATION_MS = 300;
 const DEFAULT_SCAN_REGION_CENTER_Y = 0.5;
-const FULLSCREEN_SCAN_REGION_CENTER_Y = 0.35;
 
 type TRequestClose = (onClosed?: () => void) => void;
 type TResetLastResult = () => void;
 
 type TProps = {
-  onResult: (result: string) => void | boolean | Promise<void | boolean>;
+  onResult: (result: string, isActive: () => boolean) => void | boolean | Promise<void | boolean>;
   onClose: () => void;
   instruction: string;
   fullscreen?: boolean;
@@ -34,6 +35,11 @@ export const ScanQR = ({
   children,
 }: TProps) => {
   const { t } = useTranslation();
+  const mounted = useMountedRef();
+  const isAndroid = runningInAndroid();
+
+  const FULLSCREEN_SCAN_REGION_CENTER_Y = isAndroid ? 0.5 : 0.35;
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const scanRegionCenterY = (
     fullscreen
@@ -83,8 +89,13 @@ export const ScanQR = ({
     processedRef.current = text;
     busyRef.current = true;
     setProcessing(true);
+    // Async consumers must ignore results once this scanner closes or unmounts.
+    const isActive = () => mounted.current && !closingRef.current;
     try {
-      const accepted = await onResult(text);
+      const accepted = await onResult(text, isActive);
+      if (!isActive()) {
+        return;
+      }
       if (accepted === false) {
         busyRef.current = false;
         setProcessing(false);
@@ -93,11 +104,14 @@ export const ScanQR = ({
       triggerLongHapticFeedback();
       requestClose();
     } catch (error) {
+      if (!isActive()) {
+        return;
+      }
       console.error(error);
       busyRef.current = false;
       setProcessing(false);
     }
-  }, [onResult, requestClose]);
+  }, [mounted, onResult, requestClose]);
 
   const { initErrorMessage, hasFlash, isFlashOn, toggleFlash } = useQRScanner(videoRef, {
     onStart: () => setCameraReady(true),
@@ -139,19 +153,23 @@ export const ScanQR = ({
         )}
 
         <video
-          className={style.video}
+          className={isAndroid ? style.videoOnAndroid : style.video}
           ref={videoRef}
-          poster="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%3E%20width=%2264%22%20height=%2248%22%3C/svg%3E"
+          poster={`data:image/svg+xml,${encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="48"/>'
+          )}`}
         />
 
         <div className={style.overlay}>
-          <div className={`${style.focus || ''} ${guideHidden ? style.focusHidden || '' : ''}`}>
-            <span className={`${style.corner || ''} ${style.topLeft || ''}`} />
-            <span className={`${style.corner || ''} ${style.topRight || ''}`} />
-            <span className={`${style.corner || ''} ${style.bottomLeft || ''}`} />
-            <span className={`${style.corner || ''} ${style.bottomRight || ''}`} />
-            <p className={style.instruction}>{instruction}</p>
-          </div>
+          {!isAndroid && (
+            <div className={`${style.focus || ''} ${guideHidden ? style.focusHidden || '' : ''}`}>
+              <span className={`${style.corner || ''} ${style.topLeft || ''}`} />
+              <span className={`${style.corner || ''} ${style.topRight || ''}`} />
+              <span className={`${style.corner || ''} ${style.bottomLeft || ''}`} />
+              <span className={`${style.corner || ''} ${style.bottomRight || ''}`} />
+              <p className={style.instruction}>{instruction}</p>
+            </div>
+          )}
           {content && (
             <div className={style.contentSlot}>
               {content}

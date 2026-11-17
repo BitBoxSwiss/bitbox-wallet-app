@@ -6,9 +6,10 @@ import style from './main.module.css';
 
 type TMainProps = {
   children: ReactNode;
+  className?: string;
 };
 
-export const Main = ({ children }: TMainProps) => {
+export const Main = ({ children, className = '' }: TMainProps) => {
   const mainRef = useRef<HTMLElement>(null);
   const globalBannersContainer = useGlobalBannersContainer();
 
@@ -27,7 +28,7 @@ export const Main = ({ children }: TMainProps) => {
   }, [globalBannersContainer]);
 
   return (
-    <main className={style.main} ref={mainRef}>
+    <main className={`${style.main || ''} ${className}`.trim()} ref={mainRef}>
       {children}
     </main>
   );

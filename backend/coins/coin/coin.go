@@ -5,8 +5,28 @@ package coin
 import (
 	"math/big"
 
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 )
+
+const (
+	// ErrInvalidPaymentInput marks unsupported or malformed payment input.
+	ErrInvalidPaymentInput errp.ErrorCode = "invalidFormat"
+	// ErrPaymentInputAccountMismatch means that the input specifies a different chain or asset.
+	ErrPaymentInputAccountMismatch errp.ErrorCode = "accountMismatch"
+)
+
+// ParsedPaymentInput contains the extracted recipient and an optional amount in the coin's display unit.
+// A parsed input can populate the form even when a field needs correction.
+type ParsedPaymentInput struct {
+	Recipient string `json:"recipient"`
+	// Nil preserves the entered amount; an empty string clears an invalid URI amount.
+	// Valid amounts, including zero, are formatted in the coin's display unit.
+	Amount *string `json:"amount,omitempty"`
+	// ValidationError identifies the first invalid field, independently of parsing success.
+	ValidationError errors.TxValidationError `json:"validationError,omitempty"`
+}
 
 // Coin models the currency of a blockchain.
 //
@@ -49,6 +69,13 @@ type Coin interface {
 	// ParseAmount parse a String representing a given amount, considering the formatting unit.
 	// e.g. if the formatUnit is set as "sat", the amount will be considered as being sats
 	ParseAmount(amount string) (Amount, error)
+
+	// ParsePaymentInput validates a bare address or payment URI for this coin and returns
+	// its recipient and optional amount in the current display unit, without creating a transaction.
+	// Parsing is independent of account sync, balances, and fees so an address can be checked
+	// before an amount is entered. Transaction creation remains responsible for spendability.
+	// Field validation errors are part of the parsed input; a returned error rejects the whole input.
+	ParsePaymentInput(input string) (*ParsedPaymentInput, error)
 
 	// // Server returns the host and port of the full node used for blockchain synchronization.
 	// Server() string

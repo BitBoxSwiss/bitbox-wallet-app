@@ -64,7 +64,7 @@ const account: TAccount = {
   coinName: 'Bitcoin', coinUnit: 'BTC', isToken: false, name: 'Bitcoin',
 };
 const bitrefillOrigin = 'https://embed.bitrefill.com';
-const hostedURL = 'https://bitboxapp.shiftcrypto.io/widgets/bitrefill/v1/bitrefill.html';
+const hostedURL = 'https://bitboxapp.shiftcrypto.io/widgets/bitrefill/v2/bitrefill.html';
 const payment = {
   event: 'payment_intent', invoiceId: 'invoice', paymentMethod: 'bitcoin',
   paymentAmount: '0.001', paymentAddress: 'test-payment-address',

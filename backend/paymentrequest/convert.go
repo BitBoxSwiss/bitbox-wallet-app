@@ -4,6 +4,7 @@ package paymentrequest
 
 import (
 	"encoding/base64"
+	"strings"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
@@ -33,6 +34,7 @@ func (slip24 *Slip24) ToRequest() (*Request, error) {
 	}
 
 	memos := []Memo{}
+	purchaseCount, refundCount := 0, 0
 	for _, memo := range slip24.Memos {
 		switch memo.Type {
 		case "text":
@@ -40,6 +42,7 @@ func (slip24 *Slip24) ToRequest() (*Request, error) {
 				Text: &TextMemo{Note: memo.Text},
 			})
 		case "coinPurchase":
+			purchaseCount++
 			if memo.CoinPurchase == nil {
 				return nil, errp.New("Payment request coinPurchase memo missing payload")
 			}
@@ -62,9 +65,37 @@ func (slip24 *Slip24) ToRequest() (*Request, error) {
 			memos = append(memos, Memo{
 				CoinPurchase: coinPurchaseMemo,
 			})
+		case "refund":
+			refundCount++
+			if memo.Refund == nil {
+				return nil, errp.New("Payment request refund memo missing payload")
+			}
+			if strings.TrimSpace(memo.Refund.Address) == "" {
+				return nil, errp.New("Payment request refund memo missing address")
+			}
+			refund := &RefundMemo{Address: memo.Refund.Address}
+			if derivation := memo.Refund.AddressDerivation; derivation != nil {
+				if derivation.Eth != nil && derivation.Btc != nil {
+					return nil, errp.New("Payment request refund derivation is ambiguous")
+				}
+				if derivation.Eth != nil {
+					refund.EthAddressDerivation = &EthAddressDerivation{Keypath: derivation.Eth.Keypath}
+				}
+				if derivation.Btc != nil {
+					refund.BtcAddressDerivation = &BtcAddressDerivation{
+						Keypath:    derivation.Btc.Keypath,
+						ScriptType: signing.ScriptType(derivation.Btc.ScriptType),
+					}
+				}
+			}
+			memos = append(memos, Memo{Refund: refund})
 		default:
 			return nil, errp.New("Payment request memo unsupported")
 		}
+	}
+	// Shared payment requests may omit refunds, but coin purchases must not contain duplicate memos.
+	if purchaseCount > 0 && (purchaseCount != 1 || refundCount > 1) {
+		return nil, errp.New("Payment request contains duplicate coinPurchase or refund memos")
 	}
 
 	return &Request{

@@ -81,8 +81,7 @@ function getRepository(repository) {
   return normalized;
 }
 
-const dependencies = [];
-const seen = new Set();
+const grouped = new Map();
 
 for (const packagePath of paths) {
   const {
@@ -94,33 +93,50 @@ for (const packagePath of paths) {
     readFileSync(join(packagePath, 'package.json'), 'utf8')
   );
 
-  // The same package version may exist at multiple locations in node_modules.
-  // Include each name/version combination only once in the license report.
-  const key = `${name}@${version}`;
-  if (seen.has(key)) {
-    continue;
-  }
-  seen.add(key);
-
   const licenseText = getLicenseText(packagePath);
 
   if (!licenseText) {
-    console.warn(`Missing license file: ${key}`);
+    console.warn(`Missing license file: ${name}@${version}`);
   }
 
-  dependencies.push({
+  const normalizedLicense = license ?? null;
+  const normalizedRepository = getRepository(repository);
+
+  // Group packages only when all license-related metadata matches.
+  const key = JSON.stringify([
     name,
-    version,
-    license: license ?? null,
-    repository: getRepository(repository),
+    normalizedLicense,
+    normalizedRepository,
     licenseText,
-  });
+  ]);
+
+  if (grouped.has(key)) {
+    grouped.get(key).versions.add(version);
+  } else {
+    grouped.set(key, {
+      name,
+      versions: new Set([version]),
+      license: normalizedLicense,
+      repository: normalizedRepository,
+      licenseText,
+    });
+  }
 }
+
+// Convert version sets to sorted arrays.
+const dependencies = Array.from(grouped.values(), dependency => ({
+  ...dependency,
+  versions: [...dependency.versions].sort((a, b) =>
+    a.localeCompare(b, undefined, { numeric: true })
+  ),
+}));
 
 // Ensure deterministic output.
 dependencies.sort((a, b) => (
   a.name.localeCompare(b.name)
-  || a.version.localeCompare(b.version)
+  || a.versions[0].localeCompare(b.versions[0], undefined, { numeric: true })
+  || a.licenseText?.localeCompare(b.licenseText ?? '')
+  || 0
 ));
 
 mkdirSync(join(root, 'public'), { recursive: true });
@@ -131,4 +147,11 @@ writeFileSync(
   'utf8'
 );
 
-console.log(`Generated ${output} (${dependencies.length} dependencies)`);
+const versionCount = dependencies.reduce(
+  (count, dependency) => count + dependency.versions.length,
+  0
+);
+
+console.log(
+  `Generated ${output} (${dependencies.length} license entries, ${versionCount} package versions)`
+);

@@ -2398,6 +2398,7 @@ type BTCPaymentRequestRequest_Memo struct {
 	//
 	//	*BTCPaymentRequestRequest_Memo_TextMemo_
 	//	*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_
+	//	*BTCPaymentRequestRequest_Memo_RefundMemo_
 	Memo          isBTCPaymentRequestRequest_Memo_Memo `protobuf_oneof:"memo"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2458,6 +2459,15 @@ func (x *BTCPaymentRequestRequest_Memo) GetCoinPurchaseMemo() *BTCPaymentRequest
 	return nil
 }
 
+func (x *BTCPaymentRequestRequest_Memo) GetRefundMemo() *BTCPaymentRequestRequest_Memo_RefundMemo {
+	if x != nil {
+		if x, ok := x.Memo.(*BTCPaymentRequestRequest_Memo_RefundMemo_); ok {
+			return x.RefundMemo
+		}
+	}
+	return nil
+}
+
 type isBTCPaymentRequestRequest_Memo_Memo interface {
 	isBTCPaymentRequestRequest_Memo_Memo()
 }
@@ -2470,9 +2480,15 @@ type BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_ struct {
 	CoinPurchaseMemo *BTCPaymentRequestRequest_Memo_CoinPurchaseMemo `protobuf:"bytes,2,opt,name=coin_purchase_memo,json=coinPurchaseMemo,proto3,oneof"`
 }
 
+type BTCPaymentRequestRequest_Memo_RefundMemo_ struct {
+	RefundMemo *BTCPaymentRequestRequest_Memo_RefundMemo `protobuf:"bytes,3,opt,name=refund_memo,json=refundMemo,proto3,oneof"`
+}
+
 func (*BTCPaymentRequestRequest_Memo_TextMemo_) isBTCPaymentRequestRequest_Memo_Memo() {}
 
 func (*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_) isBTCPaymentRequestRequest_Memo_Memo() {}
+
+func (*BTCPaymentRequestRequest_Memo_RefundMemo_) isBTCPaymentRequestRequest_Memo_Memo() {}
 
 type BTCPaymentRequestRequest_Memo_TextMemo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -2626,6 +2642,100 @@ func (*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_Eth) isBTCPaymentRequestRe
 func (*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_Btc) isBTCPaymentRequestRequest_Memo_CoinPurchaseMemo_AddressDerivation() {
 }
 
+type BTCPaymentRequestRequest_Memo_RefundMemo struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Address string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	// Derivation info is not part of the SLIP-24 sighash.
+	//
+	// Types that are valid to be assigned to AddressDerivation:
+	//
+	//	*BTCPaymentRequestRequest_Memo_RefundMemo_Eth
+	//	*BTCPaymentRequestRequest_Memo_RefundMemo_Btc
+	AddressDerivation isBTCPaymentRequestRequest_Memo_RefundMemo_AddressDerivation `protobuf_oneof:"address_derivation"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *BTCPaymentRequestRequest_Memo_RefundMemo) Reset() {
+	*x = BTCPaymentRequestRequest_Memo_RefundMemo{}
+	mi := &file_btc_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BTCPaymentRequestRequest_Memo_RefundMemo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BTCPaymentRequestRequest_Memo_RefundMemo) ProtoMessage() {}
+
+func (x *BTCPaymentRequestRequest_Memo_RefundMemo) ProtoReflect() protoreflect.Message {
+	mi := &file_btc_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BTCPaymentRequestRequest_Memo_RefundMemo.ProtoReflect.Descriptor instead.
+func (*BTCPaymentRequestRequest_Memo_RefundMemo) Descriptor() ([]byte, []int) {
+	return file_btc_proto_rawDescGZIP(), []int{16, 0, 2}
+}
+
+func (x *BTCPaymentRequestRequest_Memo_RefundMemo) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+func (x *BTCPaymentRequestRequest_Memo_RefundMemo) GetAddressDerivation() isBTCPaymentRequestRequest_Memo_RefundMemo_AddressDerivation {
+	if x != nil {
+		return x.AddressDerivation
+	}
+	return nil
+}
+
+func (x *BTCPaymentRequestRequest_Memo_RefundMemo) GetEth() *BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation {
+	if x != nil {
+		if x, ok := x.AddressDerivation.(*BTCPaymentRequestRequest_Memo_RefundMemo_Eth); ok {
+			return x.Eth
+		}
+	}
+	return nil
+}
+
+func (x *BTCPaymentRequestRequest_Memo_RefundMemo) GetBtc() *BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation {
+	if x != nil {
+		if x, ok := x.AddressDerivation.(*BTCPaymentRequestRequest_Memo_RefundMemo_Btc); ok {
+			return x.Btc
+		}
+	}
+	return nil
+}
+
+type isBTCPaymentRequestRequest_Memo_RefundMemo_AddressDerivation interface {
+	isBTCPaymentRequestRequest_Memo_RefundMemo_AddressDerivation()
+}
+
+type BTCPaymentRequestRequest_Memo_RefundMemo_Eth struct {
+	Eth *BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation `protobuf:"bytes,2,opt,name=eth,proto3,oneof"`
+}
+
+type BTCPaymentRequestRequest_Memo_RefundMemo_Btc struct {
+	Btc *BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation `protobuf:"bytes,3,opt,name=btc,proto3,oneof"`
+}
+
+func (*BTCPaymentRequestRequest_Memo_RefundMemo_Eth) isBTCPaymentRequestRequest_Memo_RefundMemo_AddressDerivation() {
+}
+
+func (*BTCPaymentRequestRequest_Memo_RefundMemo_Btc) isBTCPaymentRequestRequest_Memo_RefundMemo_AddressDerivation() {
+}
+
 // Derivation info for verifying address ownership.
 // NOT part of the SLIP-24 sighash.
 type BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation struct {
@@ -2637,7 +2747,7 @@ type BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation struct 
 
 func (x *BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation) Reset() {
 	*x = BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation{}
-	mi := &file_btc_proto_msgTypes[27]
+	mi := &file_btc_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2649,7 +2759,7 @@ func (x *BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation) St
 func (*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation) ProtoMessage() {}
 
 func (x *BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation) ProtoReflect() protoreflect.Message {
-	mi := &file_btc_proto_msgTypes[27]
+	mi := &file_btc_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2682,7 +2792,7 @@ type BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation struct 
 
 func (x *BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation) Reset() {
 	*x = BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation{}
-	mi := &file_btc_proto_msgTypes[28]
+	mi := &file_btc_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2694,7 +2804,7 @@ func (x *BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation) St
 func (*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation) ProtoMessage() {}
 
 func (x *BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation) ProtoReflect() protoreflect.Message {
-	mi := &file_btc_proto_msgTypes[28]
+	mi := &file_btc_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2869,16 +2979,19 @@ const file_btc_proto_rawDesc = "" +
 	"\bsequence\x18\x04 \x01(\rR\bsequence\"S\n" +
 	"\x16BTCPrevTxOutputRequest\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\x04R\x05value\x12#\n" +
-	"\rpubkey_script\x18\x02 \x01(\fR\fpubkeyScript\"\xe0\a\n" +
+	"\rpubkey_script\x18\x02 \x01(\fR\fpubkeyScript\"\xe0\n" +
+	"\n" +
 	"\x18BTCPaymentRequestRequest\x12%\n" +
 	"\x0erecipient_name\x18\x01 \x01(\tR\rrecipientName\x12I\n" +
 	"\x05memos\x18\x02 \x03(\v23.shiftcrypto.bitbox02.BTCPaymentRequestRequest.MemoR\x05memos\x12\x14\n" +
 	"\x05nonce\x18\x03 \x01(\fR\x05nonce\x12!\n" +
 	"\ftotal_amount\x18\x04 \x01(\x04R\vtotalAmount\x12\x1c\n" +
-	"\tsignature\x18\x05 \x01(\fR\tsignature\x1a\xfa\x05\n" +
+	"\tsignature\x18\x05 \x01(\fR\tsignature\x1a\xfa\b\n" +
 	"\x04Memo\x12[\n" +
 	"\ttext_memo\x18\x01 \x01(\v2<.shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.TextMemoH\x00R\btextMemo\x12t\n" +
-	"\x12coin_purchase_memo\x18\x02 \x01(\v2D.shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemoH\x00R\x10coinPurchaseMemo\x1a\x1e\n" +
+	"\x12coin_purchase_memo\x18\x02 \x01(\v2D.shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemoH\x00R\x10coinPurchaseMemo\x12a\n" +
+	"\vrefund_memo\x18\x03 \x01(\v2>.shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.RefundMemoH\x00R\n" +
+	"refundMemo\x1a\x1e\n" +
 	"\bTextMemo\x12\x12\n" +
 	"\x04note\x18\x01 \x01(\tR\x04note\x1a\xf6\x03\n" +
 	"\x10CoinPurchaseMemo\x12\x1b\n" +
@@ -2891,6 +3004,12 @@ const file_btc_proto_rawDesc = "" +
 	"\akeypath\x18\x01 \x03(\rR\akeypath\x1am\n" +
 	"\x14BtcAddressDerivation\x12U\n" +
 	"\rscript_config\x18\x01 \x01(\v20.shiftcrypto.bitbox02.BTCScriptConfigWithKeypathR\fscriptConfigB\x14\n" +
+	"\x12address_derivation\x1a\x9a\x02\n" +
+	"\n" +
+	"RefundMemo\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\x12m\n" +
+	"\x03eth\x18\x02 \x01(\v2Y.shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.EthAddressDerivationH\x00R\x03eth\x12m\n" +
+	"\x03btc\x18\x03 \x01(\v2Y.shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.BtcAddressDerivationH\x00R\x03btcB\x14\n" +
 	"\x12address_derivationB\x06\n" +
 	"\x04memo\"\x9c\x02\n" +
 	"\x15BTCSignMessageRequest\x121\n" +
@@ -2951,7 +3070,7 @@ func file_btc_proto_rawDescGZIP() []byte {
 }
 
 var file_btc_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
-var file_btc_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_btc_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_btc_proto_goTypes = []any{
 	(BTCCoin)(0),                                           // 0: shiftcrypto.bitbox02.BTCCoin
 	(BTCOutputType)(0),                                     // 1: shiftcrypto.bitbox02.BTCOutputType
@@ -2989,15 +3108,16 @@ var file_btc_proto_goTypes = []any{
 	(*BTCPaymentRequestRequest_Memo)(nil),                  // 33: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo
 	(*BTCPaymentRequestRequest_Memo_TextMemo)(nil),         // 34: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.TextMemo
 	(*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo)(nil), // 35: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo
-	(*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation)(nil), // 36: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.EthAddressDerivation
-	(*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation)(nil), // 37: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.BtcAddressDerivation
-	(*Keypath)(nil),                       // 38: shiftcrypto.bitbox02.Keypath
-	(*AntiKleptoSignerCommitment)(nil),    // 39: shiftcrypto.bitbox02.AntiKleptoSignerCommitment
-	(*AntiKleptoHostNonceCommitment)(nil), // 40: shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
-	(*AntiKleptoSignatureRequest)(nil),    // 41: shiftcrypto.bitbox02.AntiKleptoSignatureRequest
-	(*PubsResponse)(nil),                  // 42: shiftcrypto.bitbox02.PubsResponse
-	(*XPub)(nil),                          // 43: shiftcrypto.bitbox02.XPub
-	(*KeyOriginInfo)(nil),                 // 44: shiftcrypto.bitbox02.KeyOriginInfo
+	(*BTCPaymentRequestRequest_Memo_RefundMemo)(nil),       // 36: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.RefundMemo
+	(*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_EthAddressDerivation)(nil), // 37: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.EthAddressDerivation
+	(*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_BtcAddressDerivation)(nil), // 38: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.BtcAddressDerivation
+	(*Keypath)(nil),                       // 39: shiftcrypto.bitbox02.Keypath
+	(*AntiKleptoSignerCommitment)(nil),    // 40: shiftcrypto.bitbox02.AntiKleptoSignerCommitment
+	(*AntiKleptoHostNonceCommitment)(nil), // 41: shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
+	(*AntiKleptoSignatureRequest)(nil),    // 42: shiftcrypto.bitbox02.AntiKleptoSignatureRequest
+	(*PubsResponse)(nil),                  // 43: shiftcrypto.bitbox02.PubsResponse
+	(*XPub)(nil),                          // 44: shiftcrypto.bitbox02.XPub
+	(*KeyOriginInfo)(nil),                 // 45: shiftcrypto.bitbox02.KeyOriginInfo
 }
 var file_btc_proto_depIdxs = []int32{
 	2,  // 0: shiftcrypto.bitbox02.BTCScriptConfig.simple_type:type_name -> shiftcrypto.bitbox02.BTCScriptConfig.SimpleType
@@ -3008,15 +3128,15 @@ var file_btc_proto_depIdxs = []int32{
 	9,  // 5: shiftcrypto.bitbox02.BTCPubRequest.script_config:type_name -> shiftcrypto.bitbox02.BTCScriptConfig
 	0,  // 6: shiftcrypto.bitbox02.BTCXpubsRequest.coin:type_name -> shiftcrypto.bitbox02.BTCCoin
 	5,  // 7: shiftcrypto.bitbox02.BTCXpubsRequest.xpub_type:type_name -> shiftcrypto.bitbox02.BTCXpubsRequest.XPubType
-	38, // 8: shiftcrypto.bitbox02.BTCXpubsRequest.keypaths:type_name -> shiftcrypto.bitbox02.Keypath
+	39, // 8: shiftcrypto.bitbox02.BTCXpubsRequest.keypaths:type_name -> shiftcrypto.bitbox02.Keypath
 	9,  // 9: shiftcrypto.bitbox02.BTCScriptConfigWithKeypath.script_config:type_name -> shiftcrypto.bitbox02.BTCScriptConfig
 	0,  // 10: shiftcrypto.bitbox02.BTCSignInitRequest.coin:type_name -> shiftcrypto.bitbox02.BTCCoin
 	12, // 11: shiftcrypto.bitbox02.BTCSignInitRequest.script_configs:type_name -> shiftcrypto.bitbox02.BTCScriptConfigWithKeypath
 	6,  // 12: shiftcrypto.bitbox02.BTCSignInitRequest.format_unit:type_name -> shiftcrypto.bitbox02.BTCSignInitRequest.FormatUnit
 	12, // 13: shiftcrypto.bitbox02.BTCSignInitRequest.output_script_configs:type_name -> shiftcrypto.bitbox02.BTCScriptConfigWithKeypath
 	7,  // 14: shiftcrypto.bitbox02.BTCSignNextResponse.type:type_name -> shiftcrypto.bitbox02.BTCSignNextResponse.Type
-	39, // 15: shiftcrypto.bitbox02.BTCSignNextResponse.anti_klepto_signer_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoSignerCommitment
-	40, // 16: shiftcrypto.bitbox02.BTCSignInputRequest.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
+	40, // 15: shiftcrypto.bitbox02.BTCSignNextResponse.anti_klepto_signer_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoSignerCommitment
+	41, // 16: shiftcrypto.bitbox02.BTCSignInputRequest.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
 	1,  // 17: shiftcrypto.bitbox02.BTCSignOutputRequest.type:type_name -> shiftcrypto.bitbox02.BTCOutputType
 	32, // 18: shiftcrypto.bitbox02.BTCSignOutputRequest.silent_payment:type_name -> shiftcrypto.bitbox02.BTCSignOutputRequest.SilentPayment
 	0,  // 19: shiftcrypto.bitbox02.BTCScriptConfigRegistration.coin:type_name -> shiftcrypto.bitbox02.BTCCoin
@@ -3027,35 +3147,38 @@ var file_btc_proto_depIdxs = []int32{
 	33, // 24: shiftcrypto.bitbox02.BTCPaymentRequestRequest.memos:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo
 	0,  // 25: shiftcrypto.bitbox02.BTCSignMessageRequest.coin:type_name -> shiftcrypto.bitbox02.BTCCoin
 	12, // 26: shiftcrypto.bitbox02.BTCSignMessageRequest.script_config:type_name -> shiftcrypto.bitbox02.BTCScriptConfigWithKeypath
-	40, // 27: shiftcrypto.bitbox02.BTCSignMessageRequest.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
+	41, // 27: shiftcrypto.bitbox02.BTCSignMessageRequest.host_nonce_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoHostNonceCommitment
 	19, // 28: shiftcrypto.bitbox02.BTCRequest.is_script_config_registered:type_name -> shiftcrypto.bitbox02.BTCIsScriptConfigRegisteredRequest
 	21, // 29: shiftcrypto.bitbox02.BTCRequest.register_script_config:type_name -> shiftcrypto.bitbox02.BTCRegisterScriptConfigRequest
 	22, // 30: shiftcrypto.bitbox02.BTCRequest.prevtx_init:type_name -> shiftcrypto.bitbox02.BTCPrevTxInitRequest
 	23, // 31: shiftcrypto.bitbox02.BTCRequest.prevtx_input:type_name -> shiftcrypto.bitbox02.BTCPrevTxInputRequest
 	24, // 32: shiftcrypto.bitbox02.BTCRequest.prevtx_output:type_name -> shiftcrypto.bitbox02.BTCPrevTxOutputRequest
 	26, // 33: shiftcrypto.bitbox02.BTCRequest.sign_message:type_name -> shiftcrypto.bitbox02.BTCSignMessageRequest
-	41, // 34: shiftcrypto.bitbox02.BTCRequest.antiklepto_signature:type_name -> shiftcrypto.bitbox02.AntiKleptoSignatureRequest
+	42, // 34: shiftcrypto.bitbox02.BTCRequest.antiklepto_signature:type_name -> shiftcrypto.bitbox02.AntiKleptoSignatureRequest
 	25, // 35: shiftcrypto.bitbox02.BTCRequest.payment_request:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest
 	11, // 36: shiftcrypto.bitbox02.BTCRequest.xpubs:type_name -> shiftcrypto.bitbox02.BTCXpubsRequest
 	18, // 37: shiftcrypto.bitbox02.BTCResponse.success:type_name -> shiftcrypto.bitbox02.BTCSuccess
 	20, // 38: shiftcrypto.bitbox02.BTCResponse.is_script_config_registered:type_name -> shiftcrypto.bitbox02.BTCIsScriptConfigRegisteredResponse
 	14, // 39: shiftcrypto.bitbox02.BTCResponse.sign_next:type_name -> shiftcrypto.bitbox02.BTCSignNextResponse
 	27, // 40: shiftcrypto.bitbox02.BTCResponse.sign_message:type_name -> shiftcrypto.bitbox02.BTCSignMessageResponse
-	39, // 41: shiftcrypto.bitbox02.BTCResponse.antiklepto_signer_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoSignerCommitment
-	42, // 42: shiftcrypto.bitbox02.BTCResponse.pubs:type_name -> shiftcrypto.bitbox02.PubsResponse
-	43, // 43: shiftcrypto.bitbox02.BTCScriptConfig.Multisig.xpubs:type_name -> shiftcrypto.bitbox02.XPub
+	40, // 41: shiftcrypto.bitbox02.BTCResponse.antiklepto_signer_commitment:type_name -> shiftcrypto.bitbox02.AntiKleptoSignerCommitment
+	43, // 42: shiftcrypto.bitbox02.BTCResponse.pubs:type_name -> shiftcrypto.bitbox02.PubsResponse
+	44, // 43: shiftcrypto.bitbox02.BTCScriptConfig.Multisig.xpubs:type_name -> shiftcrypto.bitbox02.XPub
 	3,  // 44: shiftcrypto.bitbox02.BTCScriptConfig.Multisig.script_type:type_name -> shiftcrypto.bitbox02.BTCScriptConfig.Multisig.ScriptType
-	44, // 45: shiftcrypto.bitbox02.BTCScriptConfig.Policy.keys:type_name -> shiftcrypto.bitbox02.KeyOriginInfo
+	45, // 45: shiftcrypto.bitbox02.BTCScriptConfig.Policy.keys:type_name -> shiftcrypto.bitbox02.KeyOriginInfo
 	34, // 46: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.text_memo:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.TextMemo
 	35, // 47: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.coin_purchase_memo:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo
-	36, // 48: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.eth:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.EthAddressDerivation
-	37, // 49: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.btc:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.BtcAddressDerivation
-	12, // 50: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.BtcAddressDerivation.script_config:type_name -> shiftcrypto.bitbox02.BTCScriptConfigWithKeypath
-	51, // [51:51] is the sub-list for method output_type
-	51, // [51:51] is the sub-list for method input_type
-	51, // [51:51] is the sub-list for extension type_name
-	51, // [51:51] is the sub-list for extension extendee
-	0,  // [0:51] is the sub-list for field type_name
+	36, // 48: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.refund_memo:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.RefundMemo
+	37, // 49: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.eth:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.EthAddressDerivation
+	38, // 50: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.btc:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.BtcAddressDerivation
+	37, // 51: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.RefundMemo.eth:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.EthAddressDerivation
+	38, // 52: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.RefundMemo.btc:type_name -> shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.BtcAddressDerivation
+	12, // 53: shiftcrypto.bitbox02.BTCPaymentRequestRequest.Memo.CoinPurchaseMemo.BtcAddressDerivation.script_config:type_name -> shiftcrypto.bitbox02.BTCScriptConfigWithKeypath
+	54, // [54:54] is the sub-list for method output_type
+	54, // [54:54] is the sub-list for method input_type
+	54, // [54:54] is the sub-list for extension type_name
+	54, // [54:54] is the sub-list for extension extendee
+	0,  // [0:54] is the sub-list for field type_name
 }
 
 func init() { file_btc_proto_init() }
@@ -3097,10 +3220,15 @@ func file_btc_proto_init() {
 	file_btc_proto_msgTypes[24].OneofWrappers = []any{
 		(*BTCPaymentRequestRequest_Memo_TextMemo_)(nil),
 		(*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_)(nil),
+		(*BTCPaymentRequestRequest_Memo_RefundMemo_)(nil),
 	}
 	file_btc_proto_msgTypes[26].OneofWrappers = []any{
 		(*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_Eth)(nil),
 		(*BTCPaymentRequestRequest_Memo_CoinPurchaseMemo_Btc)(nil),
+	}
+	file_btc_proto_msgTypes[27].OneofWrappers = []any{
+		(*BTCPaymentRequestRequest_Memo_RefundMemo_Eth)(nil),
+		(*BTCPaymentRequestRequest_Memo_RefundMemo_Btc)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -3108,7 +3236,7 @@ func file_btc_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_btc_proto_rawDesc), len(file_btc_proto_rawDesc)),
 			NumEnums:      9,
-			NumMessages:   29,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

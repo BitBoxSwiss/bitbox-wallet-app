@@ -29,6 +29,7 @@ const (
 	errLightningInvalidPaymentInput errp.ErrorCode = "lightningInvalidPaymentInput"
 	errLightningInsufficientFunds   errp.ErrorCode = "lightningInsufficientFunds"
 	errLightningInvoiceAlreadyUsed  errp.ErrorCode = "lightningInvoiceAlreadyUsed"
+	errLightningPaymentFailed       errp.ErrorCode = "lightningPaymentFailed"
 	errLightningWithdrawalFailed    errp.ErrorCode = "lightningWithdrawalFailed"
 )
 
@@ -742,7 +743,7 @@ func (lightning *Lightning) preparePayment(request preparePaymentRequest) (*paym
 		)
 		return fee, err
 	case paymentInputTypeBolt11:
-		return lightning.prepareBolt11Payment(request.PaymentInput, request.AmountSat, request.SendAll)
+		return lightning.prepareBolt11Payment(request.PaymentInput, request.AmountSat, request.IdempotencyKey, request.SendAll)
 	case paymentInputTypeLNURLPay:
 		return lightning.prepareLNURLPay(request.PaymentInput, request.AmountSat, request.IdempotencyKey, request.SendAll)
 	default:
@@ -750,7 +751,12 @@ func (lightning *Lightning) preparePayment(request preparePaymentRequest) (*paym
 	}
 }
 
-func (lightning *Lightning) prepareBolt11Payment(paymentInvoice string, amountSat *uint64, sendAll bool) (*paymentFee, error) {
+func (lightning *Lightning) prepareBolt11Payment(
+	paymentInvoice string,
+	amountSat *uint64,
+	idempotencyKey string,
+	sendAll bool,
+) (*paymentFee, error) {
 	if err := lightning.CheckActive(); err != nil {
 		return nil, err
 	}
@@ -764,13 +770,21 @@ func (lightning *Lightning) prepareBolt11Payment(paymentInvoice string, amountSa
 	if err != nil {
 		return nil, err
 	}
-	availableBalance, err := lightning.availableBalance()
-	if err != nil {
-		return nil, err
+	// A retry may follow a payment whose response was lost, so only new attempts check the current balance.
+	if idempotencyKey == "" {
+		availableBalance, err := lightning.availableBalance()
+		if err != nil {
+			return nil, err
+		}
+		if err := checkPaymentBalance(fee, availableBalance); err != nil {
+			return fee, err
+		}
+		idempotencyKey, err = generateIdempotencyKey()
+		if err != nil {
+			return nil, err
+		}
 	}
-	if err := checkPaymentBalance(fee, availableBalance); err != nil {
-		return fee, err
-	}
+	fee.IdempotencyKey = idempotencyKey
 	lightning.log.Debug("Prepared Lightning payment")
 	return fee, nil
 }
@@ -920,6 +934,20 @@ func (lightning *Lightning) sendBolt11Payment(request sendPaymentRequest) error 
 	if err := lightning.CheckActive(); err != nil {
 		return err
 	}
+	if request.IdempotencyKey == "" {
+		return errp.WithMessage(errLightningInvalidPaymentInput, "idempotency key missing")
+	}
+	// Reconcile an existing attempt before fee fetching can block its replay.
+	payment, err := lightning.lookupPayment(request.IdempotencyKey)
+	if err != nil {
+		return err
+	}
+	if payment != nil {
+		if payment.Status == breez_sdk_spark.PaymentStatusFailed {
+			return errLightningPaymentFailed
+		}
+		return nil
+	}
 	lightning.log.Info("Sending Lightning payment")
 
 	prepareResponse, err := lightning.sdkService.PrepareSendPayment(prepareBolt11PaymentRequest(request.PaymentInput, request.AmountSat, request.SendAll))
@@ -935,13 +963,6 @@ func (lightning *Lightning) sendBolt11Payment(request sendPaymentRequest) error 
 	if err := checkApprovedPaymentFee(fee.FeeSat, request.ApprovedFeeSat); err != nil {
 		return err
 	}
-	availableBalance, err := lightning.availableBalance()
-	if err != nil {
-		return err
-	}
-	if err := checkPaymentBalance(fee, availableBalance); err != nil {
-		return err
-	}
 
 	var options breez_sdk_spark.SendPaymentOptions = breez_sdk_spark.SendPaymentOptionsBolt11Invoice{
 		PreferSpark: false,
@@ -950,12 +971,18 @@ func (lightning *Lightning) sendBolt11Payment(request sendPaymentRequest) error 
 	payRequest := breez_sdk_spark.SendPaymentRequest{
 		PrepareResponse: prepareResponse,
 		Options:         &options,
+		IdempotencyKey:  &request.IdempotencyKey,
 	}
-	_, err = lightning.sdkService.SendPayment(payRequest)
+	// New attempts were balance-checked during prepare. A retry must reach the SDK even if the
+	// original payment already reduced the balance.
+	response, err := lightning.sdkService.SendPayment(payRequest)
 
 	if err != nil {
 		lightning.log.WithError(err).Error("Send lightning payment failed")
 		return lightningPaymentError(err)
+	}
+	if response.Payment.Status == breez_sdk_spark.PaymentStatusFailed {
+		return errLightningPaymentFailed
 	}
 	return nil
 }

@@ -56,7 +56,7 @@ input.inputField {
     height: var(--input-height);
     padding: 0 var(--space-half);
     padding-left: calc(var(--space-half) + var(--space-default) + var(--space-default) + var(--space-quarter));
-    padding-right: 0;
+    padding-right: var(--space-quarter);
     text-overflow: ellipsis;
     transition: border-color .2s ease-out;
     width: 100%;
@@ -68,7 +68,6 @@ input.inputField[readonly] {
     color: var(--color-secondary);
     cursor: text;
     opacity: 1;
-    text-overflow: clip;
     -webkit-text-fill-color: var(--color-secondary);
 }
 
@@ -97,6 +96,7 @@ input.inputFieldWithoutIcon {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     border-left: none;
+    flex-wrap: nowrap;
     height: var(--input-height);
     justify-content: end;
     min-width: 0;
@@ -128,6 +128,7 @@ input.inputFieldWithoutIcon {
     font-size: var(--size-small);
     justify-content: flex-end;
     justify-self: end;
+    margin: 0;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
