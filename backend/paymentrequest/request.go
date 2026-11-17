@@ -37,7 +37,16 @@ type CoinPurchaseMemo struct {
 // Memo is one payment-request memo in the internal validated representation.
 type Memo struct {
 	Text         *TextMemo
+	Refund       *RefundMemo
 	CoinPurchase *CoinPurchaseMemo
+}
+
+// RefundMemo contains the signed refund address and local ownership metadata.
+// Derivation metadata is not part of the signed payload.
+type RefundMemo struct {
+	Address              string
+	EthAddressDerivation *EthAddressDerivation
+	BtcAddressDerivation *BtcAddressDerivation
 }
 
 // Request contains the data needed to fulfill a slip-0024 payment request.

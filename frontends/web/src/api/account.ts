@@ -362,26 +362,31 @@ export type TReceiveAddressList = {
   addresses: NonEmptyArray<TReceiveAddress>;
 };
 
+type TSlip24AddressDerivation = {
+  eth?: {
+    keypath: number[];
+  };
+  btc?: {
+    keypath: number[];
+    scriptType: ScriptType;
+  };
+};
+
 export type Slip24 = {
   recipientName: string;
   nonce: string | null;
   memos: Array<{
     type: 'text' | 'refund' | 'coinPurchase';
     text?: string;
-    refund?: string;
+    refund?: {
+      address: string;
+      addressDerivation?: TSlip24AddressDerivation;
+    };
     coinPurchase?: {
       coinType: number;
       amount: string;
       address: string;
-      addressDerivation?: {
-        eth?: {
-          keypath: number[];
-        };
-        btc?: {
-          keypath: number[];
-          scriptType: ScriptType;
-        };
-      };
+      addressDerivation?: TSlip24AddressDerivation;
     };
   }>;
   outputs: Array<{

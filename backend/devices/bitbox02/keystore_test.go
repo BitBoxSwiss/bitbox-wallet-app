@@ -89,6 +89,7 @@ func TestVerifyAddressBTCFirmwareRequirements(t *testing.T) {
 	}
 }
 
+// Signing features reject firmware below their minimum and accept the first supported release.
 func TestSigningFirmwareRequirements(t *testing.T) {
 	packet, err := psbt.NewFromUnsignedTx(wire.NewMsgTx(2))
 	require.NoError(t, err)
@@ -186,8 +187,8 @@ func TestSigningFirmwareRequirements(t *testing.T) {
 		{
 			name:               "swap payment requests",
 			feature:            keystorePkg.FeatureSwapPaymentRequests,
-			unsupportedVersion: semver.NewSemVer(9, 25, 0),
-			supportedVersion:   semver.NewSemVer(9, 26, 0),
+			unsupportedVersion: semver.NewSemVer(9, 28, 1),
+			supportedVersion:   semver.NewSemVer(9, 29, 0),
 		},
 	}
 

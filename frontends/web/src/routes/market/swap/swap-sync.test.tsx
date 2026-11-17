@@ -9,6 +9,7 @@ import '@/i18n/i18n';
 import * as accountApi from '@/api/account';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import * as coinsApi from '@/api/coins';
+import { connectKeystore } from '@/api/keystores';
 import * as swapApi from '@/api/swap';
 import { alertUser } from '@/components/alert/Alert';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -32,7 +33,7 @@ vi.mock('@/contexts/ConfigProvider', () => ({
 }));
 vi.mock('@/contexts/app-state-context', () => {
   // Inactive token destinations are deliberately absent from the live account list.
-  const state = { accounts: [] };
+  const state = { accounts: [], deviceIDs: ['test-device'], devices: { 'test-device': 'bitbox02' } };
   return { useAppState: () => state };
 });
 vi.mock('@/api/account', async importOriginal => ({
@@ -50,7 +51,10 @@ vi.mock('@/api/coins', async importOriginal => ({
   parseExternalBtcAmount: vi.fn(),
 }));
 vi.mock('@/api/swap', () => ({
-  getSwapAccounts: vi.fn(), getSwapQuote: vi.fn(), signSwap: vi.fn(),
+  getSwapAccounts: vi.fn(), getSwapQuote: vi.fn(), getSwapStatus: vi.fn(), signSwap: vi.fn(),
+}));
+vi.mock('@/api/keystores', () => ({
+  connectKeystore: vi.fn(), connectAnyKeystore: vi.fn(),
 }));
 
 const btc: swapApi.TSwapAccount = {
@@ -107,6 +111,11 @@ describe('swap destination synchronization', () => {
     vi.mocked(accountApi.getStatus).mockResolvedValue(syncing);
     vi.mocked(coinsApi.convertToCurrency).mockResolvedValue({ success: false });
     vi.mocked(coinsApi.parseExternalBtcAmount).mockResolvedValue({ success: true, amount: '1' });
+    // Keep firmware and device readiness satisfied so these tests exercise destination synchronization.
+    vi.mocked(connectKeystore).mockResolvedValue({ success: true });
+    vi.mocked(swapApi.getSwapStatus).mockResolvedValue({
+      available: true, connectedKeystore: 'multi', firmwareUpgradeRequired: false,
+    });
     vi.mocked(swapApi.signSwap).mockImplementation(() => new Promise(() => {}));
     vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
       success: true,

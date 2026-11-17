@@ -33,6 +33,17 @@
   margin-top: var(--space-half);
 }
 
+.firmwareWarning,
+.statusError {
+  margin-top: var(--space-default);
+}
+
+.firmwareUpdateLink {
+  display: inline-block;
+  margin-top: var(--space-quarter);
+  text-decoration: underline;
+}
+
 .buyEthLink {
   color: inherit;
   text-decoration: underline;

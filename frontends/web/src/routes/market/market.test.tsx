@@ -8,12 +8,18 @@ vi.mock('@/api/keystores', () => ({
   connectAnyKeystore: vi.fn(),
   connectKeystore: vi.fn(),
 }));
+vi.mock('@/api/swap', () => ({ getSwapStatus: vi.fn() }));
 vi.mock('@/components/alert/Alert', () => ({ alertUser: vi.fn() }));
 vi.mock('@/components/dialog/dialog', () => ({
   Dialog: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 vi.mock('@/components/dialog/firmware-upgrade-required-dialog', () => ({
-  FirmwareUpgradeRequiredDialog: () => <div>firmware upgrade required</div>,
+  FirmwareUpgradeRequiredDialog: ({ onClose }: { onClose: () => void }) => (
+    <div>
+      firmware upgrade required
+      <button onClick={onClose}>cancel upgrade</button>
+    </div>
+  ),
 }));
 vi.mock('@/components/forms', () => ({
   Button: ({ children }: { children: ReactNode }) => <button>{children}</button>,
@@ -64,9 +70,10 @@ vi.mock('./components/countryselect', () => ({
   ),
 }));
 vi.mock('./components/deals', () => ({
-  Deals: ({ goToVendor, action }: { goToVendor: (vendor: 'bitrefill' | 'btcdirect-otc' | 'pocket-otc') => void; action: string }) => (
+  Deals: ({ goToVendor, action }: { goToVendor: (vendor: 'bitrefill' | 'btcdirect-otc' | 'pocket-otc' | 'swapkit') => void; action: string }) => (
     <>
       <button onClick={() => goToVendor('bitrefill')}>enter Bitrefill</button>
+      {action === 'swap' && <button onClick={() => goToVendor('swapkit')}>enter SwapKit</button>}
       {action === 'otc' && (
         <>
           <button onClick={() => goToVendor('btcdirect-otc')}>enter BTC Direct OTC</button>
@@ -103,6 +110,7 @@ import { MemoryRouter } from '@/utils/test-helpers';
 import type { TAccount } from '@/api/account';
 import type { TConfig } from '@/api/config';
 import { open } from '@/api/system';
+import { getSwapStatus } from '@/api/swap';
 import { alertUser } from '@/components/alert/Alert';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { CountrySelect } from './components/countryselect';
@@ -421,6 +429,37 @@ describe('routes/market/market', () => {
 
     expect(await screen.findByText(`/market/bitrefill/spend/${account.code}/CH`)).toBeInTheDocument();
     expect(connectKeystore).toHaveBeenCalledExactlyOnceWith(account.keystore.rootFingerprint, 'btcTransactionSigning');
+  });
+
+  // Cancelling device connection must leave the user on the market without opening swaps.
+  it('stays on the market when connecting for swaps is cancelled', async () => {
+    vi.mocked(connectAnyKeystore).mockResolvedValue({
+      success: false,
+      errorCode: 'userAbort',
+    });
+    renderMarket([account], account.code, 'swap');
+
+    fireEvent.click(screen.getByRole('button', { name: 'enter SwapKit' }));
+
+    await waitFor(() => expect(connectAnyKeystore).toHaveBeenCalledExactlyOnceWith(undefined));
+    expect(getSwapStatus).not.toHaveBeenCalled();
+    expect(screen.getByText('/market/select/btc-account?tab=swap')).toBeInTheDocument();
+
+    expect(screen.queryByText('firmware upgrade required')).not.toBeInTheDocument();
+  });
+
+  // Both old and current firmware enter the swap screen, where firmware requirements appear inline.
+  it.each([false, true])('enters swaps without a popup when firmwareUpgradeRequired is %s', async firmwareUpgradeRequired => {
+    vi.mocked(connectAnyKeystore).mockResolvedValue({ success: true });
+    vi.mocked(getSwapStatus).mockResolvedValue({ available: true, connectedKeystore: 'multi', firmwareUpgradeRequired });
+    renderMarket([account], account.code, 'swap');
+
+    fireEvent.click(screen.getByRole('button', { name: 'enter SwapKit' }));
+
+    expect(await screen.findByText('/market/swap')).toBeInTheDocument();
+    expect(connectAnyKeystore).toHaveBeenCalledExactlyOnceWith(undefined);
+    expect(getSwapStatus).toHaveBeenCalledOnce();
+    expect(screen.queryByText('firmware upgrade required')).not.toBeInTheDocument();
   });
 
   it('prompts for an upgrade before entering a signing workflow', async () => {

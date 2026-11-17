@@ -17,7 +17,7 @@ import { useLoad } from '@/hooks/api';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { alertUser } from '@/components/alert/Alert';
 import { MarketGuide } from './guide';
-import { convertScriptType } from '@/utils/request-addess';
+import { convertScriptType, convertSlip24 } from '@/utils/request-addess';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { useMarketIframeActive } from '@/hooks/vendor-iframe-active';
 import { useVendorIframeResizeHeight } from '@/hooks/vendor-iframe-resize-height';
@@ -215,7 +215,7 @@ export const Pocket = ({ action }: TProps) => {
       useHighestFee: true,
       sendAll: 'no',
       selectedUTXOs: [],
-      paymentRequest: message.slip24
+      paymentRequest: convertSlip24(message.slip24)
     };
 
     let result = await proposeTx(code, txInput);

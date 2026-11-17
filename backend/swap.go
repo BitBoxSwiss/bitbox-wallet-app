@@ -4,6 +4,7 @@ package backend
 
 import (
 	"context"
+	"errors"
 	"slices"
 	"sort"
 	"strings"
@@ -11,13 +12,17 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
 	accountErrors "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/errors"
 	accountsTypes "github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts/types"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc"
 	btcaddresses "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	coinpkg "github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/coin"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/eth"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/market/swapkit"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/paymentrequest"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	addresspkg "github.com/btcsuite/btcd/address/v2"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // SwapAccount contains the backend-native data needed to serialize swap accounts.
@@ -63,10 +68,11 @@ const (
 	swapConnectedKeystoreBTCOnly SwapConnectedKeystore = "btc-only"
 )
 
-// SwapStatus summarizes whether swap should be shown at all and what kind of keystore is connected right now.
+// SwapStatus summarizes swap availability, the connected keystore, and its firmware requirement.
 type SwapStatus struct {
-	Available         bool                  `json:"available"`
-	ConnectedKeystore SwapConnectedKeystore `json:"connectedKeystore"`
+	Available               bool                  `json:"available"`
+	ConnectedKeystore       SwapConnectedKeystore `json:"connectedKeystore"`
+	FirmwareUpgradeRequired bool                  `json:"firmwareUpgradeRequired"`
 }
 
 // SwapQuoteResult can include routes even when the sell amount exceeds the balance.
@@ -200,10 +206,17 @@ func (backend *Backend) swapConnectedKeystore() SwapConnectedKeystore {
 // SwapStatus combines the broad swap availability signal with the current connected keystore state.
 // This lets callers distinguish between "swap exists", "a multi device is connected", and "only a btc-only device is connected".
 func (backend *Backend) SwapStatus() SwapStatus {
-	return SwapStatus{
+	status := SwapStatus{
 		Available:         backend.swapAvailable(),
 		ConnectedKeystore: backend.swapConnectedKeystore(),
 	}
+	if connectedKeystore := backend.Keystore(); connectedKeystore != nil {
+		status.FirmwareUpgradeRequired = errors.Is(
+			connectedKeystore.SupportsFeature(keystore.FeatureSwapPaymentRequests),
+			keystore.ErrFirmwareUpgradeRequired,
+		)
+	}
+	return status
 }
 
 func (backend *Backend) connectedKeystoreConfig(
@@ -414,14 +427,13 @@ func (backend *Backend) PrepareSwap(
 		return nil, err
 	}
 
-	// Grab an unused address; since we build the tx ourselves, we don't need an used
-	// address; this address is then used for refunds.
-	sourceAddress, err := firstUnusedAddress(sellAccount)
+	// The source address receives refunds; retain its derivation for device ownership verification.
+	sourceAddress, refundDerivation, err := swapReceiveAddress(sellAccount)
 	if err != nil {
 		return nil, err
 	}
 
-	destinationAddress, destinationDerivation, err := swapDestinationAddress(buyAccount)
+	destinationAddress, destinationDerivation, err := swapReceiveAddress(buyAccount)
 	if err != nil {
 		return nil, err
 	}
@@ -438,7 +450,7 @@ func (backend *Backend) PrepareSwap(
 		string(buyAccount.Coin().Code()),
 		swapSellAmount,
 		routeID,
-		sourceAddress.EncodeForHumans(),
+		sourceAddress,
 		destinationAddress,
 	)
 	if swapError != nil {
@@ -454,10 +466,9 @@ func (backend *Backend) PrepareSwap(
 	if len(paymentRequest.Outputs) != 1 {
 		return nil, errp.New("Missing or multiple payment request output unsupported")
 	}
-	if !slip24HasCoinPurchase(paymentRequest) {
-		return nil, errp.New("Missing coinPurchase payment request memo")
-	}
-	txInput, err := swapSignTxInput(paymentRequest, sellAccount.Coin(), destinationDerivation)
+	txInput, err := swapSignTxInput(
+		paymentRequest, sellAccount.Coin(), destinationDerivation, sourceAddress, refundDerivation,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -558,25 +569,14 @@ func (backend *Backend) appendERC20SwapAccounts(
 	return sellAccounts, buyAccounts
 }
 
-func slip24HasCoinPurchase(paymentRequest *paymentrequest.Slip24) bool {
-	if paymentRequest == nil {
-		return false
-	}
-	for _, memo := range paymentRequest.Memos {
-		if memo.CoinPurchase != nil {
-			return true
-		}
-	}
-	return false
-}
-
 func frontendPaymentRequest(
 	paymentRequest *paymentrequest.Slip24,
 	destinationDerivation *paymentrequest.Slip24AddressDerivation,
-) *paymentrequest.Slip24 {
-	if paymentRequest == nil {
-		return nil
-	}
+	sellCoin coinpkg.Coin,
+	refundAddress string,
+	refundDerivation *paymentrequest.Slip24AddressDerivation,
+) (*paymentrequest.Slip24, error) {
+	purchaseCount, refundCount := 0, 0
 	memos := make([]paymentrequest.Slip24Memo, 0, len(paymentRequest.Memos))
 	for _, memo := range paymentRequest.Memos {
 		switch memo.Type {
@@ -587,8 +587,9 @@ func frontendPaymentRequest(
 			})
 		case "coinPurchase":
 			if memo.CoinPurchase == nil {
-				continue
+				return nil, errp.New("Payment request coinPurchase memo missing payload")
 			}
+			purchaseCount++
 			mappedMemo := paymentrequest.Slip24Memo{
 				Type: "coinPurchase",
 				CoinPurchase: &paymentrequest.Slip24CoinPurchase{
@@ -601,7 +602,30 @@ func frontendPaymentRequest(
 				mappedMemo.CoinPurchase.AddressDerivation = destinationDerivation
 			}
 			memos = append(memos, mappedMemo)
+		case "refund":
+			if memo.Refund == nil {
+				return nil, errp.New("Payment request refund memo missing payload")
+			}
+			if refundDerivation == nil || (refundDerivation.Eth == nil) == (refundDerivation.Btc == nil) {
+				return nil, errp.New("Missing or ambiguous swap refund derivation")
+			}
+			refundCount++
+			if !swapRefundAddressMatches(sellCoin, refundAddress, memo.Refund.Address) {
+				return nil, errp.New("Swap refund address does not match sell account")
+			}
+			memos = append(memos, paymentrequest.Slip24Memo{
+				Type: "refund",
+				Refund: &paymentrequest.Slip24Refund{
+					Address:           memo.Refund.Address,
+					AddressDerivation: refundDerivation,
+				},
+			})
+		default:
+			return nil, errp.New("Payment request memo unsupported")
 		}
+	}
+	if purchaseCount != 1 || refundCount != 1 {
+		return nil, errp.New("Swap requires exactly one coinPurchase and one refund memo")
 	}
 	return &paymentrequest.Slip24{
 		RecipientName: paymentRequest.RecipientName,
@@ -609,13 +633,15 @@ func frontendPaymentRequest(
 		Memos:         memos,
 		Outputs:       paymentRequest.Outputs,
 		Signature:     paymentRequest.Signature,
-	}
+	}, nil
 }
 
 func swapSignTxInput(
 	paymentRequest *paymentrequest.Slip24,
 	sellCoin coinpkg.Coin,
 	destinationDerivation *paymentrequest.Slip24AddressDerivation,
+	refundAddress string,
+	refundDerivation *paymentrequest.Slip24AddressDerivation,
 ) (SwapSignTxInput, error) {
 	if paymentRequest == nil {
 		return SwapSignTxInput{}, errp.New("Missing payment request")
@@ -632,13 +658,19 @@ func swapSignTxInput(
 		return SwapSignTxInput{}, err
 	}
 	amount := sellCoin.FormatAmount(coinpkg.NewAmount(outputAmount), false)
+	frontendRequest, err := frontendPaymentRequest(
+		paymentRequest, destinationDerivation, sellCoin, refundAddress, refundDerivation,
+	)
+	if err != nil {
+		return SwapSignTxInput{}, err
+	}
 	return SwapSignTxInput{
 		Address:        output.Address,
 		Amount:         amount,
 		UseHighestFee:  true,
 		SendAll:        "no",
 		SelectedUTXOS:  []string{},
-		PaymentRequest: frontendPaymentRequest(paymentRequest, destinationDerivation),
+		PaymentRequest: frontendRequest,
 	}, nil
 }
 
@@ -656,7 +688,7 @@ func firstUnusedAddress(account accounts.Interface) (accounts.Address, error) {
 	return nil, errp.New("Could not find an unused receive address")
 }
 
-func swapDestinationAddress(account accounts.Interface) (string, *paymentrequest.Slip24AddressDerivation, error) {
+func swapReceiveAddress(account accounts.Interface) (string, *paymentrequest.Slip24AddressDerivation, error) {
 	address, err := firstUnusedAddress(account)
 	if err != nil {
 		return "", nil, err
@@ -676,6 +708,25 @@ func swapDestinationAddress(account accounts.Interface) (string, *paymentrequest
 			},
 		}, nil
 	default:
-		return "", nil, errp.New("Unsupported swap destination address type")
+		return "", nil, errp.New("Unsupported swap receive address type")
+	}
+}
+
+// Compare decoded addresses without changing the provider's signed address representation.
+func swapRefundAddressMatches(sellCoin coinpkg.Coin, expected, actual string) bool {
+	switch coin := sellCoin.(type) {
+	case *eth.Coin:
+		return common.IsHexAddress(expected) && common.IsHexAddress(actual) &&
+			common.HexToAddress(expected) == common.HexToAddress(actual)
+	case *btc.Coin:
+		expectedAddress, err := addresspkg.DecodeAddress(expected, coin.Net())
+		if err != nil || !expectedAddress.IsForNet(coin.Net()) {
+			return false
+		}
+		actualAddress, err := addresspkg.DecodeAddress(actual, coin.Net())
+		return err == nil && actualAddress.IsForNet(coin.Net()) &&
+			expectedAddress.EncodeAddress() == actualAddress.EncodeAddress()
+	default:
+		return false
 	}
 }

@@ -171,17 +171,15 @@ func (communication *Communication) readFrame() ([]byte, error) {
 	data := newBuffer()
 	dataLen := int(read[5])*256 + int(read[6])
 	data.Write(read[7:readLen])
-	idx := len(read) - 7
-	for idx < dataLen {
+	for data.Len() < dataLen {
 		readLen, err = communication.device.Read(read)
 		if err != nil {
 			return nil, errp.WithStack(err)
 		}
 		if readLen < 5 {
-			return nil, errp.New("expected minimum read length of 7")
+			return nil, errp.New("expected minimum read length of 5")
 		}
 		data.Write(read[5:readLen])
-		idx += readLen - 5
 	}
 	return data.Bytes()[:dataLen], nil
 }
