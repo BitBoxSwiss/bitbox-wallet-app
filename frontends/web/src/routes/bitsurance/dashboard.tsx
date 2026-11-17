@@ -12,6 +12,7 @@ import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
 import { MarketTab } from '@/routes/market/components/markettab';
 import { Button } from '@/components/forms';
+import { Message } from '@/components/message/message';
 import { alertUser } from '@/components/alert/Alert';
 import { View, ViewContent } from '@/components/view/view';
 import { A } from '@/components/anchor/anchor';
@@ -59,7 +60,7 @@ export const BitsuranceDashboard = () => {
 
   const mounted = useMountedRef();
   const [balances, setBalances] = useState<Balances>();
-  const [insurances, setInsurances] = useState<TInsurancesByCode>();
+  const [insurances, setInsurances] = useState<TInsurancesByCode | null>();
   const [accountsByKeystore, setAccountsByKeystore] = useState<TAccountsByKeystore[]>();
 
   // anyAccountInsured returns true if any of the accounts belonging
@@ -69,9 +70,11 @@ export const BitsuranceDashboard = () => {
   };
 
   const fetchInsurances = useCallback(async () => {
-    const response = await bitsuranceLookup();
-    if (!response.success) {
-      alertUser(response.errorMessage);
+    setInsurances(undefined);
+    const response = await bitsuranceLookup().catch(() => null);
+    if (!response?.success) {
+      setInsurances(null);
+      alertUser(t('bitsurance.error.unavailable'));
       return;
     }
     let accountsInsurance = {} as TInsurancesByCode;
@@ -79,7 +82,7 @@ export const BitsuranceDashboard = () => {
       accountsInsurance[insurance.code] = insurance;
     });
     setInsurances(accountsInsurance);
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     setAccountsByKeystore(getAccountsByKeystore(activeAccounts));
@@ -142,7 +145,12 @@ export const BitsuranceDashboard = () => {
               </div>
 
               <div className={style.accountsContainer}>
-                {accountsByKeystore?.length && insurances ? accountsByKeystore.map(({ accounts, keystore }) => (
+                {insurances === null ? (
+                  <>
+                    <Message type="error">{t('bitsurance.error.unavailable')}</Message>
+                    <Button onClick={fetchInsurances} primary>{t('generic.retry')}</Button>
+                  </>
+                ) : accountsByKeystore?.length && insurances ? accountsByKeystore.map(({ accounts, keystore }) => (
                   anyAccountInsured({ accounts, keystore }) && (
                     <div key={keystore.rootFingerprint}>
                       <p className={style.keystore}>{keystore.name}

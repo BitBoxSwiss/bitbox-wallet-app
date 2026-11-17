@@ -9,6 +9,8 @@ import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { MarketTab } from '@/routes/market/components/markettab';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { Spinner } from '@/components/spinner/Spinner';
+import { Message } from '@/components/message/message';
+import { Button } from '@/components/forms';
 import { View, ViewContent } from '@/components/view/view';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { alertUser } from '@/components/alert/Alert';
@@ -27,7 +29,7 @@ export const BitsuranceAccount = () => {
   const { activeAccounts } = useAppState();
 
   const [disabled, setDisabled] = useState<boolean>(false);
-  const [btcAccounts, setBtcAccounts] = useState<TAccount[]>();
+  const [btcAccounts, setBtcAccounts] = useState<TAccount[] | null>();
   const {
     connect,
     dismissFirmwareUpgrade,
@@ -40,9 +42,11 @@ export const BitsuranceAccount = () => {
   };
 
   const detect = useCallback(async () => {
-    const response = await bitsuranceLookup();
-    if (!response.success) {
-      alertUser(response.errorMessage);
+    setBtcAccounts(undefined);
+    const response = await bitsuranceLookup().catch(() => null);
+    if (!response?.success) {
+      setBtcAccounts(null);
+      alertUser(t('bitsurance.error.unavailable'));
       return;
     }
     // btc accounts that have never been insured, or with a canceled
@@ -56,7 +60,7 @@ export const BitsuranceAccount = () => {
       )
     );
     setBtcAccounts(insurableAccounts);
-  }, [activeAccounts]);
+  }, [activeAccounts, t]);
 
   // check supported accounts
   useEffect(() => {
@@ -65,7 +69,7 @@ export const BitsuranceAccount = () => {
 
   // if there is only one account available let's automatically redirect to the widget
   useEffect(() => {
-    if (btcAccounts !== undefined && btcAccounts.length === 1) {
+    if (btcAccounts?.length === 1) {
       const account = btcAccounts[0] as TAccount;
       connect(account.keystore.rootFingerprint, 'messageSigning').then(success => {
         if (!success) {
@@ -119,7 +123,12 @@ export const BitsuranceAccount = () => {
             width="550px"
           >
             <ViewContent>
-              { btcAccounts.length === 0 ? (
+              { btcAccounts === null ? (
+                <>
+                  <Message type="error">{t('bitsurance.error.unavailable')}</Message>
+                  <Button onClick={detect} primary>{t('generic.retry')}</Button>
+                </>
+              ) : btcAccounts.length === 0 ? (
                 <div>{t('bitsuranceAccount.noAccount')}</div>
               ) : (
                 <GroupedAccountSelector
