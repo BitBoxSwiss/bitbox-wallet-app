@@ -403,6 +403,9 @@
       "text": "If you already signed up with Bitsurance, the BitBoxApp can automatically synchronize your existing insurance coverage.",
       "title": "Already insured?"
     },
+    "error": {
+      "unavailable": "Bitsurance could not be reached. Please try again later."
+    },
     "insure": {
       "button": "Check availability and pricing",
       "faq": "Read more on Bitsurance FAQs",

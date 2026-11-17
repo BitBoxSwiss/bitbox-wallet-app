@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Show a clear error and allow retrying when Bitsurance is unavailable
 
 ## v4.53.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.28.0 and intermediate version v9.27.2

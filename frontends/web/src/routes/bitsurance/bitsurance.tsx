@@ -51,10 +51,10 @@ export const Bitsurance = () => {
     setScanDone(false);
     setInsuredAccounts([]);
     try {
-      const response = await bitsuranceLookup();
-      if (!response.success) {
-        alertUser(response.errorMessage);
-        return;
+      const response = await bitsuranceLookup().catch(() => null);
+      if (!response?.success) {
+        alertUser(t('bitsurance.error.unavailable'));
+        return false;
       }
       const insuredAccountsCodes = response.bitsuranceAccounts.map(account => account.status ? account.code : null);
       const insured = activeAccounts.filter(({ code }) => insuredAccountsCodes.includes(code));
@@ -63,6 +63,7 @@ export const Bitsurance = () => {
       if (insured.length && redirectToDashboard) {
         navigate(`/market/bitsurance/dashboard/${code}`);
       }
+      return true;
     } finally {
       setScanLoading(false);
     }
@@ -80,8 +81,9 @@ export const Bitsurance = () => {
   const maybeProceed = async () => {
     // we force a detection to verify if there is any new insured account
     // before proceeding to the next step.
-    await detect(false);
-    navigate(`/market/bitsurance/account/${code}`);
+    if (await detect(false)) {
+      navigate(`/market/bitsurance/account/${code}`);
+    }
   };
 
   if (hasBitsuranceAccount) {
@@ -120,7 +122,7 @@ export const Bitsurance = () => {
                       {t('bitsurance.insure.text3')}
                     </p>
                     <ColumnButtons className={style.ctaButton}>
-                      <Button onClick={maybeProceed} primary>
+                      <Button onClick={maybeProceed} disabled={scanLoading} primary>
                         {t('bitsurance.insure.button')}
                       </Button>
                     </ColumnButtons>
