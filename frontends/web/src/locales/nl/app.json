@@ -79,7 +79,7 @@
     "detail": {
       "address": "Adres"
     },
-    "emptyFiltered": "==WEBLATE_PART==\nGeen adressen komen overeen met uw filters.",
+    "emptyFiltered": "Geen adressen komen overeen met uw filters.",
     "filter": {
       "changeAddresses": "Adressen wijzigen",
       "receiveAddresses": "Adressen ontvangen"
@@ -131,7 +131,7 @@
   },
   "backup": {
     "check": {
-      "aborted": "==WEBLATE_PART==\nHet controleren van de back-up op het apparaat is afgebroken.",
+      "aborted": "Het controleren van de back-up op het apparaat is afgebroken.",
       "checking": "Backup aan het controleren...",
       "confirmTitle": "Controleer backup",
       "notOK": "De backup komt NIET overeen met de wallet",
@@ -685,7 +685,7 @@
             },
             "partnership": {
               "text": "In samenwerking met Pocket Private biedt BitBox grootschalige handel in Bitcoin-transacties. Pocket Private-klanten krijgen een accountmanager voor persoonlijke assistentie.",
-              "title": "Koop en verkoop met Pocket Private\n==WEBLATE_PART=="
+              "title": "Koop en verkoop met Pocket Private"
             },
             "payment": {
               "info": [
@@ -850,7 +850,7 @@
       "title": "Apparaatinformatie"
     },
     "deviceLanguage": {
-      "description": "==WEBLATE_PART==\nWijzig de taal die op je BitBox wordt gebruikt.",
+      "description": "Wijzig de taal die op je BitBox wordt gebruikt.",
       "error_104": "Het wijzigen van de apparaattaal is afgebroken.",
       "success": "De apparaattaal is succesvol gewijzigd.",
       "title": "Wijzig de apparaattaal."
@@ -863,7 +863,7 @@
         "description": "Subsleutels genereren uit je BitBox wallet.",
         "disclaimer": "Ik snap hoe subsleutels werken en wat de veiligheidsoverwegingen hiervan zijn",
         "how": {
-          "description": "De child keys worden op je BitBox weergegeven als mnemonic. Je kunt zoveel child keys maken als je wilt. Om een child key te tonen, wordt je gevraagd naar het <strong>child number</strong> en de gewenste lengte van de mnemonic (12 of 24 herstelwoorden). Onthoud dat je <strong>child number</strong> en het aantal woorden</strong> moet bijhouden om later dezelfde mnemonic weer te geven.\n==WEBLATE_PART==",
+          "description": "De child keys worden op je BitBox weergegeven als mnemonic. Je kunt zoveel child keys maken als je wilt. Om een child key te tonen, wordt je gevraagd naar het <strong>child number</strong> en de gewenste lengte van de mnemonic (12 of 24 herstelwoorden). Onthoud dat je <strong>child number</strong> en het aantal woorden</strong> moet bijhouden om later dezelfde mnemonic weer te geven.",
           "title": "Hoe werkt het?"
         },
         "recover": {
@@ -947,7 +947,7 @@
     "aoppVersion": "Onbekende versie.",
     "keystoreTimeout": "Walletaanvraag verlopen. Probeer het opnieuw.",
     "lightningAddressChangeCooldown": "Wacht even voordat je je Lightning-adres opnieuw wijzigt.",
-    "lightningAddressInvalidUsername": "Gebruik alleen kleine letters en cijfers.\n==WEBLATE_PART==",
+    "lightningAddressInvalidUsername": "Gebruik alleen kleine letters en cijfers.",
     "lightningAddressUsernameUnavailable": "Deze naam is niet beschikbaar.",
     "lightningAmountBelowMinimum": "Het bedrag moet minimaal {{minAmountSat}} sats zijn.",
     "lightningBalanceLimitExceeded": "Het opwaardeerbedrag overschrijdt de limiet van de Lightning-wallet van {{limit}}. Het maximale opwaardeerbedrag moet {{remaining}} of minder zijn.",
@@ -955,7 +955,7 @@
     "lightningInvalidAmount": "Ongeldig bedrag.",
     "lightningInvalidPaymentInput": "Ongeldige factuur of betalingsverzoek.",
     "lightningInvoiceAlreadyUsed": "Deze Lightning-factuur is al gebruikt. Vraag een nieuwe factuur aan.",
-    "lightningPaymentFailed": "Lightning-betaling mislukt. Controleer de betaling voordat je het opnieuw probeert.\n==WEBLATE_PART==",
+    "lightningPaymentFailed": "Lightning-betaling mislukt. Controleer de betaling voordat je het opnieuw probeert.",
     "lightningPaymentPreparationFailed": "Betaling kon niet worden voorbereid. Probeer het opnieuw.",
     "lightningTopUpClaimFailed": "Probeer de top-up opnieuw te claimen.",
     "lightningTopUpRefundFailed": "Probeer de top-up opnieuw terug te storten.",
@@ -1082,7 +1082,7 @@
     "received": "Ontvangen",
     "reset": "Reset",
     "resetToDefault": "Terugzetten naar standaardwaarden",
-    "retry": "==WEBLATE_PART==\nOpnieuw proberen",
+    "retry": "Opnieuw proberen",
     "search": "Zoeken...",
     "searchButton": "Zoeken",
     "selectAll": "Alles selecteren",
@@ -1254,7 +1254,7 @@
         "Waarde in de loop der tijd: Dit is de verandering van de waarde van je portefeuille in de loop der tijd, inclusief stortingen en opnames.",
         "Prestatie: Dit is het geldgewogen rendement (MWR). Het houdt rekening met stortingen en opnames, zodat het de prestaties van je portefeuille weerspiegelt."
       ],
-      "text": "==WEBLATE_PART==\nHet percentage in je portefeuillegrafiek toont een van de twee opties:",
+      "text": "Het percentage in je portefeuillegrafiek toont een van de twee opties:",
       "title": "Wat betekenen de opties voor het portefeuillepercentage?"
     },
     "appendix": {
@@ -1692,7 +1692,7 @@
       },
       "feeRate": "{{feeRate}} sat/vByte",
       "refundButton": "Terugbetalingsopwaardering",
-      "refundFee": "==WEBLATE_PART==\nTerugbetalingskostenpercentage",
+      "refundFee": "Terugbetalingskostenpercentage",
       "refundPending": "De terugbetaling is nog niet bij het Bitcoin-netwerk aangekomen. Deze wordt automatisch opnieuw geprobeerd. U kunt ook opnieuw proberen met het huidige tarief.",
       "refundUnavailable": "Terugbetaling niet beschikbaar",
       "success": {
@@ -1726,7 +1726,7 @@
       "incomingWarningConfirm": "Ik begrijp dat inkomende fondsen niet zullen worden opgenomen.",
       "lightningBalanceToBeSent": "Lightning-saldo te verzenden",
       "partialFailure": {
-        "action": "Wallet afsluiten\n==WEBLATE_PART==",
+        "action": "Wallet afsluiten",
         "message": "Fondsen zijn opgenomen, maar de Lightning-wallet kon niet worden afgesloten. Sluit deze apart af."
       },
       "success": {
@@ -1740,7 +1740,7 @@
       "addAfterPayment": "Voeg <strong>{{address}}</strong> toe aan je contacten",
       "addressPlaceholder": "satoshi@bitbox.cash",
       "delete": "Contact verwijderen",
-      "deleteAction": "==WEBLATE_PART==\nVerwijder",
+      "deleteAction": "Verwijder",
       "deleteConfirmation": "Weet je zeker dat je dit contact wilt verwijderen?",
       "deleteError": "Kan het contact niet verwijderen. Probeer het opnieuw.",
       "details": "Contactgegevens",
@@ -1848,7 +1848,7 @@
       },
       "description": {
         "label": "Omschrijving",
-        "optional": "==WEBLATE_PART==\nOptioneel",
+        "optional": "Optioneel",
         "placeholder": "Beschrijving invoeren"
       },
       "invoice": {
@@ -1883,7 +1883,7 @@
         "invalidAmount": "Voer een bedrag in tussen {{minAmount}} en {{maxAmount}} sats."
       },
       "onChain": "On-chain",
-      "pasteClipboard": "Plakken uit klembord\n==WEBLATE_PART==",
+      "pasteClipboard": "Plakken uit klembord",
       "qrCode": {
         "label": "Scan een adres of factuur"
       },
@@ -2265,7 +2265,7 @@
     "edit": "Transactie aanpassen",
     "error": {
       "accountNotSynced": "Het account is nog niet gesynchroniseerd. Wacht tot de synchronisatie is voltooid en probeer het opnieuw.",
-      "broadcastUncertain": "De transactie kan nog steeds doorgaan. De app blijft proberen deze te verzenden. Controleer je transactiegeschiedenis voordat je opnieuw verzendt om dubbele betaling te voorkomen.\n==WEBLATE_PART==",
+      "broadcastUncertain": "De transactie kan nog steeds doorgaan. De app blijft proberen deze te verzenden. Controleer je transactiegeschiedenis voordat je opnieuw verzendt om dubbele betaling te voorkomen.",
       "erc20InsufficientGasFunds": "Je hebt niet genoeg Ether in je wallet voor deze transactie. Stort meer Ether in je wallet om de transactie uit te voeren.",
       "feeTooLow": "netwerkkosten te laag",
       "feesNotAvailable": "Schatting van netwerkkosten niet beschikbaar",
@@ -2484,7 +2484,7 @@
     }
   },
   "swap": {
-    "insufficientGasFunds": "Je hebt meer ETH nodig in je <strong>{{accountName}}</strong> account om de netwerkkosten te betalen. <buyLink>Koop nu ETH</buyLink>\n==WEBLATE_PART==",
+    "insufficientGasFunds": "Je hebt meer ETH nodig in je <strong>{{accountName}}</strong> account om de netwerkkosten te betalen. <buyLink>Koop nu ETH</buyLink>",
     "noRouteFoundForPair": "Geen route gevonden van {{sellCoin}} naar {{buyCoin}}. Voer een groter bedrag in. Probeer het anders later opnieuw.",
     "oneRouteAvailable": "1 route beschikbaar",
     "providersUnavailable": "Swap-aanbieders zijn momenteel niet beschikbaar voor het geselecteerde verkoopactief. Probeer het later opnieuw.",

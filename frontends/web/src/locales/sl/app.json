@@ -20,6 +20,7 @@
     "warning": "Pozor!"
   },
   "accountInfo": {
+    "accountDetails": "Podrobnosti računa",
     "address": "Naslov",
     "buyCTA": {
       "information": {
