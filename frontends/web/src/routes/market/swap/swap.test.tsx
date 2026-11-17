@@ -123,9 +123,10 @@ import { alertUser } from '@/components/alert/Alert';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { RatesContext } from '@/contexts/RatesContext';
+import { LocalizationContext } from '@/contexts/localization-context';
+import { AppContext } from '@/contexts/AppContext';
 import { Swap } from './swap';
 import { AppStateContext } from '@/contexts/app-state-context';
-import { AppContext } from '@/contexts/AppContext';
 
 const mockUseConfig = vi.mocked(useConfig);
 
@@ -237,6 +238,52 @@ const firmwareSwap = (appState: Partial<ContextType<typeof AppStateContext>> = {
 );
 
 const renderFirmwareSwap = () => render(firmwareSwap());
+
+const swapForQuote = ({
+  accounts = [sellAccount, buyAccount], btcUnit = 'default', hideAmounts = false,
+}: { accounts?: accountApi.TAccount[]; btcUnit?: 'default' | 'sat'; hideAmounts?: boolean } = {}) => (
+  <AppContext.Provider value={{ hideAmounts } as ContextType<typeof AppContext>}>
+    <BackButtonProvider>
+      <RatesContext.Provider value={{
+        activeCurrencies: [],
+        addToActiveCurrencies: vi.fn(),
+        btcUnit,
+        defaultCurrency: 'USD',
+        removeFromActiveCurrencies: vi.fn(),
+        rotateBtcUnit: vi.fn(),
+        rotateDefaultCurrency: vi.fn(),
+        updateDefaultCurrency: vi.fn(),
+      }}>
+        <AppStateContext.Provider value={{
+          accounts,
+          activeAccounts: accounts,
+          deviceIDs: [],
+          devices: {},
+          hasAccounts: false,
+          hasBottomNavigation: false,
+          hasDevices: false,
+          lightningAccount: undefined,
+          hasLightningAccount: false,
+        }}>
+          <LocalizationContext.Provider value={{ decimal: '.', group: '\'' }}>
+            <MemoryRouter><Swap /></MemoryRouter>
+          </LocalizationContext.Provider>
+        </AppStateContext.Provider>
+      </RatesContext.Provider>
+    </BackButtonProvider>
+  </AppContext.Provider>
+);
+
+const nearMinimum: swapApi.TSwapProviderError = {
+  provider: 'NEAR', errorCode: 'sellAssetAmountTooSmall', message: 'Too small', minAmount: { amount: '0.000083', unit: 'BTC' },
+};
+
+const noRoutesWith = (...providerErrors: swapApi.TSwapProviderError[]) => ({
+  success: false as const,
+  quoteErrorCode: 'noRoutesFound' as const,
+  errorMessage: 'No routes found',
+  quote: { routes: [], providerErrors },
+});
 
 describe('routes/market/swap', () => {
   beforeEach(() => {
@@ -504,6 +551,49 @@ describe('routes/market/swap', () => {
     });
   });
 
+  // Reloading unchanged swap accounts after an unrelated account update keeps the selected route and quote.
+  it('keeps the selected route when the account list changes', async () => {
+    const user = userEvent.setup();
+    vi.mocked(swapApi.getSwapAccounts).mockImplementation(async () => ({
+      success: true,
+      sellAccounts: [{ ...swapSellAccount }],
+      buyAccounts: [{ ...swapBuyAccount }],
+      defaultSellAccountCode: swapSellAccount.code,
+      defaultBuyAccountCode: swapBuyAccount.code,
+    }));
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+      success: true,
+      quote: {
+        routes: [
+          { expectedBuyAmount: '1.23', providers: ['thorchain'], routeId: 'route-1' },
+          { expectedBuyAmount: '0.9', providers: ['chainflip'], routeId: 'route-2' },
+        ],
+      },
+    });
+
+    const { rerender } = render(swapForQuote());
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+    await screen.findByText('THORChain');
+    await user.click(screen.getByText('THORChain'));
+    await user.click(await screen.findByText('Chainflip'));
+    await waitFor(() => expect(screen.getByTestId('swapGetAmount')).toHaveTextContent('0.9'));
+    expect(swapApi.getSwapQuote).toHaveBeenCalledTimes(1);
+
+    rerender(swapForQuote({ accounts: [
+      sellAccount,
+      buyAccount,
+      { ...buyAccount, code: 'unrelated-account', name: 'Other Account' },
+    ] }));
+    await waitFor(() => expect(swapApi.getSwapAccounts).toHaveBeenCalledTimes(2));
+    await act(async () => {
+      await new Promise(resolve => window.setTimeout(resolve, 400));
+    });
+
+    expect(screen.getByText('Chainflip')).toBeInTheDocument();
+    expect(screen.getByTestId('swapGetAmount')).toHaveTextContent('0.9');
+    expect(swapApi.getSwapQuote).toHaveBeenCalledTimes(1);
+  });
+
   it('shows no-route quote errors with display units', async () => {
     const user = userEvent.setup();
 
@@ -563,6 +653,155 @@ describe('routes/market/swap', () => {
     expect(await screen.findByText('No route found from ETH to USDC. Try entering a larger amount. Otherwise try again later.')).toBeInTheDocument();
     expect(screen.queryByText(/ETH\.ETH/)).not.toBeInTheDocument();
     expect(screen.queryByText(/ETH\.USDC/)).not.toBeInTheDocument();
+  });
+
+  // A request can fail before a quote exists. Clearing the amount restores the route selector.
+  it('replaces the route selector with a request error until the amount is cleared', async () => {
+    const user = userEvent.setup();
+    vi.mocked(swapApi.getSwapQuote).mockRejectedValueOnce('Quote service offline');
+
+    render(swapForQuote());
+    const input = await screen.findByLabelText('swapSendAmount');
+    await user.type(input, '1');
+    expect(await screen.findByText('Quote service offline')).toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+
+    await user.clear(input);
+    expect(await screen.findByRole('combobox')).toBeDisabled();
+    expect(screen.queryByText('Quote service offline')).not.toBeInTheDocument();
+  });
+
+  // Minimums appear before smaller-amount advice, even when the provider response has the reverse order.
+  it('shows actionable provider errors when no routes exist', async () => {
+    const user = userEvent.setup();
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue(noRoutesWith(
+      { provider: 'GARDEN', errorCode: 'insufficientLiquidity', message: 'No liquidity' },
+      { provider: 'FLASHNET', errorCode: 'requestTimeout', message: 'Timeout' },
+      nearMinimum,
+    ));
+
+    render(swapForQuote());
+    await user.type(await screen.findByLabelText('swapSendAmount'), '0.00001');
+
+    const minimum = await screen.findByText(/To swap with NEAR, enter at least/);
+    expect(minimum).toHaveTextContent(/0\.00\s*008\s*3 BTC/);
+    expect(minimum.nextElementSibling).toHaveTextContent('Garden cannot swap this amount. Try a smaller amount.');
+    expect(screen.queryByText(/Timeout|Unable to fetch quotes/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+  });
+
+  // A quote-level availability error takes precedence over individual provider declines.
+  it('shows providers unavailable when the quote also has provider errors', async () => {
+    const user = userEvent.setup();
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+      ...noRoutesWith(nearMinimum), quoteErrorCode: 'providersUnavailable',
+    });
+
+    render(swapForQuote());
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+
+    expect(await screen.findByText(
+      'Swap providers are currently unavailable for the selected sell asset. Please try again later.',
+    )).toBeInTheDocument();
+    expect(screen.queryByText(/To swap with NEAR/)).not.toBeInTheDocument();
+  });
+
+  // A USDC minimum stays visible with Hide amounts and renders as one translated sentence.
+  it('shows a USDC minimum without a list marker or styled currency unit', async () => {
+    const user = userEvent.setup();
+    vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
+      success: true,
+      sellAccounts: [swapBuyTokenAccount],
+      buyAccounts: [swapSellAccount],
+      defaultSellAccountCode: swapBuyTokenAccount.code,
+      defaultBuyAccountCode: swapSellAccount.code,
+    });
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue(noRoutesWith({
+      ...nearMinimum, minAmount: { amount: '5.538226', unit: 'USDC' },
+    }));
+
+    render(swapForQuote({ hideAmounts: true }));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+
+    const minimum = await screen.findByText(/To swap with NEAR, enter at least/);
+    expect(minimum).toHaveTextContent('To swap with NEAR, enter at least 5.538226 USDC.');
+    expect(minimum.closest('li')).toBeNull();
+    expect(minimum.querySelector('[data-testid="amount-unit-USDC"]')).toBeNull();
+  });
+
+  // Sat mode renders the amount and unit together, including a quote already formatted in BTC.
+  it.each([
+    [{ amount: '8300', unit: 'sat' }, '8300sat.'],
+    [{ amount: '0.000083', unit: 'BTC' }, '0.000083BTC.'],
+  ] as const)('renders the provider minimum as %s', async (minAmount, expected) => {
+    const user = userEvent.setup();
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue(noRoutesWith({ ...nearMinimum, minAmount }));
+
+    render(swapForQuote({ btcUnit: 'sat' }));
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1000');
+
+    const minimum = await screen.findByText(/To swap with NEAR, enter at least/);
+    expect(minimum.textContent?.replace(/\s/g, '')).toContain(expected);
+    expect(coinsApi.parseExternalBtcAmount).not.toHaveBeenCalled();
+  });
+
+  // With no actionable advice, choose one translated fallback for the whole quote.
+  it.each([
+    [['sellAssetAmountTooSmall', 'swapHalted'], 'No route found from BTC to ETH. Try entering a larger amount. Otherwise try again later.'],
+    [['invalidChain', 'swapHalted'], 'Swap providers are currently unavailable for the selected sell asset. Please try again later.'],
+    [['invalidAsset'], 'No route found from BTC to ETH. Try entering a larger amount. Otherwise try again later.'],
+    [['unknownError', 'requestTimeout'], 'Unable to fetch quotes right now. Please try again.'],
+  ] as const)('shows fallback guidance for %s', async (codes, expected) => {
+    const user = userEvent.setup();
+    const errors = codes.map(errorCode => ({ provider: 'NEAR', errorCode, message: 'Raw provider error' }));
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+      ...noRoutesWith(...errors), errorData: { sellCoin: 'BTC', buyCoin: 'ETH' },
+    });
+
+    render(swapForQuote());
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+
+    expect(await screen.findByText(expected)).toBeInTheDocument();
+    expect(screen.queryByText('Raw provider error')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeDisabled();
+  });
+
+  // A late no-route quote cannot restore provider warnings after a newer quote offers a route.
+  it('ignores provider errors from an obsolete quote', async () => {
+    const user = userEvent.setup();
+    const pending = Promise.withResolvers<swapApi.TSwapQuoteResponse>();
+    vi.mocked(swapApi.getSwapQuote).mockReturnValueOnce(pending.promise);
+
+    render(swapForQuote());
+    const amountInput = await screen.findByLabelText('swapSendAmount');
+    await user.type(amountInput, '1');
+    await waitFor(() => expect(swapApi.getSwapQuote).toHaveBeenCalledTimes(1));
+    await user.clear(amountInput);
+    await user.type(amountInput, '2');
+    expect(await screen.findByText('THORChain + Mayachain')).toBeInTheDocument();
+
+    await act(() => pending.resolve(noRoutesWith(nearMinimum)));
+    expect(screen.queryByText(/To swap with NEAR/)).not.toBeInTheDocument();
+    expect(screen.getByText('THORChain + Mayachain')).toBeInTheDocument();
+  });
+
+  // A declined provider does not distract from another provider's usable route.
+  it('keeps available routes without showing provider errors', async () => {
+    const user = userEvent.setup();
+    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+      success: true,
+      quote: {
+        routes: [{ expectedBuyAmount: '1.23', providers: ['GARDEN'], routeId: 'route-1' }],
+        providerErrors: [nearMinimum],
+      },
+    });
+
+    render(swapForQuote());
+    await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+
+    expect(await screen.findByText('Garden')).toBeInTheDocument();
+    expect(screen.queryByText(/To swap with NEAR/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Swap' })).toBeEnabled();
   });
 
   it('shows insufficient funds warning together with no-route errors', async () => {

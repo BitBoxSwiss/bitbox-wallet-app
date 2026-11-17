@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import type { TCoinUnit, TAmountWithConversions } from '@/api/account';
 import type { TSwapQuoteRoute } from '@/api/swap';
 import { Label } from '@/components/forms';
-import { Message } from '@/components/message/message';
 import { ChevronDownDark } from '@/components/icon';
 import { Badge } from '@/components/badge/badge';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
@@ -122,7 +121,6 @@ const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
 
 type Props = {
   buyUnit: TCoinUnit | undefined;
-  error?: string;
   isLoading: boolean;
   onChangeRouteId: (routeId: string) => void;
   routes: TSwapQuoteRoute[];
@@ -131,7 +129,6 @@ type Props = {
 
 export const SwapServiceSelector = ({
   buyUnit,
-  error,
   isLoading,
   onChangeRouteId,
   routes,
@@ -163,19 +160,6 @@ export const SwapServiceSelector = ({
       : undefined
   );
 
-  if (!isLoading && error) {
-    return (
-      <section className={style.swapServiceContainer}>
-        <Message
-          type="warning"
-          className={style.errorMessage}
-        >
-          {error}
-        </Message>
-      </section>
-    );
-  }
-
   const placeholderText = (
     isLoading
       ? t('swap.fetchingRoutes')
@@ -183,10 +167,10 @@ export const SwapServiceSelector = ({
   );
 
   return (
-    <section className={style.swapServiceContainer}>
+    <>
       <Label className={style.label}>
         {t('swap.route')}
-        {!isLoading && !error && options.length === 1 && (
+        {!isLoading && options.length === 1 && (
           <span className={style.statusText}>
             {t('swap.oneRouteAvailable')}
           </span>
@@ -209,6 +193,6 @@ export const SwapServiceSelector = ({
         value={selectedOption}
         onChange={option => option && onChangeRouteId(option.value)}
       />
-    </section>
+    </>
   );
 };

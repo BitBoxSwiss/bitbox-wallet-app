@@ -29,6 +29,15 @@
   margin-bottom: var(--space-half);
 }
 
+.swapServiceContainer {
+  min-height: 85px;
+}
+
+.routeWarning {
+  margin-bottom: 0;
+  margin-top: var(--space-quarter);
+}
+
 .gasWarning {
   margin-top: var(--space-half);
 }
@@ -42,6 +51,10 @@
   display: inline-block;
   margin-top: var(--space-quarter);
   text-decoration: underline;
+}
+
+.minimumAmount {
+  white-space: nowrap;
 }
 
 .buyEthLink {

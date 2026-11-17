@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"math/big"
 	"net/http"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -42,6 +43,36 @@ const (
 	// ErrProvidersUnavailable is returned when all swap providers are disabled for the sell chain.
 	ErrProvidersUnavailable errp.ErrorCode = "providersUnavailable"
 )
+
+var decimalAmountPattern = regexp.MustCompile(`^[0-9]+(\.[0-9]+)?$`)
+
+// normalizeProviderMinimums keeps provider minimums positive and rounds them up to an amount
+// the sell coin can represent. Showing a smaller rounded value would send users back to a failed quote.
+func normalizeProviderMinimums(quote *QuoteResponse, sellCoin coinpkg.Coin) {
+	for index := range quote.ProviderErrors {
+		providerError := &quote.ProviderErrors[index]
+		if providerError.ErrorCode != "sellAssetAmountTooSmall" || !decimalAmountPattern.MatchString(providerError.rawMinAmount) {
+			continue
+		}
+		minimum, ok := new(big.Rat).SetString(providerError.rawMinAmount)
+		if !ok || minimum.Sign() <= 0 {
+			continue
+		}
+		scaled := new(big.Int).Mul(minimum.Num(), coinpkg.DecimalsExp(sellCoin, false))
+		atomicMinimum, remainder := new(big.Int).QuoRem(scaled, minimum.Denom(), new(big.Int))
+		if remainder.Sign() != 0 {
+			atomicMinimum.Add(atomicMinimum, big.NewInt(1))
+		}
+		amount := sellCoin.FormatAmount(coinpkg.NewAmount(atomicMinimum), false)
+		if strings.ContainsRune(amount, '.') {
+			amount = strings.TrimRight(strings.TrimRight(amount, "0"), ".")
+		}
+		providerError.MinAmount = &ProviderMinimum{
+			Amount: amount,
+			Unit:   sellCoin.GetFormatUnit(false),
+		}
+	}
+}
 
 const (
 	noRoutesFoundMessage   = "No routes found"
@@ -244,8 +275,9 @@ func NewQuoteFromCoinCode(ctx context.Context, httpClient *http.Client, sellCoin
 			Message:   err.Error(),
 		}
 	}
+	normalizeProviderMinimums(quoteResponse, sellCoin)
 	if len(quoteResponse.Routes) == 0 {
-		return nil, noRoutesQuoteError(ctx, client, quoteRequest.SellAsset, quoteErrorData)
+		return quoteResponse, noRoutesQuoteError(ctx, client, quoteRequest.SellAsset, quoteErrorData)
 	}
 	return quoteResponse, nil
 }
