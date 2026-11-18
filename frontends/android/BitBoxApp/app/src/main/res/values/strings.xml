@@ -1,4 +1,8 @@
 <resources>
+    <string name="lightning_widget_description">Receive Lightning payments from your Home Screen.</string>
+    <string name="lightning_widget_empty">Open BitBoxApp to set up your Lightning address.</string>
+    <string name="lightning_widget_name">BitBoxApp Lightning</string>
+    <string name="lightning_widget_resize">Resize widget to show QR</string>
     <string name="price_widget_change">%1$s%%</string>
     <string name="price_widget_chart">24-hour price chart</string>
     <string name="price_widget_description">Live token price with 24-hour chart.</string>

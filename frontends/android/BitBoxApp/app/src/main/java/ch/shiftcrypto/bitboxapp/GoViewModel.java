@@ -245,7 +245,7 @@ public class GoViewModel extends AndroidViewModel {
     public GoViewModel(Application app) {
         super(app);
         this.goEnvironment = new GoEnvironment();
-        this.goAPI = new GoAPI();
+        this.goAPI = new GoAPI(app);
         this.networkHelper = new NetworkHelper((ConnectivityManager) app.getSystemService(Context.CONNECTIVITY_SERVICE));
 
     }
