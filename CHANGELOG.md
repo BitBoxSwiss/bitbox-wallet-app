@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Android: add a Home Screen widget for receiving payments with a Lightning address
 
 ## v4.53.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.28.0 and intermediate version v9.27.2

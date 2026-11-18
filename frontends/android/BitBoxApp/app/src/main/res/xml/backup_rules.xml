@@ -4,4 +4,5 @@
     <exclude domain="file" path="lightning" />
     <exclude domain="file" path="lightning.json" />
     <exclude domain="sharedpref" path="lightning-encryption.xml" />
+    <exclude domain="sharedpref" path="lightning-widget.xml" />
 </full-backup-content>
