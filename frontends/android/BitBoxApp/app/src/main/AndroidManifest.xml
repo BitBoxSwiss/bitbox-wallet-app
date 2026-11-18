@@ -88,6 +88,19 @@
                 android:resource="@xml/price_widget_info" />
         </receiver>
 
+        <receiver
+            android:name=".LightningWidgetProvider"
+            android:exported="false"
+            android:label="@string/lightning_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/lightning_widget_info" />
+        </receiver>
+
         <!-- to allow external apps to open local files (e.g. exported csv) -->
         <provider
             android:name="androidx.core.content.FileProvider"
