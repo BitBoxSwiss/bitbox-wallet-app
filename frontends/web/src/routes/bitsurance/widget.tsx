@@ -179,6 +179,7 @@ export const BitsuranceWidget = () => {
                   frameBorder="0"
                   className={style.iframe}
                   allow="camera; payment"
+                  sandbox="allow-scripts"
                   src={iframeURL}>
                 </iframe>
               </div>

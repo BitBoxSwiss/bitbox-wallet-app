@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<title>Test to access parent DOM</title>
+<meta charset="UTF-8">
+
+<h3>iframe DOM isolation test</h3>
+<pre id="result">testing...</pre>
+
+<script>
+  const result = document.getElementById('result');
+
+  if (window.self === window.top) {
+
+    result.textContent = (
+        'ℹ️ NO IFRAME DETECTED\n'
+        + 'This page is running directly in the browser.'
+    );
+
+  } else {
+    
+    try {
+      const parentDOM = window.parent.document;
+
+      result.textContent = (
+        '❌ UNSAFE: Parent DOM is accessible!\n'
+        + parentDOM.body.innerHTML
+      );
+
+      result.style.color = 'red';
+
+    } catch (error) {
+      result.textContent = (
+        '✅ SAFE: Parent DOM access blocked!\n' +
+        error.name + ': ' + error.message
+      );
+
+      result.style.color = 'green';
+    }
+
+  }
+</script>
