@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-package backend
+package accountmanager
 
 import (
 	"errors"
@@ -76,8 +76,8 @@ func TestAccountRegistryLifecycle(t *testing.T) {
 		Object:  "updated",
 	})
 	require.Len(t, events, 1)
-	require.Same(t, account, events[0].Object.(accountRegistryEvent).account)
-	require.Equal(t, "updated", events[0].Object.(accountRegistryEvent).object)
+	require.Same(t, account, events[0].Object.(Event).Account)
+	require.Equal(t, "updated", events[0].Object.(Event).Object)
 
 	require.True(t, registry.remove("account-code"))
 	require.True(t, closed)
@@ -131,4 +131,31 @@ func TestAccountRegistryRetainsInitializationFailure(t *testing.T) {
 	require.True(t, added)
 	require.False(t, initialized)
 	require.Same(t, account, registry.lookup("account-code"))
+}
+
+func TestAccountRegistryReportsMembershipIncludingInitializationFailure(t *testing.T) {
+	var changes []accounts.Interface
+	registry := newAccountRegistry(accountRegistryLifecycle{
+		onMembershipChanged: func(account accounts.Interface) {
+			changes = append(changes, account)
+		},
+	})
+	account, _ := newRegistryAccount(
+		func() error { return errors.New("initialization failed") },
+		func(func(observable.Event)) {},
+	)
+	_, err := registry.add(account)
+	require.Error(t, err)
+	require.Equal(t, []accounts.Interface{account}, changes)
+	added, err := registry.add(account)
+	require.NoError(t, err)
+	require.False(t, added)
+	require.Len(t, changes, 1)
+
+	require.True(t, registry.remove(account.Config().Code))
+	require.Equal(t, []accounts.Interface{account, account}, changes)
+	_, err = registry.add(account)
+	require.Error(t, err)
+	registry.removeAll()
+	require.Equal(t, []accounts.Interface{account, account, account, account}, changes)
 }

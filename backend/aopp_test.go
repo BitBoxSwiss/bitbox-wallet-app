@@ -240,7 +240,7 @@ func TestAOPPSuccess(t *testing.T) {
 					State: aoppStateChoosingAccount,
 					Accounts: []account{
 						{Name: test.accountName, Code: test.accountCode},
-						{Name: "Second account", Code: regularAccountCode(rootFingerprint1, test.coinCode, 1)},
+						{Name: "Second account", Code: accountsTypes.RegularAccountCode(rootFingerprint1, string(test.coinCode), 1)},
 					},
 					Callback:     callback,
 					Message:      dummyMsg,
@@ -257,7 +257,7 @@ func TestAOPPSuccess(t *testing.T) {
 					State: aoppStateSuccess,
 					Accounts: []account{
 						{Name: test.accountName, Code: test.accountCode},
-						{Name: "Second account", Code: regularAccountCode(rootFingerprint1, test.coinCode, 1)},
+						{Name: "Second account", Code: accountsTypes.RegularAccountCode(rootFingerprint1, string(test.coinCode), 1)},
 					},
 					AccountCode:    test.accountCode,
 					Address:        test.address,
