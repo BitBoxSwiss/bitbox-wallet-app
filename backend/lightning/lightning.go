@@ -31,9 +31,9 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/socksproxy"
+	"github.com/base/go-bip39"
 	"github.com/breez/breez-sdk-spark-go/breez_sdk_spark"
 	"github.com/sirupsen/logrus"
-	"github.com/tyler-smith/go-bip39"
 )
 
 const (

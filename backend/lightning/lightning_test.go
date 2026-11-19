@@ -4,6 +4,7 @@ package lightning
 
 import (
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"io"
 	"net/http"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore"
+	keystoreMocks "github.com/BitBoxSwiss/bitbox-wallet-app/backend/keystore/mocks"
 	utilconfig "github.com/BitBoxSwiss/bitbox-wallet-app/util/config"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
@@ -106,6 +108,52 @@ func TestActivateUnavailable(t *testing.T) {
 	lightning := newTestLightning(t, &testEnvironment{})
 
 	require.EqualError(t, lightning.Activate(), "Lightning is not available in this environment")
+}
+
+// Activation must persist the same mnemonic for fixed keystore entropy so wallet recovery stays
+// deterministic, including when the entropy starts with zero bytes.
+func TestActivateDeterministicMnemonic(t *testing.T) {
+	tests := []struct {
+		name     string
+		entropy  string
+		mnemonic string
+	}{
+		{
+			name:     "zero entropy",
+			entropy:  "00000000000000000000000000000000",
+			mnemonic: strings.Repeat("abandon ", 11) + "about",
+		},
+		{
+			name:     "leading zero byte",
+			entropy:  "000102030405060708090a0b0c0d0e0f",
+			mnemonic: "abandon amount liar amount expire adjust cage candy arch gather drum buyer",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			entropy, err := hex.DecodeString(test.entropy)
+			require.NoError(t, err)
+			lightning := newTestLightning(t, nil)
+			lightning.getKeystore = func() keystore.Keystore {
+				return &keystoreMocks.KeystoreMock{
+					SupportsDeterministicEntropyFunc: func() bool { return true },
+					DeterministicEntropyFunc:         func() ([]byte, error) { return entropy, nil },
+					RootFingerprintFunc: func() ([]byte, error) {
+						return []byte{0xde, 0xad, 0xbe, 0xef}, nil
+					},
+				}
+			}
+			// Keep activation offline by providing an existing SDK instance.
+			lightning.sdkService = &testBreezSDK{}
+
+			require.NoError(t, lightning.Activate())
+			account := lightning.Account()
+			require.NotNil(t, account)
+			mnemonic, err := lightning.unsealMnemonic(account)
+			require.NoError(t, err)
+			require.Equal(t, test.mnemonic, mnemonic)
+		})
+	}
 }
 
 func TestAccount(t *testing.T) {
