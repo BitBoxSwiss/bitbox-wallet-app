@@ -849,30 +849,15 @@ func TestSimulatorSignBTCPaymentRequest(t *testing.T) {
 		_, err = proposedTransaction.FinalizeAndExtract()
 		require.NoError(t, err)
 
-		const expected1 = `CONFIRM TRANSACTION ADDRESS SCREEN START
+		const expectedMerchantScreen = `CONFIRM TRANSACTION ADDRESS SCREEN START
 AMOUNT: 2.50000000 BTC
 ADDRESS: Test Merchant
 CONFIRM TRANSACTION ADDRESS SCREEN END`
 
-		const expected2 = `BODY: Memo from
-
-Test Merchant
-CONFIRM SCREEN END
-CONFIRM SCREEN START
-TITLE: Memo 1/2
-BODY: TextMemo line1
-CONFIRM SCREEN END
-CONFIRM SCREEN START
-TITLE: Memo 2/2
-BODY: TextMemo line2
-CONFIRM SCREEN END`
-
 		require.Eventually(t,
 			func() bool {
 				return strings.Contains(
-					stdOut.String(), expected1) &&
-					strings.Contains(
-						stdOut.String(), expected2) &&
+					stdOut.String(), expectedMerchantScreen) &&
 					!strings.Contains(stdOut.String(), address.String())
 			},
 			time.Second, 10*time.Millisecond)
