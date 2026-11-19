@@ -101,6 +101,17 @@ func nextAccountNumberAfter(candidates []accountCandidate) uint16 {
 	return nextAccountNumber
 }
 
+// nextDiscoveryAccountNumber applies the account discovery gap limit.
+// See https://github.com/bitcoin/bips/blob/3db736243cd01389a4dfd98738204df1856dc5b9/bip-0044.mediawiki#user-content-Account_discovery.
+//
+// We deviate from BIP-44 significantly in two ways:
+//   - We always scan the first accounts up to accountsHardLimit (six for BTC/LTC), as historically
+//     users could add that many accounts even if all of them were empty. These gaps can exist in
+//     wallets created before account discovery was introduced in v4.38.
+//   - The accounts scan in BIP-44 is per script type (per purpose field in the BIP-44 keypath).
+//     Since we support unified accounts, we consider them together. Someone could have many
+//     accounts with coins on P2WPKH addresses and none on P2TR addresses, and still receive to
+//     P2TR in the highest account. Other BIP44-compatible software would not discover it.
 func nextDiscoveryAccountNumber(
 	coinCode coinpkg.Code,
 	candidates []accountCandidate,

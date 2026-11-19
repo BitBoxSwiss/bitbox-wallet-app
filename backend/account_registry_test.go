@@ -132,3 +132,31 @@ func TestAccountRegistryRetainsInitializationFailure(t *testing.T) {
 	require.False(t, initialized)
 	require.Same(t, account, registry.lookup("account-code"))
 }
+
+// Membership notifications include failed initialization, ignore duplicates, and report removals.
+func TestAccountRegistryReportsMembershipIncludingInitializationFailure(t *testing.T) {
+	var changes []accounts.Interface
+	registry := newAccountRegistry(accountRegistryLifecycle{
+		onMembershipChanged: func(account accounts.Interface) {
+			changes = append(changes, account)
+		},
+	})
+	account, _ := newRegistryAccount(
+		func() error { return errors.New("initialization failed") },
+		func(func(observable.Event)) {},
+	)
+	_, err := registry.add(account)
+	require.Error(t, err)
+	require.Equal(t, []accounts.Interface{account}, changes)
+	added, err := registry.add(account)
+	require.NoError(t, err)
+	require.False(t, added)
+	require.Len(t, changes, 1)
+
+	require.True(t, registry.remove(account.Config().Code))
+	require.Equal(t, []accounts.Interface{account, account}, changes)
+	_, err = registry.add(account)
+	require.Error(t, err)
+	registry.removeAll()
+	require.Equal(t, []accounts.Interface{account, account, account, account}, changes)
+}

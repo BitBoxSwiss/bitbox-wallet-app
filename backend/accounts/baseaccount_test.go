@@ -17,10 +17,44 @@ import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/signing"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/observable/action"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/test"
 	"github.com/btcsuite/btcd/btcutil/v2/hdkeychain"
 	"github.com/stretchr/testify/require"
 )
+
+// Rate updates emit EventRatesChanged before and after synchronization. Only finishing the
+// pending request emits EventSyncDone.
+func TestRateChangesDoNotSignalSyncDone(t *testing.T) {
+	updater := rates.MockRateUpdater()
+	defer updater.Stop()
+	account := NewBaseAccount(&AccountConfig{
+		NotesFolder: t.TempDir(),
+		RateUpdater: updater,
+	}, &mocks.CoinMock{}, logging.Get().WithGroup("baseaccount_test"))
+	require.NoError(t, account.Initialize("rate-events"))
+	var events []observable.Event
+	account.Observe(func(event observable.Event) {
+		events = append(events, event)
+	})
+	done := account.Synchronizer.IncRequestsCounter()
+	updater.Notify(observable.Event{Subject: rates.RatesEventSubject})
+	rateEvent := observable.Event{Subject: string(types.EventRatesChanged), Action: action.Replace}
+	require.Equal(t, []observable.Event{rateEvent}, events)
+	require.False(t, account.Synced())
+
+	events = nil
+	done()
+	require.Equal(t, []observable.Event{
+		{Subject: string(types.EventStatusChanged), Action: action.Reload},
+		{Subject: string(types.EventSyncDone), Action: action.Replace},
+	}, events)
+	require.True(t, account.Synced())
+
+	events = nil
+	updater.Notify(observable.Event{Subject: rates.RatesEventSubject})
+	require.Equal(t, []observable.Event{rateEvent}, events)
+}
 
 func TestBaseAccount(t *testing.T) {
 	events := make(chan types.Event, 100)

@@ -393,9 +393,7 @@ func newBackendWithDevServers(t *testing.T, testing, regtest, devServers bool) *
 			&types.GapLimits{Receive: 20, Change: 6}),
 		environment{},
 	)
-	b.tstCheckAccountUsed = func(accounts.Interface) bool {
-		return false
-	}
+	b.tstDisableAccountDiscovery = true
 	b.ratesUpdater.SetCoingeckoURL("unused") // avoid hitting real API
 
 	b.makeBtcAccount = func(config *accounts.AccountConfig, coin *btc.Coin, gapLimits *types.GapLimits, getAddress func(coinpkg.Code, blockchain.ScriptHashHex) (*addresses.AccountAddress, error), log *logrus.Entry) accounts.Interface {
