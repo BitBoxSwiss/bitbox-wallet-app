@@ -42,5 +42,9 @@
     {
         "url": "https://github.com/BitBoxSwiss/bitbox02-firmware/releases/download/firmware%2Fv9.27.1/bitbox02-multi-v9.27.1-simulator1.0.0-linux-amd64",
         "sha256": "0b049efb21dcf8a447e9f46c660c731e38fb83101023d4f80f1f423ddaa4126b"
+    },
+    {
+        "url": "https://github.com/BitBoxSwiss/bitbox02-firmware/releases/download/firmware%2Fv9.29.0/bitbox02-multi-v9.29.0-simulator1.0.0-linux-amd64",
+        "sha256": "4680422baba4be26ad3d72ff3e6cc3c1d7cb95f5c4cb95f5acdf653a5bee53ed"
     }
 ]
