@@ -10,18 +10,18 @@ import { TermsLink } from '@/components/terms/terms-link';
 const getLink = () => {
   switch (i18n.resolvedLanguage) {
   case 'de':
-    return 'https://www.bitsurance.eu/de/bitbox/';
+    return 'https://www.bitsurance.io/de/bitbox/';
   default:
-    return 'https://www.bitsurance.eu/en/bitbox/';
+    return 'https://www.bitsurance.io/en/bitbox/';
   }
 };
 
 const getPrivacyPolicyLink = () => {
   switch (i18n.resolvedLanguage) {
   case 'de':
-    return 'https://www.bitsurance.eu/datenschutz/';
+    return 'https://www.bitsurance.io/datenschutz/';
   default:
-    return 'https://www.bitsurance.eu/en/dataprotection/';
+    return 'https://www.bitsurance.io/en/dataprotection/';
   }
 };
 
@@ -73,7 +73,7 @@ export const BitsuranceGuide = () => {
           title: t('guide.appendix.questionService', { serviceName: 'Bitsurance' }),
           text: t('guide.appendix.textService', { serviceName: 'Bitsurance' }),
           link: {
-            text: 'service@bitsurance.eu',
+            text: 'service@bitsurance.io',
           },
         }}
       />

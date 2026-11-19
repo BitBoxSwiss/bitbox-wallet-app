@@ -12,9 +12,9 @@ export const BitsuranceTerms = ({ readOnly, onContinue }: TProps) => {
   const getPrivacyLink = (): string => {
     switch (i18n.resolvedLanguage) {
     case 'de':
-      return 'https://www.bitsurance.eu/datenschutz';
+      return 'https://www.bitsurance.io/datenschutz';
     default:
-      return 'https://www.bitsurance.eu/en/dataprotection/';
+      return 'https://www.bitsurance.io/en/dataprotection/';
     }
   };
 

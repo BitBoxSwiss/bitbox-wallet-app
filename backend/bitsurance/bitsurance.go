@@ -19,11 +19,11 @@ import (
 
 const (
 	apiKey        = "cv9K9SXaMGMy26ThA3sqVetROkhRSPLU"
-	apiURL        = "https://api.bitsurance.eu/api/"
-	testApiURL    = "https://testapi.bitsurance.eu/api/"
+	apiURL        = "https://api.bitsurance.io/api/"
+	testApiURL    = "https://api.bs-test.de/api/"
 	widgetVersion = "1"
-	widgetURL     = "https://get.bitsurance.eu/?wallet=bitbox&version=" + widgetVersion + "&lang="
-	widgetTestURL = "https://test.bitsurance.eu/?wallet=bitbox&version=" + widgetVersion + "&lang="
+	widgetURL     = "https://get.bitsurance.io/?wallet=bitbox&version=" + widgetVersion + "&lang="
+	widgetTestURL = "https://get.bs-test.de/?wallet=bitbox&version=" + widgetVersion + "&lang="
 	xpubSalt      = "bitsurance"
 )
 
