@@ -6,6 +6,7 @@ require (
 	codeberg.org/go-pdf/fpdf v0.12.0
 	github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20261116092105-c50467580b7b
 	github.com/BitBoxSwiss/block-client-go v0.0.0-20250813114605-c276f6470c3d
+	github.com/base/go-bip39 v1.1.0
 	github.com/breez/breez-sdk-spark-go v0.28.0
 	github.com/btcsuite/btcd v0.26.2
 	github.com/btcsuite/btcd/address/v2 v2.0.0
@@ -27,7 +28,6 @@ require (
 	github.com/sirupsen/logrus v1.9.4
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/stretchr/testify v1.11.1
-	github.com/tyler-smith/go-bip39 v1.1.0
 	go.etcd.io/bbolt v1.4.3
 	golang.org/x/crypto v0.54.0
 	golang.org/x/mobile v0.0.0-20240716161057-1ad2df20a8b6

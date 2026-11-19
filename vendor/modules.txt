@@ -33,6 +33,10 @@ github.com/ProjectZKM/Ziren/crates/go-runtime/zkvm_runtime
 # github.com/aead/siphash v1.0.1
 ## explicit
 github.com/aead/siphash
+# github.com/base/go-bip39 v1.1.0
+## explicit; go 1.14
+github.com/base/go-bip39
+github.com/base/go-bip39/wordlists
 # github.com/bits-and-blooms/bitset v1.20.0
 ## explicit; go 1.16
 github.com/bits-and-blooms/bitset
@@ -265,10 +269,6 @@ github.com/tklauser/go-sysconf
 # github.com/tklauser/numcpus v0.8.0
 ## explicit; go 1.18
 github.com/tklauser/numcpus
-# github.com/tyler-smith/go-bip39 v1.1.0
-## explicit; go 1.14
-github.com/tyler-smith/go-bip39
-github.com/tyler-smith/go-bip39/wordlists
 # github.com/yusufpapurcu/wmi v1.2.4
 ## explicit; go 1.16
 github.com/yusufpapurcu/wmi
