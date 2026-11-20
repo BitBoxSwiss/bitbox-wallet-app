@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeviceInfo } from '@/api/bitbox02';
+import type { TDeviceInfo } from '@/api/bitbox02';
 import type { TDevices } from '@/api/devices';
 import { debug, isLightningFeatureAvailable, runningInAndroid, runningInIOS } from '@/utils/env';
 
@@ -9,8 +9,8 @@ type TTestWalletVisibilityArgs = {
   isTesting: boolean | undefined;
 };
 
-type TDeviceInfoWithBluetooth = DeviceInfo & {
-  bluetooth: NonNullable<DeviceInfo['bluetooth']>;
+type TDeviceInfoWithBluetooth = TDeviceInfo & {
+  bluetooth: NonNullable<TDeviceInfo['bluetooth']>;
 };
 
 export const isNotesSettingsVisible = (
@@ -23,11 +23,11 @@ export const isBalanceStatementSettingVisible = (hasAccounts: boolean) => hasAcc
 export const isDeviceSettingsVisible = (devices: TDevices) => Object.keys(devices).length > 0;
 
 export const isDeviceBluetoothSupported = (
-  deviceInfo?: DeviceInfo,
+  deviceInfo?: TDeviceInfo,
 ): deviceInfo is TDeviceInfoWithBluetooth => !!deviceInfo?.bluetooth;
 
 export const isBluetoothToggleSettingVisible = (
-  deviceInfo?: DeviceInfo,
+  deviceInfo?: TDeviceInfo,
 ): deviceInfo is TDeviceInfoWithBluetooth => (
   isDeviceBluetoothSupported(deviceInfo) && !runningInIOS()
 );

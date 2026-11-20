@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { apiGet, apiPost } from '@/utils/request';
-import type { FailResponse, SuccessResponse, TSuccess } from './response';
-import type { AccountCode } from './account';
+import type { TFailResponse, TSuccessResponse, TSuccess } from './response';
+import type { TAccountCode } from './account';
 
 export const getNativeLocale = (): Promise<string> => {
   return apiGet('native-locale');
@@ -47,9 +47,9 @@ export const clearCache = (): Promise<TSuccess> => {
   return apiPost('clear-cache');
 };
 
-type TExportNotesResponse = (FailResponse & {
+type TExportNotesResponse = (TFailResponse & {
   aborted: boolean;
-}) | SuccessResponse;
+}) | TSuccessResponse;
 
 export const exportNotes = (): Promise<TExportNotesResponse> => {
   return apiPost('notes/export');
@@ -62,20 +62,20 @@ type TImportNotes = {
 
 export const importNotes = (
   fileContents: ArrayBuffer,
-): Promise<FailResponse | (SuccessResponse & { data: TImportNotes })> => {
+): Promise<TFailResponse | (TSuccessResponse & { data: TImportNotes })> => {
   const hexString = Array.from(new Uint8Array(fileContents))
     .map(byte => byte.toString(16).padStart(2, '0'))
     .join('');
   return apiPost('notes/import', hexString);
 };
 
-export type TExportBalanceStatementResponse = (FailResponse & {
+export type TExportBalanceStatementResponse = (TFailResponse & {
   aborted: boolean;
   errorCode?: string;
-}) | SuccessResponse;
+}) | TSuccessResponse;
 
 export const exportBalanceStatement = (
-  accountCodes: AccountCode[],
+  accountCodes: TAccountCode[],
   snapshotDate: string,
   numberFormat: NonNullable<TNumberFormat>,
 ): Promise<TExportBalanceStatementResponse> => {

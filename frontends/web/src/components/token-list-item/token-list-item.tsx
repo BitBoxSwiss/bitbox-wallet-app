@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode } from 'react';
-import { CoinCode } from '@/api/account';
+import type { TCoinCode } from '@/api/account';
 import { Logo } from '@/components/icon/logo';
 import style from './token-list-item.module.css';
 
@@ -9,7 +9,7 @@ type TokenListItemProps = {
   children: ReactNode;
   active?: boolean;
   className?: string;
-  coinCode: CoinCode;
+  coinCode: TCoinCode;
   lineColor?: string;
   name: string;
   onClick?: () => void;

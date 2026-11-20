@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import type { AccountCode, CoinCode, ConversionUnit, FeeTargetCode, TAccount, TAmountWithConversions, TBalance } from '@/api/account';
+import type { TAccountCode, TCoinCode, TConversionUnit, TFeeTargetCode, TAccount, TAmountWithConversions, TBalance } from '@/api/account';
 import type { TPrepareTopUpResult } from '@/api/lightning';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
@@ -20,7 +20,7 @@ import styles from './topup.module.css';
 
 type TReadonlyAccountRowProps = {
   balance?: TAmountWithConversions;
-  coinCode: CoinCode;
+  coinCode: TCoinCode;
   name: string;
 };
 
@@ -48,7 +48,7 @@ type TProps = {
   btcAccounts: TAccount[];
   canReview: boolean;
   customFee: string;
-  defaultCurrency: ConversionUnit;
+  defaultCurrency: TConversionUnit;
   errorHandling: TProposalError;
   fiatAmount: string;
   isSubmitting: boolean;
@@ -59,15 +59,15 @@ type TProps = {
   onAmountChange: (value: string) => void;
   onBack: () => void;
   onCustomFeeChange: (customFee: string) => void;
-  onFeeTargetChange: (feeTarget: FeeTargetCode) => void;
+  onFeeTargetChange: (feeTarget: TFeeTargetCode) => void;
   onFiatChange: (value: string) => void;
   onNoteChange: (note: string) => void;
   onReview: () => void;
-  onSourceChange: (code: AccountCode) => void;
+  onSourceChange: (code: TAccountCode) => void;
   proposal?: TPrepareTopUpResult;
   sendError?: string;
   sourceAccount?: TAccount;
-  sourceAccountCode: AccountCode;
+  sourceAccountCode: TAccountCode;
   sourceAmountUnit: string;
 };
 

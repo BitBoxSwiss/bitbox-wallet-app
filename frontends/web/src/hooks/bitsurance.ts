@@ -42,7 +42,7 @@ import { getScriptName } from '@/routes/account/utils';
  * ```
  */
 export const useBitsurance = (
-  code: accountApi.AccountCode,
+  code: accountApi.TAccountCode,
   account?: accountApi.TAccount,
 ) => {
   const { t } = useTranslation();
@@ -54,7 +54,7 @@ export const useBitsurance = (
   const clearUncoveredFunds = useCallback(() => setUncoveredFunds([]), []);
 
   const checkUncoveredUTXOs = useCallback(async () => {
-    const uncoveredScripts: accountApi.ScriptType[] = [];
+    const uncoveredScripts: accountApi.TScriptType[] = [];
     const result = await accountApi.getUTXOs(code);
     if (!result.success) {
       alertUser(result.errorMessage || t('genericError'));

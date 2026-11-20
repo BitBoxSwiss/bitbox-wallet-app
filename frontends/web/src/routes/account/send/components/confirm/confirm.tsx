@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import type { CoinCode, FeeTargetCode, TAmountWithConversions } from '@/api/account';
+import type { TCoinCode, TFeeTargetCode, TAmountWithConversions } from '@/api/account';
 import type { TSelectedUTXOs } from '../../utxos';
 import { UseDisableBackButton } from '@/hooks/backbutton';
 import { customFeeUnit } from '@/utils/coin';
@@ -35,7 +35,7 @@ type TransactionDetails = {
   proposedAmount?: TAmountWithConversions;
   proposedFee?: TAmountWithConversions;
   proposedTotal?: TAmountWithConversions;
-  feeTarget?: FeeTargetCode;
+  feeTarget?: TFeeTargetCode;
   customFee: string;
   recipientDisplayAddress: string;
 };
@@ -45,7 +45,7 @@ type TConfirmSendProps = {
   hasSelectedUTXOs: boolean;
   isConfirming: boolean;
   selectedUTXOs: TSelectedUTXOs;
-  coinCode: CoinCode;
+  coinCode: TCoinCode;
   transactionDetails: TransactionDetails;
 };
 

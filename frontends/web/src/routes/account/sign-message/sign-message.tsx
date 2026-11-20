@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'wouter';
-import type { AccountCode } from '@/api/account';
+import type { TAccountCode } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
@@ -19,7 +19,7 @@ import styles from './sign-message.module.css';
 
 type TRouteParams = {
   addressID?: string;
-  code: AccountCode;
+  code: TAccountCode;
   view?: 'new' | 'used';
 };
 

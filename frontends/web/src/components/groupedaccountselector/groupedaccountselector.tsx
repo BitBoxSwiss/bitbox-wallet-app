@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { AccountCode, CoinCode, CoinUnit, TAccountBase, TAmountWithConversions } from '@/api/account';
+import type { TAccountCode, TCoinCode, TCoinUnit, TAccountBase, TAmountWithConversions } from '@/api/account';
 import { syncdone } from '@/api/accountsync';
 import { TLightningAccount, subscribeLightningBalance } from '@/api/lightning';
 import { Button } from '@/components/forms';
@@ -33,15 +33,15 @@ type TOptionAccountSelector = {
   disabled: boolean;
   syncing?: boolean;
   active?: boolean;
-  coinCode?: CoinCode;
-  coinUnit?: CoinUnit;
+  coinCode?: TCoinCode;
+  coinUnit?: TCoinUnit;
   balance?: TAmountWithConversions;
   insured?: boolean;
 };
 
-export type TOption = TDropdownOption<AccountCode> & TOptionAccountSelector;
+export type TOption = TDropdownOption<TAccountCode> & TOptionAccountSelector;
 
-export type TGroupedOption = TDropdownGroupedOption<AccountCode, TGroupAccountSelector, TOptionAccountSelector>;
+export type TGroupedOption = TDropdownGroupedOption<TAccountCode, TGroupAccountSelector, TOptionAccountSelector>;
 
 type TTriggerContentProps = {
   option: TOption | undefined;
@@ -234,7 +234,7 @@ export const GroupedAccountSelector = <T extends TAccountBase, >({
       {title && (
         <h1 className="title text-center">{title}</h1>
       )}
-      <Dropdown<AccountCode, false, TGroupAccountSelector, TOptionAccountSelector>
+      <Dropdown<TAccountCode, false, TGroupAccountSelector, TOptionAccountSelector>
         className={`
           ${styles.select || ''}
           ${stackedLayout ? styles.stackedSelect || '' : ''}

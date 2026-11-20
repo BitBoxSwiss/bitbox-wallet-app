@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode } from './account';
+import type { TAccountCode } from './account';
 import { apiGet, apiPost } from '@/utils/request';
 
 export type TDetailStatus = 'active' | 'processing' | 'refused' | 'waitpayment' | 'inactive' | 'canceled';
 
 export type TAccountDetails = {
-  code: AccountCode;
+  code: TAccountCode;
   status: TDetailStatus;
   details: {
     maxCoverage: number;
@@ -30,6 +30,6 @@ export const getBitsuranceURL = (): Promise<string> => {
 // and updates the account configuration based on the retrieved information. If the accountCode is
 // provided, it checks the insurance status for that specific account; otherwise, it checks
 // the status for all active BTC accounts.
-export const bitsuranceLookup = (code: AccountCode = ''): Promise<TInsuredAccounts> => {
+export const bitsuranceLookup = (code: TAccountCode = ''): Promise<TInsuredAccounts> => {
   return apiPost('bitsurance/lookup', { code });
 };

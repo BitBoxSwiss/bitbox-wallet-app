@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode } from 'react';
-import { CoinCode, TAmountWithConversions } from '@/api/account';
+import { TCoinCode, TAmountWithConversions } from '@/api/account';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Logo } from '@/components/icon/logo';
 import { Skeleton } from '@/components/skeleton/skeleton';
@@ -9,7 +9,7 @@ import style from './accountssummary.module.css';
 
 type Props = {
   amount?: TAmountWithConversions;
-  coinCode: CoinCode;
+  coinCode: TCoinCode;
   coinName: ReactNode;
   dataTestId?: string;
 };

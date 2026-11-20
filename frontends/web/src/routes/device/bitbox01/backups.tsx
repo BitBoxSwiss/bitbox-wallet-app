@@ -2,17 +2,17 @@
 
 import React, { Component, createRef, ReactNode } from 'react';
 import { getDeviceInfo } from '../../../api/bitbox01';
-import { Backup } from '../../../api/backup';
+import type { TBackup } from '../../../api/backup';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet } from '../../../utils/request';
 import { SimpleMarkup } from '../../../utils/markup';
 import { alertUser } from '../../../components/alert/Alert';
 import { Button } from '../../../components/forms';
 import { BackupsListItem } from '../components/backup';
-import style from '../components/backups.module.css';
 import Check from './check';
 import Create from './create';
 import { Restore } from './restore';
+import style from '../components/backups.module.css';
 
 type BackupsProps = {
   deviceID: string;
@@ -26,7 +26,7 @@ type BackupsProps = {
 type Props = BackupsProps & TranslateProps;
 
 type State = {
-  backupList: Backup[];
+  backupList: TBackup[];
   selectedBackup?: string;
   sdCardInserted: boolean | null;
   lock?: boolean;

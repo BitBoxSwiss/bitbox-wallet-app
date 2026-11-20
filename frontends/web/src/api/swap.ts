@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ERC20CoinCode } from './erc20';
-import type { AccountCode, CoinCode, NativeCoinCode, TAccountBase, TTxInput } from './account';
+import type { TERC20CoinCode } from './erc20';
+import type { TAccountCode, TCoinCode, TNativeCoinCode, TAccountBase, TTxInput } from './account';
 import { apiGet, apiPost } from '@/utils/request';
 
 export type TSwapAccount = TAccountBase & ({
   isToken: true;
-  coinCode: ERC20CoinCode;
-  parentAccountCode: AccountCode;
+  coinCode: TERC20CoinCode;
+  parentAccountCode: TAccountCode;
 } | {
   isToken: false;
-  coinCode: NativeCoinCode;
+  coinCode: TNativeCoinCode;
   parentAccountCode?: never;
 });
 
@@ -18,8 +18,8 @@ export type TSwapAccounts = {
   success: true;
   sellAccounts: TSwapAccount[];
   buyAccounts: TSwapAccount[];
-  defaultSellAccountCode?: AccountCode;
-  defaultBuyAccountCode?: AccountCode;
+  defaultSellAccountCode?: TAccountCode;
+  defaultBuyAccountCode?: TAccountCode;
 } | {
   success: false;
   errorMessage: string;
@@ -30,8 +30,8 @@ export const getSwapAccounts = (): Promise<TSwapAccounts> => {
 };
 
 export type TSwapQuoteRequest = {
-  buyCoinCode: CoinCode;
-  sellAccountCode: AccountCode;
+  buyCoinCode: TCoinCode;
+  sellAccountCode: TAccountCode;
   sellAmount: string;
 };
 
@@ -73,9 +73,9 @@ export const getSwapQuote = (
 };
 
 export type TSwapSignRequest = {
-  buyAccountCode: AccountCode;
+  buyAccountCode: TAccountCode;
   routeId: string;
-  sellAccountCode: AccountCode;
+  sellAccountCode: TAccountCode;
   sellAmount: string;
 };
 

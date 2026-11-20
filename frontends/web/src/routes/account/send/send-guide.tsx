@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
+import type { TCoinCode } from '@/api/account';
 import { isBitcoinBased, isBitcoinOnly } from '@/utils/coin';
 import { Entry } from '@/components/guide/entry';
 import { Guide } from '@/components/guide/guide';
-import { CoinCode } from '@/api/account';
 
 type TProps = {
-  coinCode: CoinCode;
+  coinCode: TCoinCode;
 };
 
 export const SendGuide = ({ coinCode }: TProps) => {

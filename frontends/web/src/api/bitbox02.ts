@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TUnsubscribe } from '@/utils/transport-common';
-import type { SuccessResponse, FailResponse } from './response';
+import type { TSuccessResponse, TFailResponse } from './response';
 import { apiGet, apiPost } from '@/utils/request';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 // BitBox02 error codes.
 export const errUserAbort = 104;
 
-export type DeviceInfo = {
+export type TDeviceInfo = {
   initialized: boolean;
   mnemonicPassphraseEnabled: boolean;
   name: string;
@@ -22,17 +22,17 @@ export type DeviceInfo = {
   };
 };
 
-type DeviceInfoResponse = SuccessResponse & {
-  deviceInfo: DeviceInfo;
+type TDeviceInfoResponse = TSuccessResponse & {
+  deviceInfo: TDeviceInfo;
 };
 
-export const resetDevice = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+export const resetDevice = (deviceID: string): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/reset`);
 };
 
 export const getDeviceInfo = (
   deviceID: string,
-): Promise<DeviceInfoResponse | FailResponse> => {
+): Promise<TDeviceInfoResponse | TFailResponse> => {
   return apiGet(`devices/bitbox02/${deviceID}/info`);
 };
 
@@ -44,14 +44,14 @@ export const checkSDCard = (
 
 export const insertSDCard = (
   deviceID: string,
-): Promise<SuccessResponse | FailResponse> => {
+): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/insert-sdcard`);
 };
 
 export const setDeviceName = (
   deviceID: string,
   newDeviceName: string,
-): Promise<SuccessResponse | FailResponse> => {
+): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/set-device-name`, {
     name: newDeviceName
   });
@@ -60,11 +60,11 @@ export const setDeviceName = (
 export const setDeviceLanguage = (
   deviceID: string,
   language: string,
-): Promise<SuccessResponse | FailResponse> => {
+): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/set-device-language`, { language });
 };
 
-type VersionInfoCommon = {
+type TVersionInfoCommon = {
   currentVersion: string;
   canGotoStartupSettings: boolean;
   // If true, creating a backup using the mnemonic recovery words instead of the microSD card
@@ -80,7 +80,7 @@ type VersionInfoCommon = {
   canChangePassword: boolean;
 };
 
-export type VersionInfo = VersionInfoCommon & (
+export type VersionInfo = TVersionInfoCommon & (
   { canUpgrade: true; newVersion: string } |
   { canUpgrade: false });
 
@@ -93,7 +93,7 @@ export const getVersion = (
 export const setMnemonicPassphraseEnabled = (
   deviceID: string,
   enabled: boolean,
-): Promise<SuccessResponse | FailResponse> => {
+): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/set-mnemonic-passphrase-enabled`, enabled);
 };
 
@@ -106,7 +106,7 @@ export const verifyAttestation = (
 export const checkBackup = (
   deviceID: string,
   silent: boolean,
-): Promise<FailResponse | (SuccessResponse & { backupID: string })> => {
+): Promise<TFailResponse | (TSuccessResponse & { backupID: string })> => {
   return apiPost(`devices/bitbox02/${deviceID}/backups/check`, { silent });
 };
 
@@ -115,14 +115,14 @@ export const checkBackup = (
 export const createBackup = (
   deviceID: string,
   method: 'sdcard' | 'recovery-words',
-): Promise<FailResponse | SuccessResponse> => {
+): Promise<TFailResponse | TSuccessResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/backups/create`, method);
 };
 
 export const restoreBackup = (
   deviceID: string,
   selectedBackup: string,
-): Promise<FailResponse | SuccessResponse> => {
+): Promise<TFailResponse | TSuccessResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/backups/restore`, selectedBackup);
 };
 
@@ -130,13 +130,13 @@ export const upgradeDeviceFirmware = (deviceID: string): Promise<void> => {
   return apiPost(`devices/bitbox02/${deviceID}/upgrade-firmware`);
 };
 
-export const showMnemonic = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+export const showMnemonic = (deviceID: string): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/show-mnemonic`);
 };
 
 export const restoreFromMnemonic = (
   deviceID: string,
-): Promise<FailResponse | SuccessResponse> => {
+): Promise<TFailResponse | TSuccessResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/restore-from-mnemonic`);
 };
 
@@ -170,7 +170,7 @@ export const passphraseChanged = (
   return subscribeEndpoint(`devices/bitbox02/${deviceID}/passphrase`, cb);
 };
 
-export const requestHostPassphrase = (deviceID: string, id: string): Promise<SuccessResponse | FailResponse> => {
+export const requestHostPassphrase = (deviceID: string, id: string): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/passphrase/request`, { id });
 };
 
@@ -178,7 +178,7 @@ export const submitHostPassphrase = (
   deviceID: string,
   id: string,
   passphrase: string | null,
-): Promise<SuccessResponse | { success: false; errorCode?: 'tooLong' | 'invalidChars' }> => {
+): Promise<TSuccessResponse | { success: false; errorCode?: 'tooLong' | 'invalidChars' }> => {
   return apiPost(`devices/bitbox02/${deviceID}/passphrase/submit`, { id, passphrase });
 };
 
@@ -201,21 +201,21 @@ export const verifyChannelHash = (
 export const setPassword = (
   deviceID: string,
   seedLen: 16 | 32,
-): Promise<SuccessResponse | FailResponse> => {
+): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/set-password`, seedLen);
 };
 
 export const getRootFingerprint = (
   deviceID: string
-): Promise<(SuccessResponse & { rootFingerprint: string }) | FailResponse> => {
+): Promise<(TSuccessResponse & { rootFingerprint: string }) | TFailResponse> => {
   return apiGet(`devices/bitbox02/${deviceID}/root-fingerprint`);
 };
 
-export const invokeBIP85 = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+export const invokeBIP85 = (deviceID: string): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/invoke-bip85`);
 };
 
-export const gotoStartupSettings = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+export const gotoStartupSettings = (deviceID: string): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/goto-startup-settings`);
 };
 
@@ -252,10 +252,10 @@ export const attestationCheckDone = (
   return subscribeEndpoint(`devices/bitbox02/${deviceID}/attestationCheckDone`, cb);
 };
 
-export const bluetoothToggleEnabled = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+export const bluetoothToggleEnabled = (deviceID: string): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/bluetooth/toggle-enabled`);
 };
 
-export const changeDevicePassword = (deviceID: string): Promise<SuccessResponse | FailResponse> => {
+export const changeDevicePassword = (deviceID: string): Promise<TSuccessResponse | TFailResponse> => {
   return apiPost(`devices/bitbox02/${deviceID}/change-password`);
 };

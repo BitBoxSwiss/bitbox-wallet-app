@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, expect, it } from 'vitest';
-import type { CoinCode, CoinUnit } from '@/api/account';
+import type { TCoinCode, TCoinUnit } from '@/api/account';
 import {
   getAddressURIPrefix,
   getCoinCode,
@@ -27,12 +27,12 @@ describe('utils/coin bitcoin helpers', () => {
   });
 
   it('treats rbtc unit as bitcoin coin', () => {
-    expect(isBitcoinCoin('RBTC' as CoinUnit)).toBe(true);
+    expect(isBitcoinCoin('RBTC' as TCoinUnit)).toBe(true);
   });
 
   it('treats bitcoin and litecoin units as bitcoin-coin-based units', () => {
-    expect(isBitcoinCoinBased('RBTC' as CoinUnit)).toBe(true);
-    expect(isBitcoinCoinBased('TLTC' as CoinUnit)).toBe(true);
+    expect(isBitcoinCoinBased('RBTC' as TCoinUnit)).toBe(true);
+    expect(isBitcoinCoinBased('TLTC' as TCoinUnit)).toBe(true);
   });
 
   it('uses bitcoin URI prefix for rbtc', () => {
@@ -40,7 +40,7 @@ describe('utils/coin bitcoin helpers', () => {
   });
 
   it('maps rbtc to canonical btc coin code', () => {
-    expect(getCoinCode('rbtc' as CoinCode)).toBe('btc');
+    expect(getCoinCode('rbtc' as TCoinCode)).toBe('btc');
   });
 });
 

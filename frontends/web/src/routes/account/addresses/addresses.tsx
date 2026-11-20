@@ -6,7 +6,7 @@ import { useLocation as useWouterLocation, useParams } from 'wouter';
 import { useLocation } from '@/utils/router-compatability';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
-import { AccountCode, TAccount } from '@/api/account';
+import type { TAccountCode, TAccount } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
@@ -17,7 +17,7 @@ import { ChangeCopyWarningDialog } from './dialog/change-copy-warning-dialog';
 import { VerifyAddressDialog } from './verify-address-dialog';
 
 type TAddressesContentProps = {
-  code: AccountCode;
+  code: TAccountCode;
   accounts: TAccount[];
 };
 
@@ -178,7 +178,7 @@ export const AddressesContent = ({ code, accounts }: TAddressesContentProps) => 
 };
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
 };
 
 export const Addresses = () => {

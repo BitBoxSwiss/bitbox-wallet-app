@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TFunction } from 'i18next';
-import type { DeviceInfo } from '@/api/bitbox02';
+import type { TDeviceInfo } from '@/api/bitbox02';
 import type { TDevices } from '@/api/devices';
 import {
   isBalanceStatementSettingVisible,
@@ -23,7 +23,7 @@ export type TSettingsSearchItem = {
 };
 
 type TGetSettingsSearchItemsArgs = {
-  deviceInfo?: DeviceInfo;
+  deviceInfo?: TDeviceInfo;
   devices: TDevices;
   hasAccounts: boolean;
   isLightningEnabled: boolean | undefined;

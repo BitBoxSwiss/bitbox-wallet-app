@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
 import { ArrowFloorDownWhite, ArrowFloorUpWhite, Coins, WalletConnectLight } from '@/components/icon';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { AccountCode, TAccount, CoinCode } from '@/api/account';
+import type { TAccountCode, TAccount, TCoinCode } from '@/api/account';
 import { isEthereumBased } from '@/utils/coin';
 import { AccountActionButtonLink } from './components/account-action-button-link';
 import { AccountActionButtons } from './components/account-action-buttons';
@@ -15,8 +15,8 @@ import style from './account.module.css';
 
 type TProps = {
   canSend?: boolean;
-  code: AccountCode;
-  coinCode: CoinCode;
+  code: TAccountCode;
+  coinCode: TCoinCode;
   exchangeSupported?: boolean;
   account: TAccount;
   accountDataLoaded: boolean;

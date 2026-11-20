@@ -3,7 +3,7 @@
 import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useParams } from 'wouter';
 import { useLoad } from '@/hooks/api';
-import { AccountCode, ScriptType, TReceiveAddress } from '@/api/account';
+import type { TAccountCode, TScriptType, TReceiveAddress } from '@/api/account';
 import * as accountApi from '@/api/account';
 
 export type TUsedAddressLoadErrorCode = 'syncInProgress' | 'notSupported' | 'loadFailed' | null;
@@ -18,14 +18,14 @@ export type TAddressSelector = {
   currentAddress: TReceiveAddress | null;
   addressString: string;
   displayAddressString: string;
-  scriptType: ScriptType | null;
+  scriptType: TScriptType | null;
   retryUsedAddressLoad: () => void;
 };
 
 // resolves which address to sign with. 2 "paths" are available:
 // path 1 -> user picked an address from the used address list.
 // path 2 – user selects the "sign message" option in account info.
-export const useAddressSelector = (code: AccountCode): TAddressSelector => {
+export const useAddressSelector = (code: TAccountCode): TAddressSelector => {
   const { addressID: usedAddressID } = useParams<{ addressID?: string }>();
   const isUsedAddressRoute = !!usedAddressID;
   const [activeIndex, setActiveIndex] = useState(0);

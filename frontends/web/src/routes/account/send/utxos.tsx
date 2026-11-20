@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import {
   allScriptTypes,
   getUTXOs,
-  AccountCode,
-  ScriptType,
+  TAccountCode,
+  TScriptType,
   TUTXO,
   TUTXOsResponse,
 } from '@/api/account';
@@ -28,7 +28,7 @@ export type TSelectedUTXOs = {
 };
 
 type Props = {
-  accountCode: AccountCode;
+  accountCode: TAccountCode;
   active: boolean;
   explorerURL: string;
   onChange: (selectedUTXO: TSelectedUTXOs) => void;
@@ -85,7 +85,7 @@ export const UTXOs = ({
     onChange(proposedUTXOs);
   };
 
-  const renderUTXOs = (scriptType: ScriptType) => {
+  const renderUTXOs = (scriptType: TScriptType) => {
     const filteredUTXOs = utxos.filter(utxo => utxo.scriptType === scriptType);
     if (filteredUTXOs.length === 0) {
       return null;

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode, CoinCode, ScriptType, TAccount, TAccountBase, TKeystore } from '@/api/account';
+import type { TAccountCode, TCoinCode, TScriptType, TAccount, TAccountBase, TKeystore } from '@/api/account';
 
-export const findAccount = <T extends { code: AccountCode }>(
+export const findAccount = <T extends { code: TAccountCode }>(
   accounts: T[],
-  accountCode: AccountCode
+  accountCode: TAccountCode
 ): T | undefined => {
   return accounts.find(({ code }) => accountCode === code);
 };
@@ -16,7 +16,7 @@ export const getDisplayAccountNumber = (accountNumber?: number | null): number |
   return accountNumber + 1;
 };
 
-export const getScriptName = (scriptType: ScriptType): string => {
+export const getScriptName = (scriptType: TScriptType): string => {
   switch (scriptType) {
   case 'p2pkh':
     return 'Legacy (P2PKH)';
@@ -73,7 +73,7 @@ export const isAddressVerifyRoute = (pathname: string): boolean =>
 export const SKIP_DEVICE_VERIFICATION_PARAM = 'skipDeviceVerification';
 
 export type TAccountCoinMap = {
-  [code in CoinCode]?: TAccount[];
+  [code in TCoinCode]?: TAccount[];
 };
 
 export const getAccountsPerCoin = (accounts: TAccount[]): TAccountCoinMap => {

@@ -20,7 +20,7 @@ import { WCIncomingPairing } from './components/incoming-pairing/incoming-pairin
 import { WCSuccessPairing } from './components/success-pairing/success-pairing';
 
 type TRouteParams = {
-  code: accountApi.AccountCode;
+  code: accountApi.TAccountCode;
 };
 
 export const ConnectScreenWalletConnect = () => {

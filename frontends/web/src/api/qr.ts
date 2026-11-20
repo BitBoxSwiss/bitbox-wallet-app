@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { apiGet } from '@/utils/request';
-import type { FailResponse, SuccessResponse } from './response';
+import type { TFailResponse, TSuccessResponse } from './response';
 
-type TQRCode = FailResponse | (SuccessResponse & { data: string });
+type TQRCode = TFailResponse | (TSuccessResponse & { data: string });
 
 export const getQRCode = (data: string) => {
   return (): Promise<TQRCode> => {

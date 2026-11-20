@@ -2,7 +2,7 @@
 
 import { useLocation } from 'wouter';
 import { TokenListItem } from '@/components/token-list-item/token-list-item';
-import { CoinCode, TAccount, TAmountWithConversions } from '@/api/account';
+import { TCoinCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Balances } from './accountssummary';
@@ -10,12 +10,12 @@ import style from './accountssummary.module.css';
 
 type Props = {
   account: TAccount;
-  coinCode: CoinCode;
+  coinCode: TCoinCode;
   isFirst: boolean;
   balances?: Balances;
 };
 
-const coinLineColors: Partial<Record<CoinCode, string>> = {
+const coinLineColors: Partial<Record<TCoinCode, string>> = {
   'btc': '#F7931A80',
   'tbtc': '#F7931A80',
   'rbtc': '#F7931A80',
@@ -34,7 +34,7 @@ const coinLineColors: Partial<Record<CoinCode, string>> = {
   'eth-erc20-bat': '#FF042080'
 };
 
-const getCoinLineColor = (coinCode: CoinCode): string => {
+const getCoinLineColor = (coinCode: TCoinCode): string => {
   return coinLineColors[coinCode] ?? '#00000080';
 };
 

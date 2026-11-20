@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'wouter';
 import * as accountApi from '@/api/account';
 import { statusChanged, syncAddressesCount, syncdone, transactionsChanged } from '@/api/accountsync';
-import { getMarketVendors, MarketVendors } from '@/api/market';
+import { getMarketVendors, TMarketVendors } from '@/api/market';
 import { useAppState } from '@/contexts/app-state-context';
 import { Balance } from '@/components/balance/balance';
 import { HeadersSync } from '@/components/headerssync/headerssync';
@@ -41,7 +41,7 @@ import { useMediaQuery } from '@/hooks/mediaquery';
 import style from './account.module.css';
 
 type TRouteParams = {
-  code: accountApi.AccountCode;
+  code: accountApi.TAccountCode;
 };
 
 export const Account = () => {
@@ -67,7 +67,7 @@ const getBitsuranceGuideLink = (
 };
 
 type TProps = {
-  code: accountApi.AccountCode;
+  code: accountApi.TAccountCode;
 };
 
 // Re-mounted when `code` changes, and `code` is guaranteed to be non-empty.
@@ -98,7 +98,7 @@ const RemountAccount = ({
   const debouncedSearchTerm = useDebounce(searchTerm, 200);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const supportedVendors = useLoad<MarketVendors>(getMarketVendors(code), [code]);
+  const supportedVendors = useLoad<TMarketVendors>(getMarketVendors(code), [code]);
 
 
   useEthAccountActivity(code, account?.coinCode);

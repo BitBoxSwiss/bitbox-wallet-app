@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
-import { Backup } from '@/api/backup';
+import type { TBackup } from '@/api/backup';
 import { PasswordEntry } from '@/routes/device/bitbox02/components/password-entry/password-entry';
 import { Message } from '@/components/message/message';
 import { MultilineMarkup } from '@/utils/markup';
@@ -37,7 +37,7 @@ export const SetPassword = ({ errorText }: Props) => {
 };
 
 type PropsWithBackup = {
-  forBackup?: Backup;
+  forBackup?: TBackup;
 };
 
 export const SetPasswordWithBackup = ({
