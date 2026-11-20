@@ -8,7 +8,7 @@ import { Link, Route, Switch } from 'wouter';
 import { MemoryRouter } from '@/utils/test-helpers';
 import { proposeTx, sendTx, type TAccount, type TAmountWithConversions } from '@/api/account';
 import { parseExternalBtcAmount } from '@/api/coins';
-import { getDevServers } from '@/api/backend';
+import { getDevServers } from '@/api/environment';
 import { Testing } from '@/components/banners/testing';
 import { AppProvider } from '@/contexts/AppProvider';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
@@ -25,14 +25,14 @@ vi.mock('@/components/layout', () => ({
   Main: ({ children }: { children: ReactNode }) => <main>{children}</main>,
 }));
 vi.mock('@/i18n/i18n');
-vi.mock('@/api/backend', () => ({
+vi.mock('@/api/environment', () => ({
   getTesting: () => Promise.resolve(true),
   getDevServers: vi.fn(),
 }));
-vi.mock('@/api/nativelocale', () => ({
+vi.mock('@/api/system', () => ({
   getNativeLocale: () => Promise.resolve('en'),
 }));
-vi.mock('@/api/online', () => ({
+vi.mock('@/api/network', () => ({
   getOnline: () => Promise.resolve(true),
   subscribeOnline: () => () => {},
 }));

@@ -5,7 +5,7 @@ import type { TConfigBackendBtcCoinKey } from '@/api/config';
 import type { TElectrumServer } from '@/api/node';
 import { ElectrumAddServer } from './electrum-add-server';
 import { ElectrumServer } from './electrum-server';
-import { getDefaultConfig } from '@/api/backend';
+import { getDefaultConfig } from '@/api/config';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { confirmation } from '@/components/confirm/Confirm';
 import { Button } from '@/components/forms';

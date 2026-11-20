@@ -4,11 +4,11 @@ import '../../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/i18n/i18n');
-vi.mock('@/api/keystores');
+vi.mock('@/api/keystore');
 vi.mock('@/api/account');
 
 import { handleVerifyAddressWithDeviceResult, verifyAddressWithDevice } from './verify-address';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import { hasSecureOutput, verifyAddress } from '@/api/account';
 
 describe('routes/account/components/verify-address', () => {

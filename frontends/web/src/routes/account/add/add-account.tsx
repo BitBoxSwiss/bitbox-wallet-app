@@ -3,8 +3,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
-import { TCoin, getSupportedCoins } from '@/api/backend';
-import { subscribeKeystores } from '@/api/keystores';
+import { type TCoin, getSupportedCoins } from '@/api/coins';
+import { subscribeKeystores } from '@/api/keystore';
 import { addAccount, CoinCode, TAddAccount } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { SimpleMarkup } from '@/utils/markup';

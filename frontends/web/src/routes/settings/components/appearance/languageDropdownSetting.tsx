@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { useLoad } from '@/hooks/api';
 import { useMediaQuery } from '@/hooks/mediaquery';
-import { getNativeLocale } from '@/api/nativelocale';
+import { getNativeLocale } from '@/api/system';
 import { defaultLanguages, TLanguage } from '@/components/language/types';
 import { Dropdown } from '@/components/dropdown/dropdown';
 import { getSelectedIndex } from '@/utils/language';

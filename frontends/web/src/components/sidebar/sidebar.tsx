@@ -8,7 +8,7 @@ import { useKeystores } from '@/hooks/backend';
 import { useLightning } from '@/hooks/lightning';
 import type { TDevices } from '@/api/devices';
 import type { TAccount } from '@/api/account';
-import { deregisterTest } from '@/api/keystores';
+import { deregisterTest } from '@/api/keystore';
 import { getVersion } from '@/api/bitbox02';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';

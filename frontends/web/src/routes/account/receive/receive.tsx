@@ -9,7 +9,7 @@ import { useLoad } from '@/hooks/api';
 import { useEthAccountActivity } from '@/hooks/account-activity';
 import { UseBackButton } from '@/hooks/backbutton';
 import * as accountApi from '@/api/account';
-import { setAccountReceiveScriptType } from '@/api/backend';
+import { setAccountReceiveScriptType } from '@/api/account';
 import { alertUser } from '@/components/alert/Alert';
 import { getScriptName } from '@/routes/account/utils';
 import { isEthereumBased } from '@/utils/coin';
@@ -23,7 +23,7 @@ import { ReceiveGuide } from './components/guide';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
 import { QRCode } from '@/components/qrcode/qrcode';
 import { ArrowCirlceLeft, ArrowCirlceLeftActive, ArrowCirlceRight, ArrowCirlceRightActive } from '@/components/icon';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import style from './receive.module.css';
 
 type TAddressTypeDialogProps = {

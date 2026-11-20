@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'wouter';
 import { useNavigate } from '@/utils/router-compatability';
 import { getDeviceList } from '@/api/devices';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import { Status } from '@/components/status/status';
 import { MultilineMarkup } from '@/utils/markup';
 import { TKeystore } from '@/api/account';

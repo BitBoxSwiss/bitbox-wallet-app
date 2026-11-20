@@ -32,7 +32,7 @@ import { useMarketContext } from './market-context';
 import { MarketGuide } from './guide';
 import { useFeatureConnect } from '@/hooks/keystore';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
-import type { TKeystoreFeature } from '@/api/keystores';
+import type { TKeystoreFeature } from '@/api/keystore';
 import style from './market.module.css';
 
 type TRouteParams = {

@@ -3,7 +3,7 @@
 import '../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/api/keystores', () => ({
+vi.mock('@/api/keystore', () => ({
   connectAnyKeystore: vi.fn(),
   connectKeystore: vi.fn(),
 }));
@@ -18,7 +18,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from '@/utils/test-helpers';
 import { useLocation } from '@/utils/router-compatability';
 import type { CoinCode, TAccount } from '@/api/account';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import { ActionButtons } from './actionButtons';
 
 const account: TAccount = {

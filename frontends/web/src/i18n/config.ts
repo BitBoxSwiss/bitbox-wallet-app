@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { LanguageDetectorAsyncModule } from 'i18next';
-import { getNativeLocale } from '@/api/nativelocale';
+import { getNativeLocale } from '@/api/system';
 import { getConfig } from '@/api/config';
 import { i18nextFormat } from './utils';
 

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useLoad } from '@/hooks/api';
-import { getQRCode } from '@/api/backend';
+import { getQRCode } from '@/api/qr';
 import { Check } from '@/components/icon';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { triggerHapticFeedback } from '@/utils/transport-mobile';
+import { triggerHapticFeedback } from '@/api/mobile';
 import style from './qrcode.module.css';
 
 type TProps = {

@@ -23,7 +23,7 @@ const connectKeystore = vi.hoisted(() => vi.fn());
 
 vi.mock('@/utils/walletconnect-eth-sign-handlers', () => handlers);
 vi.mock('@/components/alert/Alert', () => ({ alertUser }));
-vi.mock('@/api/keystores', () => ({ connectKeystore }));
+vi.mock('@/api/keystore', () => ({ connectKeystore }));
 vi.mock('@/components/dialog/firmware-upgrade-required-dialog', () => ({
   FirmwareUpgradeRequiredDialog: () => <div>Firmware upgrade required</div>,
 }));

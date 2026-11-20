@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
 import { getAccountsByKeystore } from '@/routes/account/utils';
 import * as accountAPI from '@/api/account';
-import { supportedERC20Tokens, type ERC20CoinCode } from '@/api/erc20';
-import * as backendAPI from '@/api/backend';
+import { setTokenActive, supportedERC20Tokens, type ERC20CoinCode } from '@/api/erc20';
 import { useAppState } from '@/contexts/app-state-context';
 import { alertUser } from '@/components/alert/Alert';
 import { Button, Input, Label } from '@/components/forms';
@@ -69,7 +68,7 @@ export const ManageAccounts = () => {
     tokenCode: ERC20CoinCode,
     active: boolean,
   ) => {
-    backendAPI.setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
+    setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
       if (!success && errorMessage) {
         alertUser(errorMessage);
       }
@@ -77,7 +76,7 @@ export const ManageAccounts = () => {
   };
 
   const toggleAccount = (accountCode: accountAPI.AccountCode, active: boolean) => {
-    return backendAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
+    return accountAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
       if (!success && errorMessage) {
         alertUser(errorMessage);
       }
@@ -97,7 +96,7 @@ export const ManageAccounts = () => {
       return;
     }
 
-    backendAPI.renameAccount(currentlyEditedAccount.code, currentlyEditedAccount.name)
+    accountAPI.renameAccount(currentlyEditedAccount.code, currentlyEditedAccount.name)
       .then(result => {
         if (!result.success) {
           if (result.errorCode) {

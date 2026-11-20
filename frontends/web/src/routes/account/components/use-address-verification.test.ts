@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/i18n/i18n');
 vi.mock('./verify-address');
-vi.mock('@/api/backend', () => ({
+vi.mock('@/api/keystore', () => ({
   cancelConnectKeystore: vi.fn().mockResolvedValue(undefined),
 }));
 

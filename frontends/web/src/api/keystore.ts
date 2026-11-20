@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { subscribeEndpoint, TUnsubscribe } from './subscribe';
+import { subscribeEndpoint, TSubscriptionCallback, TUnsubscribe } from './subscribe';
 import { apiGet, apiPost } from '@/utils/request';
 import type { AccountCode } from './account';
+import type { TSuccess } from './response';
 
 export type { TUnsubscribe };
 
@@ -86,4 +87,42 @@ type TKeystoreNameResponse = {
 
 export const getKeystoreName = (rootFingerprint: string): Promise<TKeystoreNameResponse> => {
   return apiGet(`keystore-name?rootFingerprint=${encodeURIComponent(rootFingerprint)}`);
+};
+
+export type TConnectKeystoreErrorCode = 'wrongKeystore' | 'timeout';
+
+export type TSyncConnectKeystore = null | {
+  typ: 'connect';
+  keystoreName: string;
+} | {
+  typ: 'error';
+  errorCode?: TConnectKeystoreErrorCode;
+  errorMessage: string;
+};
+
+/**
+ * Returns a function that subscribes a callback on a "connect-keystore".
+ * Meant to be used with `useSubscribe`.
+ */
+export const syncConnectKeystore = () => {
+  return (
+    cb: TSubscriptionCallback<TSyncConnectKeystore>
+  ) => {
+    return subscribeEndpoint('connect-keystore', (
+      obj: TSyncConnectKeystore,
+    ) => {
+      cb(obj);
+    });
+  };
+};
+
+export const cancelConnectKeystore = (): Promise<void> => {
+  return apiPost('cancel-connect-keystore');
+};
+
+export const setWatchonly = (
+  rootFingerprint: string,
+  watchonly: boolean,
+): Promise<TSuccess> => {
+  return apiPost('set-watchonly', { rootFingerprint, watchonly });
 };

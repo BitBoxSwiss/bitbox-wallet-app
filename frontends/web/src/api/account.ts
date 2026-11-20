@@ -3,7 +3,7 @@
 import type { LineData } from 'lightweight-charts';
 import type { TDetailStatus } from './bitsurance';
 import type { ERC20CoinCode, ERC20TokenUnit } from './erc20';
-import type { SuccessResponse } from './response';
+import type { SuccessResponse, TSuccess } from './response';
 import type { NonEmptyArray } from '@/utils/types';
 import { apiGet, apiPost } from '@/utils/request';
 
@@ -634,4 +634,25 @@ export type TUsedAddressesResponse = {
 
 export const getUsedAddresses = (code: AccountCode): Promise<TUsedAddressesResponse> => {
   return apiGet(`account/${code}/used-addresses`);
+};
+
+export const setAccountActive = (
+  accountCode: AccountCode,
+  active: boolean,
+): Promise<TSuccess> => {
+  return apiPost('set-account-active', { accountCode, active });
+};
+
+export const setAccountReceiveScriptType = (
+  accountCode: AccountCode,
+  scriptType: ScriptType,
+): Promise<TSuccess> => {
+  return apiPost('set-account-receive-script-type', { accountCode, scriptType });
+};
+
+export const renameAccount = (
+  accountCode: AccountCode,
+  name: string,
+): Promise<TSuccess> => {
+  return apiPost('rename-account', { accountCode, name });
 };

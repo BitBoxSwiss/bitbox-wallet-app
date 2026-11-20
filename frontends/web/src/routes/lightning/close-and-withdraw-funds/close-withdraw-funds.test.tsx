@@ -6,7 +6,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { Route, Switch } from 'wouter';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TAccount, TAmountWithConversions } from '@/api/account';
-import * as keystoresApi from '@/api/keystores';
+import * as keystoresApi from '@/api/keystore';
 import * as lightningApi from '@/api/lightning';
 import { TLightningErrorCode, TSdkError } from '@/api/lightning-errors';
 import { open } from '@/api/system';
