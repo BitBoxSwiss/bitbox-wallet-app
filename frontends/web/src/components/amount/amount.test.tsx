@@ -4,7 +4,7 @@ import { useContext } from 'react';
 import { Mock, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import type { NativeCoinUnit, ConversionUnit } from '@/api/account';
+import type { TNativeCoinUnit, TConversionUnit } from '@/api/account';
 import { Amount } from './amount';
 
 vi.mock('react', async () => ({
@@ -75,7 +75,7 @@ describe('Amount formatting', () => {
   });
 
   describe('sat amounts', () => {
-    let coins: NativeCoinUnit[] = ['sat', 'tsat'];
+    let coins: TNativeCoinUnit[] = ['sat', 'tsat'];
     coins.forEach((coin) => {
       it('12345678901234 ' + coin + ' gets spaced', () => {
         const { getByTestId } = render(<Amount amount="12345678901234" unit={coin} />);
@@ -129,7 +129,7 @@ describe('Amount formatting', () => {
   });
 
   describe('BTC/LTC coins amounts', () => {
-    let coins: NativeCoinUnit[] = ['BTC', 'TBTC', 'RBTC', 'LTC', 'TLTC'];
+    let coins: TNativeCoinUnit[] = ['BTC', 'TBTC', 'RBTC', 'LTC', 'TLTC'];
     coins.forEach(coin => {
 
       it('0.00000000 ' + coin + ' becomes 0', () => {
@@ -182,7 +182,7 @@ describe('Amount formatting', () => {
   });
 
   describe('non BTC coins amounts', () => {
-    let coins: NativeCoinUnit[] = ['ETH', 'SEPETH'];
+    let coins: TNativeCoinUnit[] = ['ETH', 'SEPETH'];
     coins.forEach(coin => {
       it('10.00000000 ' + coin + ' stays 10.00000000', () => {
         const { container } = render(<Amount amount="10.00000000" unit={coin}/>);
@@ -200,7 +200,7 @@ describe('Amount formatting', () => {
   });
 
   describe('fiat amounts', () => {
-    let fiatCoins: ConversionUnit[] = ['USD', 'EUR', 'CHF'];
+    let fiatCoins: TConversionUnit[] = ['USD', 'EUR', 'CHF'];
     fiatCoins.forEach(coin => {
       it('1\'340.25 ' + coin + ' stays 1\'340.25', () => {
         const { container } = render(<Amount amount="1'340.25" unit={coin}/>);

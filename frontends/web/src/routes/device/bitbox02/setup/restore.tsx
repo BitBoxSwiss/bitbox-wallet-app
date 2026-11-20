@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
+import type { TBackup } from '@/api/backup';
 import { BackupsV2 } from '@/routes/device/bitbox02/backups';
-import { Backup } from '@/api/backup';
 import { View, ViewContent, ViewHeader } from '@/components/view/view';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Header } from '@/components/layout';
 
 type Props = {
   deviceID: string;
-  onSelectBackup: (backup: Backup) => void;
+  onSelectBackup: (backup: TBackup) => void;
   onRestoreBackup: (success: boolean) => void;
   onBack: () => void;
 };

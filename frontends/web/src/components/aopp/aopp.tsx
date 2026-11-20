@@ -35,8 +35,8 @@ const domain = (callback: string): string => {
 export const Aopp = () => {
   const { t } = useTranslation();
 
-  const [accountCode, setAccountCode] = useState<accountAPI.AccountCode>('');
-  const [aopp, setAopp] = useState<aoppAPI.Aopp>();
+  const [accountCode, setAccountCode] = useState<accountAPI.TAccountCode>('');
+  const [aopp, setAopp] = useState<aoppAPI.TAopp>();
 
   const [prevAopp, setPrevAopp] = useState(aopp);
 

@@ -10,8 +10,8 @@ import { BalanceSection } from './balance-section';
 import { AssetBalanceWithUnitPrice } from './asset-balance-with-unit-price';
 import style from './accountssummary.module.css';
 
-type TCoinBalance = accountApi.CoinFormattedOptionalAmount & {
-  coinUnit?: accountApi.CoinUnit;
+type TCoinBalance = accountApi.TCoinFormattedOptionalAmount & {
+  coinUnit?: accountApi.TCoinUnit;
 };
 
 type TProps = {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext } from 'react';
-import type { CoinUnit, ConversionUnit } from '@/api/account';
+import type { TCoinUnit, TConversionUnit } from '@/api/account';
 import { isSupportedERC20Unit } from '@/api/erc20';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
@@ -119,7 +119,7 @@ const formatEth = (
 
 type TProps = {
   amount: string;
-  unit: CoinUnit | ConversionUnit;
+  unit: TCoinUnit | TConversionUnit;
   alwaysShowAmounts?: boolean;
   onMobileClick?: () => Promise<void>;
   maxDecimals?: number;

@@ -10,7 +10,7 @@ import { ManageBackupSetting } from './components/device-settings/manage-backup-
 import { ShowRecoveryWordsSetting } from './components/device-settings/show-recovery-words-setting';
 import { GoToStartupSettings } from './components/device-settings/go-to-startup-settings';
 import { PassphraseSetting } from './components/device-settings/passphrase-setting';
-import { DeviceInfo, getDeviceInfo, getVersion, getRootFingerprint } from '@/api/bitbox02';
+import { TDeviceInfo, getDeviceInfo, getVersion, getRootFingerprint } from '@/api/bitbox02';
 import { alertUser } from '@/components/alert/Alert';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { AttestationCheckSetting } from './components/device-settings/attestation-check-setting';
@@ -81,7 +81,7 @@ export const ManageDeviceSettingsContent = ({
 }: TProps) => {
   const { t } = useTranslation();
 
-  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>();
+  const [deviceInfo, setDeviceInfo] = useState<TDeviceInfo>();
   const versionInfo = useLoad(() => getVersion(deviceID), [deviceID]);
   const rootFingerprintResult = useLoad(() => getRootFingerprint(deviceID), [deviceID]);
 

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { CoinCode, CoinUnit } from '@/api/account';
+import type { TCoinCode, TCoinUnit } from '@/api/account';
 import type { BtcUnit } from '@/api/coins';
 
-export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
+export const isBitcoinOnly = (coinCode: TCoinCode): boolean => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
@@ -15,7 +15,7 @@ export const isBitcoinOnly = (coinCode: CoinCode): boolean => {
   }
 };
 
-export const isBitcoinCoin = (coin: CoinUnit | undefined) => {
+export const isBitcoinCoin = (coin: TCoinUnit | undefined) => {
   switch (coin) {
   case 'BTC':
   case 'TBTC':
@@ -29,17 +29,17 @@ export const isBitcoinCoin = (coin: CoinUnit | undefined) => {
 };
 
 export const getDisplayedCoinUnit = (
-  coinCode: CoinCode,
-  coinUnit: CoinUnit,
+  coinCode: TCoinCode,
+  coinUnit: TCoinUnit,
   btcUnit: BtcUnit | undefined,
-): CoinUnit => {
+): TCoinUnit => {
   if (!isBitcoinOnly(coinCode) || btcUnit !== 'sat') {
     return coinUnit;
   }
   return coinCode === 'tbtc' ? 'tsat' : 'sat';
 };
 
-export const isBitcoinBased = (coinCode: CoinCode): boolean => {
+export const isBitcoinBased = (coinCode: TCoinCode): boolean => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
@@ -52,7 +52,7 @@ export const isBitcoinBased = (coinCode: CoinCode): boolean => {
   }
 };
 
-export const isBitcoinCoinBased = (coin: CoinUnit): boolean => {
+export const isBitcoinCoinBased = (coin: TCoinUnit): boolean => {
   switch (coin) {
   case 'BTC':
   case 'TBTC':
@@ -67,11 +67,11 @@ export const isBitcoinCoinBased = (coin: CoinUnit): boolean => {
   }
 };
 
-export const isEthereumBased = (coinCode: CoinCode): boolean => {
+export const isEthereumBased = (coinCode: TCoinCode): boolean => {
   return coinCode === 'eth' || coinCode === 'sepeth' || coinCode.startsWith('eth-erc20-');
 };
 
-export const isMessageSigningSupported = (coinCode: CoinCode): boolean => {
+export const isMessageSigningSupported = (coinCode: TCoinCode): boolean => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
@@ -84,7 +84,7 @@ export const isMessageSigningSupported = (coinCode: CoinCode): boolean => {
   }
 };
 
-export const getAddressURIPrefix = (coinCode?: CoinCode): string => {
+export const getAddressURIPrefix = (coinCode?: TCoinCode): string => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
@@ -98,7 +98,7 @@ export const getAddressURIPrefix = (coinCode?: CoinCode): string => {
   }
 };
 
-export const getCoinCode = (coinCode: CoinCode): CoinCode | undefined => {
+export const getCoinCode = (coinCode: TCoinCode): TCoinCode | undefined => {
   switch (coinCode) {
   case 'btc':
   case 'tbtc':
@@ -116,7 +116,7 @@ export const getCoinCode = (coinCode: CoinCode): CoinCode | undefined => {
   }
 };
 
-export const customFeeUnit = (coinCode: CoinCode): string => {
+export const customFeeUnit = (coinCode: TCoinCode): string => {
   if (isBitcoinBased(coinCode)) {
     return 'sat/vB';
   }

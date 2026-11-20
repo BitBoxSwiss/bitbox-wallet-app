@@ -6,7 +6,7 @@ import { useLoad } from '@/hooks/api';
 import { useAppState } from '@/contexts/app-state-context';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
-import type { AccountCode } from '@/api/account';
+import type { TAccountCode } from '@/api/account';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { getMoonpayBuyInfo } from '@/api/market';
 import { MarketGuide } from './guide';
@@ -23,7 +23,7 @@ import style from './iframe.module.css';
 
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
 };
 
 export const Moonpay = () => {

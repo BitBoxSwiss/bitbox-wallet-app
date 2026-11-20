@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useParams } from 'wouter';
-import type { AccountCode } from '@/api/account';
+import type { TAccountCode } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { findAccount } from '@/routes/account/utils';
 import { Send } from './send';
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
 };
 
 export const SendWrapper = () => {

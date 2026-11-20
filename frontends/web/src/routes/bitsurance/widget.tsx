@@ -7,7 +7,7 @@ import { Message } from '@/components/message/message';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { RequestAddressV0Message, MessageVersion, parseMessage, serializeMessage, V0MessageType } from 'request-address';
 import { useConfig } from '@/contexts/ConfigProvider';
-import { getInfo, signBTCMessageUnusedAddress, type ScriptType } from '@/api/account';
+import { getInfo, signBTCMessageUnusedAddress, type TScriptType } from '@/api/account';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { BitsuranceTerms } from '@/components/terms/bitsurance-terms';
@@ -73,7 +73,7 @@ export const BitsuranceWidget = () => {
     postMessageToVendorIframe(target, message);
   };
 
-  const getXPub = (wantedScriptType: ScriptType) => {
+  const getXPub = (wantedScriptType: TScriptType) => {
     let xpubConfig = accountInfo?.signingConfigurations.find(config =>
       config.bitcoinSimple?.scriptType === wantedScriptType
     );
@@ -95,7 +95,7 @@ export const BitsuranceWidget = () => {
       .then(response => {
         if (response.success) {
           if (withExtendedPublicKey) {
-            const xpub = getXPub(addressType as ScriptType);
+            const xpub = getXPub(addressType as TScriptType);
             if (xpub) {
               sendAddressWithXPub(target, response.address, response.signature, xpub);
             } else {

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type {
-  AccountCode,
-  FeeTargetCode,
+  TAccountCode,
+  TFeeTargetCode,
   TAmountWithConversions,
   TBalance,
   TTransactionStatus,
@@ -27,7 +27,7 @@ export type TLightningResponse<T> =
 
 export type TLightningAccount = {
   rootFingerprint: string;
-  code: AccountCode;
+  code: TAccountCode;
   coinCode: 'lightning';
   num: number;
 };
@@ -95,8 +95,8 @@ export type TLightningBalance = TBalance & {
 export type TPrepareTopUpRequest = {
   amount: string;
   customFee: string;
-  feeTarget: FeeTargetCode;
-  sourceAccountCode: AccountCode;
+  feeTarget: TFeeTargetCode;
+  sourceAccountCode: TAccountCode;
 };
 
 export type TPrepareTopUpResult = {
@@ -403,8 +403,8 @@ export const getParsePaymentInput = async (params: TParsePaymentInputRequest): P
   return getApiResponse<TPaymentInput>(`lightning/parse-payment-input?${queryString(params)}`, 'Error calling getParsePaymentInput');
 };
 
-export const postPrepareCloseWithdraw = async (destinationAccountCode: AccountCode, idempotencyKey?: string): Promise<TCloseWithdrawQuote> => {
-  return postApiResponse<TCloseWithdrawQuote, { destinationAccountCode: AccountCode; idempotencyKey?: string }>(
+export const postPrepareCloseWithdraw = async (destinationAccountCode: TAccountCode, idempotencyKey?: string): Promise<TCloseWithdrawQuote> => {
+  return postApiResponse<TCloseWithdrawQuote, { destinationAccountCode: TAccountCode; idempotencyKey?: string }>(
     'lightning/close-withdraw-funds/prepare',
     { destinationAccountCode, idempotencyKey },
     'Error calling postPrepareCloseWithdraw'
@@ -412,13 +412,13 @@ export const postPrepareCloseWithdraw = async (destinationAccountCode: AccountCo
 };
 
 export const postCloseWithdraw = async (
-  destinationAccountCode: AccountCode,
+  destinationAccountCode: TAccountCode,
   approvedBalanceSat: number,
   approvedFeeSat: number,
   idempotencyKey: string,
 ): Promise<TCloseWithdrawResult> => {
   return postApiResponse<TCloseWithdrawResult, {
-    destinationAccountCode: AccountCode;
+    destinationAccountCode: TAccountCode;
     approvedBalanceSat: number;
     approvedFeeSat: number;
     idempotencyKey: string;
@@ -442,12 +442,12 @@ export const postClaimTopUp = async (
 
 export const postRefundTopUp = async (
   paymentId: string,
-  destinationAccountCode: AccountCode,
+  destinationAccountCode: TAccountCode,
   approvedFeeRateSatPerVbyte: number,
 ): Promise<TTopUpRecoveryResult> => {
   return postApiResponse<TTopUpRecoveryResult, {
     paymentId: string;
-    destinationAccountCode: AccountCode;
+    destinationAccountCode: TAccountCode;
     approvedFeeRateSatPerVbyte: number;
   }>(
     'lightning/refund-top-up',

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { expect, it } from 'vitest';
-import { type Slip24 as TRequestAddressSlip24 } from 'request-address';
+import { type Slip24 } from 'request-address';
 import { convertSlip24 } from './request-addess';
 
 // Pocket's string refund becomes an object without changing signed values, memo order or the input.
 it('adapts Pocket refund memos to the backend schema', () => {
-  const payload: TRequestAddressSlip24 = {
+  const payload: Slip24 = {
     recipientName: 'Pocket',
     nonce: null,
     memos: [
@@ -32,7 +32,7 @@ it('adapts Pocket refund memos to the backend schema', () => {
 
 // Ordinary Pocket payments need no refund memo and must still reach the backend unchanged.
 it('preserves Pocket payment requests without refunds', () => {
-  const payload: TRequestAddressSlip24 = {
+  const payload: Slip24 = {
     recipientName: 'Pocket',
     nonce: null,
     memos: [{ type: 'text', text: 'Payment' }],

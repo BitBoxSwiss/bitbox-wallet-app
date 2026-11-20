@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode } from './account';
+import type { TAccountCode } from './account';
 import { apiGet, apiPost } from '@/utils/request';
 
 export const getMarketRegionCodes = (): Promise<string[]> => {
@@ -41,7 +41,7 @@ export type TMarketAction = 'buy' | 'sell' | 'spend' | 'swap' | 'otc';
 
 export const getMarketDeals = (
   action: TMarketAction,
-  accountCode: AccountCode,
+  accountCode: TAccountCode,
   region: string,
 ): Promise<TMarketDealsResponse> => {
   return apiGet(`market/deals/${action}/${accountCode}?region=${region}`);
@@ -56,7 +56,7 @@ export type TMoonpayBuyInfoResponse = {
   errorMessage: string;
 };
 
-export const getMoonpayBuyInfo = (code: AccountCode) => {
+export const getMoonpayBuyInfo = (code: TAccountCode) => {
   return (): Promise<TMoonpayBuyInfoResponse> => {
     return apiGet(`market/moonpay/buy-info/${code}`);
   };
@@ -68,7 +68,10 @@ export type AddressVerificationResponse = {
   errorCode?: 'addressNotFound' | 'userAbort';
 };
 
-export const verifyAddress = (address: string, accountCode: AccountCode): Promise<AddressVerificationResponse> => {
+export const verifyAddress = (
+  address: string,
+  accountCode: TAccountCode,
+): Promise<AddressVerificationResponse> => {
   return apiPost('market/pocket/verify-address', { address, accountCode });
 };
 
@@ -116,12 +119,12 @@ export const getBitrefillInfo = (
   return apiGet(`market/bitrefill/info/${action}/${code}`);
 };
 
-export type MarketVendors= {
+export type TMarketVendors = {
   vendors: string[];
 };
 
-export const getMarketVendors = (code: AccountCode) => {
-  return (): Promise<MarketVendors> => {
+export const getMarketVendors = (code: TAccountCode) => {
+  return (): Promise<TMarketVendors> => {
     return apiGet(`market/vendors/${code}`);
   };
 };

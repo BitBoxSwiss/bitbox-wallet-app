@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import * as bitbox02API from '@/api/bitbox02';
 import { BackupsListItem } from '@/routes/device/components/backup';
-import { Backup } from '@/api/backup';
+import type { TBackup } from '@/api/backup';
 import { alertUser } from '@/components/alert/Alert';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
@@ -12,14 +12,14 @@ import { useTranslation } from 'react-i18next';
 
 type TProps = {
   deviceID: string;
-  backups: Backup[];
+  backups: TBackup[];
   disabled: boolean;
 };
 
 export const Check = ({ deviceID, backups, disabled }: TProps) => {
   const [activeDialog, setActiveDialog] = useState(false);
   const [message, setMessage] = useState('');
-  const [foundBackup, setFoundBackup] = useState<Backup>();
+  const [foundBackup, setFoundBackup] = useState<TBackup>();
   const [userVerified, setUserVerified] = useState(false);
   const { t } = useTranslation();
 
@@ -29,7 +29,7 @@ export const Check = ({ deviceID, backups, disabled }: TProps) => {
       const result = await bitbox02API.checkBackup(deviceID, true);
       if (result.success) {
         const { backupID } = result;
-        const foundBackup = backups.find((backup: Backup) => backup.id === backupID);
+        const foundBackup = backups.find((backup: TBackup) => backup.id === backupID);
         if (!foundBackup) {
           alertUser(t('unknownError', { errorMessage: 'Not found' }));
           return;

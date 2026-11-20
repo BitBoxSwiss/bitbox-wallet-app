@@ -8,9 +8,9 @@ import {
   proposeTx,
   sendTx,
   TBalance,
-  type AccountCode,
+  type TAccountCode,
   type TAmountWithConversions,
-  type CoinUnit,
+  type TCoinUnit,
   type TSendTx,
 } from '@/api/account';
 import { convertToCurrency, parseExternalBtcAmount } from '@/api/coins';
@@ -60,7 +60,7 @@ const NO_ROUTES_FOUND_ERROR: TSwapQuoteErrorCode = 'noRoutesFound';
 const PROVIDERS_UNAVAILABLE_ERROR: TSwapQuoteErrorCode = 'providersUnavailable';
 const UNEXPECTED_ERROR: TSwapQuoteErrorCode = 'unexpectedError';
 
-const fetchBalance = async (code: AccountCode) => {
+const fetchBalance = async (code: TAccountCode) => {
   const response = await getBalance(code);
   if (response.success) {
     return response.balance;
@@ -71,9 +71,9 @@ const fetchBalance = async (code: AccountCode) => {
 const getSwapDisplayAmount = async (
   amount: string,
   coinCode: TSwapAccount['coinCode'],
-  coinUnit: CoinUnit,
+  coinUnit: TCoinUnit,
   btcUnit: 'default' | 'sat' | undefined,
-): Promise<{ amount: string; unit: CoinUnit }> => {
+): Promise<{ amount: string; unit: TCoinUnit }> => {
   const displayedUnit = getDisplayedCoinUnit(coinCode, coinUnit, btcUnit);
   if (displayedUnit === coinUnit || !isBitcoinOnly(coinCode)) {
     return { amount, unit: displayedUnit };
@@ -131,14 +131,14 @@ export const Swap = () => {
   );
 
   // Send
-  const [sellAccountCode, setSellAccountCode] = useState<AccountCode | undefined>();
+  const [sellAccountCode, setSellAccountCode] = useState<TAccountCode | undefined>();
   const [sellAmount, setSellAmount] = useState<string>('');
   const [maxSellAmount, setMaxSellAmount] = useState<TBalance | undefined>();
 
   // Receive
-  const [buyAccountCode, setBuyAccountCode] = useState<AccountCode | undefined>();
+  const [buyAccountCode, setBuyAccountCode] = useState<TAccountCode | undefined>();
   const [expectedOutput, setExpectedOutput] = useState<string>('');
-  const [expectedOutputUnit, setExpectedOutputUnit] = useState<CoinUnit | undefined>();
+  const [expectedOutputUnit, setExpectedOutputUnit] = useState<TCoinUnit | undefined>();
 
   // Shows the fullscreen device-confirmation step after the tx proposal is ready.
   const [isConfirming, setIsConfirming] = useState<boolean>(false);

@@ -6,7 +6,7 @@ import { useLocation, useParams } from 'wouter';
 import { useSync } from '@/hooks/api';
 import { useAppState } from '@/contexts/app-state-context';
 import { useMountedRef } from '@/hooks/mount';
-import { AccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
+import { TAccountCode, TStatus, getStatus, exportAccount, getTransactionList, TTransactions } from '@/api/account';
 import { findAccount } from '@/routes/account/utils';
 import { isBitcoinBased, isMessageSigningSupported } from '@/utils/coin';
 import { Header, Main } from '@/components/layout';
@@ -20,7 +20,7 @@ import { statusChanged, syncdone } from '@/api/accountsync';
 import style from './info.module.css';
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
 };
 
 export const Info = () => {

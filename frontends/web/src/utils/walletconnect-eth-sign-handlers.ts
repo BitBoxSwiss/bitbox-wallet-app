@@ -9,7 +9,7 @@ import {
   SUPPORTED_CHAINS,
   decodeEthMessage,
 } from './walletconnect';
-import type { AccountCode } from '@/api/account';
+import type { TAccountCode } from '@/api/account';
 import {
   ethSignMessage,
   ethSignTypedMessage,
@@ -65,7 +65,7 @@ export type TSignDialogResult = {
 } | TFailedSigningApiResult;
 
 export type TLaunchSignDialog = {
-  accountCode: AccountCode;
+  accountCode: TAccountCode;
   apiCaller: () => Promise<TSignDialogResult>;
   dialogContent: TRequestDialogContent;
   onReject: () => Promise<void>;

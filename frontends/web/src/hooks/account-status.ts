@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { getStatus, type AccountCode, type TStatus } from '@/api/account';
+import { getStatus, type TAccountCode, type TStatus } from '@/api/account';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import { useMountedRef } from './mount';
 
 // Keep the accountCodes array stable between renders. Missing entries are still loading.
-export const useAccountStatuses = (accountCodes: readonly AccountCode[]) => {
+export const useAccountStatuses = (accountCodes: readonly TAccountCode[]) => {
   const mounted = useMountedRef();
-  const [statuses, setStatuses] = useState<Partial<Record<AccountCode, TStatus>>>({});
+  const [statuses, setStatuses] = useState<Partial<Record<TAccountCode, TStatus>>>({});
 
   useEffect(() => {
     let active = true;

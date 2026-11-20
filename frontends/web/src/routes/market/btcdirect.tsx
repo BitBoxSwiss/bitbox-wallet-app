@@ -7,7 +7,7 @@ import { getBTCDirectInfo, TMarketAction } from '@/api/market';
 import { parseExternalBtcAmount } from '@/api/coins';
 import { useAppState } from '@/contexts/app-state-context';
 import { AppContext } from '@/contexts/AppContext';
-import { AccountCode, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { TAccountCode, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { useAccountSynced } from '@/hooks/account';
 import { useDarkmode } from '@/hooks/darkmode';
 import { UseDisableBackButton } from '@/hooks/backbutton';
@@ -45,7 +45,7 @@ type TProps = {
 };
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
 };
 
 export const BTCDirect = ({

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { FiatWithDisplayName } from '@/api/account';
 import { useEffect, useMemo, useState } from 'react';
+import type { TFiatWithDisplayName } from '@/api/account';
 
 export const useLocalizedPunctuation = (
   // fallback to 'de-CH' if native locale is an empty string
@@ -28,9 +28,8 @@ export const useLocalizedPunctuation = (
   return { decimal, group };
 };
 
-
 export const useLocalizedFormattedCurrencies = (selectedLang = 'en') => {
-  const [currenciesWithDisplayName, setCurrenciesWithDisplayName] = useState<FiatWithDisplayName[]>([
+  const [currenciesWithDisplayName, setCurrenciesWithDisplayName] = useState<TFiatWithDisplayName[]>([
     { currency: 'AUD', displayName: 'Australian Dollar' },
     { currency: 'BRL', displayName: 'Brazilian Real' },
     { currency: 'CAD', displayName: 'Canadian Dollar' },
@@ -61,13 +60,23 @@ export const useLocalizedFormattedCurrencies = (selectedLang = 'en') => {
       prev.map(currencyDetail => ({
         ...currencyDetail,
         displayName:
-          (currencyDetail.currency === 'BTC' || currencyDetail.currency === 'sat') ?
-            currencyDetail.displayName : (currencyName.of(currencyDetail.currency) || currencyDetail.displayName)
+          (currencyDetail.currency === 'BTC' || currencyDetail.currency === 'sat')
+            ? currencyDetail.displayName
+            : (currencyName.of(currencyDetail.currency)
+            || currencyDetail.displayName)
       }))
     );
 
   }, [selectedLang]);
 
-  return { formattedCurrencies: currenciesWithDisplayName.map((fiat) => ({ label: `${fiat.displayName} (${fiat.currency})`, value: fiat.currency })), currenciesWithDisplayName };
+  return {
+    formattedCurrencies: currenciesWithDisplayName.map(
+      (fiat) => ({
+        label: `${fiat.displayName} (${fiat.currency})`,
+        value: fiat.currency,
+      })
+    ),
+    currenciesWithDisplayName,
+  };
 
 };

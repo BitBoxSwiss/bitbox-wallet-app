@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext } from 'react';
-import type { CoinUnit, ConversionUnit, TAmountWithConversions } from '@/api/account';
+import type { TCoinUnit, TConversionUnit, TAmountWithConversions } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
 import { Amount } from '@/components/amount/amount';
 import { isBitcoinCoin, isBitcoinCoinBased } from '@/utils/coin';
@@ -38,7 +38,7 @@ export const AmountWithUnit = ({
     return null;
   }
   let displayedAmount: string = '';
-  let displayedUnit: CoinUnit | ConversionUnit;
+  let displayedUnit: TCoinUnit | TConversionUnit;
   let onClick: () => Promise<void>;
 
   if (convertToFiat) {
@@ -88,7 +88,7 @@ export const AmountWithUnit = ({
 
 type TAmountUnitProps = {
   rotateUnit?: () => Promise<void>;
-  unit: ConversionUnit | CoinUnit;
+  unit: TConversionUnit | TCoinUnit;
   className?: string;
 };
 

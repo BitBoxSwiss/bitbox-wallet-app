@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import { useLocation as useLegacyLocation } from '@/utils/router-compatability';
 import { useTranslation } from 'react-i18next';
-import { AccountCode, TUsedAddress } from '@/api/account';
+import { TAccountCode, TUsedAddress } from '@/api/account';
 import { cancelConnectKeystore } from '@/api/keystore';
 import { SKIP_DEVICE_VERIFICATION_PARAM } from '../utils';
 import { verifyAddressWithDevice, handleVerifyAddressWithDeviceResult } from './verify-address';
@@ -12,7 +12,7 @@ import { verifyAddressWithDevice, handleVerifyAddressWithDeviceResult } from './
 export type TVerifyState = 'idle' | 'connecting' | 'connectFailed' | 'skipWarning' | 'skipped' | 'verifying' | 'error';
 
 type TUseAddressVerificationParams = {
-  code: AccountCode;
+  code: TAccountCode;
   rootFingerprint?: string;
   selectedAddress: TUsedAddress | null;
   isVerifyView: boolean;

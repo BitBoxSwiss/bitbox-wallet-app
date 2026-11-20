@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMountedRef } from '@/hooks/mount';
-import { CoinCode } from '@/api/account';
+import { TCoinCode } from '@/api/account';
 import { subscribeCoinHeaders } from '@/api/coins';
 import { useSubscribe } from '@/hooks/api';
 import { AsciiSpinner } from '@/components/spinner/ascii';
 import style from './headerssync.module.css';
 
 export type TProps = {
-  coinCode: CoinCode;
+  coinCode: TCoinCode;
 };
 
 export const HeadersSync = ({ coinCode }: TProps) => {

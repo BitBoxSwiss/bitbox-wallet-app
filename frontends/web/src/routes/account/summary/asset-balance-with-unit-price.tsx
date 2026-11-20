@@ -2,7 +2,7 @@
 
 import { ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CoinCode, CoinUnit, TAmountWithConversions } from '@/api/account';
+import { TCoinCode, TCoinUnit, TAmountWithConversions } from '@/api/account';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { StatusWarning } from '@/components/icon';
 import { Logo } from '@/components/icon/logo';
@@ -14,9 +14,9 @@ import style from './accountssummary.module.css';
 
 type TProps = {
   amount?: TAmountWithConversions;
-  coinCode: CoinCode;
+  coinCode: TCoinCode;
   coinName: ReactNode;
-  coinUnit?: CoinUnit;
+  coinUnit?: TCoinUnit;
   dataTestId?: string;
   unavailableLabel?: string;
   showUnitPrice?: boolean;

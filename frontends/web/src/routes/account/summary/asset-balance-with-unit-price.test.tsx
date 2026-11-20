@@ -3,7 +3,7 @@
 import { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import type { CoinCode, CoinUnit, Fiat } from '@/api/account';
+import type { TCoinCode, TCoinUnit, TFiat } from '@/api/account';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -29,7 +29,7 @@ vi.mock('@/hooks/coin-unit-price', () => ({
 
 type TProps = {
   children: ReactNode;
-  defaultCurrency: Fiat;
+  defaultCurrency: TFiat;
 };
 
 const Wrapper = ({
@@ -81,10 +81,10 @@ const Wrapper = ({
 );
 
 const renderAssetBalance = (
-  defaultCurrency: Fiat,
-  coinCode: CoinCode,
+  defaultCurrency: TFiat,
+  coinCode: TCoinCode,
   coinName: string,
-  unit: CoinUnit,
+  unit: TCoinUnit,
   showUnitPrice?: boolean,
 ) => render(
   <Wrapper defaultCurrency={defaultCurrency}>

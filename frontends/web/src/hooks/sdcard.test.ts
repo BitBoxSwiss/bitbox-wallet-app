@@ -3,7 +3,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useSDCard } from './sdcard';
-import { DeviceInfo } from '@/api/bitbox01';
+import { TDeviceInfo } from '@/api/bitbox01';
 import * as bitbox01Apis from '@/api/bitbox01';
 import * as bitbox02Apis from '@/api/bitbox02';
 import * as utils from './mount';
@@ -39,7 +39,7 @@ describe('useSDCard', () => {
     });
 
     it('should apply for bitbox01', async () => {
-      const MOCKED_DEVICE_INFO: DeviceInfo = {
+      const MOCKED_DEVICE_INFO: TDeviceInfo = {
         bootlock: false,
         id: '0001',
         lock: false,

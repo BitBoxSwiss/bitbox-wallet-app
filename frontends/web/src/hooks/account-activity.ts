@@ -7,8 +7,8 @@ import { isEthereumBased } from '@/utils/coin';
 const activityRefreshMs = 30_000;
 
 export const useEthAccountActivity = (
-  code: accountApi.AccountCode,
-  coinCode: accountApi.CoinCode | undefined,
+  code: accountApi.TAccountCode,
+  coinCode: accountApi.TCoinCode | undefined,
 ) => {
   useEffect(() => {
     if (coinCode === undefined || !isEthereumBased(coinCode)) {

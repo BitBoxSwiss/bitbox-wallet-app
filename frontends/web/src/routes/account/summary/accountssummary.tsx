@@ -162,7 +162,7 @@ export const AccountsSummary = () => {
   }, [mounted]);
 
   const onStatusChanged = useCallback(async (
-    code: accountApi.AccountCode,
+    code: accountApi.TAccountCode,
     isActive: () => boolean,
   ) => {
     if (!isActive()) {
@@ -193,7 +193,7 @@ export const AccountsSummary = () => {
     }));
   }, []);
 
-  const update = useCallback((code: accountApi.AccountCode, isActive: () => boolean) => {
+  const update = useCallback((code: accountApi.TAccountCode, isActive: () => boolean) => {
     if (isActive()) {
       onStatusChanged(code, isActive);
       getChartData(true);

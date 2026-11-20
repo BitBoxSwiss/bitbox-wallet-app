@@ -30,7 +30,7 @@ type TAddressTypeDialogProps = {
   open: boolean;
   setOpen: (open: boolean) => void;
   preselectedAddressType: number;
-  availableScriptTypes?: accountApi.ScriptType[];
+  availableScriptTypes?: accountApi.TScriptType[];
   insured: boolean;
   handleAddressTypeChosen: (addressType: number) => void | Promise<void>;
 };
@@ -95,12 +95,12 @@ const AddressTypeDialog = ({
 
 // For BTC/LTC: all possible address types we want to offer to the user, ordered by priority (first one is default).
 // Types that are not available in the addresses delivered by the backend should be ignored.
-const scriptTypes: accountApi.ScriptType[] = ['p2wpkh', 'p2tr', 'p2wpkh-p2sh'];
+const scriptTypes: accountApi.TScriptType[] = ['p2wpkh', 'p2tr', 'p2wpkh-p2sh'];
 
 // Find index in list of receive addresses that matches the given script type, or -1 if not found.
 const getIndexOfMatchingScriptType = (
   receiveAddresses: accountApi.TReceiveAddressList[],
-  scriptType: accountApi.ScriptType
+  scriptType: accountApi.TScriptType
 ): number => {
   if (!receiveAddresses) {
     return -1;
@@ -110,13 +110,13 @@ const getIndexOfMatchingScriptType = (
 
 const getAvailableScriptTypes = (
   receiveAddresses: accountApi.TReceiveAddressList[],
-): accountApi.ScriptType[] => {
+): accountApi.TScriptType[] => {
   return scriptTypes.filter(scriptType => getIndexOfMatchingScriptType(receiveAddresses, scriptType) >= 0);
 };
 
 const getReceiveScriptTypeIndex = (
-  availableScriptTypes: accountApi.ScriptType[],
-  receiveScriptType?: accountApi.ScriptType,
+  availableScriptTypes: accountApi.TScriptType[],
+  receiveScriptType?: accountApi.TScriptType,
 ): number => {
   if (!receiveScriptType) {
     return 0;
@@ -126,7 +126,7 @@ const getReceiveScriptTypeIndex = (
 };
 
 type TProps = {
-  code: accountApi.AccountCode;
+  code: accountApi.TAccountCode;
 };
 
 export const Receive = () => {
@@ -143,7 +143,7 @@ export const Receive = () => {
   const [currentAddresses, setCurrentAddresses] = useState<accountApi.TReceiveAddress[]>();
   const [currentAddressIndex, setCurrentAddressIndex] = useState<number>(0);
 
-  const account = activeAccounts.find(({ code: accountCode }) => accountCode === code);
+  const account = activeAccounts.find(({ code: TAccountCode }) => TAccountCode === code);
   const insured = account?.bitsuranceStatus === 'active';
   useEthAccountActivity(code, account?.coinCode);
 
@@ -167,7 +167,7 @@ export const Receive = () => {
   useEffect(() => {
     if (receiveAddresses) {
       const scriptTypes = getAvailableScriptTypes(receiveAddresses);
-      const scriptType = scriptTypes[addressType] as accountApi.ScriptType;
+      const scriptType = scriptTypes[addressType] as accountApi.TScriptType;
       let addressIndex = scriptTypes.length > 0 ? getIndexOfMatchingScriptType(receiveAddresses, scriptType) : 0;
       if (addressIndex === -1) {
         addressIndex = 0;
