@@ -9,7 +9,7 @@ import '@/i18n/i18n';
 import * as accountApi from '@/api/account';
 import { statusChanged, syncdone } from '@/api/accountsync';
 import * as coinsApi from '@/api/coins';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import * as swapApi from '@/api/swap';
 import { alertUser } from '@/components/alert/Alert';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -53,7 +53,7 @@ vi.mock('@/api/coins', async importOriginal => ({
 vi.mock('@/api/swap', () => ({
   getSwapAccounts: vi.fn(), getSwapQuote: vi.fn(), getSwapStatus: vi.fn(), signSwap: vi.fn(),
 }));
-vi.mock('@/api/keystores', () => ({
+vi.mock('@/api/keystore', () => ({
   connectKeystore: vi.fn(), connectAnyKeystore: vi.fn(),
 }));
 

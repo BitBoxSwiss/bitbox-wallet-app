@@ -11,7 +11,7 @@ import {
 import { Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { Checked } from '@/components/icon';
-import { getKeystoreName } from '@/api/keystores';
+import { getKeystoreName } from '@/api/keystore';
 import { useLoad, useSubscribe } from '@/hooks/api';
 import { useLightning } from '@/hooks/lightning';
 import { SettingsContent, type TSettingsContentSection } from './components/settings-content';

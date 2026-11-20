@@ -2,11 +2,11 @@
 
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
+import { connectAnyKeystore, connectKeystore } from '@/api/keystore';
 import { alertUser } from '@/components/alert/Alert';
 import { useFeatureConnect } from './keystore';
 
-vi.mock('@/api/keystores', () => ({
+vi.mock('@/api/keystore', () => ({
   connectAnyKeystore: vi.fn(),
   connectKeystore: vi.fn(),
 }));

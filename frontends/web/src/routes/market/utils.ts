@@ -2,7 +2,7 @@
 
 import type { TMarketAction, TVendorName } from '@/api/market';
 import type { CoinCode, TAccount } from '@/api/account';
-import type { TKeystoreFeature } from '@/api/keystores';
+import type { TKeystoreFeature } from '@/api/keystore';
 import { isEthereumBased } from '@/utils/coin';
 
 export const getFallbackMarketAccountCode = (accounts: TAccount[]) => {

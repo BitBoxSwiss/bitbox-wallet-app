@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { TNumberFormat } from '@/api/nativelocale';
+import type { TNumberFormat } from '@/api/system';
 
 /**
  * Formats a decimal value as a localized percentage string without the percent symbol.

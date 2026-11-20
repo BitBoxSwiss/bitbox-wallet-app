@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { exportNotes } from '@/api/backend';
+import { exportNotes } from '@/api/system';
 import { alertUser } from '@/components/alert/Alert';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 

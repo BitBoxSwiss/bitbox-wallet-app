@@ -20,7 +20,7 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('@/api/backend', () => ({
+vi.mock('@/api/system', () => ({
   clearCache: vi.fn(),
 }));
 
@@ -32,7 +32,7 @@ vi.mock('@/hooks/mediaquery', () => ({
   useMediaQuery: vi.fn().mockReturnValue(false),
 }));
 
-import { clearCache } from '@/api/backend';
+import { clearCache } from '@/api/system';
 
 describe('routes/settings/components/advanced-settings/clear-cache-setting', () => {
   beforeEach(() => {

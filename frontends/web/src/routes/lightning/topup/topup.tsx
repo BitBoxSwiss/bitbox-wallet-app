@@ -13,7 +13,7 @@ import {
   type TPrepareTopUpResult,
 } from '@/api/lightning';
 import { TLightningErrorCode } from '@/api/lightning-errors';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import { useAppState } from '@/contexts/app-state-context';
 import { useSync } from '@/hooks/api';
 import { useMountedRef } from '@/hooks/mount';

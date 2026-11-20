@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { clearCache } from '@/api/backend';
+import { clearCache } from '@/api/system';
 import { alertUser } from '@/components/alert/Alert';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';

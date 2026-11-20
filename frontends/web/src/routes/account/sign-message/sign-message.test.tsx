@@ -13,7 +13,7 @@ import userEvent from '@testing-library/user-event';
 import { Route, Switch } from 'wouter';
 import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
-import * as keystoresApi from '@/api/keystores';
+import * as keystoresApi from '@/api/keystore';
 import { SignMessage } from './sign-message';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { AppStateContext } from '@/contexts/app-state-context';

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
-import { connectAnyKeystore } from '@/api/keystores';
+import { connectAnyKeystore } from '@/api/keystore';
 import { getLightningBalance, postCloseWithdraw, postPrepareCloseWithdraw, type TCloseWithdrawQuote } from '@/api/lightning';
 import { TLightningErrorCode, TSdkError, toLightningErrorMessage } from '@/api/lightning-errors';
 import type { AccountCode, TAmountWithConversions } from '@/api/account';

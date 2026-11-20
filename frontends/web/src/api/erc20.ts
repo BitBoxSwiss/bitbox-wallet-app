@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { apiPost } from '@/utils/request';
+import type { AccountCode } from './account';
+import type { TSuccess } from './response';
+
 export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 'eth-erc20-link' | 'eth-erc20-bat' | 'eth-erc20-mkr' | 'eth-erc20-zrx' | 'eth-erc20-wbtc' | 'eth-erc20-paxg' | 'eth-erc20-dai0x6b17';
 
 export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'DAI';
@@ -31,3 +35,11 @@ export const isSupportedERC20Unit = (
 ): unit is ERC20TokenUnit => (
   supportedERC20Units.has(unit as ERC20TokenUnit)
 );
+
+export const setTokenActive = (
+  accountCode: AccountCode,
+  tokenCode: ERC20CoinCode,
+  active: boolean,
+): Promise<TSuccess> => {
+  return apiPost('set-token-active', { accountCode, tokenCode, active });
+};

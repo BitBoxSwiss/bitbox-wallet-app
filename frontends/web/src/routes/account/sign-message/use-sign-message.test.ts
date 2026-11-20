@@ -6,10 +6,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/i18n/i18n');
 vi.mock('@/api/account');
-vi.mock('@/api/keystores');
+vi.mock('@/api/keystore');
 
 import * as accountApi from '@/api/account';
-import * as keystoresApi from '@/api/keystores';
+import * as keystoresApi from '@/api/keystore';
 import { useSignMessage } from './use-sign-message';
 
 const mockAddress: accountApi.TReceiveAddress = {

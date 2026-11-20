@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import i18n from 'i18next';
-import { getNativeLocale } from '@/api/nativelocale';
+import { getNativeLocale } from '@/api/system';
 import appTranslationsAR from '@/locales/ar/app.json';
 import appTranslationsCS from '@/locales/cs/app.json';
 import appTranslationsDE from '@/locales/de/app.json';

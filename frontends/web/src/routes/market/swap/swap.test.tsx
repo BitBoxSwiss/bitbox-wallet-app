@@ -100,7 +100,7 @@ vi.mock('@/api/swap', async (importOriginal) => {
     signSwap: vi.fn(),
   };
 });
-vi.mock('@/api/keystores', () => ({
+vi.mock('@/api/keystore', () => ({
   connectKeystore: vi.fn(),
   connectAnyKeystore: vi.fn(),
 }));
@@ -118,7 +118,7 @@ import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
 import * as coinsApi from '@/api/coins';
 import * as swapApi from '@/api/swap';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import { alertUser } from '@/components/alert/Alert';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';

@@ -5,7 +5,7 @@ import { useLocation } from 'wouter';
 import { useLocation as useLegacyLocation } from '@/utils/router-compatability';
 import { useTranslation } from 'react-i18next';
 import { AccountCode, TUsedAddress } from '@/api/account';
-import { cancelConnectKeystore } from '@/api/backend';
+import { cancelConnectKeystore } from '@/api/keystore';
 import { SKIP_DEVICE_VERIFICATION_PARAM } from '../utils';
 import { verifyAddressWithDevice, handleVerifyAddressWithDeviceResult } from './verify-address';
 

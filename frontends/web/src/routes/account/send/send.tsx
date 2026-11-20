@@ -28,7 +28,7 @@ import { NoteInput } from './components/inputs/note-input';
 import { FiatValue } from '@/components/amount/fiat-value';
 import { TProposalError, handleSendError } from './services';
 import { CoinControl } from './coin-control';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import { SubTitle } from '@/components/title';
 import { RatesContext } from '@/contexts/RatesContext';
 import style from './send.module.css';
