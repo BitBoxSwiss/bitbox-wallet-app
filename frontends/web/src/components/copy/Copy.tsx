@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, Copy } from '@/components/icon/icon';
-import { triggerHapticFeedback } from '@/utils/transport-mobile';
+import { triggerHapticFeedback } from '@/api/mobile';
 import style from './Copy.module.css';
 
 type TProps = {

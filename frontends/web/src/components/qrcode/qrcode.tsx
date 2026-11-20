@@ -5,7 +5,7 @@ import { getQRCode } from '@/api/backend';
 import { Check } from '@/components/icon';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { triggerHapticFeedback } from '@/utils/transport-mobile';
+import { triggerHapticFeedback } from '@/api/mobile';
 import style from './qrcode.module.css';
 
 type TProps = {

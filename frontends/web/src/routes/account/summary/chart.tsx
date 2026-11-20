@@ -13,7 +13,7 @@ import { useDarkmode } from '@/hooks/darkmode';
 import { RatesContext } from '@/contexts/RatesContext';
 import { AppContext, TChartDisplay, TPortfolioPercentageType } from '@/contexts/AppContext';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
-import { triggerHapticFeedback, triggerStrongHapticFeedback } from '@/utils/transport-mobile';
+import { triggerHapticFeedback, triggerStrongHapticFeedback } from '@/api/mobile';
 import { LinechartGray } from '@/components/icon';
 import { calculateChartValueDifference, getChartVisibleRange } from './chart-range';
 import { Arrow } from '@/components/transactions/components/arrows';
