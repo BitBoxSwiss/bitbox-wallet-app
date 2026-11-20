@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState, useCallback } from 'react';
-import type { AccountCode, TTransaction } from '@/api/account';
+import type { TAccountCode, TTransaction } from '@/api/account';
 import { getTransaction } from '@/api/account';
 import { syncdone } from '@/api/accountsync';
 import { usePrevious } from '@/hooks/previous';
 import { TxDetailsDialog } from '@/components/transactions/components/tx-detail-dialog/tx-detail-dialog';
 
 type TProps = {
-  accountCode: AccountCode;
+  accountCode: TAccountCode;
   explorerURL: string;
   internalID: TTransaction['internalID'] | null;
   onClose: () => void;

@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
-import { connectAnyKeystore } from '@/api/keystores';
+import { connectAnyKeystore } from '@/api/keystore';
 import { getLightningBalance, postCloseWithdraw, postPrepareCloseWithdraw, type TCloseWithdrawQuote } from '@/api/lightning';
 import { TLightningErrorCode, TSdkError, toLightningErrorMessage } from '@/api/lightning-errors';
-import type { AccountCode, TAmountWithConversions } from '@/api/account';
+import type { TAccountCode, TAmountWithConversions } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
@@ -21,7 +21,7 @@ import { CloseWithdrawSuccess } from './success-step';
 type TStep = 'confirm' | 'failure' | 'partialFailure' | 'success';
 
 type TPreparedQuote = TCloseWithdrawQuote & {
-  destinationAccountCode: AccountCode;
+  destinationAccountCode: TAccountCode;
 };
 
 export const LightningCloseWithdrawFunds = () => {
@@ -32,7 +32,7 @@ export const LightningCloseWithdrawFunds = () => {
     () => activeAccounts.filter(account => account.active && account.coinCode === 'btc'),
     [activeAccounts]
   );
-  const [destinationAccountCode, setDestinationAccountCode] = useState<AccountCode>(btcAccounts[0]?.code || '');
+  const [destinationAccountCode, setDestinationAccountCode] = useState<TAccountCode>(btcAccounts[0]?.code || '');
   const [confirmed, setConfirmed] = useState(false);
   const [step, setStep] = useState<TStep>('confirm');
   const [balance, setBalance] = useState<TAmountWithConversions>();

@@ -2,13 +2,13 @@
 
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
-import * as accountAPI from '@/api/account';
+import type { TAccountCode } from '@/api/account';
 import { Button } from '@/components/forms';
 import { AnimatedChecked } from '@/components/icon';
 import styles from './success-pairing.module.css';
 
 type TProps = {
-  accountCode: accountAPI.AccountCode;
+  accountCode: TAccountCode;
 };
 
 export const WCSuccessPairing = ({ accountCode }: TProps) => {

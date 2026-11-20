@@ -5,8 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
 import { getAccountsByKeystore } from '@/routes/account/utils';
 import * as accountAPI from '@/api/account';
-import { supportedERC20Tokens, type ERC20CoinCode } from '@/api/erc20';
-import * as backendAPI from '@/api/backend';
+import { setTokenActive, supportedERC20Tokens, type TERC20CoinCode } from '@/api/erc20';
 import { useAppState } from '@/contexts/app-state-context';
 import { alertUser } from '@/components/alert/Alert';
 import { Button, Input, Label } from '@/components/forms';
@@ -38,7 +37,7 @@ export const ManageAccounts = () => {
   const [currentlyEditedAccount, setCurrentlyEditedAccount] = useState<accountAPI.TAccount | undefined>(undefined);
 
   const renderTokens = (
-    ethAccountCode: accountAPI.AccountCode,
+    ethAccountCode: accountAPI.TAccountCode,
     activeTokens?: accountAPI.TActiveToken[],
   ) => {
     return supportedERC20Tokens.map(token => {
@@ -65,26 +64,26 @@ export const ManageAccounts = () => {
   };
 
   const toggleToken = (
-    ethAccountCode: accountAPI.AccountCode,
-    tokenCode: ERC20CoinCode,
+    ethAccountCode: accountAPI.TAccountCode,
+    tokenCode: TERC20CoinCode,
     active: boolean,
   ) => {
-    backendAPI.setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
+    setTokenActive(ethAccountCode, tokenCode, active).then(({ success, errorMessage }) => {
       if (!success && errorMessage) {
         alertUser(errorMessage);
       }
     });
   };
 
-  const toggleAccount = (accountCode: accountAPI.AccountCode, active: boolean) => {
-    return backendAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
+  const toggleAccount = (accountCode: accountAPI.TAccountCode, active: boolean) => {
+    return accountAPI.setAccountActive(accountCode, active).then(({ success, errorMessage }) => {
       if (!success && errorMessage) {
         alertUser(errorMessage);
       }
     });
   };
 
-  const toggleShowTokens = (accountCode: accountAPI.AccountCode) => {
+  const toggleShowTokens = (accountCode: accountAPI.TAccountCode) => {
     setShowTokens(prevShowTokens => ({
       ...prevShowTokens,
       [accountCode]: (accountCode in prevShowTokens) ? !prevShowTokens[accountCode] : true,
@@ -97,7 +96,7 @@ export const ManageAccounts = () => {
       return;
     }
 
-    backendAPI.renameAccount(currentlyEditedAccount.code, currentlyEditedAccount.name)
+    accountAPI.renameAccount(currentlyEditedAccount.code, currentlyEditedAccount.name)
       .then(result => {
         if (!result.success) {
           if (result.errorCode) {

@@ -1,18 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { MouseEvent } from 'react';
+import { MouseEvent, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'wouter';
 import { useNavigate } from '@/utils/router-compatability';
+import type { TAccountsBalanceSummary, TKeystore } from '@/api/account';
+import { getShowBackupBanner, TShowBackupBannerResponse } from '@/api/backupBanner';
 import { getDeviceList } from '@/api/devices';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import { Status } from '@/components/status/status';
 import { MultilineMarkup } from '@/utils/markup';
-import { TKeystore } from '@/api/account';
 import { AppContext } from '@/contexts/AppContext';
-import { getShowBackupBanner, TShowBackupBannerResponse } from '@/api/backupBanner';
-import { useContext, useEffect, useState } from 'react';
-import { TAccountsBalanceSummary } from '@/api/account';
 import { formatLocalizedAmount } from '@/components/amount/amount';
 import { LocalizationContext } from '@/contexts/localization-context';
 

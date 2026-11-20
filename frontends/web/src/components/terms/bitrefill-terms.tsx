@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { useTranslation } from 'react-i18next';
 import { i18n } from '@/i18n/i18n';
-import { CoinCode } from '@/api/account';
+import { TCoinCode } from '@/api/account';
 import { isBitcoinOnly } from '@/utils/coin';
 import { getBitrefillHelpLink, getBitrefillLimitsLink } from '@/routes/market/bitrefill-guide';
 import { A } from '../anchor/anchor';
@@ -9,7 +9,7 @@ import { Terms, type TTermsProps } from './terms';
 import style from './terms.module.css';
 
 type TProps = TTermsProps & {
-  coinCode: CoinCode;
+  coinCode: TCoinCode;
 };
 
 // Map languages supported by Bitrefill

@@ -3,7 +3,7 @@
 import { useCallback, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
-import { AccountCode, ScriptType, TReceiveAddress } from '@/api/account';
+import { TAccountCode, TScriptType, TReceiveAddress } from '@/api/account';
 import { useFeatureConnect } from '@/hooks/keystore';
 import { isEthereumBased } from '@/utils/coin';
 
@@ -17,11 +17,11 @@ export type TSignatureResult = {
 };
 
 type UseSignMessageParams = {
-  accountCode: AccountCode;
-  coinCode?: accountApi.CoinCode;
+  accountCode: TAccountCode;
+  coinCode?: accountApi.TCoinCode;
   address: TReceiveAddress | null;
   rootFingerprint?: string;
-  scriptType?: ScriptType | null;
+  scriptType?: TScriptType | null;
 };
 
 type UseSignMessageReturn = {

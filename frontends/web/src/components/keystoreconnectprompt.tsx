@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
 import { Button } from './forms';
 import { Bluetooth } from '@/components/bluetooth/bluetooth';
-import { TConnectKeystoreErrorCode, cancelConnectKeystore, syncConnectKeystore } from '@/api/backend';
+import { TConnectKeystoreErrorCode, cancelConnectKeystore, syncConnectKeystore } from '@/api/keystore';
 import { useSubscribeReset } from '@/hooks/api';
 import { Dialog, DialogButtons } from './dialog/dialog';
 import { BitBox02StylizedDark, BitBox02StylizedLight, Cancel, PointToBitBox02 } from './icon';

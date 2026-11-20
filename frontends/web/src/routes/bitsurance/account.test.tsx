@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@/api/bitsurance', () => ({
   bitsuranceLookup: vi.fn(),
 }));
-vi.mock('@/api/keystores', () => ({
+vi.mock('@/api/keystore', () => ({
   connectAnyKeystore: vi.fn(),
   connectKeystore: vi.fn(),
 }));
@@ -43,7 +43,7 @@ import { MemoryRouter } from '@/utils/test-helpers';
 import { useLocation } from '@/utils/router-compatability';
 import type { TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import { AppStateContext } from '@/contexts/app-state-context';
 import { BitsuranceAccount } from './account';
 

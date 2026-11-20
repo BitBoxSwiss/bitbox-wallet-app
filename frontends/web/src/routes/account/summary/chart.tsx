@@ -3,7 +3,7 @@
 import { MutableRefObject, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutoscaleInfoProvider, createChart, IChartApi, LineStyle, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType } from 'lightweight-charts';
-import type { TChartData, TChartTransactionMarkerAmount, FormattedLineData } from '@/api/account';
+import type { TChartData, TChartTransactionMarkerAmount, TFormattedLineData } from '@/api/account';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Amount } from '@/components/amount/amount';
 import { useSearchParams } from '@/utils/router-compatability';
@@ -13,7 +13,7 @@ import { useDarkmode } from '@/hooks/darkmode';
 import { RatesContext } from '@/contexts/RatesContext';
 import { AppContext, TChartDisplay, TPortfolioPercentageType } from '@/contexts/AppContext';
 import { AmountUnit } from '@/components/amount/amount-with-unit';
-import { triggerHapticFeedback, triggerStrongHapticFeedback } from '@/utils/transport-mobile';
+import { triggerHapticFeedback, triggerStrongHapticFeedback } from '@/api/mobile';
 import { LinechartGray } from '@/components/icon';
 import { calculateChartValueDifference, getChartVisibleRange } from './chart-range';
 import { Arrow } from '@/components/transactions/components/arrows';
@@ -600,7 +600,7 @@ export const Chart = ({
       setValueDifference(undefined);
       return;
     }
-    const nextValue = chartData[rangeFrom + 1] as FormattedLineData | undefined;
+    const nextValue = chartData[rangeFrom + 1] as TFormattedLineData | undefined;
     const valueFrom = chartData[rangeFrom].value === 0 ? nextValue?.value : chartData[rangeFrom].value;
     const nextValueDifference = calculateChartValueDifference(valueFrom, data.chartTotal);
     if (nextValueDifference === undefined) {

@@ -3,7 +3,7 @@
 import { ChangeEvent, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
-import { exportBalanceStatement } from '@/api/backend';
+import { exportBalanceStatement } from '@/api/system';
 import { alertUser } from '@/components/alert/Alert';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import { Button, Checkbox, Input, Label } from '@/components/forms';
@@ -34,7 +34,7 @@ export const ExportBalanceStatementSetting = ({ accounts }: TProps) => {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [snapshotDate, setSnapshotDate] = useState(getDefaultSnapshotDate());
-  const [selectedAccountCodes, setSelectedAccountCodes] = useState<accountApi.AccountCode[]>([]);
+  const [selectedAccountCodes, setSelectedAccountCodes] = useState<accountApi.TAccountCode[]>([]);
 
   // The accounts list can change while the dialog is open (e.g. a keystore
   // disconnects), so only ever act on the selected codes that are still active.
@@ -55,7 +55,7 @@ export const ExportBalanceStatementSetting = ({ accounts }: TProps) => {
     setOpen(true);
   };
 
-  const onToggleAccount = (accountCode: accountApi.AccountCode, selected: boolean) => {
+  const onToggleAccount = (accountCode: accountApi.TAccountCode, selected: boolean) => {
     if (selected) {
       setSelectedAccountCodes(prev => prev.includes(accountCode) ? prev : [...prev, accountCode]);
       return;

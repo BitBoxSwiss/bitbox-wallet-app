@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import type { FeeTargetCode, TAccount, TTxProposalResult } from '@/api/account';
+import type { TFeeTargetCode, TAccount, TTxProposalResult } from '@/api/account';
 import { ConfirmSend } from '@/routes/account/send/components/confirm/confirm';
 
 type TProps = {
   customFee: string;
-  feeTarget?: FeeTargetCode;
+  feeTarget?: TFeeTargetCode;
   note: string;
   proposal?: TTxProposalResult;
   sourceAccount?: TAccount;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect } from 'vitest';
-import { CoinCode, CoinUnit, TAccount } from '@/api/account';
+import { TCoinCode, TCoinUnit, TAccount } from '@/api/account';
 import {
   getAccountsByKeystore,
   getDisplayAccountNumber,
@@ -18,9 +18,9 @@ const createAccount = ({
     active: true,
     blockExplorerTxPrefix: 'https://mempool.space/testnet/tx/',
     code: 'v0-123de678-tbtc-0',
-    coinCode: 'tbtc' as CoinCode,
+    coinCode: 'tbtc' as TCoinCode,
     coinName: 'Bitcoin Testnet',
-    coinUnit: 'TBTC' as CoinUnit,
+    coinUnit: 'TBTC' as TCoinUnit,
     isToken: false,
     keystore: {
       connected: false,

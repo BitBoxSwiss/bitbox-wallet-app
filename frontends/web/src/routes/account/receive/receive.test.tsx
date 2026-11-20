@@ -6,14 +6,14 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Route, Switch } from 'wouter';
 import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import { alertUser } from '@/components/alert/Alert';
 import { AppStateContext } from '@/contexts/app-state-context';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { Receive } from './receive';
 
 vi.mock('@/api/account');
-vi.mock('@/api/keystores');
+vi.mock('@/api/keystore');
 vi.mock('@/components/alert/Alert', () => ({ alertUser: vi.fn() }));
 vi.mock('@/components/qrcode/qrcode', () => ({ QRCode: () => null }));
 vi.mock('./components/guide', () => ({ ReceiveGuide: () => null }));

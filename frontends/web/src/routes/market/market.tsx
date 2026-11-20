@@ -8,7 +8,7 @@ import { useLocation, useParams } from 'wouter';
 import { useSearchParams } from '@/utils/router-compatability';
 import * as marketAPI from '@/api/market';
 import { getSwapStatus } from '@/api/swap';
-import { AccountCode, TAccount } from '@/api/account';
+import { TAccountCode, TAccount } from '@/api/account';
 import type { TLightningAccount } from '@/api/lightning';
 import { useAppState } from '@/contexts/app-state-context';
 import { View, ViewContent } from '@/components/view/view';
@@ -32,11 +32,11 @@ import { useMarketContext } from './market-context';
 import { MarketGuide } from './guide';
 import { useFeatureConnect } from '@/hooks/keystore';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
-import type { TKeystoreFeature } from '@/api/keystores';
+import type { TKeystoreFeature } from '@/api/keystore';
 import style from './market.module.css';
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
 };
 
 export const Market = () => {
@@ -51,7 +51,7 @@ export const Market = () => {
 
 type TMarketContentProps = {
   accounts: TAccount[];
-  code: AccountCode;
+  code: TAccountCode;
   lightningAccount: TLightningAccount | null | undefined;
 };
 
@@ -81,7 +81,7 @@ const MarketContent = ({
   } = useMarketContext();
 
   const [info, setInfo] = useState<TInfoContentProps>();
-  let selectedAccount: AccountCode | undefined = (
+  let selectedAccount: TAccountCode | undefined = (
     accounts.some(account => account.code === code) || spendLightningAccount?.code === code
       ? code
       : fallbackAccount || spendLightningAccount?.code || ''
@@ -115,7 +115,7 @@ const MarketContent = ({
   const otcDealsResponse = useLoad(selectedAccount ? () => marketAPI.getMarketDeals('otc', selectedAccount, selectedRegion) : null, [selectedAccount, selectedRegion]);
 
   const promptConnectKeystore = async (
-    accountCode: string,
+    accountCode: TAccountCode,
     requiredFeature?: TKeystoreFeature,
   ): Promise<boolean> => {
     const account = accounts.find(acc => acc.code === accountCode);

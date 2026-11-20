@@ -2,7 +2,7 @@
 
 import { apiGet } from '@/utils/request';
 
-export type DeviceInfo = {
+export type TDeviceInfo = {
   bootlock: boolean;
   id: string;
   lock: boolean;
@@ -18,6 +18,6 @@ export type DeviceInfo = {
 
 export const getDeviceInfo = (
   deviceID: string,
-): Promise<DeviceInfo | null> => {
+): Promise<TDeviceInfo | null> => {
   return apiGet(`devices/${deviceID}/info`);
 };

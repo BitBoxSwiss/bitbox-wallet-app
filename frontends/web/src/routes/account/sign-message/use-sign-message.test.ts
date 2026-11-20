@@ -6,10 +6,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/i18n/i18n');
 vi.mock('@/api/account');
-vi.mock('@/api/keystores');
+vi.mock('@/api/keystore');
 
 import * as accountApi from '@/api/account';
-import * as keystoresApi from '@/api/keystores';
+import * as keystoresApi from '@/api/keystore';
 import { useSignMessage } from './use-sign-message';
 
 const mockAddress: accountApi.TReceiveAddress = {
@@ -27,7 +27,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
 
   it('initializes with default state', () => {
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
     }));
@@ -40,7 +40,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
 
   it('sets error on empty message', async () => {
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
     }));
@@ -62,7 +62,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
     });
 
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
     }));
@@ -108,7 +108,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
     };
 
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'eth-acc' as accountApi.AccountCode,
+      accountCode: 'eth-acc' as accountApi.TAccountCode,
       coinCode: 'eth',
       address: ethAddress,
       rootFingerprint,
@@ -141,7 +141,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
     });
 
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
     }));
@@ -163,7 +163,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
     vi.mocked(keystoresApi.connectKeystore).mockResolvedValue({ success: false });
 
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
     }));
@@ -188,7 +188,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
     });
 
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
     }));
@@ -212,7 +212,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
     });
 
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
     }));
@@ -236,7 +236,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
     });
 
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
     }));
@@ -257,7 +257,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
     vi.mocked(accountApi.signBTCMessageForAddress).mockRejectedValue(new Error('network error'));
 
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
     }));
@@ -283,7 +283,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
     );
 
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
     }));
@@ -321,7 +321,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
     });
 
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
     }));
@@ -350,7 +350,7 @@ describe('routes/account/sign-message/use-sign-message', () => {
 
   it('identifies taproot address', () => {
     const { result } = renderHook(() => useSignMessage({
-      accountCode: 'btc-acc' as accountApi.AccountCode,
+      accountCode: 'btc-acc' as accountApi.TAccountCode,
       address: mockAddress,
       rootFingerprint,
       scriptType: 'p2tr',

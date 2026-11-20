@@ -28,7 +28,7 @@ import { NoteInput } from './components/inputs/note-input';
 import { FiatValue } from '@/components/amount/fiat-value';
 import { TProposalError, handleSendError } from './services';
 import { CoinControl } from './coin-control';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import { SubTitle } from '@/components/title';
 import { RatesContext } from '@/contexts/RatesContext';
 import style from './send.module.css';
@@ -38,11 +38,11 @@ type TProps = {
   activeAccounts?: accountApi.TAccount[];
 };
 
-const useAccountBalance = (accountCode: accountApi.AccountCode, btcUnit?: BtcUnit) => {
+const useAccountBalance = (accountCode: accountApi.TAccountCode, btcUnit?: BtcUnit) => {
   const mounted = useMountedRef();
   const [balance, setBalance] = useState<accountApi.TBalance>();
 
-  const updateBalance = useCallback(async (code: accountApi.AccountCode) => {
+  const updateBalance = useCallback(async (code: accountApi.TAccountCode) => {
     if (mounted.current) {
       const result = await accountApi.getBalance(code);
       if (result.success && mounted.current) {
@@ -97,7 +97,7 @@ export const Send = ({
   const [proposedTotal, setProposedTotal] = useState<accountApi.TAmountWithConversions>();
   const [proposedAmount, setProposedAmount] = useState<accountApi.TAmountWithConversions>();
   const [recipientDisplayAddress, setRecipientDisplayAddress] = useState('');
-  const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
+  const [feeTarget, setFeeTarget] = useState<accountApi.TFeeTargetCode>();
   const [sendResult, setSendResult] = useState<accountApi.TSendTx>();
 
   const [updateFiat, setUpdateFiat] = useState<boolean>(true);
@@ -346,7 +346,7 @@ export const Send = ({
     validateAndDisplayFee,
   ]);
 
-  const handleFeeTargetChange = (feeTarget: accountApi.FeeTargetCode) => {
+  const handleFeeTargetChange = (feeTarget: accountApi.TFeeTargetCode) => {
     setFeeTarget(feeTarget);
     setCustomFee('');
     setUpdateFiat(sendAll);

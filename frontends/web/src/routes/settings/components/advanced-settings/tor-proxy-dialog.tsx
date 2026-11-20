@@ -8,7 +8,7 @@ import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Toggle } from '@/components/toggle/toggle';
 import { Button, Input } from '@/components/forms';
 import { useConfig } from '@/contexts/ConfigProvider';
-import { socksProxyCheck } from '@/api/backend';
+import { socksProxyCheck } from '@/api/network';
 import { alertUser } from '@/components/alert/Alert';
 
 type TProps = {

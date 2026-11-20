@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { triggerHapticFeedback } from '@/utils/transport-mobile';
+import { triggerHapticFeedback } from '@/api/mobile';
 import style from './toggle.module.css';
 
 export type TToggleProps = JSX.IntrinsicElements['input'];

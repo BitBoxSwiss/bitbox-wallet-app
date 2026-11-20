@@ -18,7 +18,7 @@ export type { TUsedAddressLoadErrorCode } from './use-address-selector';
 
 type TProps = {
   accounts: accountApi.TAccount[];
-  code: accountApi.AccountCode;
+  code: accountApi.TAccountCode;
 };
 
 export type TSignMessageController = {

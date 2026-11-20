@@ -6,7 +6,7 @@ import { useParams } from 'wouter';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { MarketGuide } from './guide';
-import { AccountCode, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
+import { TAccountCode, proposeTx, sendTx, TTxInput, TTxProposalResult } from '@/api/account';
 import { findAccount } from '@/routes/account/utils';
 import { isBitcoinOnly } from '@/utils/coin';
 import { useDarkmode } from '@/hooks/darkmode';
@@ -46,7 +46,7 @@ const coinMapping: Readonly<Record<string, string>> = {
 };
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
   region: string;
 };
 

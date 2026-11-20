@@ -2,10 +2,10 @@
 
 import type { UTCTimestamp } from 'lightweight-charts';
 import { describe, expect, it } from 'vitest';
-import type { ChartData, TChartTransactionMarker } from '@/api/account';
+import type { TChartLineData, TChartTransactionMarker } from '@/api/account';
 import { buildChartMarkers } from './chart-markers';
 
-const chartPoint = (time: number): ChartData[number] => ({
+const chartPoint = (time: number): TChartLineData[number] => ({
   time: time as UTCTimestamp,
   value: 1,
   formattedValue: '1.00',

@@ -1,13 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
-export type ERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 'eth-erc20-link' | 'eth-erc20-bat' | 'eth-erc20-mkr' | 'eth-erc20-zrx' | 'eth-erc20-wbtc' | 'eth-erc20-paxg' | 'eth-erc20-dai0x6b17';
+import { apiPost } from '@/utils/request';
+import type { TAccountCode } from './account';
+import type { TSuccess } from './response';
 
-export type ERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'DAI';
+export type TERC20CoinCode = 'erc20Test' | 'eth-erc20-usdt' | 'eth-erc20-usdc' | 'eth-erc20-link' | 'eth-erc20-bat' | 'eth-erc20-mkr' | 'eth-erc20-zrx' | 'eth-erc20-wbtc' | 'eth-erc20-paxg' | 'eth-erc20-dai0x6b17';
+
+export type TERC20TokenUnit = 'USDT' | 'USDC' | 'LINK' | 'BAT' | 'MKR' | 'ZRX' | 'WBTC' | 'PAXG' | 'DAI';
 
 type TERC20Token = {
-  code: ERC20CoinCode;
+  code: TERC20CoinCode;
   name: string;
-  unit: ERC20TokenUnit;
+  unit: TERC20TokenUnit;
 };
 
 export const supportedERC20Tokens: Readonly<TERC20Token[]> = [
@@ -28,6 +32,14 @@ const supportedERC20Units = new Set(
 
 export const isSupportedERC20Unit = (
   unit: string,
-): unit is ERC20TokenUnit => (
-  supportedERC20Units.has(unit as ERC20TokenUnit)
+): unit is TERC20TokenUnit => (
+  supportedERC20Units.has(unit as TERC20TokenUnit)
 );
+
+export const setTokenActive = (
+  accountCode: TAccountCode,
+  tokenCode: TERC20CoinCode,
+  active: boolean,
+): Promise<TSuccess> => {
+  return apiPost('set-token-active', { accountCode, tokenCode, active });
+};

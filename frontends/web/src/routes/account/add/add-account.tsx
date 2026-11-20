@@ -3,9 +3,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
-import { TCoin, getSupportedCoins } from '@/api/backend';
-import { subscribeKeystores } from '@/api/keystores';
-import { addAccount, CoinCode, TAddAccount } from '@/api/account';
+import { type TCoin, getSupportedCoins } from '@/api/coins';
+import { subscribeKeystores } from '@/api/keystore';
+import { addAccount, TCoinCode, TAddAccount } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { SimpleMarkup } from '@/utils/markup';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
@@ -26,7 +26,7 @@ type TStep = 'loading' | 'select-coin' | 'choose-name' | 'success';
 
 type TAddAccountContentProps = {
   accountName: string;
-  coinCode: CoinCode | 'choose';
+  coinCode: TCoinCode | 'choose';
   handleBack: () => void;
   onAccountNameInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onCoinChange: (coin: TCoin) => void;
@@ -102,7 +102,7 @@ export const AddAccount = () => {
   const { accounts } = useAppState();
   const [accountCode, setAccountCode] = useState<string>();
   const [accountName, setAccountName] = useState('');
-  const [coinCode, setCoinCode] = useState<'choose' | CoinCode>('choose');
+  const [coinCode, setCoinCode] = useState<'choose' | TCoinCode>('choose');
   const [errorMessage, setErrorMessage] = useState<string>();
   const [step, setStep] = useState<TStep>('select-coin');
   const [supportedCoins, setSupportedCoins] = useState<TCoin[]>([]);

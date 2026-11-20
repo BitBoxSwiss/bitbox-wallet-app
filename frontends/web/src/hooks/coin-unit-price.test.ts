@@ -2,7 +2,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import type { CoinCode } from '@/api/account';
+import type { TCoinCode } from '@/api/account';
 import { useCoinUnitPrice } from './coin-unit-price';
 
 vi.mock('@/api/coins', () => ({
@@ -24,7 +24,7 @@ describe('useCoinUnitPrice', () => {
   it('returns undefined while loading', () => {
     mockGetCoinFiatPrices.mockReturnValue(new Promise(() => {}));
     const { result } = renderHook(
-      () => useCoinUnitPrice('btc' as CoinCode),
+      () => useCoinUnitPrice('btc' as TCoinCode),
     );
     expect(result.current).toBeUndefined();
   });
@@ -37,7 +37,7 @@ describe('useCoinUnitPrice', () => {
       estimated: false,
     });
     const { result } = renderHook(
-      () => useCoinUnitPrice('btc' as CoinCode, 'BTC'),
+      () => useCoinUnitPrice('btc' as TCoinCode, 'BTC'),
     );
     await waitFor(() => expect(result.current).toEqual({
       amount: '1',

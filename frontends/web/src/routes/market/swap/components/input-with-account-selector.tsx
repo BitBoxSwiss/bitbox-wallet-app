@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useContext, useEffect, useRef, useState } from 'react';
-import type { AccountCode, TAccountBase } from '@/api/account';
+import type { TAccountCode, TAccountBase } from '@/api/account';
 import { convertToCurrency } from '@/api/coins';
 import { RatesContext } from '@/contexts/RatesContext';
 import { NumberInput } from '@/components/forms';
@@ -14,12 +14,12 @@ import { useMountedRef } from '@/hooks/mount';
 import style from './input-with-account-selector.module.css';
 
 type Props<T extends TAccountBase> = {
-  accountCode: AccountCode;
+  accountCode: TAccountCode;
   accounts: T[];
   id: string;
   isAccountDisabled?: (account: T) => boolean;
   isAccountSyncing?: (account: T) => boolean;
-  onChangeAccountCode: (accountCode: AccountCode) => void;
+  onChangeAccountCode: (accountCode: TAccountCode) => void;
   onChangeValue?: (value: string) => void;
   readOnlyAmount?: boolean;
   value: string | undefined;

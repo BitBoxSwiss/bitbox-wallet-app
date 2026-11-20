@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { ConversionUnit } from '@/api/account';
+import type { TConversionUnit } from '@/api/account';
 import { NumberInput } from '@/components/forms';
 
 type TProps = {
-  label: ConversionUnit;
+  label: TConversionUnit;
   onFiatChange: (amount: string) => void;
   disabled: boolean;
   error?: string;

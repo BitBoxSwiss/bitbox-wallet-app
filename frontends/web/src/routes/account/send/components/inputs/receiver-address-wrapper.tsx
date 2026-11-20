@@ -8,7 +8,7 @@ import { InputWithDropdown } from '@/components/forms/input-with-dropdown';
 import * as accountApi from '@/api/account';
 import { getReceiveAddressList, TAccount } from '@/api/account';
 import type { TLightningContact } from '@/api/lightning';
-import { connectKeystore, getKeystoreFeatures } from '@/api/keystores';
+import { connectKeystore, getKeystoreFeatures } from '@/api/keystore';
 import { useAccountStatuses } from '@/hooks/account-status';
 import { useMountedRef } from '@/hooks/mount';
 import { useMediaQuery } from '@/hooks/mediaquery';

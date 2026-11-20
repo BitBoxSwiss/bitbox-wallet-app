@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Fiat } from './account';
+import type { TFiat } from './account';
 import { apiGet } from '@/utils/request';
 
 export type TShowBackupBannerResponse = {
@@ -8,7 +8,7 @@ export type TShowBackupBannerResponse = {
 } | {
   success: true;
   show: boolean;
-  fiat: Fiat;
+  fiat: TFiat;
   threshold: string;
 };
 

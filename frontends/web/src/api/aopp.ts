@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AccountCode } from './account';
+import type { TAccountCode } from './account';
 import type { TUnsubscribe } from '@/utils/transport-common';
 import type { NonEmptyArray } from '@/utils/types';
 import { apiGet, apiPost } from '@/utils/request';
@@ -8,12 +8,12 @@ import { subscribeEndpoint } from './subscribe';
 
 type TAccount = {
   name: string;
-  code: AccountCode;
+  code: TAccountCode;
 };
 
-type Accounts = NonEmptyArray<TAccount>;
+type TAccounts = NonEmptyArray<TAccount>;
 
-export type Aopp = {
+export type TAopp = {
   state: 'error';
   errorCode: 'aoppUnsupportedAsset' | 'aoppVersion' | 'aoppInvalidRequest' | 'aoppNoAccounts' | 'aoppUnsupportedKeystore' | 'aoppUnknown' | 'aoppSigningAborted' | 'aoppCallback' | 'firmwareUpgradeRequired';
   callback: string;
@@ -26,7 +26,7 @@ export type Aopp = {
   xpubRequired: boolean;
 } | {
   state: 'choosing-account';
-  accounts: Accounts;
+  accounts: TAccounts;
   message: string;
   callback: string;
 } | {
@@ -36,7 +36,7 @@ export type Aopp = {
   addressID: string;
   message: string;
   callback: string;
-  accountCode: AccountCode;
+  accountCode: TAccountCode;
 };
 
 export const cancel = (): Promise<null> => {
@@ -54,16 +54,16 @@ type TChooseAccountResponse = {
   errorMessage: string;
 };
 
-export const chooseAccount = (accountCode: AccountCode): Promise<TChooseAccountResponse> => {
+export const chooseAccount = (accountCode: TAccountCode): Promise<TChooseAccountResponse> => {
   return apiPost('aopp/choose-account', { accountCode });
 };
 
-export const getAOPP = (): Promise<Aopp> => {
+export const getAOPP = (): Promise<TAopp> => {
   return apiGet('aopp');
 };
 
 export const subscribeAOPP = (
-  cb: (aopp: Aopp) => void
+  cb: (aopp: TAopp) => void
 ): TUnsubscribe => {
   return subscribeEndpoint('aopp', cb);
 };

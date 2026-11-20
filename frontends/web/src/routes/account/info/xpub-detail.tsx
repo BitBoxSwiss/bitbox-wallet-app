@@ -6,7 +6,7 @@ import { useParams } from 'wouter';
 import { useAppState } from '@/contexts/app-state-context';
 import { Message } from '@/components/message/message';
 import { useLoad } from '@/hooks/api';
-import { getInfo, AccountCode, ScriptType, TSigningConfiguration } from '@/api/account';
+import { getInfo, TAccountCode, TScriptType, TSigningConfiguration } from '@/api/account';
 import { findAccount } from '@/routes/account/utils';
 import { isBitcoinBased } from '@/utils/coin';
 import { GuidedContent, GuideWrapper, Header, Main } from '@/components/layout';
@@ -18,7 +18,7 @@ import style from './info.module.css';
 
 export const getDefaultSigningConfigurationIndex = (
   signingConfigurations: TSigningConfiguration[],
-  receiveScriptType: ScriptType | undefined,
+  receiveScriptType: TScriptType | undefined,
 ): number => {
   if (!receiveScriptType) {
     return 0;
@@ -30,7 +30,7 @@ export const getDefaultSigningConfigurationIndex = (
 };
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
 };
 
 export const XPubDetail = () => {

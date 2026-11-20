@@ -7,7 +7,7 @@ import { useMountedRef } from '@/hooks/mount';
 import { useQRScanner } from '@/hooks/qrcodescanner';
 import { CloseXWhite, FlashWhite, FlashYellow } from '@/components/icon';
 import { SpinnerRingAnimated } from '@/components/spinner/SpinnerAnimation';
-import { triggerHapticFeedback, triggerLongHapticFeedback } from '@/utils/transport-mobile';
+import { triggerHapticFeedback, triggerLongHapticFeedback } from '@/api/mobile';
 import { runningInAndroid } from '@/utils/env';
 import style from './scan-qr.module.css';
 

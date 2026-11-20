@@ -2,7 +2,7 @@
 
 /* Imported svg source (excluding BitBox logos): http://cryptoicons.co/ */
 
-import type { CoinCode } from '@/api/account';
+import type { TCoinCode } from '@/api/account';
 import AppLogoInvertedImg from './assets/app-logo-inverted.svg';
 import AppLogoImg from './assets/app-logo.svg';
 import BitBoxLogo from './assets/bitbox-logo.svg';
@@ -62,7 +62,7 @@ export const SwissMadeOpenSource = ({ className, ...props }: ImgProps) => <img {
 export const SwissMadeOpenSourceDark = ({ className, ...props }: ImgProps) => <img {...props} draggable={false} src={SwissOpenSourceDark} alt="Swiss Made Open Source" className={`${style.swissOpenSource || ''} ${className ? className : ''}`} />;
 
 type LogoMap = {
-  [key in CoinCode]: string[];
+  [key in TCoinCode]: string[];
 };
 
 const logoMap: LogoMap = {
@@ -90,7 +90,7 @@ type LogoProps = {
   active?: boolean;
   alt?: string;
   className?: string;
-  coinCode: CoinCode;
+  coinCode: TCoinCode;
   stacked?: boolean;
 };
 

@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as bitbox02 from '@/api/bitbox02';
+import type { TBackup } from '@/api/backup';
 import { alertUser } from '@/components/alert/Alert';
-import { Backup } from '@/api/backup';
 import { BackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { Message } from '@/components/message/message';
@@ -25,9 +25,9 @@ export const RestoreFromSDCard = ({
   onAbort,
 }: Props) => {
   const [status, setStatus] = useState<'restore' | 'setPassword'>('restore');
-  const [backup, setBackup] = useState<Backup>();
+  const [backup, setBackup] = useState<TBackup>();
 
-  const onSelectBackup = (backup: Backup) => {
+  const onSelectBackup = (backup: TBackup) => {
     setStatus('setPassword');
     setBackup(backup);
   };

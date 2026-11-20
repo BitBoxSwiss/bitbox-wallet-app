@@ -8,7 +8,7 @@ import { useLocation } from '@/utils/router-compatability';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as accountApi from '@/api/account';
 import * as coinsApi from '@/api/coins';
-import * as keystoresApi from '@/api/keystores';
+import * as keystoresApi from '@/api/keystore';
 import * as lightningApi from '@/api/lightning';
 import { TLightningErrorCode } from '@/api/lightning-errors';
 import { AppStateContext } from '@/contexts/app-state-context';
@@ -24,7 +24,7 @@ vi.mock('@/routes/account/send/feetargets', () => ({
   FeeTargets: ({
     onFeeTargetChange,
   }: {
-    onFeeTargetChange: (feeTarget: accountApi.FeeTargetCode) => void;
+    onFeeTargetChange: (feeTarget: accountApi.TFeeTargetCode) => void;
   }) => (
     <button onClick={() => onFeeTargetChange('economy')}>Set fee target</button>
   ),

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { CoinCode, Fiat, TAmountWithConversions } from './account';
-import type { NativeCoinUnit } from './account';
+import type { TCoinCode, TFiat, TAmountWithConversions } from './account';
+import type { TNativeCoinUnit } from './account';
 import type { TUnsubscribe } from '@/utils/transport-common';
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
 import { apiPost, apiGet } from '@/utils/request';
@@ -23,7 +23,7 @@ export type TStatus = {
   errorMessage: string;
 };
 
-export const subscribeCoinHeaders = (coinCode: CoinCode) => (
+export const subscribeCoinHeaders = (coinCode: TCoinCode) => (
   (cb: TSubscriptionCallback<TStatus>) => (
     subscribeEndpoint(`coins/${coinCode}/headers/status`, cb)
   )
@@ -76,8 +76,8 @@ export const getBtcSatAmount = ({
 
 type TConvertCurrency = {
   amount: string;
-  coinCode: CoinCode;
-  fiatUnit: Fiat;
+  coinCode: TCoinCode;
+  fiatUnit: TFiat;
 };
 
 type TConvertFromCurrencyResponse = {
@@ -114,17 +114,28 @@ export const convertToCurrency = ({
 
 type TCoinFiatPrices = {
   amount: string;
-  unit: NativeCoinUnit;
-  conversions: Record<Fiat, string>;
+  unit: TNativeCoinUnit;
+  conversions: Record<TFiat, string>;
   estimated: boolean;
 } | null;
 
-export const getCoinFiatPrices = (coinCode: CoinCode): Promise<TCoinFiatPrices> => {
+export const getCoinFiatPrices = (coinCode: TCoinCode): Promise<TCoinFiatPrices> => {
   return apiGet(`coins/${coinCode}/fiat-prices`);
 };
 
-export const subscribeCoinFiatPrices = (coinCode: CoinCode) => (
+export const subscribeCoinFiatPrices = (coinCode: TCoinCode) => (
   (cb: TSubscriptionCallback<TCoinFiatPrices>): TUnsubscribe => (
     subscribeEndpoint(`coins/${coinCode}/fiat-prices`, cb)
   )
 );
+
+export type TCoin = {
+  coinCode: TCoinCode;
+  name: string;
+  canAddAccount: boolean;
+  suggestedAccountName: string;
+};
+
+export const getSupportedCoins = (): Promise<TCoin[]> => {
+  return apiGet('supported-coins');
+};

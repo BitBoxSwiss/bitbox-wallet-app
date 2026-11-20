@@ -1,6 +1,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { apiPost } from '@/utils/request';
+import { apiGet, apiPost } from '@/utils/request';
+import type { TFailResponse, TSuccessResponse, TSuccess } from './response';
+import type { TAccountCode } from './account';
+
+export const getNativeLocale = (): Promise<string> => {
+  return apiGet('native-locale');
+};
+
+export type TNumberFormat = {
+  decimal: string;
+  group: string;
+} | null;
+
+export const getNumberFormat = (): Promise<TNumberFormat> => {
+  return apiGet('number-format');
+};
 
 type TNotifyUserResponse = {
   success: true;
@@ -22,4 +37,47 @@ export const notifyUser = (text: string): Promise<TNotifyUserResponse> => {
 
 export const open = (href: string): Promise<TOpenResponse> => {
   return apiPost('open', href);
+};
+
+export const exportLogs = (): Promise<TSuccess> => {
+  return apiPost('export-log');
+};
+
+export const clearCache = (): Promise<TSuccess> => {
+  return apiPost('clear-cache');
+};
+
+type TExportNotesResponse = (TFailResponse & {
+  aborted: boolean;
+}) | TSuccessResponse;
+
+export const exportNotes = (): Promise<TExportNotesResponse> => {
+  return apiPost('notes/export');
+};
+
+type TImportNotes = {
+  accountCount: number;
+  transactionCount: number;
+};
+
+export const importNotes = (
+  fileContents: ArrayBuffer,
+): Promise<TFailResponse | (TSuccessResponse & { data: TImportNotes })> => {
+  const hexString = Array.from(new Uint8Array(fileContents))
+    .map(byte => byte.toString(16).padStart(2, '0'))
+    .join('');
+  return apiPost('notes/import', hexString);
+};
+
+export type TExportBalanceStatementResponse = (TFailResponse & {
+  aborted: boolean;
+  errorCode?: string;
+}) | TSuccessResponse;
+
+export const exportBalanceStatement = (
+  accountCodes: TAccountCode[],
+  snapshotDate: string,
+  numberFormat: NonNullable<TNumberFormat>,
+): Promise<TExportBalanceStatementResponse> => {
+  return apiPost('accounts/balance-statement/export', { accountCodes, snapshotDate, numberFormat });
 };

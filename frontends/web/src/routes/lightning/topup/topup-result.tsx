@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
-import { connectAnyKeystore } from '@/api/keystores';
+import { connectAnyKeystore } from '@/api/keystore';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { CoinCode, CoinUnit, TAmountWithConversions } from '@/api/account';
+import type { TCoinCode, TCoinUnit, TAmountWithConversions } from '@/api/account';
 import { getCoinFiatPrices, subscribeCoinFiatPrices } from '@/api/coins';
 import { useSync } from '@/hooks/api';
 
@@ -10,8 +10,8 @@ import { useSync } from '@/hooks/api';
  * whenever exchange rates change.
  */
 export const useCoinUnitPrice = (
-  coinCode: CoinCode,
-  unit?: CoinUnit,
+  coinCode: TCoinCode,
+  unit?: TCoinUnit,
 ): TAmountWithConversions | undefined => {
   const unitPriceCoinCode = coinCode === 'lightning' ? 'btc' : coinCode;
   const result = useSync(

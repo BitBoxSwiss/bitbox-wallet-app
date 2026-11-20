@@ -13,7 +13,7 @@ import {
 } from '@/utils/walletconnect-eth-sign-handlers';
 import { alertUser } from '@/components/alert/Alert';
 import type { TAccount } from '@/api/account';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 import { TStage, WCIncomingSignRequestDialog } from './incoming-signing-request-dialog';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 

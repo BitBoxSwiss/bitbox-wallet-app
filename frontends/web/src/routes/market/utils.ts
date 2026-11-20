@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TMarketAction, TVendorName } from '@/api/market';
-import type { CoinCode, TAccount } from '@/api/account';
-import type { TKeystoreFeature } from '@/api/keystores';
+import type { TAccount, TCoinCode } from '@/api/account';
+import type { TKeystoreFeature } from '@/api/keystore';
 import { isEthereumBased } from '@/utils/coin';
 
 export const getFallbackMarketAccountCode = (accounts: TAccount[]) => {
@@ -11,14 +11,14 @@ export const getFallbackMarketAccountCode = (accounts: TAccount[]) => {
     || '';
 };
 
-const transactionSigningFeature = (coinCode: CoinCode): TKeystoreFeature => {
+const transactionSigningFeature = (coinCode: TCoinCode): TKeystoreFeature => {
   return isEthereumBased(coinCode) ? 'ethTransactionSigning' : 'btcTransactionSigning';
 };
 
 export const getRequiredKeystoreFeature = (
   vendor: TVendorName,
   action: TMarketAction,
-  coinCode?: CoinCode,
+  coinCode?: TCoinCode,
 ): TKeystoreFeature | undefined => {
   if (action === 'swap') {
     return 'swapPaymentRequests';

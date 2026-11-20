@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from 'react';
 import { ActionMeta } from 'react-select';
-import { Fiat } from '@/api/account';
+import { TFiat } from '@/api/account';
 import { RatesContext } from '@/contexts/RatesContext';
 import { SelectedCheckLight } from '@/components/icon';
 import { Dropdown } from '@/components/dropdown/dropdown';
@@ -12,18 +12,18 @@ import settingsDropdownStyles from './settingsdropdown.module.css';
 
 type SelectOption = {
   label: string;
-  value: Fiat;
+  value: TFiat;
 };
 
 type TSelectProps = {
   options: SelectOption[];
-  defaultCurrency: Fiat;
-  activeCurrencies: Fiat[];
+  defaultCurrency: TFiat;
+  activeCurrencies: TFiat[];
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
 };
 
-const sortCurrencyOptions = (options: SelectOption[], activeCurrencies: Fiat[]): SelectOption[] => {
+const sortCurrencyOptions = (options: SelectOption[], activeCurrencies: TFiat[]): SelectOption[] => {
   const byLabel = (a: SelectOption, b: SelectOption) => a.label.localeCompare(b.label);
   const selected = options.filter(opt => activeCurrencies.includes(opt.value)).sort(byLabel);
   const others = options.filter(opt => !activeCurrencies.includes(opt.value)).sort(byLabel);

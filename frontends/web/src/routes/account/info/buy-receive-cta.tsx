@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
-import type { AccountCode, CoinUnit, TAccount, TBalance } from '@/api/account';
+import type { TAccountCode, TCoinUnit, TAccount, TBalance } from '@/api/account';
 import { useAppState } from '@/contexts/app-state-context';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { Button, ButtonLink } from '@/components/forms';
@@ -14,8 +14,8 @@ import styles from './buy-receive-cta.module.css';
 
 type TBuyReceiveCTAProps = {
   balanceList?: TBalance[];
-  code?: AccountCode;
-  unit?: CoinUnit;
+  code?: TAccountCode;
+  unit?: TCoinUnit;
   account?: TAccount;
   showBuyButton?: boolean;
 };

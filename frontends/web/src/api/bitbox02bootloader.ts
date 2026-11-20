@@ -2,7 +2,7 @@
 
 import { apiGet, apiPost } from '@/utils/request';
 import { subscribeEndpoint, TSubscriptionCallback } from './subscribe';
-import type { SuccessResponse } from './response';
+import type { TSuccessResponse } from './response';
 
 type TProduct =
   'bitbox02-multi'
@@ -51,11 +51,11 @@ type TBootloaderErrorResponse = {
   errorMessage?: string;
 };
 
-export type TBootloaderResponse = SuccessResponse | TBootloaderErrorResponse;
+export type TBootloaderResponse = TSuccessResponse | TBootloaderErrorResponse;
 
-type TInfoResponse = (SuccessResponse & { info: TInfo }) | TBootloaderErrorResponse;
+type TInfoResponse = (TSuccessResponse & { info: TInfo }) | TBootloaderErrorResponse;
 
-type TShowFirmwareHashResponse = (SuccessResponse & { enabled: boolean }) | TBootloaderErrorResponse;
+type TShowFirmwareHashResponse = (TSuccessResponse & { enabled: boolean }) | TBootloaderErrorResponse;
 
 export const getInfo = (
   deviceID: string,

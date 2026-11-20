@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useSync } from '@/hooks/api';
-import { getUsingMobileData, subscribeUsingMobileData } from '@/api/mobiledata';
+import { getUsingMobileData, subscribeUsingMobileData } from '@/api/network';
 import { Status } from '@/components/status/status';
 
 export const MobileDataWarning = () => {

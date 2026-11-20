@@ -9,7 +9,7 @@ import { WaitDialog } from '@/components/wait-dialog/wait-dialog';
 import { PointToBitBox02 } from '../icon';
 
 type TProps = {
-  accountCode: accountAPI.AccountCode;
+  accountCode: accountAPI.TAccountCode;
   displayAddress: string;
   addressID: string;
 };

@@ -3,7 +3,7 @@
 import '../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/api/keystores', () => ({
+vi.mock('@/api/keystore', () => ({
   connectAnyKeystore: vi.fn(),
   connectKeystore: vi.fn(),
 }));
@@ -17,8 +17,8 @@ vi.mock('@/hooks/mediaquery', () => ({
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from '@/utils/test-helpers';
 import { useLocation } from '@/utils/router-compatability';
-import type { CoinCode, TAccount } from '@/api/account';
-import { connectKeystore } from '@/api/keystores';
+import type { TCoinCode, TAccount } from '@/api/account';
+import { connectKeystore } from '@/api/keystore';
 import { ActionButtons } from './actionButtons';
 
 const account: TAccount = {
@@ -44,7 +44,7 @@ const Location = () => {
   return <div>{location.pathname}</div>;
 };
 
-const renderActionButtons = (coinCode: CoinCode = 'btc') => {
+const renderActionButtons = (coinCode: TCoinCode = 'btc') => {
   const currentAccount = { ...account, coinCode };
   render(
     <MemoryRouter initialEntries={['/account/btc-account']}>

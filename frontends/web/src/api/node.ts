@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SuccessResponse } from './response';
+import type { TSuccessResponse } from './response';
 import { apiPost } from '@/utils/request';
 
 type TCertResponse = {
@@ -21,7 +21,7 @@ export type TElectrumServer = {
   pemCert: string;
 };
 
-type TCheckElectrumResponse = SuccessResponse | {
+type TCheckElectrumResponse = TSuccessResponse | {
   success: false;
   errorMessage?: string;
 };

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { apiGet, apiPost } from '@/utils/request';
-import type { Fiat } from '@/api/account';
+import type { TFiat } from '@/api/account';
 import type { BtcUnit } from '@/api/coins';
 import type { TPortfolioPercentageType } from '@/contexts/AppContext';
 
@@ -105,8 +105,8 @@ export type TConfigBackend = Readonly<{
   eth: TEthCoinConfig;
   teth: Record<string, never>;
   reth: Record<string, never>;
-  fiatList: Fiat[];
-  mainFiat: Fiat;
+  fiatList: TFiat[];
+  mainFiat: TFiat;
   userLanguage: string;
   btcUnit: BtcUnit;
   lightningDebugLogs: boolean;
@@ -131,4 +131,8 @@ export const getConfig = (): Promise<TConfig> => apiGet('config');
  */
 export const setConfig = (config: TConfig): Promise<{ success: boolean; errorMessage?: string }> => {
   return apiPost('config', config);
+};
+
+export const getDefaultConfig = (): Promise<any> => {
+  return apiGet('config/default');
 };

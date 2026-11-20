@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TUnsubscribe } from '@/utils/transport-common';
-import type { AccountCode, TAccount, TStatus, TTransactions } from './account';
+import type { TAccountCode, TAccount, TStatus, TTransactions } from './account';
 import { TSubscriptionCallback, subscribeEndpoint } from './subscribe';
 
 /**
@@ -20,7 +20,7 @@ export const syncAccountsList = (
  * event to receive the progress of the address sync.
  * Meant to be used with `useSubscribe`.
  */
-export const syncAddressesCount = (code: AccountCode) => {
+export const syncAddressesCount = (code: TAccountCode) => {
   return (
     cb: TSubscriptionCallback<number>
   ) => {
@@ -34,7 +34,7 @@ export const syncAddressesCount = (code: AccountCode) => {
  * Returns a method to unsubscribe.
  */
 export const statusChanged = (
-  code: AccountCode,
+  code: TAccountCode,
   cb: TSubscriptionCallback<TStatus>,
 ): TUnsubscribe => {
   return subscribeEndpoint(`account/${code}/status`, cb);
@@ -45,7 +45,7 @@ export const statusChanged = (
  * Returns a method to unsubscribe.
  */
 export const syncdone = (
-  code: AccountCode,
+  code: TAccountCode,
   cb: () => void,
 ): TUnsubscribe => {
   return subscribeEndpoint(`account/${code}/sync-done`, cb);
@@ -56,7 +56,7 @@ export const syncdone = (
  * Returns a method to unsubscribe.
  */
 export const transactionsChanged = (
-  code: AccountCode,
+  code: TAccountCode,
   cb: TSubscriptionCallback<TTransactions>,
 ): TUnsubscribe => {
   return subscribeEndpoint(`account/${code}/transactions`, cb);
