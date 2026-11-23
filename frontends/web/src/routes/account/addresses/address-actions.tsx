@@ -2,14 +2,14 @@
 
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
-import { AccountCode, TUsedAddress } from '@/api/account';
+import type { TAccountCode, TUsedAddress } from '@/api/account';
 import { A } from '@/components/anchor/anchor';
 import { Button } from '@/components/forms';
 import { Copy, ExternalLink, OutlinedFileProtectPrimary } from '@/components/icon';
 import style from './addresses.module.css';
 
 type TProps = {
-  code: AccountCode;
+  code: TAccountCode;
   address: TUsedAddress;
   blockExplorerAddressPrefix?: string;
   onCopy: (address: TUsedAddress) => void;

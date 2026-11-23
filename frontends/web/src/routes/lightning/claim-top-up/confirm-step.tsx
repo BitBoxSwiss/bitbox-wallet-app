@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
+import type { TAccountCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button } from '@/components/forms';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
@@ -19,12 +19,12 @@ type TProps = {
   fee?: TAmountWithConversions;
   feeRateSatPerVbyte?: number;
   isSubmitting: boolean;
-  refundDestinationAccountCode: AccountCode;
+  refundDestinationAccountCode: TAccountCode;
   refundUnavailable: boolean;
   topUpAmount?: TAmountWithConversions;
   onCancel: () => void;
   onConfirm: () => void;
-  onRefundDestinationChange: (code: AccountCode) => void;
+  onRefundDestinationChange: (code: TAccountCode) => void;
 };
 
 export const ClaimTopUpConfirm = ({

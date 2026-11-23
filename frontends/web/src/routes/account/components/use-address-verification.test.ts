@@ -26,7 +26,7 @@ const mockUsedAddress: accountApi.TUsedAddress = {
 };
 
 const defaultParams = {
-  code: 'btc-acct' as accountApi.AccountCode,
+  code: 'btc-acct' as accountApi.TAccountCode,
   rootFingerprint: 'aabbccdd',
   selectedAddress: mockUsedAddress,
   isVerifyView: false,

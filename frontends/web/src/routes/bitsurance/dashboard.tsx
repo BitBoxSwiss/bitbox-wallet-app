@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'wouter';
-import { type AccountCode, getBalance } from '@/api/account';
+import { type TAccountCode, getBalance } from '@/api/account';
 import { TAccountDetails, TDetailStatus, bitsuranceLookup } from '@/api/bitsurance';
 import { useAppState } from '@/contexts/app-state-context';
 import { useMountedRef } from '@/hooks/mount';
@@ -28,7 +28,7 @@ type TAccountStatusIconProps = {
 };
 
 type TInsurancesByCode = {
-  [accountCode: AccountCode]: TAccountDetails;
+  [accountCode: TAccountCode]: TAccountDetails;
 };
 
 const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
@@ -48,7 +48,7 @@ const AccountStatusIcon = ({ status }: TAccountStatusIconProps) => {
 };
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
 };
 
 export const BitsuranceDashboard = () => {

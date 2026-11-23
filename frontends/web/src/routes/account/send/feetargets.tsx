@@ -13,20 +13,20 @@ import { Dropdown, TOption as TDropdownOption } from '@/components/dropdown/drop
 import style from './feetargets.module.css';
 
 type Props = {
-  accountCode: accountApi.AccountCode;
-  coinCode: accountApi.CoinCode;
+  accountCode: accountApi.TAccountCode;
+  coinCode: accountApi.TCoinCode;
   disabled: boolean;
   proposedFee?: accountApi.TAmountWithConversions;
   highFeePercentage?: string;
   customFee: string;
   showCalculatingFeeLabel?: boolean;
-  onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
+  onFeeTargetChange: (code: accountApi.TFeeTargetCode) => void;
   onCustomFee: (customFee: string) => void;
   error?: string;
 };
 
 type TOption = {
-  value: accountApi.FeeTargetCode;
+  value: accountApi.TFeeTargetCode;
   label: string;
   isDisabled?: boolean;
 };
@@ -46,7 +46,7 @@ export const FeeTargets = ({
   const { t } = useTranslation();
   const { config } = useConfig();
   const { defaultCurrency } = useContext(RatesContext);
-  const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
+  const [feeTarget, setFeeTarget] = useState<accountApi.TFeeTargetCode>();
   const [options, setOptions] = useState<TOption[] | null>(null);
   const [noFeeTargets, setNoFeeTargets] = useState<boolean>(false);
 
@@ -95,7 +95,7 @@ export const FeeTargets = ({
     focusInput();
   }, [t, feeTarget, feeTargets, focusInput, accountCode, config, onFeeTargetChange, disabled]);
 
-  const handleFeeTargetChange = (value: accountApi.FeeTargetCode) => {
+  const handleFeeTargetChange = (value: accountApi.TFeeTargetCode) => {
     setFeeTarget(value);
     onFeeTargetChange(value);
   };
@@ -126,7 +126,7 @@ export const FeeTargets = ({
   const preventFocus = document.activeElement && document.activeElement.nodeName === 'INPUT';
 
   const renderOption = (
-    option: TDropdownOption<accountApi.FeeTargetCode | undefined>
+    option: TDropdownOption<accountApi.TFeeTargetCode | undefined>
   ) => {
     if (option === undefined) {
       return null;

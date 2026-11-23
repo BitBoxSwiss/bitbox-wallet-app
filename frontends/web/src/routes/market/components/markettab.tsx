@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
-import type { AccountCode } from '@/api/account';
+import type { TAccountCode } from '@/api/account';
 import type { TMarketAction } from '@/api/market';
 import { useAppState } from '@/contexts/app-state-context';
 import { useMarketContext } from '@/routes/market/market-context';
@@ -16,7 +16,7 @@ export type TMarketplaceTab = TMarketAction | 'insure';
 
 type TProps = {
   activeTab: TMarketplaceTab;
-  code: AccountCode;
+  code: TAccountCode;
 };
 
 export const MarketTab = ({

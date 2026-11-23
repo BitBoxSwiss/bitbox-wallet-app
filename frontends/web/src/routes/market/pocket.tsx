@@ -8,7 +8,7 @@ import { useConfig } from '@/contexts/ConfigProvider';
 import { Dialog } from '@/components/dialog/dialog';
 import { confirmation } from '@/components/confirm/Confirm';
 import { verifyAddress, getPocketURL, TMarketAction } from '@/api/market';
-import { AccountCode, getInfo, getTransactionList, signBTCMessageUnusedAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
+import { TAccountCode, getInfo, getTransactionList, signBTCMessageUnusedAddress, proposeTx, sendTx, TTxInput } from '@/api/account';
 import { Header } from '@/components/layout';
 import { Spinner } from '@/components/spinner/Spinner';
 import { PointToBitBox02 } from '@/components/icon';
@@ -37,7 +37,7 @@ type TProps = {
 };
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
   // region: string;
 };
 

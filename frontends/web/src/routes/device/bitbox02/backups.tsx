@@ -8,7 +8,7 @@ import { restoreBackup, errUserAbort } from '@/api/bitbox02';
 import { getBackupList, subscribeBackupList } from '@/api/backup';
 import { Toast } from '@/components/toast/toast';
 import { BackupsListItem } from '@/routes/device/components/backup';
-import { Backup } from '@/api/backup';
+import type { TBackup } from '@/api/backup';
 import { Button } from '@/components/forms';
 import { Check } from './checkbackup';
 import { Create } from './createbackup';
@@ -21,7 +21,7 @@ type TProps = {
   showRestore?: boolean;
   showCreate?: boolean;
   showRadio: boolean;
-  onSelectBackup?: (backup: Backup) => void;
+  onSelectBackup?: (backup: TBackup) => void;
   onRestoreBackup?: (success: boolean) => void;
   children?: ReactNode;
 };

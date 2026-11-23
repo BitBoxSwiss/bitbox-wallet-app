@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'wouter';
-import type { AccountCode, TAccount } from '@/api/account';
+import type { TAccountCode, TAccount } from '@/api/account';
 import { bitsuranceLookup } from '@/api/bitsurance';
 import { useAppState } from '@/contexts/app-state-context';
 import { Header, GuidedContent, GuideWrapper, Main } from '@/components/layout';
@@ -20,7 +20,7 @@ import { BitsuranceGuide } from './guide';
 import style from './bitsurance.module.css';
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
 };
 
 export const Bitsurance = () => {

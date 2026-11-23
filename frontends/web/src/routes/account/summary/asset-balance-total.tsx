@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import { CoinCode, TAmountWithConversions } from '@/api/account';
+import type { TCoinCode, TAmountWithConversions } from '@/api/account';
 import { AssetBalance } from './asset-balance';
 import style from './accountssummary.module.css';
 
 type Props = {
   amount?: TAmountWithConversions;
-  coinCode: CoinCode;
+  coinCode: TCoinCode;
   coinName: string;
 };
 

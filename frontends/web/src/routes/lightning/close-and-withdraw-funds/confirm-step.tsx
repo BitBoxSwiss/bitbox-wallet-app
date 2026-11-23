@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import type { AccountCode, TAccount, TAmountWithConversions } from '@/api/account';
+import type { TAccountCode, TAccount, TAmountWithConversions } from '@/api/account';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Button, Checkbox } from '@/components/forms';
@@ -17,7 +17,7 @@ type TProps = {
   btcAccounts: TAccount[];
   canClose: boolean;
   confirmed: boolean;
-  destinationAccountCode: AccountCode;
+  destinationAccountCode: TAccountCode;
   fee?: TAmountWithConversions;
   hasIncoming: boolean;
   incoming?: TAmountWithConversions;
@@ -28,7 +28,7 @@ type TProps = {
   onClose: () => void;
   onConfirmChange: () => void;
   onIncomingConfirmChange: () => void;
-  onDestinationAccountChange: (code: AccountCode) => void;
+  onDestinationAccountChange: (code: TAccountCode) => void;
 };
 
 const AmountRow = ({

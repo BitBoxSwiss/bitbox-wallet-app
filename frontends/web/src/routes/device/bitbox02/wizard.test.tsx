@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DeviceInfo, getDeviceInfo, getStatus, getVersion, setDeviceLanguage, statusChanged, verifyAttestation } from '@/api/bitbox02';
+import { TDeviceInfo, getDeviceInfo, getStatus, getVersion, setDeviceLanguage, statusChanged, verifyAttestation } from '@/api/bitbox02';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import type { TWalletSetupChoices } from './setup/choose';
 import { Wizard } from './wizard';
@@ -53,7 +53,7 @@ vi.mock('./setup/wallet-restore', () => ({
   RestoreFromMnemonic: () => <h1>restore-mnemonic</h1>,
 }));
 
-const info = (overrides: Partial<DeviceInfo> = {}) => ({
+const info = (overrides: Partial<TDeviceInfo> = {}) => ({
   success: true as const,
   deviceInfo: {
     initialized: false,

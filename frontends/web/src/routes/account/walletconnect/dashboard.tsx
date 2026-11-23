@@ -9,7 +9,7 @@ import { getSdkError } from '@walletconnect/utils';
 import { WCWeb3WalletContext } from '@/contexts/WCWeb3WalletContext';
 import { truncateMiddle } from '@/utils/address';
 import { getAddressFromEIPString } from '@/utils/walletconnect';
-import { AccountCode, getReceiveAddressList } from '@/api/account';
+import { TAccountCode, getReceiveAddressList } from '@/api/account';
 import { GuideWrapper, GuidedContent, Header, Main } from '@/components/layout';
 import { View, ViewContent } from '@/components/view/view';
 import { WCSessionCard } from './components/session-card/session-card';
@@ -22,7 +22,7 @@ import styles from './dashboard.module.css';
 import { useAppState } from '@/contexts/app-state-context';
 
 type TRouteParams = {
-  code: AccountCode;
+  code: TAccountCode;
 };
 
 export const DashboardWalletConnect = () => {

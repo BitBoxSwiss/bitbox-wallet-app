@@ -29,7 +29,7 @@ export const KeystoreBalance = ({ accounts, accountsByKeystore, keystore, keysto
   const [, navigate] = useLocation();
 
   const accountsPerCoin = getAccountsPerCoin(accounts);
-  const coins = Object.keys(accountsPerCoin) as accountApi.CoinCode[];
+  const coins = Object.keys(accountsPerCoin) as accountApi.TCoinCode[];
 
   return (
     <BalanceSection

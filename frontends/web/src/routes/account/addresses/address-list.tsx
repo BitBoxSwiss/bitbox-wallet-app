@@ -3,7 +3,7 @@
 import { useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'wouter';
-import { AccountCode, TUsedAddress, TUsedAddressesResponse } from '@/api/account';
+import type { TAccountCode, TUsedAddress, TUsedAddressesResponse } from '@/api/account';
 import { useIsScrollable } from '@/hooks/scrollable';
 import { parseTimeShort } from '@/utils/date';
 import { Spinner } from '@/components/spinner/Spinner';
@@ -17,7 +17,7 @@ import { truncateMiddle } from '@/utils/truncate';
 import style from './addresses.module.css';
 
 type TProps = {
-  code: AccountCode;
+  code: TAccountCode;
   accountName: string;
   blockExplorerAddressPrefix?: string;
   usedAddressesResponse: TUsedAddressesResponse | undefined;

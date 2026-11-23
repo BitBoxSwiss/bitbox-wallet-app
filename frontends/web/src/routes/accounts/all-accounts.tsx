@@ -23,7 +23,7 @@ import styles from './all-accounts.module.css';
 
 type TAccountRowProps = {
   balance?: accountApi.TAmountWithConversions;
-  coinCode: accountApi.CoinCode;
+  coinCode: accountApi.TCoinCode;
   name: string;
   to: string;
 };

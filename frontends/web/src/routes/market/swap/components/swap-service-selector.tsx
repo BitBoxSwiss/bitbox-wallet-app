@@ -2,7 +2,7 @@
 
 import Select, { components, SingleValueProps, OptionProps, DropdownIndicatorProps } from 'react-select';
 import { useTranslation } from 'react-i18next';
-import type { CoinUnit, TAmountWithConversions } from '@/api/account';
+import type { TCoinUnit, TAmountWithConversions } from '@/api/account';
 import type { TSwapQuoteRoute } from '@/api/swap';
 import { Label } from '@/components/forms';
 import { Message } from '@/components/message/message';
@@ -121,7 +121,7 @@ const DropdownIndicator = (props: DropdownIndicatorProps<TOption>) => (
 );
 
 type Props = {
-  buyUnit: CoinUnit | undefined;
+  buyUnit: TCoinUnit | undefined;
   error?: string;
   isLoading: boolean;
   onChangeRouteId: (routeId: string) => void;

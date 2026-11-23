@@ -47,7 +47,7 @@ export const LightningTopUp = () => {
     () => activeAccounts.filter(account => account.active && account.coinCode === 'btc'),
     [activeAccounts]
   );
-  const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.AccountCode>('');
+  const [sourceAccountCode, setSourceAccountCode] = useState<accountApi.TAccountCode>('');
   const sourceAccount = btcAccounts.find(account => account.code === sourceAccountCode);
   const lightningBalance = useSync(getLightningBalance, subscribeLightningBalance);
   const sourceAmountUnit = (
@@ -57,7 +57,7 @@ export const LightningTopUp = () => {
   );
   const [amount, setAmount] = useState('');
   const [fiatAmount, setFiatAmount] = useState('');
-  const [feeTarget, setFeeTarget] = useState<accountApi.FeeTargetCode>();
+  const [feeTarget, setFeeTarget] = useState<accountApi.TFeeTargetCode>();
   const [customFee, setCustomFee] = useState('');
   const [note, setNote] = useState(() => t('lightning.topUp.note'));
   const [proposal, setProposal] = useState<TPrepareTopUpResult>();
@@ -275,7 +275,7 @@ export const LightningTopUp = () => {
     t,
   ]);
 
-  const handleSourceChange = (code: accountApi.AccountCode) => {
+  const handleSourceChange = (code: accountApi.TAccountCode) => {
     conversionRequest.current++;
     setSourceAccountCode(code);
     setProposal(undefined);
@@ -292,7 +292,7 @@ export const LightningTopUp = () => {
     convertFromFiat(value);
   };
 
-  const handleFeeTargetChange = (nextFeeTarget: accountApi.FeeTargetCode) => {
+  const handleFeeTargetChange = (nextFeeTarget: accountApi.TFeeTargetCode) => {
     setFeeTarget(nextFeeTarget);
     setCustomFee('');
   };

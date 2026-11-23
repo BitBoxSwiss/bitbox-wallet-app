@@ -2,7 +2,7 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import { RatesContext } from './RatesContext';
-import { Fiat } from '@/api/account';
+import type { TFiat } from '@/api/account';
 import { BtcUnit, setBtcUnit as setBackendBtcUnit } from '@/api/coins';
 import { reconfigureHistoryRates } from '@/api/rates';
 import { useConfig } from './ConfigProvider';
@@ -14,8 +14,8 @@ type TProps = {
 
 export const RatesProvider = ({ children }: TProps) => {
   const { config, setConfig } = useConfig();
-  const [defaultCurrency, setDefaultCurrency] = useState<Fiat>('USD');
-  const [activeCurrencies, setActiveCurrencies] = useState<Fiat[]>(['USD', 'EUR', 'CHF']);
+  const [defaultCurrency, setDefaultCurrency] = useState<TFiat>('USD');
+  const [activeCurrencies, setActiveCurrencies] = useState<TFiat[]>(['USD', 'EUR', 'CHF']);
   const [btcUnit, setBtcUnit] = useState<BtcUnit>('default');
 
   useEffect(() => {
@@ -29,13 +29,13 @@ export const RatesProvider = ({ children }: TProps) => {
 
   const rotateDefaultCurrency = async () => {
     const index = activeCurrencies.indexOf(defaultCurrency);
-    const fiat = activeCurrencies[(index + 1) % activeCurrencies.length] as Fiat;
+    const fiat = activeCurrencies[(index + 1) % activeCurrencies.length] as TFiat;
     await updateDefaultCurrency(fiat);
   };
 
   // sets default currency both in config (mainFiat)
   // and in RatesContext context's (local) state
-  const updateDefaultCurrency = async (fiat: Fiat) => {
+  const updateDefaultCurrency = async (fiat: TFiat) => {
     if (!activeCurrencies.includes(fiat)) {
       addToActiveCurrencies(fiat);
     }
@@ -55,7 +55,7 @@ export const RatesProvider = ({ children }: TProps) => {
 
   // this is a method to select / add a currency
   // into the active currencies list
-  const addToActiveCurrencies = async (fiat: Fiat) => {
+  const addToActiveCurrencies = async (fiat: TFiat) => {
     const selected = [...activeCurrencies, fiat];
     await setConfig({ backend: { fiatList: selected } });
     handleChangeSelectedFiat(selected);
@@ -63,13 +63,13 @@ export const RatesProvider = ({ children }: TProps) => {
 
   // this is a method to unselect / remove a currency
   // from the active currencies list
-  const removeFromActiveCurrencies = async (fiat: Fiat) => {
+  const removeFromActiveCurrencies = async (fiat: TFiat) => {
     const selected = activeCurrencies.filter(item => !equal(item, fiat));
     await setConfig({ backend: { fiatList: selected } });
     handleChangeSelectedFiat(selected);
   };
 
-  const handleChangeSelectedFiat = (selected: Fiat[]) => {
+  const handleChangeSelectedFiat = (selected: TFiat[]) => {
     setActiveCurrencies(selected);
     void reconfigureHistoryRates();
   };

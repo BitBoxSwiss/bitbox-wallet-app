@@ -2,7 +2,7 @@
 
 import { subscribeEndpoint, TSubscriptionCallback, TUnsubscribe } from './subscribe';
 import { apiGet, apiPost } from '@/utils/request';
-import type { AccountCode } from './account';
+import type { TAccountCode } from './account';
 import type { TSuccess } from './response';
 
 export type { TUnsubscribe };
@@ -63,7 +63,7 @@ export type TKeystoreFeature =
 export const connectKeystore = (
   rootFingerprint: string,
   requiredFeature?: TKeystoreFeature,
-  accountCode?: AccountCode,
+  accountCode?: TAccountCode,
 ): Promise<TConnectKeystoreResponse> => {
   return apiPost('connect-keystore', { rootFingerprint, requiredFeature, accountCode });
 };

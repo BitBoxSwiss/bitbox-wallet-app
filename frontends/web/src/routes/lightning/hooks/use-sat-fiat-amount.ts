@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useRef, useState } from 'react';
-import type { Fiat } from '@/api/account';
+import type { TFiat } from '@/api/account';
 import { getBtcSatAmount, type TBtcSatAmount } from '@/api/coins';
 import { useMountedRef } from '@/hooks/mount';
 
 type TProps = {
-  defaultCurrency: Fiat;
+  defaultCurrency: TFiat;
 };
 
 type TAmountSource = 'sat' | 'fiat';

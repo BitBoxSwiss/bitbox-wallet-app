@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from '@/utils/test-helpers';
-import type { CoinCode, CoinFormattedAmount, CoinUnit, Fiat, TChartData } from '@/api/account';
+import type { TCoinCode, TCoinFormattedAmount, TCoinUnit, TFiat, TChartData } from '@/api/account';
 import { AppContext } from '@/contexts/AppContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -28,7 +28,7 @@ vi.mock('@/hooks/coin-unit-price', () => ({
   })),
 }));
 
-const chartData = (chartFiat: Fiat): TChartData => ({
+const chartData = (chartFiat: TFiat): TChartData => ({
   chartDataMissing: false,
   chartDataDaily: [],
   chartDataHourly: [],
@@ -58,13 +58,13 @@ const btcBalance = {
     },
     estimated: false,
   },
-} satisfies CoinFormattedAmount;
+} satisfies TCoinFormattedAmount;
 
 const bitcoinBalance = (
-  coinCode: CoinCode,
+  coinCode: TCoinCode,
   coinName: string,
-  unit: CoinUnit,
-): CoinFormattedAmount => ({
+  unit: TCoinUnit,
+): TCoinFormattedAmount => ({
   ...btcBalance,
   coinCode,
   coinName,
@@ -76,7 +76,7 @@ const bitcoinBalance = (
 
 type TProps = {
   children: ReactNode;
-  defaultCurrency: Fiat;
+  defaultCurrency: TFiat;
 };
 
 const Wrapper = ({
@@ -128,8 +128,8 @@ const Wrapper = ({
 );
 
 const renderTotalAssets = (
-  defaultCurrency: Fiat,
-  balance: CoinFormattedAmount = btcBalance,
+  defaultCurrency: TFiat,
+  balance: TCoinFormattedAmount = btcBalance,
 ) => render(
   <MemoryRouter>
     <Wrapper defaultCurrency={defaultCurrency}>

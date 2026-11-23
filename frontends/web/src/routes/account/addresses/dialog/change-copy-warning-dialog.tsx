@@ -2,14 +2,14 @@
 
 import { Trans, useTranslation } from 'react-i18next';
 import { Link } from 'wouter';
-import { AccountCode, TUsedAddress } from '@/api/account';
+import type { TAccountCode, TUsedAddress } from '@/api/account';
 import { Dialog, DialogButtons } from '@/components/dialog/dialog';
 import { Button } from '@/components/forms';
 import { AddressNotFoundDialog } from './address-not-found-dialog';
 import style from '../addresses.module.css';
 
 type TProps = {
-  code: AccountCode;
+  code: TAccountCode;
   selectedAddress: TUsedAddress | null;
   onContinue: () => void;
   onClose: () => void;

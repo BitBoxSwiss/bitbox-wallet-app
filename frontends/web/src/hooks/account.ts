@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AccountCode } from '@/api/account';
+import type { TAccountCode } from '@/api/account';
 import { syncdone } from '@/api/accountsync';
 import { useMountedRef } from './mount';
 
 export const useAccountSynced = <T, >(
-  code: AccountCode,
+  code: TAccountCode,
   apiCall: () => Promise<T>,
 ): T | undefined => {
   const isMounted = useMountedRef();

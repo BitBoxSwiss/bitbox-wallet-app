@@ -3,7 +3,7 @@
 import { MutableRefObject, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutoscaleInfoProvider, createChart, IChartApi, LineStyle, ISeriesApi, UTCTimestamp, MouseEventParams, ColorType } from 'lightweight-charts';
-import type { TChartData, TChartTransactionMarkerAmount, FormattedLineData } from '@/api/account';
+import type { TChartData, TChartTransactionMarkerAmount, TFormattedLineData } from '@/api/account';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import { Amount } from '@/components/amount/amount';
 import { useSearchParams } from '@/utils/router-compatability';
@@ -600,7 +600,7 @@ export const Chart = ({
       setValueDifference(undefined);
       return;
     }
-    const nextValue = chartData[rangeFrom + 1] as FormattedLineData | undefined;
+    const nextValue = chartData[rangeFrom + 1] as TFormattedLineData | undefined;
     const valueFrom = chartData[rangeFrom].value === 0 ? nextValue?.value : chartData[rangeFrom].value;
     const nextValueDifference = calculateChartValueDifference(valueFrom, data.chartTotal);
     if (nextValueDifference === undefined) {

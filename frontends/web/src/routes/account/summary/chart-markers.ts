@@ -2,7 +2,7 @@
 
 import type { SeriesMarker, UTCTimestamp } from 'lightweight-charts';
 import type {
-  ChartData,
+  TChartLineData,
   TChartTransactionMarker,
   TChartTransactionMarkerAmount,
 } from '@/api/account';
@@ -55,7 +55,7 @@ const markerColor = (markerData: TChartMarkerData, colors: TMarkerColors): strin
 export const buildChartMarkers = (
   transactionMarkers: TChartTransactionMarker[],
   source: TMarkerSource,
-  chartData: ChartData,
+  chartData: TChartLineData,
   colors: TMarkerColors,
   sizeScale = 1,
 ): TBuildChartMarkersResult => {

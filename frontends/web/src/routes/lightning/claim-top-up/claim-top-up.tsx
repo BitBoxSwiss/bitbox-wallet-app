@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
 import { useSearchParams } from '@/utils/router-compatability';
-import type { AccountCode, TAccount } from '@/api/account';
+import type { TAccountCode, TAccount } from '@/api/account';
 import {
   getListPayments,
   postClaimTopUp,
@@ -49,7 +49,7 @@ const LightningClaimTopUpInner = ({ activeAccounts, deposit, reloadDeposit }: TI
   );
   const [action, setAction] = useState<TAction>('claim');
   const [step, setStep] = useState<TStep>('overview');
-  const [refundDestinationAccountCode, setRefundDestinationAccountCode] = useState<AccountCode>(btcAccounts[0]?.code || '');
+  const [refundDestinationAccountCode, setRefundDestinationAccountCode] = useState<TAccountCode>(btcAccounts[0]?.code || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [recoveryError, setRecoveryError] = useState<string>();
   const [recoveryResult, setRecoveryResult] = useState<TTopUpRecoveryResult>();

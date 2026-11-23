@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ReactNode } from 'react';
-import type { ConversionUnit } from '@/api/account';
+import type { TConversionUnit } from '@/api/account';
 import { Amount } from '@/components/amount/amount';
 import { Skeleton } from '@/components/skeleton/skeleton';
 import style from './accountssummary.module.css';
@@ -10,7 +10,7 @@ type TProps = {
   name: ReactNode;
   hideHeader?: boolean;
   totalAmount?: string;
-  fiatUnit?: ConversionUnit;
+  fiatUnit?: TConversionUnit;
   children: ReactNode;
 };
 

@@ -24,7 +24,7 @@ vi.mock('@/routes/account/send/feetargets', () => ({
   FeeTargets: ({
     onFeeTargetChange,
   }: {
-    onFeeTargetChange: (feeTarget: accountApi.FeeTargetCode) => void;
+    onFeeTargetChange: (feeTarget: accountApi.TFeeTargetCode) => void;
   }) => (
     <button onClick={() => onFeeTargetChange('economy')}>Set fee target</button>
   ),

@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
-import type { AccountCode, TSendTx } from '@/api/account';
+import type { TAccountCode, TSendTx } from '@/api/account';
 import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { Button } from '@/components/forms/button';
 import { SubTitle } from '@/components/title';
@@ -11,7 +11,7 @@ import { CopyableInput } from '@/components/copy/Copy';
 
 type TProps = {
   children?: ReactNode;
-  code: AccountCode;
+  code: TAccountCode;
   onContinue: () => void;
   onRetry: () => void;
   result: TSendTx | undefined;
