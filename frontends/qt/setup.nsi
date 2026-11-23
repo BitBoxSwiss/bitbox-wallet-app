@@ -13,19 +13,23 @@ SetCompressor /SOLID lzma
 !ifndef VERSION
 !error "VERSION define not provided (pass -DVERSION=major.minor.patch.build)"
 !endif
+!ifndef BINDIR
+!error "BINDIR define not provided (pass -DBINDIR=<directory containing BitBox.exe>)"
+!endif
+!ifndef ICONFILE
+!error "ICONFILE define not provided (pass -DICONFILE=<path to installer icon>)"
+!endif
 !define COMPANY "Shift Crypto AG"
 !define URL https://github.com/BitBoxSwiss/bitbox-wallet-app/releases/
-!define BINDIR "build\windows"
-!define ICONDIR "resources\win"
 !define APP_EXE "BitBox.exe"
 !define AOPP_EXE "$\"$INSTDIR\${APP_EXE}$\" $\"%1$\""
 
 # MUI Symbol Definitions
-!define MUI_ICON "${ICONDIR}\icon.ico"
-!define MUI_WELCOMEFINISHPAGE_UNICON "${ICONDIR}\icon.ico"
-!define MUI_HEADERIMAGE "${ICONDIR}\icon.ico"
-!define MUI_HEADERIMAGE_RIGHT "${ICONDIR}\icon.ico"
-!define MUI_HEADERIMAGE_UNICON "${ICONDIR}\icon.ico"
+!define MUI_ICON "${ICONFILE}"
+!define MUI_WELCOMEFINISHPAGE_UNICON "${ICONFILE}"
+!define MUI_HEADERIMAGE "${ICONFILE}"
+!define MUI_HEADERIMAGE_RIGHT "${ICONFILE}"
+!define MUI_HEADERIMAGE_UNICON "${ICONFILE}"
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT HKLM
 !define MUI_STARTMENUPAGE_REGISTRY_KEY ${REGKEY}
@@ -33,8 +37,8 @@ SetCompressor /SOLID lzma
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER "BitBox"
 !define MUI_FINISHPAGE_RUN "$WINDIR\explorer.exe"
 !define MUI_FINISHPAGE_RUN_PARAMETERS "$INSTDIR\${APP_EXE}"
-!define MUI_UNICON "${ICONDIR}\icon.ico"
-!define MUI_UNWELCOMEFINISHPAGE_UNICON "${ICONDIR}\icon.ico"
+!define MUI_UNICON "${ICONFILE}"
+!define MUI_UNWELCOMEFINISHPAGE_UNICON "${ICONFILE}"
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
 
 # Included files
@@ -87,7 +91,7 @@ Section -Main SEC0000
 
     SetOutPath $INSTDIR
     SetOverwrite on
-    File /r "build\windows\*"
+    File /r "${BINDIR}\*"
     SetOutPath $INSTDIR\daemon
     SetOutPath $INSTDIR\doc
     #File /r /x Makefile* @abs_top_srcdir@/doc\*.*
