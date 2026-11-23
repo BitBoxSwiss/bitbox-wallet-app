@@ -12,4 +12,7 @@ cp ../../vendor/github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/windows-
 windeployqt build/windows/BitBox.exe
 
 APP_VERSION="$(cat ../../APP_VERSION)"
-makensis -DVERSION="${APP_VERSION}.0" setup.nsi
+makensis -DVERSION="${APP_VERSION}.0" \
+    -DBINDIR='build\windows' \
+    -DICONFILE='resources\win\icon.ico' \
+    setup.nsi
