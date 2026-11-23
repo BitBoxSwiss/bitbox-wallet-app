@@ -3,7 +3,7 @@
 import { ReactNode, useContext } from 'react';
 import { useLoad } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
-import { getNumberFormat } from '@/api/nativelocale';
+import { getNumberFormat } from '@/api/system';
 import { useLocalizedPunctuation } from '@/hooks/localized';
 import { LocalizationContext } from './localization-context';
 import { AppContext } from './AppContext';

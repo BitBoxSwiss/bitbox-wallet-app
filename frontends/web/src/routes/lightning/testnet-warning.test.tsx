@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Link } from 'wouter';
 import { MemoryRouter } from '@/utils/test-helpers';
 import { useLocation } from '@/utils/router-compatability';
-import { getTesting } from '@/api/backend';
+import { getTesting } from '@/api/environment';
 import { Testing } from '@/components/banners/testing';
 import { AppProvider } from '@/contexts/AppProvider';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
@@ -22,14 +22,14 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@/i18n/i18n');
-vi.mock('@/api/backend', () => ({
+vi.mock('@/api/environment', () => ({
   getTesting: vi.fn(),
   getDevServers: () => Promise.resolve(false),
 }));
-vi.mock('@/api/nativelocale', () => ({
+vi.mock('@/api/system', () => ({
   getNativeLocale: () => Promise.resolve('en'),
 }));
-vi.mock('@/api/online', () => ({
+vi.mock('@/api/network', () => ({
   getOnline: () => Promise.resolve(true),
   subscribeOnline: () => () => {},
 }));

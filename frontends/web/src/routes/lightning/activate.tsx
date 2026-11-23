@@ -13,7 +13,7 @@ import { View, ViewButtons, ViewContent, ViewHeader } from '../../components/vie
 import { MultilineMarkup, SimpleMarkup } from '../../utils/markup';
 import { Button, Checkbox } from '../../components/forms';
 import { PointToBitBox02 } from '../../components/icon';
-import { TKeystores, getKeystores, subscribeKeystores } from '../../api/keystores';
+import { TKeystores, getKeystores, subscribeKeystores } from '../../api/keystore';
 import { unsubscribe } from '../../utils/subscriptions';
 import { postActivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';

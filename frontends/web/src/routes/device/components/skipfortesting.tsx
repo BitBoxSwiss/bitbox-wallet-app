@@ -3,7 +3,7 @@
 import React, { ReactNode, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '@/contexts/AppContext';
-import { registerTest, type TTestKeystoreEdition } from '@/api/keystores';
+import { registerTest, type TTestKeystoreEdition } from '@/api/keystore';
 import { Button, Checkbox, PasswordInput } from '@/components/forms';
 import { Dialog, DialogButtons, DialogScrollContent } from '@/components/dialog/dialog';
 import style from './skipfortesting.module.css';

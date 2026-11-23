@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { importNotes } from '@/api/backend';
+import { importNotes } from '@/api/system';
 import { alertUser } from '@/components/alert/Alert';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import style from './notesImport.module.css';

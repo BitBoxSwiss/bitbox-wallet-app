@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Toggle } from '@/components/toggle/toggle';
-import * as backendAPI from '@/api/backend';
 import * as accountAPI from '@/api/account';
+import * as keystoreAPI from '@/api/keystore';
 import { useConfig } from '@/contexts/ConfigProvider';
 import { Label } from '@/components/forms';
 import { EnableRememberWalletDialog } from '@/routes/settings/components/manage-accounts/dialogs/enableRememberWalletDialog';
@@ -33,7 +33,7 @@ export const WatchonlySetting = ({ keystore }: Props) => {
   const toggleWatchonly = async () => {
     if (!watchonly) {
       setDisabled(true);
-      const { success } = await backendAPI.setWatchonly(keystore.rootFingerprint, !watchonly);
+      const { success } = await keystoreAPI.setWatchonly(keystore.rootFingerprint, !watchonly);
 
       if (success) {
         setWatchonly(!watchonly);
@@ -55,7 +55,7 @@ export const WatchonlySetting = ({ keystore }: Props) => {
 
   const handleConfirmDisableWatchonly = async () => {
     setDisabled(true);
-    await backendAPI.setWatchonly(keystore.rootFingerprint, false);
+    await keystoreAPI.setWatchonly(keystore.rootFingerprint, false);
     setWatchonly(false);
     setDisabled(false);
     setWarningDialogOpen(false);

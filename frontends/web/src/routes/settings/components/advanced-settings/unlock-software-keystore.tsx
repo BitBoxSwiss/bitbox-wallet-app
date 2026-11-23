@@ -2,7 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useKeystores } from '@/hooks/backend';
-import { deregisterTest } from '@/api/keystores';
+import { deregisterTest } from '@/api/keystore';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { SkipForTesting } from '@/routes/device/components/skipfortesting';
 import { ChevronRightDark, Eject } from '@/components/icon';

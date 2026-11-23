@@ -5,7 +5,7 @@ import { useContext } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { authenticate, subscribeAuth, TAuthEventObject } from '@/api/backend';
+import { authenticate, subscribeAuth, TAuthEventObject } from '@/api/auth';
 import { AppContext } from '@/contexts/AppContext';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { useBackButton } from '@/hooks/backbutton';
@@ -13,7 +13,7 @@ import { useKeydown } from '@/hooks/keyboard';
 import { AuthRequired } from './authrequired';
 
 vi.mock('@/i18n/i18n');
-vi.mock('@/api/backend', () => ({
+vi.mock('@/api/auth', () => ({
   authenticate: vi.fn().mockResolvedValue(undefined),
   subscribeAuth: vi.fn(),
 }));

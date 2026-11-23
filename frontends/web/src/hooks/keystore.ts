@@ -6,7 +6,7 @@ import {
   connectAnyKeystore,
   connectKeystore,
   TKeystoreFeature,
-} from '@/api/keystores';
+} from '@/api/keystore';
 import { alertUser } from '@/components/alert/Alert';
 
 export const useFeatureConnect = () => {

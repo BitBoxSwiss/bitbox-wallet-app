@@ -12,8 +12,8 @@ import '@/i18n/i18n';
 vi.mock('@/components/qrcode/qrcode', () => ({
   QRCode: () => null,
 }));
-vi.mock('@/api/backend', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/api/backend')>();
+vi.mock('@/api/keystore', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/api/keystore')>();
   return {
     ...actual,
     cancelConnectKeystore: vi.fn().mockResolvedValue(undefined),
@@ -28,7 +28,7 @@ import { HistoryRouter } from '@/utils/test-helpers';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as accountApi from '@/api/account';
-import * as keystoresApi from '@/api/keystores';
+import * as keystoresApi from '@/api/keystore';
 import { open } from '@/api/system';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
 import { Addresses } from './addresses';

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { AccountCode, hasSecureOutput, verifyAddress } from '@/api/account';
-import { connectKeystore } from '@/api/keystores';
+import { connectKeystore } from '@/api/keystore';
 
 type TVerifyAddressWithDeviceParams = {
   code: AccountCode;

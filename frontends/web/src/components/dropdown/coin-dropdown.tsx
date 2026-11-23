@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useTranslation } from 'react-i18next';
-import * as backendAPI from '@/api/backend';
+import type { TCoin } from '@/api/coins';
 import { Logo } from '@/components/icon/logo';
 import { Dropdown } from '@/components/dropdown/dropdown';
 import styles from './coin-dropdown.module.css';
 
 type TCoinDropDownProps = {
-  onChange: (coin: backendAPI.TCoin) => void;
-  supportedCoins: backendAPI.TCoin[];
+  onChange: (coin: TCoin) => void;
+  supportedCoins: TCoin[];
   value: string;
 };
 
 type TOption = {
   label: string;
-  value: backendAPI.TCoin['coinCode'];
+  value: TCoin['coinCode'];
 };
 
 const Option = ({ props }: { props: TOption }) => {

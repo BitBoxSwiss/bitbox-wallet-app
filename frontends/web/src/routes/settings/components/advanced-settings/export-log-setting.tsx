@@ -3,7 +3,7 @@
 import { useTranslation } from 'react-i18next';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { alertUser } from '@/components/alert/Alert';
-import { exportLogs } from '@/api/backend';
+import { exportLogs } from '@/api/system';
 
 export const ExportLogSetting = () => {
   const { t } = useTranslation();

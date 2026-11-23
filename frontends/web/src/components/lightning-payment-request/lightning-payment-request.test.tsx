@@ -55,7 +55,7 @@ vi.mock('@/api/lightning', async (importOriginal) => {
   };
 });
 
-vi.mock('@/api/keystores', () => ({
+vi.mock('@/api/keystore', () => ({
   getKeystores: vi.fn().mockResolvedValue([{ type: 'hardware' }]),
   subscribeKeystores: vi.fn().mockReturnValue(() => {}),
 }));

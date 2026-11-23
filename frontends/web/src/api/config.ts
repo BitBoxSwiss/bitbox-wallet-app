@@ -132,3 +132,7 @@ export const getConfig = (): Promise<TConfig> => apiGet('config');
 export const setConfig = (config: TConfig): Promise<{ success: boolean; errorMessage?: string }> => {
   return apiPost('config', config);
 };
+
+export const getDefaultConfig = (): Promise<any> => {
+  return apiGet('config/default');
+};

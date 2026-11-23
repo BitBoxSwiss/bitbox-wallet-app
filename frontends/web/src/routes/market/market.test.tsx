@@ -4,7 +4,7 @@ import '../../../__mocks__/i18n';
 import { type ComponentProps, type ReactNode, useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/api/keystores', () => ({
+vi.mock('@/api/keystore', () => ({
   connectAnyKeystore: vi.fn(),
   connectKeystore: vi.fn(),
 }));
@@ -116,7 +116,7 @@ import { useConfig } from '@/contexts/ConfigProvider';
 import { CountrySelect } from './components/countryselect';
 import { getBTCDirectOTCLink, getPocketOTCLink } from './components/infocontent';
 import type { TLightningAccount } from '@/api/lightning';
-import { connectAnyKeystore, connectKeystore } from '@/api/keystores';
+import { connectAnyKeystore, connectKeystore } from '@/api/keystore';
 import { GroupedAccountSelector } from '@/components/groupedaccountselector/groupedaccountselector';
 import { useLightning } from '@/hooks/lightning';
 import { AppStateContext } from '@/contexts/app-state-context';

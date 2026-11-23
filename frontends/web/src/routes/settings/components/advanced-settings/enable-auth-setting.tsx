@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Toggle } from '@/components/toggle/toggle';
 import { SettingsItem } from '@/routes/settings/components/settingsItem/settingsItem';
 import { useConfig } from '@/contexts/ConfigProvider';
-import { onAuthSettingChanged, TAuthEventObject, subscribeAuth, forceAuth } from '@/api/backend';
+import { onAuthSettingChanged, TAuthEventObject, subscribeAuth, forceAuth } from '@/api/auth';
 
 export const EnableAuthSetting = () => {
   const { t } = useTranslation();

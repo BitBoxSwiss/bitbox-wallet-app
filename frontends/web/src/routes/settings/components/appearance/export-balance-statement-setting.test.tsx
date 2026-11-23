@@ -5,14 +5,14 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { TAccount } from '@/api/account';
-import { exportBalanceStatement, type TExportBalanceStatementResponse } from '@/api/backend';
+import { exportBalanceStatement, type TExportBalanceStatementResponse } from '@/api/system';
 import { alertUser } from '@/components/alert/Alert';
 import { BackButtonContext } from '@/contexts/BackButtonContext';
 import { LocalizationContext } from '@/contexts/localization-context';
 import en from '@/locales/en/app.json';
 import { ExportBalanceStatementSetting } from './export-balance-statement-setting';
 
-vi.mock('@/api/backend', () => ({
+vi.mock('@/api/system', () => ({
   exportBalanceStatement: vi.fn(),
 }));
 
@@ -68,8 +68,8 @@ describe('ExportBalanceStatementSetting', () => {
   // The real API/request path must serialize the same resolved separators as
   // on-screen amounts, including overrides that differ from the UI language.
   it('exports with the app number format', async () => {
-    const backendApi = await vi.importActual<typeof import('@/api/backend')>('@/api/backend');
-    vi.mocked(exportBalanceStatement).mockImplementationOnce(backendApi.exportBalanceStatement);
+    const systemApi = await vi.importActual<typeof import('@/api/system')>('@/api/system');
+    vi.mocked(exportBalanceStatement).mockImplementationOnce(systemApi.exportBalanceStatement);
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(JSON.stringify({ success: true })),
     );

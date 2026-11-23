@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TAccount } from '@/api/account';
+import { triggerLongHapticFeedback } from '@/api/mobile';
 import { Button } from '@/components/forms';
 import { CloseXWhite, EditActive, PasteActive } from '@/components/icon';
 import { Message } from '@/components/message/message';
@@ -11,7 +12,6 @@ import { isBitcoinOnly } from '@/utils/coin';
 import { ReceiverAddressInputField } from '@/routes/account/send/components/inputs/receiver-address-input-field';
 import { ScanQR } from '@/routes/account/send/components/inputs/scan-qr';
 import { canReadClipboard } from '@/utils/clipboard';
-import { triggerLongHapticFeedback } from '@/utils/transport-mobile';
 import { useContacts } from '../../contacts/use-contacts';
 import styles from './select-payment-input-step.module.css';
 

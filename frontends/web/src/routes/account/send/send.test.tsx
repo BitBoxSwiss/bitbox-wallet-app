@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from '@/utils/test-helpers';
 import * as accountApi from '@/api/account';
 import { convertFromCurrency, convertToCurrency } from '@/api/coins';
-import { connectKeystore, getKeystoreFeatures } from '@/api/keystores';
+import { connectKeystore, getKeystoreFeatures } from '@/api/keystore';
 import { useQRScanner } from '@/hooks/qrcodescanner';
 import { alertUser } from '@/components/alert/Alert';
 import { BackButtonProvider } from '@/contexts/BackButtonContext';
@@ -16,7 +16,7 @@ import { Send } from './send';
 
 vi.mock('@/api/account');
 vi.mock('@/api/coins');
-vi.mock('@/api/keystores');
+vi.mock('@/api/keystore');
 vi.mock('@/hooks/qrcodescanner');
 vi.mock('@/components/alert/Alert', () => ({ alertUser: vi.fn() }));
 vi.mock('@/api/accountsync', () => ({

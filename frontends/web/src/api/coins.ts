@@ -128,3 +128,14 @@ export const subscribeCoinFiatPrices = (coinCode: CoinCode) => (
     subscribeEndpoint(`coins/${coinCode}/fiat-prices`, cb)
   )
 );
+
+export type TCoin = {
+  coinCode: CoinCode;
+  name: string;
+  canAddAccount: boolean;
+  suggestedAccountName: string;
+};
+
+export const getSupportedCoins = (): Promise<TCoin[]> => {
+  return apiGet('supported-coins');
+};

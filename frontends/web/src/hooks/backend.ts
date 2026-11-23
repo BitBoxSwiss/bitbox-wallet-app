@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useEffect, useState } from 'react';
-import { TKeystores, subscribeKeystores, getKeystores } from '@/api/keystores';
+import { TKeystores, subscribeKeystores, getKeystores } from '@/api/keystore';
 
 export const useKeystores = (): TKeystores | undefined => {
   const [keystores, setKeystores] = useState<TKeystores>();
