@@ -107,6 +107,8 @@ Build artifacts:
 * `frontends\qt\build\windows\*`
 * `frontends\qt\build\BitBox-installer.exe`
 
+For signing on Linux, `make qt-windows-archive` produces `frontends\qt\build\BitBox-<APP_VERSION>-win64-build.tar.gz`.
+
 ## Android
 
 ### Build
