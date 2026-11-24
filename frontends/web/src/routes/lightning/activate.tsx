@@ -32,6 +32,7 @@ export const LightningActivate = () => {
   const [setupError, setSetupError] = useState<string>();
   const [activationStarted, setActivationStarted] = useState(false);
   const keystores = useKeystores();
+  const isConnected = Boolean(keystores?.length);
 
   const activateLightning = useCallback(async () => {
     setActivationStarted(true);
@@ -48,18 +49,18 @@ export const LightningActivate = () => {
   }, []);
 
   const waitForConnect = useCallback(() => {
-    if (keystores && keystores.length > 0) {
+    if (isConnected) {
       setStep('confirm');
     } else {
       setStep('connect');
     }
-  }, [keystores]);
+  }, [isConnected]);
 
   useEffect(() => {
-    if (step === 'connect' && keystores && keystores.length > 0) {
+    if (step === 'connect' && isConnected) {
       setStep('confirm');
     }
-  }, [keystores, step]);
+  }, [isConnected, step]);
 
   useEffect(() => {
     if (step === 'confirm' && !activationStarted) {
