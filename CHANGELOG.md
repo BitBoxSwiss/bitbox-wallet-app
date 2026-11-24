@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v4.53.1
+- Extend Windows code signing to the BitBoxApp executable, previously unsigned DLLs, and the uninstaller
+
 ## v4.53.0
 - Bundle BitBox02 and BitBox02 Nova firmware version v9.28.0 and intermediate version v9.27.2
 - BitBox02: show the firmware version being installed and indicate when further upgrades will follow
