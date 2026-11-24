@@ -7,14 +7,13 @@ import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Logo } from '@/components/icon/logo';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
 import { UseDisableBackButton } from '@/hooks/backbutton';
+import { useKeystores } from '@/hooks/backend';
 import { useLightning } from '@/hooks/lightning';
 import { Header, Main } from '../../components/layout';
 import { View, ViewButtons, ViewContent, ViewHeader } from '../../components/view/view';
 import { MultilineMarkup, SimpleMarkup } from '../../utils/markup';
 import { Button, Checkbox } from '../../components/forms';
 import { PointToBitBox02 } from '../../components/icon';
-import { TKeystores, getKeystores, subscribeKeystores } from '../../api/keystore';
-import { unsubscribe } from '../../utils/subscriptions';
 import { postActivate } from '../../api/lightning';
 import { Status } from '../../components/status/status';
 import { LightningDisclaimerContent } from './disclaimer';
@@ -29,24 +28,10 @@ export const LightningActivate = () => {
   const [, navigate] = useLocation();
   const { lightningAccount } = useLightning();
   const [agree, setAgree] = useState(false);
-  const [keystores, setKeystores] = useState<TKeystores>();
   const [step, setStep] = useState<TSteps>('intro');
   const [setupError, setSetupError] = useState<string>();
   const [activationStarted, setActivationStarted] = useState(false);
-
-  const onStateChange = useCallback(async () => {
-    try {
-      const keystores = await getKeystores();
-      setKeystores(keystores);
-    } catch (err: any) {}
-  }, []);
-
-  useEffect(() => {
-    onStateChange();
-
-    const subscriptions = [subscribeKeystores(onStateChange)];
-    return () => unsubscribe(subscriptions);
-  }, [onStateChange]);
+  const keystores = useKeystores();
 
   const activateLightning = useCallback(async () => {
     setActivationStarted(true);
