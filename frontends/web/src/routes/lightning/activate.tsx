@@ -99,7 +99,10 @@ export const LightningActivate = () => {
     switch (step) {
     case 'intro':
       return (
-        <View key="step-intro" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
+        <View
+          key="step-intro"
+          minHeight={CONTENT_MIN_HEIGHT}
+          verticallyCentered>
           <ViewHeader title={t('lightning.activate.intro.title')} />
           <ViewContent>
             <MultilineMarkup
@@ -119,7 +122,10 @@ export const LightningActivate = () => {
       );
     case 'information':
       return (
-        <View key="step-information" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
+        <View
+          key="step-information"
+          minHeight={CONTENT_MIN_HEIGHT}
+          verticallyCentered>
           <ViewHeader title={t('lightning.activate.disclaimer.title')} />
           <ViewContent>
             <MultilineMarkup
@@ -145,7 +151,9 @@ export const LightningActivate = () => {
       );
     case 'disclaimer':
       return (
-        <LightningDisclaimerContent key="step-disclaimer" title={t('lightning.disclaimer.title')}>
+        <LightningDisclaimerContent
+          key="step-disclaimer"
+          title={t('lightning.disclaimer.title')}>
           <Button primary onClick={() => waitForConnect()}>
             {t('lightning.disclaimer.continue')}
           </Button>
@@ -156,7 +164,11 @@ export const LightningActivate = () => {
       );
     case 'connect':
       return (
-        <View key="step-confirm" minHeight={CONTENT_MIN_HEIGHT} textCenter verticallyCentered>
+        <View
+          key="step-connect"
+          minHeight={CONTENT_MIN_HEIGHT}
+          textCenter
+          verticallyCentered>
           <ViewHeader title={t('lightning.activate.connect.title')}>
             <SimpleMarkup tagName="p" markup={t('lightning.activate.connect.content')} />
           </ViewHeader>
@@ -173,7 +185,7 @@ export const LightningActivate = () => {
     case 'confirm':
       return (
         <View
-          key="step-create"
+          key="step-confirm"
           fullscreen
           textCenter
           verticallyCentered
@@ -215,7 +227,11 @@ export const LightningActivate = () => {
       );
     case 'success':
       return (
-        <View fitContent textCenter verticallyCentered>
+        <View
+          key="step-success"
+          fitContent
+          textCenter
+          verticallyCentered>
           <ViewContent withIcon="success">
             <p>{t('lightning.activate.success.message')}</p>
           </ViewContent>
