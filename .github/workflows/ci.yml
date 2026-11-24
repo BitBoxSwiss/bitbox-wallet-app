@@ -277,8 +277,6 @@ jobs:
     defaults:
       run:
         shell: bash
-    env:
-      MINGW_BIN: /C/mingw64/bin
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -310,8 +308,19 @@ jobs:
         shell: cmd
         run: |
           mklink /J "C:\Program Files\Microsoft Visual Studio\2022\Community" "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+      - name: Install MinGW UCRT
+        id: mingw
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: mingw-w64-ucrt-x86_64-gcc
       - name: Build Windows app
+        env:
+          MSYS2_LOCATION: ${{ steps.mingw.outputs.msys2-location }}
         run: |
+          MINGW_BIN="$(cygpath -u "$MSYS2_LOCATION")/ucrt64/bin"
+          export MINGW_BIN
           make qt-windows
       - name: Upload Installer
         id: upload

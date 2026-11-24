@@ -84,18 +84,30 @@ xcrun altool --list-providers --username "APPLE_ID" --password "PASSWORD"
 The build requires `Microsoft Visual Studio 2022 Community Edition`, with the `MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)`
 individual component.
 
-It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.26.10`, `node@26`, `QT 6.8.2` with `qtwebengine`, `nsis`
+It also requires MinGW-w64 with UCRT, `bash` (e.g. `git-bash`), `make`,`go 1.26.10`, `node@26`, `QT 6.8.2` with `qtwebengine`, `nsis`
 and possibly other tools.
 
 Some of the tools are easy to install with `choco`:
 
     choco install git
-    choco install mingw
     choco install nsis
     choco install make
 
-Add a system environment variable `MINGW_BIN` pointing to the bin directory of mingw
-(e.g. `/c/MinGW/bin` or `/c/Program Files/Git/mingw64/bin`).
+Install [MSYS2](https://www.msys2.org/), open its **UCRT64** terminal, and install the
+[UCRT compiler](https://www.mingw-w64.org/getting-started/msys2/):
+
+    pacman -Syu
+    pacman -S --needed mingw-w64-ucrt-x86_64-gcc
+
+If the update asks you to close the terminal, reopen it and run `pacman -Syu` again
+before installing the compiler.
+
+The Windows backend build uses `/c/msys64/ucrt64/bin` by default. If MSYS2 is installed
+elsewhere, set `MINGW_BIN` to its `ucrt64/bin` directory using a Git Bash path, e.g.:
+
+    export MINGW_BIN=/d/msys64/ucrt64/bin
+
+Use the UCRT64 compiler so the backend links against the Universal C Runtime used by MSVC.
 
 Add to the system environment variable `PATH`:
 - Location of `qmake`, e.g. `C:\Qt\6.8.2\msvc2022_64\bin`
