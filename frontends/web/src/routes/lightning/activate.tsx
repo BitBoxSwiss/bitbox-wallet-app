@@ -48,13 +48,7 @@ export const LightningActivate = () => {
     }
   }, []);
 
-  const waitForConnect = useCallback(() => {
-    if (isConnected) {
-      setStep('confirm');
-    } else {
-      setStep('connect');
-    }
-  }, [isConnected]);
+  const waitForConnect = () => setStep(isConnected ? 'confirm' : 'connect');
 
   useEffect(() => {
     if (step === 'connect' && isConnected) {
@@ -155,7 +149,7 @@ export const LightningActivate = () => {
         <LightningDisclaimerContent
           key="step-disclaimer"
           title={t('lightning.disclaimer.title')}>
-          <Button primary onClick={() => waitForConnect()}>
+          <Button primary onClick={waitForConnect}>
             {t('lightning.disclaimer.continue')}
           </Button>
           <DesktopBackButton onClick={handleBack}>
