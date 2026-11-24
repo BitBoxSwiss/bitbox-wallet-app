@@ -63,6 +63,8 @@ export const LightningActivate = () => {
   }, [activateLightning, activationStarted, step]);
 
   useEffect(() => {
+    // The backend publishes the Lightning account after device confirmation,
+    // but wallet initialization may still be in progress.
     if (step === 'confirm' && activationStarted && lightningAccount) {
       setStep('activating');
     }
