@@ -10,6 +10,7 @@ const defaultUserLanguage = 'en';
 export const languageFromConfig: LanguageDetectorAsyncModule = {
   type: 'languageDetector',
   async: true,
+  callbackApi: true,
   detect: (cb) => {
     getConfig().then(({ backend }) => {
       if (backend.userLanguage) {
