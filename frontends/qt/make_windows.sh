@@ -25,7 +25,7 @@ if [[ "$output" == archive ]]; then
     tmp_archive=$(mktemp "${archive}.XXXXXXXX")
     trap 'rm -f "$tmp_archive"' EXIT
     tar -czf "$tmp_archive" \
-        setup.nsi \
+        setup.nsi sign-windows-release.py \
         -C "$PWD/resources/win" icon.ico \
         -C "$PWD/../.." APP_VERSION \
         -C "$PWD/build" windows

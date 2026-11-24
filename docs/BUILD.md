@@ -107,7 +107,32 @@ Build artifacts:
 * `frontends\qt\build\windows\*`
 * `frontends\qt\build\BitBox-installer.exe`
 
-For signing on Linux, `make qt-windows-archive` produces `frontends\qt\build\BitBox-<APP_VERSION>-win64-build.tar.gz`.
+On Windows, run `make qt-windows-archive` from the repository root to build the release archive.
+Copy `frontends\qt\build\BitBox-<APP_VERSION>-win64-build.tar.gz` to the Linux signing machine.
+
+On Debian or Ubuntu, install the packaging tools on the signing machine with apt.
+
+```sh
+sudo apt update
+sudo apt install python3 nsis osslsigncode 7zip
+```
+
+On Linux, set `archive` to the local path of the trusted release archive, then extract it and run
+the bundled script.
+
+```sh
+work=$(mktemp -d)
+tar -xzf "$archive" -C "$work" &&
+    python3 "$work/sign-windows-release.py" /path/to/sign-file
+```
+
+`sign-file` takes one absolute EXE or DLL path, signs and timestamps it in place, and exits nonzero on failure.
+The release script verifies each newly signed file and writes `BitBox-<APP_VERSION>-win64-installer.exe`
+to the current directory. The signing machine trusts the Windows build to supply authentic, intact
+pre-signed DLLs and EXEs such as `D3Dcompiler_47.dll` and `QtWebEngineProcess.exe`. If `osslsigncode`
+can extract a signature from a DLL or EXE in the archive, the script skips signing that file.
+NSIS compresses the `windows/` directory into the installer, preserving the embedded signatures.
+If NSIS is installed outside `/usr/share/nsis`, set `NSISDIR` to the directory containing `Plugins/`.
 
 ## Android
 

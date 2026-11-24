@@ -42,6 +42,17 @@ jobs:
         env:
           OS_NAME: linux
 
+  test-windows-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Windows packaging tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y nsis osslsigncode 7zip
+      - name: Test Linux signing and packaging
+        run: python3 frontends/qt/tests/test_sign_windows_release.py
+
   playwright:
     runs-on: ubuntu-26.04
     needs: test-lint
