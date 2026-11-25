@@ -84,11 +84,10 @@ $sdkBin = "$($tools.sdk)\x64"
 $sdkInclude = "$($tools.kits)\Include\$($pins.sdk.directory)"
 $sdkLib = "$($tools.kits)\Lib\$($pins.sdk.directory)"
 $env:BITBOX_VC_BIN = "$vc\bin\Hostx64\x64"
-$env:BITBOX_CRT = $tools.redist
 $env:BITBOX_INCLUDE = "$vc\include;$sdkInclude\ucrt;$sdkInclude\shared;$sdkInclude\um;$sdkInclude\winrt;$sdkInclude\cppwinrt"
 $env:BITBOX_LIB = "$vc\lib\x64;$sdkLib\ucrt\x64;$sdkLib\um\x64"
 $systemPath = "$env:SystemRoot\System32;$env:SystemRoot;$env:SystemRoot\System32\Wbem;$env:SystemRoot\System32\WindowsPowerShell\v1.0"
-$env:BITBOX_COMPILE_PATH = "$env:BITBOX_VC_BIN;$sdkBin;$($tools.qt)\bin;$env:BITBOX_CRT;$($tools.node);$($tools.go)\bin;$($tools.mingw)\bin;$($tools.git)\cmd;$($tools.git)\usr\bin;$systemPath"
+$env:BITBOX_COMPILE_PATH = "$env:BITBOX_VC_BIN;$sdkBin;$($tools.qt)\bin;$($tools.redist);$($tools.node);$($tools.go)\bin;$($tools.mingw)\bin;$($tools.git)\cmd;$($tools.git)\usr\bin;$systemPath"
 $env:PATH = $env:BITBOX_COMPILE_PATH
 # Optional Qt add-ons can change the installed plug-ins even at the pinned version
 # (e.g. qtimageformats adds qwebp.dll). windeployqt may pick them up automatically.
@@ -112,6 +111,11 @@ try {
     Invoke-Native "$($tools.git)\usr\bin\bash.exe" @('--noprofile', '--norc', 'frontends/qt/make_windows.sh')
 } finally { Pop-Location }
 
+# Copy exactly the runtime files checked by the toolchain manifest.
+foreach ($file in $pins.redist.files.PSObject.Properties.Name) {
+    Copy-Item -LiteralPath "$($tools.redist)\$file" -Destination $payload
+}
+# Reject missing or extra binaries, including plug-ins, before packaging the archive.
 Test-DeployedBinaries $payload
 $version = [IO.File]::ReadAllText("$root\APP_VERSION").Trim()
 $destination = Join-Path $buildRoot "BitBox-$version-win64-build.tar.gz"

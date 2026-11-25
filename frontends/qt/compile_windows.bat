@@ -17,16 +17,7 @@ set "UniversalCRTSdkDir=%WindowsSdkDir%"
 set "WindowsSdkVerBinPath=%WindowsSdkDir%bin\%BITBOX_SDK_VERSION%\"
 set "QMAKE=%BITBOX_QT_BIN%\qmake.exe"
 set "NMAKE=%BITBOX_VC_BIN%\nmake.exe"
-set "CRT=%BITBOX_CRT%"
 
 cd build || exit /b 1
 "%QMAKE%" ..\BitBox.pro -spec win32-msvc || exit /b 1
 "%NMAKE%" || exit /b 1
-COPY "%CRT%\msvcp140.dll" windows\ || exit /b 1
-COPY "%CRT%\msvcp140_1.dll" windows\ || exit /b 1
-COPY "%CRT%\msvcp140_2.dll" windows\ || exit /b 1
-COPY "%CRT%\msvcp140_atomic_wait.dll" windows\ || exit /b 1
-COPY "%CRT%\msvcp140_codecvt_ids.dll" windows\ || exit /b 1
-COPY "%CRT%\vccorlib140.dll" windows\ || exit /b 1
-COPY "%CRT%\vcruntime140.dll" windows\ || exit /b 1
-COPY "%CRT%\vcruntime140_1.dll" windows\ || exit /b 1
