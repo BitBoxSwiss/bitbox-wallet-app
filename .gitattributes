@@ -1,0 +1,2 @@
+# Vite hashes source bytes and Go embeds text files verbatim. Preserve the index line endings on every OS.
+* text=auto eol=lf
