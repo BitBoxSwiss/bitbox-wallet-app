@@ -27,7 +27,7 @@ windows-cross:
 	-buildmode="${BUILDMODE}" -o ${LIBNAME}.dll
 
 windows-legacy:
-	CGO_ENABLED=1 go build -mod=vendor -ldflags="-s -w $(GO_RELEASE_LDFLAGS)" -buildmode=c-archive \
+	CGO_ENABLED=1 go build -mod=vendor -ldflags="$(GO_RELEASE_LDFLAGS)" -buildmode=c-archive \
 		-o "$(SERVER_OUT)/libserver.a"
 	gcc server.def "$(SERVER_OUT)/libserver.a" -shared -lwinmm -lhid -lsetupapi -lWs2_32 \
 		-L${BREEZ_LIB_DIR} -lbreez_sdk_spark_bindings \
