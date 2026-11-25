@@ -2563,6 +2563,10 @@
     "noRouteFound": "No route found",
     "noRouteFoundForPair": "No route found from {{sellCoin}} to {{buyCoin}}. Try entering a larger amount. Otherwise try again later.",
     "oneRouteAvailable": "One route available",
+    "providerError": {
+      "minimum": "To swap with {{provider}}, enter at least <minimum><amount /> {{unit}}</minimum>.",
+      "reduceAmount": "{{provider}} cannot swap this amount. Try a smaller amount."
+    },
     "providersUnavailable": "Swap providers are currently unavailable for the selected sell asset. Please try again later.",
     "recommended": "Recommended",
     "route": "Swap route",

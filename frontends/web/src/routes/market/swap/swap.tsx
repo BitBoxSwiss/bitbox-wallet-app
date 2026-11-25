@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import type { TFunction } from 'i18next';
 import { Trans, useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'wouter';
 import {
@@ -22,7 +23,7 @@ import {
   type TSwapAccount,
   type TSwapAccounts,
   type TSwapQuoteErrorCode,
-  type TSwapQuoteRoute,
+  type TSwapQuoteResponse,
   type TSwapQuoteValidationErrorCode,
 } from '@/api/swap';
 import { useAppState } from '@/contexts/app-state-context';
@@ -45,6 +46,7 @@ import { useAccountStatuses } from '@/hooks/account-status';
 import { useFeatureConnect } from '@/hooks/keystore';
 import { InputWithAccountSelector } from './components/input-with-account-selector';
 import { SwapServiceSelector } from './components/swap-service-selector';
+import { SwapProviderErrors } from './components/swap-provider-errors';
 import { ConfirmSwap } from './components/swap-confirm';
 import { SwapResult } from './components/swap-result';
 import { RatesContext } from '@/contexts/RatesContext';
@@ -82,8 +84,36 @@ const getSwapDisplayAmount = async (
   const parsedAmount = await parseExternalBtcAmount(amount);
   return {
     amount: parsedAmount.success ? parsedAmount.amount : amount,
-    unit: displayedUnit,
+    unit: parsedAmount.success ? displayedUnit : coinUnit,
   };
+};
+
+const getQuoteErrorMessage = (result: TSwapQuoteResponse | string | undefined, t: TFunction) => {
+  if (result === undefined || typeof result === 'string') {
+    return result;
+  }
+  if (result.success && result.quote.routes.length) {
+    return;
+  }
+  if (!result.success && result.quoteErrorCode === PROVIDERS_UNAVAILABLE_ERROR) {
+    return t('swap.providersUnavailable');
+  }
+
+  const providerErrors = result.quote?.providerErrors;
+  if (result.success || result.quoteErrorCode === NO_ROUTES_FOUND_ERROR || providerErrors?.length) {
+    const pair = result.success ? undefined : result.errorData;
+    const noRouteMessage = (
+      pair?.sellCoin && pair.buyCoin
+        ? t('swap.noRouteFoundForPair', pair)
+        : t('swap.noRouteFound')
+    );
+    return providerErrors?.length
+      ? <SwapProviderErrors errors={providerErrors} noRouteMessage={noRouteMessage} />
+      : noRouteMessage;
+  }
+  return result.quoteErrorCode === UNEXPECTED_ERROR
+    ? t('swap.fetchQuotesError')
+    : result.errorMessage || t('swap.fetchQuotesError');
 };
 
 export const Swap = () => {
@@ -149,11 +179,12 @@ export const Swap = () => {
   }>();
   const [result, setResult] = useState<TSendTx | undefined>();
   const [canFlip, setCanFlip] = useState<boolean>(false);
-  const [routes, setRoutes] = useState<TSwapQuoteRoute[]>([]);
+  const [quoteResult, setQuoteResult] = useState<TSwapQuoteResponse | string>();
+  const quoteResponse = typeof quoteResult === 'object' ? quoteResult : undefined;
+  const routes = quoteResponse?.success ? quoteResponse.quote.routes : undefined;
+  const validationErrorCode = quoteResponse?.validationErrorCode;
   const [selectedRouteId, setSelectedRouteId] = useState<string | undefined>();
   const [isFetchingRoutes, setIsFetchingRoutes] = useState<boolean>(false);
-  const [validationErrorCode, setValidationErrorCode] = useState<TSwapQuoteValidationErrorCode | undefined>();
-  const [routeError, setRouteError] = useState<string | undefined>();
   // Drives the button disabled/loading state for the whole confirm flow.
   const [isConfirmInFlight, setIsConfirmInFlight] = useState(false);
   // Prevents double-submit before the button disabled state has re-rendered.
@@ -174,7 +205,7 @@ export const Swap = () => {
   const buyAccountSyncing = !!buyAccount && isBuyAccountSyncing(buyAccount);
 
   const selectedRoute = useMemo(
-    () => routes.find(route => route.routeId === selectedRouteId),
+    () => routes?.find(route => route.routeId === selectedRouteId),
     [routes, selectedRouteId],
   );
   const sellParentAccount = (
@@ -238,12 +269,10 @@ export const Swap = () => {
   }, [buyAccount, sellAccountCode]);
 
   const clearQuoteState = useCallback(() => {
-    setRoutes([]);
+    setQuoteResult(undefined);
     setSelectedRouteId(undefined);
     setExpectedOutput('');
     setExpectedOutputUnit(undefined);
-    setValidationErrorCode(undefined);
-    setRouteError(undefined);
   }, []);
 
   // flips sell and buy account
@@ -263,7 +292,7 @@ export const Swap = () => {
     }
   }, [sellAccountCode]);
 
-  // fetch swap quotes whenever the selected pair or sell amount changes.
+  // Changing the sell unit also changes how the backend interprets the entered amount.
   useEffect(() => {
     let isCancelled = false;
     const sellCode = sellAccount?.code;
@@ -295,49 +324,21 @@ export const Swap = () => {
         if (isCancelled) {
           return;
         }
-        const nextRoutes = response.success ? response.quote.routes : [];
-        setValidationErrorCode(response.validationErrorCode);
-        if (nextRoutes.length > 0) {
-          setRoutes(nextRoutes);
+        setQuoteResult(response);
+        if (response.success && response.quote.routes.length) {
+          const nextRoutes = response.quote.routes;
           const firstRouteId = nextRoutes[0]?.routeId;
           setSelectedRouteId(currentRouteId => (
             nextRoutes.some(route => route.routeId === currentRouteId)
               ? currentRouteId
               : firstRouteId
           ));
-          return;
         }
-        if (!response.success && response.quoteErrorCode === PROVIDERS_UNAVAILABLE_ERROR) {
-          setRouteError(t('swap.providersUnavailable'));
-          return;
-        }
-        if (
-          response.success
-          || response.quoteErrorCode === NO_ROUTES_FOUND_ERROR
-        ) {
-          const noRouteFoundMessage = (
-            !response.success
-            && response.errorData?.sellCoin
-            && response.errorData?.buyCoin
-              ? t('swap.noRouteFoundForPair', {
-                buyCoin: response.errorData.buyCoin,
-                sellCoin: response.errorData.sellCoin,
-              })
-              : t('swap.noRouteFound')
-          );
-          setRouteError(noRouteFoundMessage);
-          return;
-        }
-        setRouteError(
-          response.quoteErrorCode === UNEXPECTED_ERROR
-            ? t('swap.fetchQuotesError')
-            : response.errorMessage || t('swap.fetchQuotesError'),
-        );
       } catch (error: unknown) {
         if (isCancelled) {
           return;
         }
-        setRouteError(
+        setQuoteResult(
           typeof error === 'string' && error
             ? error
             : t('swap.fetchQuotesError'),
@@ -363,6 +364,7 @@ export const Swap = () => {
     clearQuoteState,
     sellAccount?.code,
     sellAmount,
+    sellDisplayUnit,
     t,
   ]);
 
@@ -544,6 +546,7 @@ export const Swap = () => {
     );
   }
 
+  const routeError = getQuoteErrorMessage(quoteResult, t);
   const placeholderFiat = (
     !isFetchingRoutes ? (
       <>
@@ -645,14 +648,19 @@ export const Swap = () => {
                   readOnlyAmount
                 />
               )}
-              <SwapServiceSelector
-                buyUnit={buyAccount?.coinUnit}
-                error={routeError}
-                isLoading={isFetchingRoutes}
-                onChangeRouteId={setSelectedRouteId}
-                routes={routes}
-                selectedRouteId={selectedRouteId}
-              />
+              <section className={style.swapServiceContainer}>
+                {!isFetchingRoutes && routeError ? (
+                  <Message type="warning" className={style.routeWarning}>{routeError}</Message>
+                ) : (
+                  <SwapServiceSelector
+                    buyUnit={buyAccount?.coinUnit}
+                    isLoading={isFetchingRoutes}
+                    onChangeRouteId={setSelectedRouteId}
+                    routes={routes ?? []}
+                    selectedRouteId={selectedRouteId}
+                  />
+                )}
+              </section>
               {insufficientGasFunds && sellParentAccount && (
                 <Message type="info" className={style.gasWarning}>
                   <Trans

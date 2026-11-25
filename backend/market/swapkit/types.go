@@ -38,10 +38,44 @@ type SwapRequest struct {
 // QuoteResponse represents a response from the /quote endpoint of the SwapKit API.
 // See https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote
 type QuoteResponse struct {
-	QuoteID        string       `json:"quoteId"`
-	Routes         []QuoteRoute `json:"routes"`
-	ProviderErrors []APIError   `json:"providerErrors,omitempty"`
-	Error          string       `json:"error,omitempty"`
+	QuoteID        string         `json:"quoteId"`
+	Routes         []QuoteRoute   `json:"routes"`
+	ProviderErrors ProviderErrors `json:"providerErrors,omitempty"`
+	Error          string         `json:"error,omitempty"`
+}
+
+// ProviderErrors decodes declines independently so a changed error field cannot discard the quote.
+type ProviderErrors []APIError
+
+// UnmarshalJSON preserves valid provider errors when individual fields change shape.
+func (providerErrors *ProviderErrors) UnmarshalJSON(data []byte) error {
+	var entries []json.RawMessage
+	if err := json.Unmarshal(data, &entries); err != nil {
+		*providerErrors = nil
+		return nil
+	}
+	parsed := make(ProviderErrors, 0, len(entries))
+	for _, entry := range entries {
+		var fields map[string]json.RawMessage
+		if err := json.Unmarshal(entry, &fields); err != nil {
+			continue
+		}
+		decodeString := func(name string) string {
+			var value string
+			if err := json.Unmarshal(fields[name], &value); err != nil {
+				return ""
+			}
+			return value
+		}
+		parsed = append(parsed, APIError{
+			Provider:     decodeString("provider"),
+			ErrorCode:    errp.ErrorCode(decodeString("errorCode")),
+			Message:      decodeString("message"),
+			rawMinAmount: decodeString("minAmount"),
+		})
+	}
+	*providerErrors = parsed
+	return nil
 }
 
 // Provider contains the chain availability reported by the /providers endpoint.
@@ -106,10 +140,18 @@ type NextAction struct {
 // See https://docs.swapkit.dev/swapkit-api/v3-quote-request-a-swap-quote and
 // https://docs.swapkit.dev/swapkit-api/v3-swap-obtain-swap-transaction-details
 type APIError struct {
-	Provider  string         `json:"provider"`
-	ErrorCode errp.ErrorCode `json:"errorCode"`
-	Message   string         `json:"message"`
-	Data      *APIErrorData  `json:"data,omitempty"`
+	Provider     string           `json:"provider"`
+	ErrorCode    errp.ErrorCode   `json:"errorCode"`
+	Message      string           `json:"message"`
+	MinAmount    *ProviderMinimum `json:"minAmount,omitempty"`
+	Data         *APIErrorData    `json:"data,omitempty"`
+	rawMinAmount string
+}
+
+// ProviderMinimum is the minimum sell amount in the sell coin's display unit.
+type ProviderMinimum struct {
+	Amount string `json:"amount"`
+	Unit   string `json:"unit"`
 }
 
 // APIErrorData contains structured values the frontend can translate into an error message.

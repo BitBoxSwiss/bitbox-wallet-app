@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { TERC20CoinCode } from './erc20';
-import type { TAccountCode, TCoinCode, TNativeCoinCode, TAccountBase, TTxInput } from './account';
+import type { TAccountCode, TCoinCode, TCoinUnit, TNativeCoinCode, TAccountBase, TTxInput } from './account';
 import { apiGet, apiPost } from '@/utils/request';
 
 export type TSwapAccount = TAccountBase & ({
@@ -42,6 +42,30 @@ export type TSwapQuoteRoute = {
   routeId: string;
 };
 
+// SwapKit can introduce other codes. Keep the known literals available for autocomplete.
+export type TSwapProviderErrorCode =
+  | 'sellAssetAmountTooSmall'
+  | 'insufficientLiquidity'
+  | 'estimatedTimeTooLong'
+  | 'swapHalted'
+  | 'invalidAsset'
+  | 'invalidChain'
+  | 'unsupportedChainId'
+  | 'unsupportedMethod'
+  | (string & {});
+
+export type TSwapProviderError = {
+  provider: string;
+  errorCode: TSwapProviderErrorCode;
+  message: string;
+  minAmount?: { amount: string; unit: TCoinUnit };
+};
+
+export type TSwapQuote = {
+  routes: TSwapQuoteRoute[];
+  providerErrors?: TSwapProviderError[];
+};
+
 export type TSwapQuoteErrorCode =
   | 'invalidRequest'
   | 'noRoutesFound'
@@ -51,14 +75,15 @@ export type TSwapQuoteErrorCode =
 export type TSwapQuoteValidationErrorCode = 'insufficientFunds';
 
 export type TSwapQuoteResponse = {
+  // Balance validation can accompany a successful quote with usable routes.
   validationErrorCode?: TSwapQuoteValidationErrorCode;
 } & ({
   success: true;
-  quote: {
-    routes: TSwapQuoteRoute[];
-  };
+  quote: TSwapQuote;
 } | {
   success: false;
+  // Failures before a quote is received have no provider details.
+  quote?: TSwapQuote;
   quoteErrorCode: TSwapQuoteErrorCode;
   errorData?: {
     buyCoin?: string;
