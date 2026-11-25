@@ -288,22 +288,29 @@ jobs:
     defaults:
       run:
         shell: bash
-    env:
-      MINGW_BIN: /C/mingw64/bin
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
           submodules: recursive
+      - name: Read Windows toolchain versions
+        id: pins
+        shell: pwsh
+        run: |
+          $pins = Get-Content -Raw frontends/qt/windows-toolchain.json | ConvertFrom-Json
+          "node=$($pins.node.version)" >> $env:GITHUB_OUTPUT
+          "go=$($pins.go.version)" >> $env:GITHUB_OUTPUT
+          "qt=$($pins.qt.version)" >> $env:GITHUB_OUTPUT
+          "arch=$($pins.qt.arch)" >> $env:GITHUB_OUTPUT
+          "modules=$($pins.qt.modules -join ' ')" >> $env:GITHUB_OUTPUT
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: frontends/web/package.json
+          node-version: ${{ steps.pins.outputs.node }}
       - name: Install Go
         uses: actions/setup-go@v6
         with:
-          # Take Go version to install from go.mod
-          go-version-file: 'go.mod'
+          go-version: ${{ steps.pins.outputs.go }}
       # We need to install wheel otherwise the below will fail
       # with "invalid command 'bdist_wheel'"
       # See https://github.com/jurplel/install-qt-action/issues/281
@@ -311,11 +318,17 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.8.2'
+          version: ${{ steps.pins.outputs.qt }}
           host: 'windows'
           target: 'desktop'
-          arch: 'win64_msvc2022_64'
-          modules: 'qtwebengine qtwebchannel qtpositioning'
+          arch: ${{ steps.pins.outputs.arch }}
+          modules: ${{ steps.pins.outputs.modules }}
+      - name: Provision remaining pinned tools on the hosted runner
+        shell: powershell
+        run: ./.github/scripts/windows-ci-toolchain.ps1
+      - name: Test Windows toolchain checks
+        shell: powershell
+        run: ./frontends/qt/tests/test-windows-toolchain.ps1
       - name: Link Visual Studio editions
         # This is needed due to our build expecting the Community edition, but Enterprise being pre-installed
         shell: cmd

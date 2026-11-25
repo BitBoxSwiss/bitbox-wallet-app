@@ -2,6 +2,8 @@
 scripts/dev_vm.conf
 /cmd/playground/
 **/*/output.log
+# Qt installation must not mark the CI checkout as modified in Go build metadata.
+/aqtinstall.log
 
 ### VSCode & Jetbrains ###
 .vscode/
