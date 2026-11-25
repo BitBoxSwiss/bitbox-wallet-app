@@ -84,4 +84,4 @@ osx:
 	cp -r resources/MacOS/Testnet.app build/osx/Testnet.app
 	cp build/osx/BitBox.app/Contents/Resources/Assets.car build/osx/Testnet.app/Contents/Resources/
 windows:
-	bash make_windows.sh
+	$(MAKE) -C ../.. qt-windows

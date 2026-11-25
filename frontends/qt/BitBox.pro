@@ -38,6 +38,9 @@ win32 {
     LIBS += -L$$OUT_PWD -llibserver
     DESTDIR = $$OUT_PWD/windows
     RC_ICONS += $$PWD/resources/win/icon.ico
+    QMAKE_CFLAGS_RELEASE += /Brepro
+    QMAKE_CXXFLAGS_RELEASE += /Brepro
+    QMAKE_LFLAGS_RELEASE += /Brepro /INCREMENTAL:NO /PDBALTPATH:BitBox.pdb
     # These flags aren't currently being respected at build time on Windows
     #QMAKE_CXXFLAGS += $$CFORTIFY
     #QMAKE_CXXFLAGS += $$CSTACK

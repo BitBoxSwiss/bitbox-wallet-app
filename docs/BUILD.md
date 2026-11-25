@@ -81,34 +81,40 @@ xcrun altool --list-providers --username "APPLE_ID" --password "PASSWORD"
 
 ## Windows
 
-The build requires `Microsoft Visual Studio 2022 Community Edition`, with the `MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)`
-and Windows 10 SDK individual components.
+Use 64-bit Windows 10 or 11 (including Home). Install Git Bash and Make with
+[Chocolatey](https://chocolatey.org/install) from an administrator PowerShell:
 
-It also requires Git for Windows (including Git Bash and its Unix tools), `mingw-w64`,
-GNU Make, Go 1.26.10, Node.js 26 (including npm), and the Qt 6.8.2 MSVC 2022 64-bit kit with
-`qtwebengine`, `qtwebchannel`, `qtpositioning` and `qtserialport`.
+```powershell
+choco install git make
+```
 
-NSIS (`makensis`) is required only when building the installer with `WINDOWS_INSTALLER=1`.
+Clone or move the repository to `C:\bitbox-wallet-app`. The fixed location is required for
+reproducible builds. This must be the physical checkout, not a junction or drive alias.
+Run the following commands in Git Bash from that directory to initialize the submodules
+and check the installed toolchain:
 
-Some of the tools are easy to install with `choco`:
+```bash
+cd /c/bitbox-wallet-app
+git submodule update --init --recursive
+make windows-check-toolchain
+```
 
-    choco install git
-    choco install mingw
-    choco install make
+Install or repair any dependencies listed by the check, using its version requirements,
+installation links and Chocolatey commands, then run it again. The pins are in
+[`windows-toolchain.json`](../frontends/qt/windows-toolchain.json).
 
-Add a system environment variable `MINGW_BIN` pointing to the bin directory of mingw
-(e.g. `/c/MinGW/bin` or `/c/Program Files/Git/mingw64/bin`).
+Build the archive:
 
-Add to the system environment variable `PATH`:
-- Location of `qmake`, e.g. `C:\Qt\6.8.2\msvc2022_64\bin`
+```bash
+make qt-windows
+```
 
-Build the QT frontend for Windows: `make qt-windows`
+This checks the toolchain again, clears `frontends\qt\build\`, and builds the current checkout,
+including local edits. The application files are in `frontends\qt\build\windows\`, and the archive
+is `frontends\qt\build\BitBox-<APP_VERSION>-win64-build.tar.gz`.
+CI also packages an installer from the same application files. Local builds do not require NSIS.
 
-Build artifacts:
-* `frontends\qt\build\windows\*`
-* `frontends\qt\build\BitBox-<APP_VERSION>-win64-build.tar.gz`
-
-CI also creates an installer from the same application files.
+### Sign and package on Linux
 
 Copy `frontends\qt\build\BitBox-<APP_VERSION>-win64-build.tar.gz` to the Linux signing machine.
 

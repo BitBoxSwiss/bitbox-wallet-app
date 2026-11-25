@@ -326,28 +326,45 @@ jobs:
       - name: Provision remaining pinned tools on the hosted runner
         shell: powershell
         run: ./.github/scripts/windows-ci-toolchain.ps1
-      - name: Test Windows toolchain checks
+      - name: Test Windows build checks
         shell: powershell
-        run: ./frontends/qt/tests/test-windows-toolchain.ps1
-      - name: Link Visual Studio editions
-        # This is needed due to our build expecting the Community edition, but Enterprise being pre-installed
-        shell: cmd
         run: |
-          mklink /J "C:\Program Files\Microsoft Visual Studio\2022\Community" "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
-      - name: Build Windows app
+          ./frontends/qt/tests/test-windows-toolchain.ps1
+          ./frontends/qt/tests/test_windows_build.ps1
+      - name: Copy checkout to the fixed build location
+        shell: powershell
         run: |
+          if (Test-Path -LiteralPath 'C:\bitbox-wallet-app') {
+            throw 'The CI build destination C:\bitbox-wallet-app already exists.'
+          }
+          # Include .git and initialized submodules; checkout's cleanup still needs the original workspace.
+          # Copy symlinks themselves: Linux packaging links have no target on Windows.
+          robocopy $env:GITHUB_WORKSPACE 'C:\bitbox-wallet-app' /E /SL /R:0 /NFL /NDL /NP
+          # Robocopy codes below 8 indicate success; normalize them for Actions' PowerShell wrapper.
+          if ($LASTEXITCODE -ge 8) {
+            throw "Copying checkout failed (robocopy exit code $LASTEXITCODE)."
+          }
+          exit 0
+      - name: Build Windows archive and installer
+        working-directory: C:\bitbox-wallet-app
+        run: |
+          # Go records untracked files in libserver.dll's vcs.modified flag.
+          changes=$(git status --porcelain)
+          test -z "$changes"
+          # Exercise environment isolation through the same entry point used locally.
+          export CC=unverified-compiler.exe GOFLAGS=-invalid-build-flag QMAKESPEC=invalid-mkspec
           make qt-windows WINDOWS_INSTALLER=1
       - name: Upload Windows release archive
         uses: actions/upload-artifact@v7
         with:
-          path: frontends/qt/build/BitBox-*-win64-build.tar.gz
+          path: C:/bitbox-wallet-app/frontends/qt/build/BitBox-*-win64-build.tar.gz
           archive: false
           if-no-files-found: error
       - name: Upload Installer
         id: upload
         uses: actions/upload-artifact@v7
         with:
-          path: frontends/qt/BitBox-installer.exe
+          path: C:/bitbox-wallet-app/frontends/qt/BitBox-installer.exe
           name: BitBoxApp-windows-${{ github.sha }}.exe
           if-no-files-found: error
 
