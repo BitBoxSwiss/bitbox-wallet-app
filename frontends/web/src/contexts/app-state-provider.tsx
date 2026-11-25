@@ -27,6 +27,7 @@ export const AppStateProvider = ({ children }: TProps) => {
   const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
   const deviceIDs = useMemo(() => Object.keys(devices), [devices]);
   const hasDevices = deviceIDs.length > 0;
+  const isBitboxBootloader = useMemo(() => Object.values(devices).includes('bitbox02-bootloader'), [devices]);
 
   const lightningFeatureAvailable = isLightningFeatureAvailable();
 
@@ -66,6 +67,7 @@ export const AppStateProvider = ({ children }: TProps) => {
     hasBottomNavigation,
     hasDevices,
     hasLightningAccount,
+    isBitboxBootloader,
     lightningAccount,
   }), [
     accounts,
@@ -77,6 +79,7 @@ export const AppStateProvider = ({ children }: TProps) => {
     hasBottomNavigation,
     hasDevices,
     hasLightningAccount,
+    isBitboxBootloader,
     lightningAccount,
   ]);
 

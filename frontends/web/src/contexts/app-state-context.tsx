@@ -21,6 +21,7 @@ export type TAppState = {
   hasBottomNavigation: boolean;
   hasDevices: boolean;
   hasLightningAccount: boolean;
+  isBitboxBootloader: boolean;
   lightningAccount: TLightningAccount | null | undefined;
 };
 

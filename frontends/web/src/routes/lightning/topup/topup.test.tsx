@@ -99,6 +99,7 @@ const renderTopUp = (activeAccounts = [account], hasAccounts = true) => render(
             hasBottomNavigation: false,
             hasDevices: false,
             lightningAccount: undefined,
+            isBitboxBootloader: false,
             hasLightningAccount: false,
           }}
         >

@@ -182,6 +182,7 @@ const MarketRoute = ({
       hasDevices: false,
       lightningAccount,
       hasLightningAccount: !!lightningAccount,
+      isBitboxBootloader: false,
     }}>
       <AppNavigation />
       {children}

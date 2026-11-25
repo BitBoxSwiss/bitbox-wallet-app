@@ -4,12 +4,9 @@ import { useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
 import { Dialog, DialogButtons } from './dialog';
-import { getDeviceList } from '@/api/devices';
-import { syncDeviceList } from '@/api/devicessync';
-import { useSync } from '@/hooks/api';
-import { useDefault } from '@/hooks/default';
 import { Button } from '@/components/forms';
 import { AppContext } from '@/contexts/AppContext';
+import { useAppState } from '@/contexts/app-state-context';
 
 type TFirmwareUpgradeRequiredDialogProps = {
   open: boolean;
@@ -20,16 +17,15 @@ export const FirmwareUpgradeRequiredDialog = ({ open, onClose }: TFirmwareUpgrad
   const { t } = useTranslation();
   const [, navigate] = useLocation();
   const { setFirmwareUpdateDialogOpen } = useContext(AppContext);
-  const devices = useDefault(useSync(getDeviceList, syncDeviceList), {});
-  const deviceIDs = Object.keys(devices);
+  const { deviceIDs, hasDevices } = useAppState();
 
   const handleUpgrade = useCallback(() => {
     setFirmwareUpdateDialogOpen(true);
-    if (deviceIDs && deviceIDs.length > 0) {
+    if (deviceIDs && hasDevices) {
       navigate(`/settings/device-settings/${deviceIDs[0] as string}`);
     }
     onClose();
-  }, [setFirmwareUpdateDialogOpen, deviceIDs, navigate, onClose]);
+  }, [setFirmwareUpdateDialogOpen, deviceIDs, hasDevices, navigate, onClose]);
 
   return (
     <Dialog

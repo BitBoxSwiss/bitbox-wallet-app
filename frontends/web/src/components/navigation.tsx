@@ -16,6 +16,7 @@ export const AppNavigation = () => {
     accounts,
     deviceIDs,
     devices,
+    hasDevices,
     hasLightningAccount,
     lightningAccount,
   } = useAppState();
@@ -56,7 +57,7 @@ export const AppNavigation = () => {
     }
     // if no devices are registered on specified views route to /
     if (
-      deviceIDs.length === 0
+      !hasDevices
       && (
         currentURL.startsWith('/settings/device-settings/')
         || currentURL.startsWith('/manage-backups/')
@@ -67,7 +68,7 @@ export const AppNavigation = () => {
     }
     // if device is connected or in boothloader mode route to device settings
     if (
-      deviceIDs.length === 1
+      hasDevices
       && firstDevice
       && (
         currentURL === '/settings/no-device-connected'
@@ -111,7 +112,7 @@ export const AppNavigation = () => {
       return;
     }
 
-  }, [accounts, bitrefillAccount, deviceIDs, firstDevice, hasLightningAccount, isMarketSelect, lightningAccount, navigate, productName]);
+  }, [accounts, bitrefillAccount, firstDevice, hasDevices, hasLightningAccount, isMarketSelect, lightningAccount, navigate, productName]);
 
   useEffect(() => {
     const oldDeviceIDList = Object.keys(prevDevices || {});

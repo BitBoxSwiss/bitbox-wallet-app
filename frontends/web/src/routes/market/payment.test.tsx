@@ -70,6 +70,7 @@ it.each([
         hasDevices: false,
         lightningAccount: undefined,
         hasLightningAccount: false,
+        isBitboxBootloader: false,
       }}
     >
       <MemoryRouter initialEntries={[path]}>

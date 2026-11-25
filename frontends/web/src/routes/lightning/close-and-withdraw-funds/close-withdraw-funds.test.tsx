@@ -141,6 +141,7 @@ describe('Lightning Close & Withdraw', () => {
               hasBottomNavigation: false,
               hasDevices: false,
               lightningAccount: undefined,
+              isBitboxBootloader: false,
               hasLightningAccount: false,
             }}
           >
@@ -179,6 +180,7 @@ describe('Lightning Close & Withdraw', () => {
               hasBottomNavigation: false,
               hasDevices: false,
               lightningAccount: undefined,
+              isBitboxBootloader: false,
               hasLightningAccount: false,
             }}
           >
@@ -219,6 +221,7 @@ describe('Lightning Close & Withdraw', () => {
               hasBottomNavigation: false,
               hasDevices: false,
               lightningAccount: undefined,
+              isBitboxBootloader: false,
               hasLightningAccount: false,
             }}
           >
@@ -271,6 +274,7 @@ describe('Lightning Close & Withdraw', () => {
               hasBottomNavigation: false,
               hasDevices: false,
               lightningAccount: undefined,
+              isBitboxBootloader: false,
               hasLightningAccount: false,
             }}
           >
@@ -314,6 +318,7 @@ describe('Lightning Close & Withdraw', () => {
               hasBottomNavigation: false,
               hasDevices: false,
               lightningAccount: undefined,
+              isBitboxBootloader: false,
               hasLightningAccount: false,
             }}
           >
@@ -370,6 +375,7 @@ describe('Lightning Close & Withdraw', () => {
               hasBottomNavigation: false,
               hasDevices: false,
               lightningAccount: undefined,
+              isBitboxBootloader: false,
               hasLightningAccount: false,
             }}
           >
@@ -417,6 +423,7 @@ describe('Lightning Close & Withdraw', () => {
               hasBottomNavigation: false,
               hasDevices: false,
               lightningAccount: undefined,
+              isBitboxBootloader: false,
               hasLightningAccount: false,
             }}
           >
@@ -466,6 +473,7 @@ describe('Lightning Close & Withdraw', () => {
               hasBottomNavigation: false,
               hasDevices: false,
               lightningAccount: undefined,
+              isBitboxBootloader: false,
               hasLightningAccount: false,
             }}
           >
@@ -515,6 +523,7 @@ describe('Lightning Close & Withdraw', () => {
               hasBottomNavigation: false,
               hasDevices: false,
               lightningAccount: undefined,
+              isBitboxBootloader: false,
               hasLightningAccount: false,
             }}
           >

@@ -100,6 +100,7 @@ const renderWithRoute = (initialEntry: string, initialAccounts: accountApi.TAcco
             hasAccounts: true,
             hasBottomNavigation: false,
             hasDevices: false,
+            isBitboxBootloader: false,
             lightningAccount: undefined,
             hasLightningAccount: false,
           }}

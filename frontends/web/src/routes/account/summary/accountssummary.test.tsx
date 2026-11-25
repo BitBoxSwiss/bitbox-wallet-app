@@ -88,6 +88,7 @@ const summaryWithAccounts = (accounts: accountApi.TAccount[]) => (
     hasBottomNavigation: false,
     hasDevices: false,
     hasLightningAccount: false,
+    isBitboxBootloader: false,
     lightningAccount: null,
   }}>
     <AccountsSummary />
