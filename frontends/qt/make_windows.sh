@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-set -e
+set -euo pipefail
 
 output=${1:-installer}
 if [[ "$output" != installer && "$output" != archive ]]; then
