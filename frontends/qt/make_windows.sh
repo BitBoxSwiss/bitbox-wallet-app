@@ -11,10 +11,9 @@ fi
 # windeployqt can leave files from earlier deployments in the output directory.
 rm -rf build/windows
 mkdir -p build/windows
-bash ./genassets.sh
+bash ./genassets.sh build/windows/assets.rcc
 make -C server/ windows-legacy
 env -u MAKE -u MAKEFLAGS cmd "/C compile_windows.bat"
-cp build/assets.rcc build/windows/
 cp server/libserver.dll build/windows/
 cp ../../vendor/github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/windows-amd64/breez_sdk_spark_bindings.dll build/windows/
 windeployqt build/windows/BitBox.exe

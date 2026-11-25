@@ -14,7 +14,7 @@ EXCLUDE_LIBS:=libwayland-client.so.0
 
 base:
 	mkdir build
-	./genassets.sh
+	./genassets.sh build/assets.rcc
 clean:
 	-rm -rf build
 	cd server && $(MAKE) clean

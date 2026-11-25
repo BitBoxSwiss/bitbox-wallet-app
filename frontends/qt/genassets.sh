@@ -2,6 +2,8 @@
 
 set -e
 
+output=${1:?missing output path}
+
 if [ ! -d ../web/build ]; then
     echo "Web assets have not been built." 1>&2
     exit 1
@@ -13,7 +15,7 @@ find ../web/build/ -maxdepth 3 -type f | sort | sed -e "s|../web/build/||" | awk
 echo '<file alias="trayicon.png">resources/trayicon.png</file>' >> assets.qrc
 echo '<file alias="trayicon-dark.png">resources/trayicon-dark.png</file>' >> assets.qrc
 echo '</qresource></RCC>' >> assets.qrc
-mkdir -p build/
-rcc -binary assets.qrc -o build/assets.rcc
+mkdir -p "$(dirname "$output")"
+rcc -binary assets.qrc -o "$output"
 cat assets.qrc
 rm assets.qrc
