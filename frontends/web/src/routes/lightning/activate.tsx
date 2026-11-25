@@ -3,20 +3,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'wouter';
+import { postActivate } from '@/api/lightning';
+import { UseDisableBackButton } from '@/hooks/backbutton';
+import { useKeystores } from '@/hooks/backend';
+import { useLightning } from '@/hooks/lightning';
+import { Header, Main } from '@/components/layout';
+import { View, ViewButtons, ViewContent, ViewHeader } from '@/components/view/view';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Logo } from '@/components/icon/logo';
 import { ContentWrapper } from '@/components/contentwrapper/contentwrapper';
-import { UseDisableBackButton } from '@/hooks/backbutton';
-import { useLightning } from '@/hooks/lightning';
-import { Header, Main } from '../../components/layout';
-import { View, ViewButtons, ViewContent, ViewHeader } from '../../components/view/view';
-import { MultilineMarkup, SimpleMarkup } from '../../utils/markup';
-import { Button, Checkbox } from '../../components/forms';
-import { PointToBitBox02 } from '../../components/icon';
-import { TKeystores, getKeystores, subscribeKeystores } from '../../api/keystore';
-import { unsubscribe } from '../../utils/subscriptions';
-import { postActivate } from '../../api/lightning';
-import { Status } from '../../components/status/status';
+import { Button, Checkbox } from '@/components/forms';
+import { PointToBitBox02 } from '@/components/icon';
+import { Status } from '@/components/status/status';
+import { MultilineMarkup, SimpleMarkup } from '@/utils/markup';
 import { LightningDisclaimerContent } from './disclaimer';
 import styles from './activate.module.css';
 
@@ -29,24 +28,11 @@ export const LightningActivate = () => {
   const [, navigate] = useLocation();
   const { lightningAccount } = useLightning();
   const [agree, setAgree] = useState(false);
-  const [keystores, setKeystores] = useState<TKeystores>();
   const [step, setStep] = useState<TSteps>('intro');
   const [setupError, setSetupError] = useState<string>();
   const [activationStarted, setActivationStarted] = useState(false);
-
-  const onStateChange = useCallback(async () => {
-    try {
-      const keystores = await getKeystores();
-      setKeystores(keystores);
-    } catch (err: any) {}
-  }, []);
-
-  useEffect(() => {
-    onStateChange();
-
-    const subscriptions = [subscribeKeystores(onStateChange)];
-    return () => unsubscribe(subscriptions);
-  }, [onStateChange]);
+  const keystores = useKeystores();
+  const isConnected = Boolean(keystores?.length);
 
   const activateLightning = useCallback(async () => {
     setActivationStarted(true);
@@ -62,19 +48,13 @@ export const LightningActivate = () => {
     }
   }, []);
 
-  const waitForConnect = useCallback(() => {
-    if (keystores && keystores.length > 0) {
-      setStep('confirm');
-    } else {
-      setStep('connect');
-    }
-  }, [keystores]);
+  const waitForConnect = () => setStep(isConnected ? 'confirm' : 'connect');
 
   useEffect(() => {
-    if (step === 'connect' && keystores && keystores.length > 0) {
+    if (step === 'connect' && isConnected) {
       setStep('confirm');
     }
-  }, [keystores, step]);
+  }, [isConnected, step]);
 
   useEffect(() => {
     if (step === 'confirm' && !activationStarted) {
@@ -83,6 +63,8 @@ export const LightningActivate = () => {
   }, [activateLightning, activationStarted, step]);
 
   useEffect(() => {
+    // The backend publishes the Lightning account after device confirmation,
+    // but wallet initialization may still be in progress.
     if (step === 'confirm' && activationStarted && lightningAccount) {
       setStep('activating');
     }
@@ -114,7 +96,10 @@ export const LightningActivate = () => {
     switch (step) {
     case 'intro':
       return (
-        <View key="step-intro" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
+        <View
+          key="step-intro"
+          minHeight={CONTENT_MIN_HEIGHT}
+          verticallyCentered>
           <ViewHeader title={t('lightning.activate.intro.title')} />
           <ViewContent>
             <MultilineMarkup
@@ -134,7 +119,10 @@ export const LightningActivate = () => {
       );
     case 'information':
       return (
-        <View key="step-information" minHeight={CONTENT_MIN_HEIGHT} verticallyCentered>
+        <View
+          key="step-information"
+          minHeight={CONTENT_MIN_HEIGHT}
+          verticallyCentered>
           <ViewHeader title={t('lightning.activate.disclaimer.title')} />
           <ViewContent>
             <MultilineMarkup
@@ -160,8 +148,10 @@ export const LightningActivate = () => {
       );
     case 'disclaimer':
       return (
-        <LightningDisclaimerContent key="step-disclaimer" title={t('lightning.disclaimer.title')}>
-          <Button primary onClick={() => waitForConnect()}>
+        <LightningDisclaimerContent
+          key="step-disclaimer"
+          title={t('lightning.disclaimer.title')}>
+          <Button primary onClick={waitForConnect}>
             {t('lightning.disclaimer.continue')}
           </Button>
           <DesktopBackButton onClick={handleBack}>
@@ -171,7 +161,11 @@ export const LightningActivate = () => {
       );
     case 'connect':
       return (
-        <View key="step-confirm" minHeight={CONTENT_MIN_HEIGHT} textCenter verticallyCentered>
+        <View
+          key="step-connect"
+          minHeight={CONTENT_MIN_HEIGHT}
+          textCenter
+          verticallyCentered>
           <ViewHeader title={t('lightning.activate.connect.title')}>
             <SimpleMarkup tagName="p" markup={t('lightning.activate.connect.content')} />
           </ViewHeader>
@@ -188,7 +182,7 @@ export const LightningActivate = () => {
     case 'confirm':
       return (
         <View
-          key="step-create"
+          key="step-confirm"
           fullscreen
           textCenter
           verticallyCentered
@@ -230,7 +224,11 @@ export const LightningActivate = () => {
       );
     case 'success':
       return (
-        <View fitContent textCenter verticallyCentered>
+        <View
+          key="step-success"
+          fitContent
+          textCenter
+          verticallyCentered>
           <ViewContent withIcon="success">
             <p>{t('lightning.activate.success.message')}</p>
           </ViewContent>
