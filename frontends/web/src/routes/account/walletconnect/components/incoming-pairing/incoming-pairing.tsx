@@ -50,7 +50,7 @@ const PairingChains = ({ chains }: TPairingChainsProps) => {
           return chainDetail && (
             <li className={styles.chain} key={chain}>
               <img alt="" src={chainDetail.icon} />
-              <span>{t(chainDetail.nameKey)}</span>
+              <span>{chainDetail.name}</span>
             </li>
           );
         })}

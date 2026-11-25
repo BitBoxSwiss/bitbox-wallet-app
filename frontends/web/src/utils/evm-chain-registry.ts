@@ -12,48 +12,48 @@ import sonicIcon from '@/components/icon/assets/sonic-color.svg';
 
 export type TEVMChain = {
   icon: string;
-  nameKey: string;
+  name: string;
 };
 
 export const EVM_CHAIN_REGISTRY: Record<number, TEVMChain> = {
   1: {
     icon: ethereumIcon,
-    nameKey: 'evmChains.ethereumMainnet',
+    name: 'Ethereum mainnet',
   },
   10: {
     icon: optimismIcon,
-    nameKey: 'evmChains.optimism',
+    name: 'Optimism',
   },
   56: {
     icon: bnbChainIcon,
-    nameKey: 'evmChains.bnbSmartChain',
+    name: 'BNB Smart Chain',
   },
   100: {
     icon: gnosisIcon,
-    nameKey: 'evmChains.gnosis',
+    name: 'Gnosis',
   },
   137: {
     icon: polygonIcon,
-    nameKey: 'evmChains.polygon',
+    name: 'Polygon',
   },
   146: {
     icon: sonicIcon,
-    nameKey: 'evmChains.sonic',
+    name: 'Sonic',
   },
   999: {
     icon: hyperEVMIcon,
-    nameKey: 'evmChains.hyperEVM',
+    name: 'HyperEVM',
   },
   8453: {
     icon: baseIcon,
-    nameKey: 'evmChains.base',
+    name: 'Base',
   },
   42161: {
     icon: arbitrumIcon,
-    nameKey: 'evmChains.arbitrumOne',
+    name: 'Arbitrum One',
   },
   11155111: {
     icon: ethereumIcon,
-    nameKey: 'evmChains.ethereumSepoliaTestnet',
+    name: 'Ethereum Sepolia testnet',
   },
 };

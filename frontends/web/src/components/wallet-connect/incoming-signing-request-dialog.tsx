@@ -53,7 +53,7 @@ export const WCIncomingSignRequestDialog = ({
   const { accountAddress, accountName, signingData, chain, method, currentSession } = content;
 
   const chainDetail = chain in SUPPORTED_CHAINS ? SUPPORTED_CHAINS[chain] : undefined;
-  const formattedChain = chainDetail ? t(chainDetail.nameKey) : chain;
+  const formattedChain = chainDetail?.name ?? chain;
   const chainIcon = chainDetail?.icon;
 
   const metadata = currentSession.peer.metadata;
