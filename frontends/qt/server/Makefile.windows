@@ -7,6 +7,7 @@ GOARCH=amd64
 GOOS=windows
 GOTOOLCHAIN=local
 BREEZ_LIB_DIR=../../../vendor/github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/windows-amd64/
+SERVER_OUT ?= .
 
 windows:
 	CGO_CFLAGS="${GOWINSECFLAGS} ${CFLAGS}" \
@@ -28,10 +29,10 @@ windows-cross:
 
 windows-legacy:
 	CGO_ENABLED=1 go build -mod=vendor -ldflags="-s -w $(GO_VERSION_LDFLAGS)" -buildmode=c-archive \
-		-o libserver.a
-	gcc server.def libserver.a -shared -lwinmm -lhid -lsetupapi -lWs2_32 \
+		-o "$(SERVER_OUT)/libserver.a"
+	gcc server.def "$(SERVER_OUT)/libserver.a" -shared -lwinmm -lhid -lsetupapi -lWs2_32 \
 		-L${BREEZ_LIB_DIR} -lbreez_sdk_spark_bindings \
-		-o libserver.dll -Wl,--out-implib,libserver.lib
+		-o "$(SERVER_OUT)/libserver.dll" -Wl,--out-implib,"$(SERVER_OUT)/libserver.lib"
 
 clean:
 	-rm -f ${LIBNAME}.dll
