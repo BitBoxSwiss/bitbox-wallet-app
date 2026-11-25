@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 include ../../env.mk.inc
-include ../../version.mk.inc
 
 # Add Wayland libs so the app can run natively on Wayland too.
 # The linuxdeployqt maintainer unfortunately refuses to support it automatically: https://github.com/probonopd/linuxdeployqt/issues/189

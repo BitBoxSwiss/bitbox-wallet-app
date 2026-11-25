@@ -3,7 +3,7 @@
 SHELL    := /bin/bash
 WEBROOT  := frontends/web
 
-include version.mk.inc
+include env.mk.inc
 
 .PHONY: check-go-vendor
 
