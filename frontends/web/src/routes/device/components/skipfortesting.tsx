@@ -71,7 +71,7 @@ export const SkipForTesting = ({
               id="test-wallet-btc-only"
               checked={btcOnly}
               onChange={e => setBTCOnly((e.target as HTMLInputElement).checked)}
-              label={t('generic.bitcoinOnly')}
+              label="Bitcoin-only"
             />
           </DialogScrollContent>
           <DialogButtons>
