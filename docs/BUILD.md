@@ -114,6 +114,22 @@ including local edits. The application files are in `frontends\qt\build\windows\
 is `frontends\qt\build\BitBox-<APP_VERSION>-win64-build.tar.gz`.
 CI also packages an installer from the same application files. Local builds do not require NSIS.
 
+### Compare with CI
+
+Use a clean checkout of the exact commit built by CI, including its recorded submodule revisions.
+For pull-request runs this is the merge commit, rather than the branch tip. Download the
+`BitBox-<APP_VERSION>-win64-build.tar.gz` artifact from that run and save it **outside the checkout**.
+Build locally as above, then compare the two tar archives:
+
+```bash
+./scripts/compare-builds.sh /c/path/to/ci/BitBox-<APP_VERSION>-win64-build.tar.gz \
+    frontends/qt/build/BitBox-<APP_VERSION>-win64-build.tar.gz
+```
+
+Replace `<APP_VERSION>` with the version in the filenames. The command extracts both archives
+and recursively compares the extracted directories using `diff -qr`. It prints `Builds match.`
+and exits successfully when their contents match; otherwise it reports differences and exits nonzero.
+
 ### Sign and package on Linux
 
 Copy `frontends\qt\build\BitBox-<APP_VERSION>-win64-build.tar.gz` to the Linux signing machine.

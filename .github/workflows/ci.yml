@@ -46,6 +46,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+      - name: Test build archives
+        run: |
+          bash scripts/tests/test_compare_builds.sh
       - name: Install Windows packaging tools
         run: |
           sudo apt-get update
@@ -331,6 +334,10 @@ jobs:
         run: |
           ./frontends/qt/tests/test-windows-toolchain.ps1
           ./frontends/qt/tests/test_windows_build.ps1
+      - name: Test build archives
+        run: |
+          export PATH="/usr/bin:$PATH"
+          bash scripts/tests/test_compare_builds.sh
       - name: Copy checkout to the fixed build location
         shell: powershell
         run: |
