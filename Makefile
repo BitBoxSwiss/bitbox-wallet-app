@@ -66,12 +66,11 @@ qt-osx: check-go-vendor # run on OSX.
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) osx
 	$(MAKE) osx-sec-check
+.PHONY: qt-windows
+# CI opts into NSIS packaging; local builds only need the archive toolchain.
 qt-windows: check-go-vendor
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) windows
-qt-windows-archive: check-go-vendor
-	$(MAKE) buildweb
-	cd frontends/qt && $(MAKE) windows-archive
 android:
 	cd frontends/android && ${MAKE} apk-debug
 # Create signed .apk and .aab.

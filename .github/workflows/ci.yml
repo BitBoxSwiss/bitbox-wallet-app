@@ -323,7 +323,13 @@ jobs:
           mklink /J "C:\Program Files\Microsoft Visual Studio\2022\Community" "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
       - name: Build Windows app
         run: |
-          make qt-windows
+          make qt-windows WINDOWS_INSTALLER=1
+      - name: Upload Windows release archive
+        uses: actions/upload-artifact@v7
+        with:
+          path: frontends/qt/build/BitBox-*-win64-build.tar.gz
+          archive: false
+          if-no-files-found: error
       - name: Upload Installer
         id: upload
         uses: actions/upload-artifact@v7

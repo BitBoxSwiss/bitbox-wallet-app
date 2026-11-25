@@ -84,14 +84,13 @@ xcrun altool --list-providers --username "APPLE_ID" --password "PASSWORD"
 The build requires `Microsoft Visual Studio 2022 Community Edition`, with the `MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)`
 individual component.
 
-It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.26.10`, `node@26`, `QT 6.8.2` with `qtwebengine`, `nsis`
+It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.26.10`, `node@26`, `QT 6.8.2` with `qtwebengine`
 and possibly other tools.
 
 Some of the tools are easy to install with `choco`:
 
     choco install git
     choco install mingw
-    choco install nsis
     choco install make
 
 Add a system environment variable `MINGW_BIN` pointing to the bin directory of mingw
@@ -99,15 +98,15 @@ Add a system environment variable `MINGW_BIN` pointing to the bin directory of m
 
 Add to the system environment variable `PATH`:
 - Location of `qmake`, e.g. `C:\Qt\6.8.2\msvc2022_64\bin`
-- Location of nsis, e.g. `C:\Program Files (x86)\NSIS\Bin`
 
 Build the QT frontend for Windows: `make qt-windows`
 
 Build artifacts:
 * `frontends\qt\build\windows\*`
-* `frontends\qt\build\BitBox-installer.exe`
+* `frontends\qt\build\BitBox-<APP_VERSION>-win64-build.tar.gz`
 
-On Windows, run `make qt-windows-archive` from the repository root to build the release archive.
+CI also creates an installer from the same application files.
+
 Copy `frontends\qt\build\BitBox-<APP_VERSION>-win64-build.tar.gz` to the Linux signing machine.
 
 On Debian or Ubuntu, install the packaging tools on the signing machine with apt.

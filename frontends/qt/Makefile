@@ -86,5 +86,3 @@ osx:
 	cp build/osx/BitBox.app/Contents/Resources/Assets.car build/osx/Testnet.app/Contents/Resources/
 windows:
 	bash make_windows.sh
-windows-archive:
-	bash make_windows.sh archive
