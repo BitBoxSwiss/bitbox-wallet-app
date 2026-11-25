@@ -22,6 +22,7 @@ const paths = (
 function getLicenseText(packagePath) {
   const licenseFile = (
     readdirSync(packagePath)
+      .sort()
       .find(file => /^(LICENSE|LICENCE|COPYING)([.-].*)?$/i.test(file))
   );
 
@@ -127,15 +128,15 @@ for (const packagePath of paths) {
 const dependencies = Array.from(grouped.values(), dependency => ({
   ...dependency,
   versions: [...dependency.versions].sort((a, b) =>
-    a.localeCompare(b, undefined, { numeric: true })
+    a.localeCompare(b, 'en-US', { numeric: true })
   ),
 }));
 
 // Ensure deterministic output.
 dependencies.sort((a, b) => (
-  a.name.localeCompare(b.name)
-  || a.versions[0].localeCompare(b.versions[0], undefined, { numeric: true })
-  || a.licenseText?.localeCompare(b.licenseText ?? '')
+  a.name.localeCompare(b.name, 'en-US')
+  || a.versions[0].localeCompare(b.versions[0], 'en-US', { numeric: true })
+  || a.licenseText?.localeCompare(b.licenseText ?? '', 'en-US')
   || 0
 ));
 
