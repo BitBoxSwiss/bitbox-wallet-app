@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { TransactionSkeleton } from '@/components/transactions/transaction-skeleton';
-import style from './account.module.css';
+import style from './transaction-history-skeleton.module.css';
 
 export const TransactionHistorySkeleton = () => {
   return (

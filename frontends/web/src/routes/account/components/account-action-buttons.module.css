@@ -1,0 +1,88 @@
+.actionsContainer {
+    --size-default: var(--size-small);
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+    gap: var(--space-quarter);
+    justify-content: flex-end;
+    margin-top: 0;
+    padding-bottom: 0;
+}
+
+.actionsContainer span {
+    word-break: normal;
+}
+
+@media (max-width: 768px) {
+    .actionsContainer {
+        container-type: inline-size;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .actionsContainer .button {
+        gap: var(--space-eight);
+        min-width: 0;
+        padding-left: clamp(var(--space-quarter), 3cqi, var(--space-half));
+        padding-right: clamp(var(--space-quarter), 3cqi, var(--space-half));
+    }
+
+    .actionsContainer span {
+        flex-shrink: 1;
+        font-size: clamp(var(--size-smaller), 4.6cqi, var(--size-small));
+        min-width: 0;
+        white-space: nowrap;
+    }
+}
+
+.withWalletConnect.actionsContainer {
+    justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+
+    .actionsContainer {
+        justify-content: center;
+        margin-bottom: var(--space-half);
+        margin-top: var(--space-half);
+        max-width: 100%;
+        min-width: 0;
+        padding-bottom: 0;
+        width: 100%;
+    }
+
+    .withWalletConnect.actionsContainer {
+        justify-content: center;
+    }
+
+    .actionsContainer a,
+    .actionsContainer > button {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+}
+
+@media (max-width: 480px) {
+    .actionsContainer {
+        gap: var(--space-eight);
+    }
+
+    .actionsContainer .button {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+@container (max-width: 360px) {
+    .actionsContainer .button {
+        gap: calc(var(--space-eight) / 2);
+        padding-left: var(--space-eight);
+        padding-right: var(--space-eight);
+    }
+
+    .actionsContainer span {
+        font-size: var(--size-smaller);
+    }
+}

@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '@/api/account';
 import { Transaction } from '@/components/transactions/transaction';
-import style from '../account.module.css';
+import style from './transaction-list.module.css';
 
 export type TTransactionListItem = accountApi.TTransaction & {
   statusProgress?: number;

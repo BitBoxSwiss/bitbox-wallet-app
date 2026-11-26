@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from 'react';
 import { ButtonLink } from '@/components/forms';
-import style from '@/routes/account/account.module.css';
+import style from './account-action-button-link.module.css';
 
 type TProps = Omit<
   ComponentProps<typeof ButtonLink>,

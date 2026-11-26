@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ReactNode } from 'react';
-import style from '@/routes/account/account.module.css';
+import style from './account-action-buttons.module.css';
 
 type TProps = {
   children: ReactNode;
