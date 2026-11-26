@@ -48,7 +48,7 @@ func NewHandlers(
 ) {
 	handleNoError("/account", lightning.GetAccount).Methods("GET")
 	handleNoError("/contacts", lightning.contacts.GetContacts).Methods("GET")
-	handleNoError("/contacts", lightning.contacts.PostContact).Methods("POST")
+	handleNoError("/contacts", lightning.PostContact).Methods("POST")
 	handleNoError("/contacts/delete", lightning.contacts.PostDeleteContact).Methods("POST")
 	handleNoError("/address", lightning.GetLightningAddress).Methods("GET")
 	handleNoError("/address/domain", lightning.GetAddressDomain).Methods("GET")
@@ -87,12 +87,12 @@ func (contacts *Contacts) GetContacts(r *http.Request) interface{} {
 }
 
 // PostContact handles the POST request to create or update a contact.
-func (contacts *Contacts) PostContact(r *http.Request) interface{} {
+func (lightning *Lightning) PostContact(r *http.Request) interface{} {
 	var request Contact
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return contactError(err)
 	}
-	contact, err := contacts.Save(request)
+	contact, err := lightning.SaveContact(request)
 	if err != nil {
 		return contactError(err)
 	}

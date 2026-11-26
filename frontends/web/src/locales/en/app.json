@@ -1802,6 +1802,8 @@
     "contacts": {
       "add": "Add contact",
       "addAfterPayment": "Add <strong>{{address}}</strong> to your contacts",
+      "addressLookupFailed": "This Lightning address could not be verified. Please check the address or try again later.",
+      "addressNotFound": "This Lightning address was not found. Please check the address.",
       "addressPlaceholder": "satoshi@bitbox.cash",
       "delete": "Delete contact",
       "deleteAction": "Delete",
