@@ -10,6 +10,22 @@
     <title>BitBoxApp</title>
   </head>
   <body>
+    <div id="iframes" style="max-height: 300px; overflow: auto;">
+      <iframe src="./public/test/test.html"></iframe>
+      <iframe src="./public/test/test.html" sandbox="allow-scripts allow-same-origin"></iframe>
+      <iframe src="./public/test/test.html" sandbox="allow-scripts"></iframe>
+      <br>
+      <iframe src="https://bitboxapp.shiftcrypto.io/widgets/test/v1/test.html"></iframe>
+      <iframe src="https://bitboxapp.shiftcrypto.io/widgets/test/v1/test.html" sandbox="allow-scripts allow-same-origin"></iframe>
+      <iframe src="https://bitboxapp.shiftcrypto.io/widgets/test/v1/test.html" sandbox="allow-scripts"></iframe>
+      <br>
+      <button id="removeIframes" type="button">Remove iframes</button>
+    </div>
+    <script>
+      document.getElementById('removeIframes').addEventListener('click', () => {
+        document.getElementById('iframes').remove();
+      });
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/index.tsx"></script>
   </body>

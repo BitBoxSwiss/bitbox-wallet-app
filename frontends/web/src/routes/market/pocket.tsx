@@ -335,6 +335,7 @@ export const Pocket = ({ action }: TProps) => {
                   frameBorder="0"
                   className={style.iframe}
                   allow="camera; payment; clipboard-write;"
+                  sandbox="allow-scripts"
                   src={pocketInfo.url}>
                 </iframe>
               ) : (

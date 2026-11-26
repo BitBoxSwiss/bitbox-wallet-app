@@ -81,6 +81,7 @@ export const Moonpay = () => {
                   frameBorder="0"
                   className={`${style.iframe || ''} ${!iframeLoaded && style.hide || ''}`}
                   allow="camera; payment"
+                  sandbox="allow-scripts"
                   src={`${moonpay.url}&colorCode=%235E94BF&theme=${isDarkMode ? 'dark' : 'light'}`}>
                 </iframe>
               )}
