@@ -1,6 +1,5 @@
 include ../../../hardening.mk.inc
 include ../../../env.mk.inc
-include ../../../version.mk.inc
 CGO=1
 BUILDMODE=c-shared
 GOARCH=amd64
@@ -13,7 +12,7 @@ linux:
 	CGO_LDFLAGS="${GOLNXLDFLAGS} ${LFLAGS}" \
 	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} \
 	go build -trimpath -x -mod=vendor -buildmode=${BUILDMODE} -ldflags \
-		"$(GO_VERSION_LDFLAGS) -extldflags=\"$(GOLNXEXTLDFLAGS)\"" \
+		"$(GO_RELEASE_LDFLAGS) -extldflags=\"$(GOLNXEXTLDFLAGS)\"" \
 		-o ${LIBNAME}.so
 
 clean:

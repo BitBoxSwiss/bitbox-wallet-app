@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 include ../../env.mk.inc
-include ../../version.mk.inc
 
 # Add Wayland libs so the app can run natively on Wayland too.
 # The linuxdeployqt maintainer unfortunately refuses to support it automatically: https://github.com/probonopd/linuxdeployqt/issues/189
@@ -14,7 +13,7 @@ EXCLUDE_LIBS:=libwayland-client.so.0
 
 base:
 	mkdir build
-	./genassets.sh
+	./genassets.sh build/assets.rcc
 clean:
 	-rm -rf build
 	cd server && $(MAKE) clean
@@ -86,5 +85,3 @@ osx:
 	cp build/osx/BitBox.app/Contents/Resources/Assets.car build/osx/Testnet.app/Contents/Resources/
 windows:
 	bash make_windows.sh
-windows-archive:
-	bash make_windows.sh archive
