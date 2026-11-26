@@ -1,52 +1,145 @@
 {
   "account": {
+    "account": "账户",
+    "accounts": "账户",
+    "backupReminder": "你的钱包 <strong>{{name}}</strong> 已通过 {{fiat}} {{threshold}}！\n\n我们建议创建纸质备份以获得额外保护。简单快捷。",
+    "backupReminderLink": "创建纸质备份",
     "disconnect": "连接断开.重试中...",
     "exportTransactions": "将交易导出为CSV文件并下载文件夹",
     "fatalError": "出现意外错误",
     "incoming": "传入",
     "initializing": "正在从区块链网络中获取信息",
-    "reconnecting": "链接断开，尝试重新链接"
+    "insuranceExpired": "<strong>账户不再受保</strong>\n\n此账户的保险计划已被修改。\n请查看保险页面以获取详细信息。",
+    "insured": "受保账户",
+    "maybeProxyError": "已启用 Tor 代理。请确保你的 Tor 代理正在正常运行，或禁用代理设置。",
+    "reconnecting": "链接断开，尝试重新链接",
+    "syncedAddressesCount": "已扫描 {{count}} 个地址",
+    "syncing": "正在同步账户，请稍候…",
+    "uncoveredFunds": "你在你的<strong>{{name}}</strong>账户的以下未被覆盖的地址类型上有资金：{{uncovered}}。\n由于该账户受保，仅通过<strong>原生隔离见证</strong> 地址类型接收的资金受保。不同地址类型上的资金，即使在同一账户，也不受保。\n请将所有资金从不受支持的地址类型转移到<strong>原生隔离见证</strong> 地址类型，以便该账户上的所有资金都受保。",
+    "uncoveredFundsLink": "按本指南操作以转移你的币。",
+    "warning": "警告！"
   },
   "accountInfo": {
+    "accountDetails": "账户详情",
     "address": "地址",
+    "buyCTA": {
+      "information": {
+        "looksEmpty": "该钱包似乎为空。",
+        "start": "通过向钱包存入一些币或在 BitBoxApp 中直接购买来开始。"
+      }
+    },
+    "contractAddress": "合约地址",
+    "contractAddressWarning": "不要向合约地址发送任何币，否则将丢失。合约地址仅供参考。",
+    "descriptorWarning": "为确保与其他钱包、应用或服务的兼容性，请复制整个 descriptor。仅选择并复制 xpub 可能导致以错误的脚本类型导入该账户，从而引发问题。",
+    "exportTransactions": "导出交易记录",
+    "exportTransactionsDisabled": "无交易记录",
     "extendedPublicKey": "扩展公钥",
     "label": "帐户信息",
+    "scriptType": "脚本类型",
     "title": "帐户信息",
-    "verify": "请在设备上进行验证"
+    "usedAddresses": "查看已使用的地址",
+    "verify": "请在设备上进行验证",
+    "viewAccountDetails": "查看账户详情",
+    "xpubTypeChangeBtn": {
+      "p2pkh": "查看旧版 P2PKH 扩展公钥",
+      "p2tr": "查看 Taproot",
+      "p2wpkh": "查看原生 Segwit"
+    },
+    "xpubTypeInfo": "当前显示 {{scriptType}} 扩展公钥（{{current}} / {{numberOfXPubs}}）"
   },
   "accountSummary": {
+    "availableBalance": "可用余额",
     "balance": "余额",
     "name": "账户名",
     "noAccount": "还未添加账户",
+    "portfolio": "资产概览",
+    "searchPlaceholder": "搜索交易...",
     "title": "帐户汇总",
-    "total": "总计"
+    "total": "总计",
+    "totalAssets": "总资产",
+    "transactionHistory": "交易记录"
   },
   "addAccount": {
     "chooseName": {
-      "nextButton": "添加账户"
+      "nextButton": "添加账户",
+      "step": "为账户命名",
+      "title": "为你的账户命名"
     },
     "selectCoin": {
-      "nextButton": "下一个"
+      "nextButton": "下一步",
+      "step": "选择币种",
+      "title": "选择加密货币"
+    },
+    "success": {
+      "addAnotherAccount": "添加另一个账户",
+      "message": "<strong>{{accountName}}</strong>已添加到你的账户中。",
+      "nextButton": "完成",
+      "step": "完成",
+      "title": "账户已添加"
     },
     "title": "添加账户"
   },
   "addresses": {
+    "changeCopyBody": "不要使用找零地址接收币。要接收币，请点击<receiveLink>这里</receiveLink>。",
     "columnAddress": "地址",
+    "columnLastUsed": "上次使用",
     "detail": {
       "address": "地址"
-    }
+    },
+    "empty": "尚未使用任何地址。",
+    "emptyFiltered": "没有地址符合你的筛选条件。",
+    "filter": {
+      "changeAddresses": "找零地址",
+      "receiveAddresses": "接收地址"
+    },
+    "listDescriptionPrefix": "此页面显示该账户的所有已使用地址",
+    "loadFailed": "无法加载已使用的地址。",
+    "loadNotSupported": "已使用的地址不可用于此账户类型。",
+    "loadSyncInProgress": "已使用的地址仍在同步。请稍后重试。",
+    "new": "新地址",
+    "notFound": "未找到地址。",
+    "searchPlaceholder": "搜索地址",
+    "skipDeviceVerification": "跳过设备验证",
+    "skipVerifyBody": "如果不在设备上验证地址，可能会复制到不属于你的 BitBox 的地址。",
+    "skipVerifyConfirm": "是，跳过验证",
+    "skipVerifyQuestion": "确定要继续吗？",
+    "skipVerifyTitle": "跳过设备验证？",
+    "skipVerifyWarning": "警告",
+    "title": "已使用的地址",
+    "unverifiedAddressWarning": "该地址尚未在设备上验证。",
+    "verifyConnectFailed": "无法连接到所选设备。",
+    "verifyFailed": "地址验证失败。"
   },
   "aopp": {
-    "labelAddress": "地址"
+    "addressRequest": "{{host}}正在请求收款地址。",
+    "addressRequestWithLogo": "正在请求收款地址",
+    "addressRequestWithLogoAndXPub": "正在请求接收地址和公钥(xpub)。",
+    "addressRequestWithXPub": "{{host}}正在请求收款地址和公钥 (xpub)。",
+    "banner": "正在请求地址。请连接你的设备以继续。",
+    "errorTitle": "地址请求时出错 ",
+    "labelAddress": "地址",
+    "labelMessage": "消息",
+    "reverifyInfoText": "验证地址",
+    "signing": "继续操作，请在你的 BitBox 上签署消息",
+    "success": {
+      "message": "在 {{host}} 上继续",
+      "title": "地址已成功发送"
+    },
+    "title": "地址请求",
+    "xpubRequested": "共享你的 xpub 会让外部服务看到你的账户地址。你的资产仍然安全，并且仍由你控制。"
   },
   "app": {
     "upgrade": "该应用程序有新版本可用！请从 {{current}} 升级至 {{version}}。"
   },
   "auth": {
-    "dismissButton": "取消"
+    "authButton": "验证",
+    "dismissButton": "取消",
+    "missing": "请在设备的系统设置中设置屏幕锁。",
+    "title": "请验证身份以继续"
   },
   "backup": {
     "check": {
+      "aborted": "设备上的备份检查已中止",
       "checking": "正在检查备份…",
       "confirmTitle": "检查备份",
       "notOK": "备份与钱包不匹配。",
@@ -77,12 +170,15 @@
     "description": "选择 <strong>钱包备份文件</strong>",
     "insert": "请插入Micro SD卡以管理备份。",
     "insertButton": "我已插入Micro SD卡",
+    "link": "前往管理备份",
     "list": "您的microSD卡备份",
     "noBackups": "此microSD卡上没有备份。",
     "restore": {
       "confirmTitle": "恢复已有备份",
       "error": {
-        "e200": "找不到(无法识别到)microSD卡"
+        "e104": "恢复备份已中止。",
+        "e200": "找不到(无法识别到)microSD卡",
+        "general": "恢复备份时出错"
       },
       "password": {
         "label": "恢复密码或隐藏恢复密码",
@@ -91,23 +187,42 @@
         "showLabel": "恢复密码"
       },
       "restoring": "正在还原备份…",
+      "selectedBackup": "<strong>{{backupName}}</strong>（创建于 {{createdDateTime}}）将被恢复。",
+      "subtitle": "请选择备份以继续",
       "title": "恢复",
       "understand": "我知道输入错误的恢复密码会创建出另一个不同的钱包"
     },
     "showMnemonic": {
-      "title": "显示助记词"
+      "availableIn_other": "可在 {{count}} 秒后使用",
+      "instructions": "BitBox 会显示你的恢复词。 <strong>把它们写在纸上。</strong>",
+      "safetyWarnings": {
+        "noAppsOrWebsites": "切勿在应用或网站中输入它们",
+        "noDigitalCopies": "切勿拍照或以电子方式保存",
+        "noSharing": "BitBox 支持或任何其他公司都不会要求你分享你的恢复词。",
+        "noSpeaking": "切勿大声说出它们",
+        "safeStorage": "它们没有密码保护。请将它们存放在安全的地方。"
+      },
+      "scamWarning": "如果有人要求你这样做，请挂断电话。这是诈骗。",
+      "title": "显示助记词",
+      "warning": "<strong>不要分享你的助记词。 </strong>任何拥有它们的人都可以访问你的钱包。"
     },
     "title": "管理备份"
   },
   "bb02Bootloader": {
     "abort": "不要升级-退回",
+    "abort_noUpgrade": "返回",
+    "additionalUpgradeFollows2": "请在所有升级完成前保持你的 BitBox 连接电源。",
     "advanced": {
       "label": "高级设置",
       "toggleShowFirmwareHash": "每次启动时显示固件哈希"
     },
     "flipscreen": "翻转屏幕",
+    "furtherUpgrades": "后续还会有升级。",
     "orientation": "设备方向错误？",
-    "success": "升级成功！继续(等待) "
+    "success": "升级成功！继续(等待) ",
+    "success_install": "安装成功！",
+    "upgradeTitle": "正在升级 BitBox 固件",
+    "upgradeTitle_install": "正在安装 BitBox 固件"
   },
   "bitbox": {
     "error": {
@@ -117,20 +232,54 @@
     }
   },
   "bitbox02Interact": {
+    "confirmDate": "在你的 BitBox 上确认今天的日期",
+    "confirmDateText": "该日期将用于创建你的备份。",
+    "confirmName": "在 BitBox 上确认名称",
+    "confirmWords": "把 BitBox 上的 {{amount}} 个恢复词写下来",
+    "confirmWordsText": "随后 BitBox 会要求你确认每个单词，以验证备份是否正确。",
     "followInstructions": "请按照BitBox02上的说明进行操作。",
-    "followInstructionsMnemonicTitle": "通过助记词还原"
+    "followInstructionsMnemonic": "按照 BitBox 上的指示，输入备份中的助记词以恢复你的钱包。",
+    "followInstructionsMnemonicTitle": "从恢复助记词恢复"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "BitBox 上的蓝牙现已被禁用。如果以后想与 iPhone 连接，需要重新启用。",
+      "alertEnabled": "蓝牙现已启用。",
+      "description": "蓝牙用于与 iPhone 连接。",
+      "error_104": "更改蓝牙设置已中止。",
+      "titleDisabled": "启用蓝牙",
+      "titleEnabled": "禁用蓝牙"
+    },
     "changePassword": {
+      "description": "更改 BitBox 的设备密码。",
+      "error_104": "更改密码已中止。",
+      "success": "密码已成功更改",
       "title": "更改设备密码"
     },
     "deviceName": {
       "current": "当前设备名称",
+      "error": "无法设置设备名称",
+      "error_104": "在设备上确认设备名称时已中止。",
       "input": "BitBox02 名称",
+      "placeholder": "新的设备名称",
       "title": "设置BitBox02的设备名称"
+    },
+    "gotoStartupSettings": {
+      "description": "这将重启你的 BitBox 并进入启动设置。",
+      "title": "进入启动设置"
     }
   },
   "bitbox02Wizard": {
+    "advanced": {
+      "button": "高级选项",
+      "outOfDate": "需要更新固件",
+      "seed12WordInfo": "请注意，创建钱包后无法更改助记词的单词数量。",
+      "seed12WordLabel": "创建 12 词助记词而非 24 词",
+      "seed12WordText": "默认情况下，BitBox 使用 24 词助记词。实际上两种助记词长度在抵御暴力破解上都足够安全。部分用户可能更倾向于 12 词助记词的便捷性。",
+      "skipSDCardLabel": "跳过 microSD 卡备份，改为写下助记词",
+      "skipSDCardText": "设置完成后，你始终可以选择创建 microSD 卡备份或抄写你的助记词。可在设置中进行。",
+      "title": "高级备份选项"
+    },
     "attestationFailed": "设备认证失败，可能是由于在设备等待用户输入时应用程序重新启动所致。请重新连接，然后重试。",
     "backup": {
       "point1": "在microSD卡上选择一个备份",
@@ -142,7 +291,9 @@
       "userConfirmation1": "我应该将备份存储在安全的地方。",
       "userConfirmation2": "我的备份不受密码保护。任何有权访问它的人都可以访问我的钱包。",
       "userConfirmation3": "如果我丢失或损坏了BitBox02设备，恢复资金的唯一方法是通过我的(私钥)备份进行恢复。",
-      "userConfirmation4": "如果我同时丢失或损坏了我的备份以及BitBox02设备，那么我的资金将会永远丢失。"
+      "userConfirmation4": "如果我同时丢失或损坏了我的备份以及BitBox02设备，那么我的资金将会永远丢失。",
+      "userConfirmation5": "我不应将 microSD 卡备份插入电脑、手机、打印机或除 BitBox 外的任何设备。",
+      "userConfirmation5mnemonic": "我不应将我的助记词放入电脑、手机、打印机或除 BitBox 外的任何设备。"
     },
     "create": {
       "button": "命名设备 & 继续",
@@ -153,21 +304,38 @@
       "point3": "建立备份",
       "text": "好的，让我们开始创建一个新的钱包！"
     },
+    "createBackupAborted": "创建备份已中止。",
+    "createBackupFailed": "创建备份失败，请重试。",
     "initialize": {
       "tip": "我们建议您在安全的环境中进行操作。"
     },
+    "noPasswordMatch": "两次输入的密码不匹配，请重试。",
     "pairing": {
       "failed": "未确认的配对。请重新插入您的BitBox02。",
       "paired": "您已在设备上确认代码匹配。如果确认无误，则可以单击下面的按钮以继续。",
       "title": "配对码验证中",
       "unpaired": "已检测到新的BitBox02。请验证以下代码是否与您设备上显示的代码匹配。如果代码匹配(相同)，请轻触BitBox02显示屏上打勾选项下方的设备边框以继续。"
     },
+    "passphrase": {
+      "confirmHostEntry": "在 BitBox 上确认以在应用中输入 passphrase",
+      "confirmTitle": "在 BitBox 上确认 passphrase",
+      "dialogTitle": "输入 passphrase",
+      "enter": "输入 BitBox passphrase",
+      "enterInApp": "在应用中输入 passphrase",
+      "error": {
+        "invalidChars": "passphrase 包含无法在 BitBox 上输入的字符。",
+        "tooLong": "passphrase 最多为 149 个字符。"
+      }
+    },
     "restoreFromMnemonic": {
-      "failed": "通过助记词进行的恢复失败，请重试。"
+      "e104": "从恢复词恢复已被取消。",
+      "failed": "通过助记词进行的恢复失败，请重试。",
+      "securityNotice": "恢复非在 BitBox 上创建的钱包？在其他地方创建的钱包可能没有在你的 BitBox 上创建的钱包那么安全。如果不确定，我们建议在此处设置一个新钱包并将资金转移到该钱包。"
     },
     "stepBackup": {
       "beforeProceed": "在继续之前，请阅读以下重要的安全注意事项：",
-      "createBackup": "现在，您将在microSD卡上创建备份。"
+      "createBackup": "现在，您将在microSD卡上创建备份。",
+      "createBackupMnemonic": "现在请写下恢复词。"
     },
     "stepBackupSuccess": {
       "fundsSafe": "为了确保您的资金安全，请记住以下几点：",
@@ -177,6 +345,12 @@
       "unlock": "输入BitBox02密码进行解锁。"
     },
     "stepCreate": {
+      "description": "该名称用于设备名称和备份名称",
+      "error": {
+        "genericMessage": "使用字母、数字、基本符号和空格。最多 30 个字符。",
+        "invalidChars": "名称包含无效字符： {{invalidChars}}。",
+        "tooLong": "名称过长。"
+      },
       "nameLabel": "BitBox02名称",
       "namePlaceholder": "我的BitBox02",
       "title": "选择BitBox02名称",
@@ -184,9 +358,16 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "请从BitBox02中取出microSD卡，并将其存储在安全的位置。",
+      "storeMnemonic": "请将助记词妥善保管",
       "success": "您已成功创建备份。"
     },
+    "stepInsertSD": {
+      "insertSDCard": "请将 microSD 卡插入 BitBox 以继续。",
+      "insertSDCardToSeeBackups": "请将 microSD 卡插入你的 BitBox 以查看备份。",
+      "insertSDcardTitle": "插入 microSD 卡"
+    },
     "stepPassword": {
+      "e104": "设置密码已取消。",
       "title": "设置BitBox02密码",
       "useControls": "使用BitBox02上的触控控件设置密码。"
     },
@@ -202,13 +383,76 @@
     }
   },
   "bitsurance": {
+    "dashboard": {
+      "active": "保险计划已生效",
+      "button": "为新账户投保",
+      "canceled": "已取消",
+      "coverage": "最高保障",
+      "inactive": "不活跃",
+      "processing": "处理中",
+      "refused": "已拒绝",
+      "supportLink": "管理合同",
+      "title": "受保账户",
+      "waitpayment": "等待付款"
+    },
+    "detect": {
+      "button": "检查是否已有保险",
+      "insured": "检测到已投保账户：",
+      "notInsured": "未检测到受保账户。如果你确定有受保账户，请确认已连接正确的钱包。",
+      "text": "如果你已经在 Bitsurance 注册，BitBoxApp 可以自动同步你现有的保险覆盖。",
+      "title": "已投保？"
+    },
     "insure": {
-      "title": "开始吧"
-    }
+      "button": "查看可用性与价格",
+      "faq": "在 Bitsurance 常见问题中了解更多",
+      "listItem1": "入室盗窃",
+      "listItem2": "勒索（例如，$5 wrench attack）",
+      "listItem3": "因火灾、水灾或自然灾害造成的毁损",
+      "month": "月",
+      "text": "为你的 BitBox 及最多价值 €100,000 的比特币投保，以防",
+      "text2": "保险计划起价 €30/年（€2.50/月）。你可以在",
+      "text3": "目前在德国可用，随后会覆盖更多地区。",
+      "title": "开始使用"
+    },
+    "intro": {
+      "link": "Bitsurance 网站",
+      "text1": "BitBox 与 Bitsurance 合作，为你的比特币增加额外一层保护。虽然 BitBox 可保护你的资金安全，Bitsurance 覆盖那些仅靠技术无法防范的家庭风险，例如入室盗窃、勒索或硬件钱包本身的损毁。"
+    },
+    "terms": {
+      "link": "Bitsurance 隐私政策",
+      "text1": "Bitsurance 是独立的第三方服务。如有关于其产品或理赔的疑问，请直接联系 Bitsurance。",
+      "text2": "目前保险在德国可用，未来将拓展至更多地区。",
+      "text3": "目前每人最高可获得的比特币保障为 €100,000。未来计划提供更高额度。",
+      "text4": "受保账户的个人信息和扩展公钥属于保险条款的一部分，并将与 Bitsurance 及保险提供商共享。",
+      "text5": "有关隐私的更多信息，请参阅"
+    },
+    "title": "保险"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "错误：无法从账户获取扩展公钥。",
+    "noAccount": "没有可投保的账户。",
+    "select": "选择账户"
+  },
+  "blink": {
+    "button": "闪烁"
+  },
+  "bluetooth": {
+    "connected": "已连接",
+    "connectionFailed": "失败",
+    "connectionIssues": "连接有问题？",
+    "connectionIssuesLink": "查看此处",
+    "disabledGloballyDescription": "请打开蓝牙以连接你的 BitBox。",
+    "disabledGloballyTitle": "蓝牙访问已禁用。",
+    "disabledPermissionDescription": "请允许蓝牙连接你的 BitBox。",
+    "disabledPermissionTitle": "BitBoxApp 的蓝牙访问被禁用。",
+    "enable": "请打开蓝牙",
+    "select": "选择你的 BitBox"
   },
   "bootloader": {
     "button": "立即升级固件",
+    "button_install": "立即安装固件",
     "progress": "升级",
+    "progress_install": "正在安装",
     "success": "升级成功！请重新插入设备。这次，请一定不要触摸按钮。"
   },
   "button": {
@@ -218,33 +462,348 @@
     "check": "检查备份",
     "continue": "继续",
     "copy": "复制",
+    "copyAddress": "复制地址",
     "create": "创建",
+    "dismiss": "关闭",
+    "done": "完成",
     "download": "下载",
     "next": "下一个",
     "ok": "好的",
+    "openInBrowser": "在浏览器中打开",
     "previous": "上一个",
+    "proceedOnBitBox": "在你的 BitBox 上继续",
     "restore": "恢复",
-    "review": "签名并发送",
+    "review": "查看",
+    "save": "保存",
     "select": "选择",
     "unlock": "解锁(设备)",
     "update": "更新",
     "upgrade": "升级"
   },
   "buy": {
-    "info": {
-      "disclaimer": {
-        "payment": {
-          "table": {
-            "fee": "(交易)费用"
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": "余额不足，无法购买礼品卡。"
+      },
+      "transactionNote": "已发送至 Bitrefill"
+    },
+    "exchange": {
+      "bankTransfer": "银行转账",
+      "bestDeal": "最佳优惠",
+      "buy": "购买",
+      "buyServices": "购买服务",
+      "creditCard": "信用卡",
+      "description_bitrefill": "购买礼品卡、手机充值等",
+      "description_btcdirect-otc": "BTC Direct - 私人交易台",
+      "description_pocket-otc": "Pocket Private",
+      "description_swapkit": "去中心化兑换 BTC、ETH、USDT 等",
+      "fast": "快速",
+      "fee": "费用",
+      "infoContent": {
+        "bitrefill": {
+          "disclaimer": {
+            "account": {
+              "link": "Bitrefill 购买限额",
+              "text": "在一定限制内，你可以在不创建账户的情况下使用 Bitrefill。要提高你的消费限额，可以创建一个基础账户或成为经过验证的客户。详情请参阅 Bitrefill 的购买限额。",
+              "title": "账户与限额"
+            },
+            "claims": {
+              "link": "Bitrefill 支持",
+              "text": "如果你在购买中遇到任何问题，请在下单后30天内直接联系Bitrefill。",
+              "title": "声明"
+            },
+            "dataProtection": {
+              "link": "Bitrefill 隐私政策",
+              "text": "BitBoxApp 不会收集个人数据。Bitrefill 会根据其隐私政策收集信息。",
+              "title": "数据保护"
+            },
+            "fees": {
+              "text": "Bitrefill 不收取明确费用，但产品价格可能包含溢价，具体取决于零售商、地区以及 Bitrefill 使用的汇率。",
+              "title": "费用"
+            },
+            "intro": {
+              "text": "Bitrefill 是一个在线平台，允许你使用比特币或其他加密货币购买礼品卡、充值手机以及支付账单。它让你在日常商品和服务上使用加密货币消费，而无需将其兑换为法币。Bitrefill 提供来自全球品牌的多种产品，受希望以加密货币生活或私密购物的人群欢迎。",
+              "title_bitcoin": "在 Bitrefill 使用比特币消费",
+              "title_crypto": "通过 Bitrefill 用加密货币支付"
+            },
+            "security": {
+              "link": "BitBox 安全威胁模型",
+              "text": "Bitrefill 是一个外部服务，不在 BitBox 的安全威胁模型覆盖范围内。你进行购买时，付款会发送到 Bitrefill 的一个地址。BitBox 无法验证该地址是否正确。",
+              "title": "安全提示"
+            },
+            "validEmail": {
+              "text": "各种临时邮箱服务不被 Bitrefill 支持，因此你可能无法收到发票。你的礼品卡代码/凭证仍会在流程结束时显示。",
+              "title": "有效的电子邮件地址"
+            }
+          },
+          "infobox": {
+            "intro": "Bitrefill 是一个在线平台，你可以通过购买礼品卡、手机充值和各种服务，用比特币及其他加密货币支付日常开销。与 BitBoxApp 的集成允许你直接从 BitBox 支付，无需将币转移到交易所或其他钱包。"
           }
+        },
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "BTC Direct 隐私政策",
+              "text": "BitBoxApp 不会收集个人数据。BTC Direct 会根据其隐私政策收集必要信息以符合监管要求。",
+              "title": "数据保护"
+            },
+            "kyc": {
+              "text": "所有交易都需要进行客户身份验证。你的客户经理会引导你完成该过程并解答任何问题。",
+              "title": "身份验证"
+            },
+            "partnership": {
+              "text": "与值得信赖的欧洲经纪商 BTC Direct 合作，BitBox 在 BitBoxApp 内提供大额场外交易（OTC），支持比特币、以太坊、稳定币等，并提供专家支持。",
+              "title": "通过 BTC Direct 的私人交易台买卖"
+            },
+            "paymentMethods": {
+              "buy": "购买比特币：",
+              "buy2": "通过你的客户经理下大额买单、锁定固定价格，并通过银行转账付款。付款后，加密货币将在支付完成后直接发送到你的 BitBox。",
+              "fee": "最低交易金额为€50,000，透明费用介于0.5%至1%之间。",
+              "sell": "出售比特币：",
+              "sell2": "下卖单时可锁定固定 OTC 价格。一旦你将加密货币发送给 BTC Direct，即会进行欧元付款。如有需要，可提供人工协助。",
+              "title": "付款方式和费用"
+            },
+            "personal": {
+              "text": "每位私人交易客户将分配一位专职客户经理，通过电话、视频通话、电子邮件或聊天提供个性化支持。下单时买卖价格即时锁定，即使结算发生在稍后。订单通过 BTC Direct 的场外（OTC）交易台执行，最大程度减少滑点。",
+              "title": "个人服务，固定定价"
+            },
+            "security": {
+              "link": "BitBox 安全威胁模型",
+              "text": "BTC Direct 的私人交易台是一个外部服务，不属于 BitBox 的安全威胁模型覆盖范围。不过，BTC Direct 熟悉 BitBox 产品并能提供安全且专业的指导。BitBox 产品在交易过程中会验证加密地址以确保安全交付。",
+              "title": "安全"
+            },
+            "title": "免责声明"
+          },
+          "infobox": {
+            "intro_btconly": "为高价值的场外（OTC）比特币交易提供个人协助。",
+            "intro_multi": "为大额场外（OTC）交易（包括比特币、以太坊稳定币等）提供专属协助。",
+            "kyc": "BTC Direct 要求所有交易进行身份验证，客户经理将引导你完成每一步。",
+            "learnmore": "了解有关 BTC Direct 私人交易台的更多信息。",
+            "listItem1": "可随时通过电话、电子邮件、视频通话或聊天联系你的客户经理进行买卖。",
+            "listItem2": "下单后通过银行转账完成付款。",
+            "listItem3": "最低订单金额：€50,000。",
+            "listItem4": "透明费用固定为0.5%-1%，包含专属顾问服务。",
+            "manager": "你将拥有专属客户经理在每一步提供指导，确保以固定费率和最低滑点获得安全、简便的交易体验。"
+          }
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "我们与值得信赖的欧洲经纪商 BTC Direct 合作，使在 BitBoxApp 内买卖加密货币变得简单。该服务在欧洲各地可用，支持银行转账、信用卡及多种本地支付方式。",
+            "kyc": {
+              "description": "所有交易均需进行客户身份验证。你需要拍摄一张自拍照并拍摄官方身份证件的照片。",
+              "title": "身份验证"
+            },
+            "paymentMethods": {
+              "buy": "购买：以欧元付款，币将直接发送到你的 BitBox。你可以选择一次性购买或定期购买。对于银行转账，汇率在 BTC Direct 收到款项时确定。即时支付方式在有限时间内使用固定汇率。",
+              "note": "注意：BTC Direct 的汇率可能与 BitBoxApp 的汇率略有差异。",
+              "sell": "出售：将你的加密货币发送至 BTC Direct，款项将以欧元入账至你的银行账户。BTC Direct 一旦收到你的币，汇率即被锁定。",
+              "title": "支付方式与费用"
+            },
+            "security": {
+              "description": "BTC Direct 是一项不在 BitBox 安全威胁模型覆盖范围内的外部服务。我们与 BTC Direct 密切合作，以提升整体安全性。",
+              "link": "BitBox 安全威胁模型",
+              "title": "安全"
+            },
+            "title_bitcoin": "通过 BTC Direct 买卖比特币",
+            "title_crypto": "通过 BTC Direct 买卖加密货币"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact：{{fee}}%",
+              "bankTransfer": "银行转账、SEPA、iDEAL：{{fee}}%",
+              "creditDebitCard": "信用卡、Cartes Bancaires：{{fee}}%",
+              "sofort": "Sofort：{{fee}}%",
+              "title": "购买费用"
+            },
+            "feesSelling": {
+              "bankTransfer": "银行转账：{{fee}}%",
+              "title": "卖出手续费"
+            },
+            "intro": "在欧洲以欧元买卖加密货币。",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "银行转账、SEPA Instant、iDEAL",
+              "creditDebitCard": "信用卡（Mastercard、Visa）、Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "支付方式"
+            }
+          },
+          "learnmore": "了解有关 BTC Direct 的更多信息"
+        },
+        "moonpay": {
+          "fees": {
+            "bankTransfer": "银行转账：{{fee}}%",
+            "creditDebitCard": "信用/借记卡：{{fee}}%",
+            "learnMore": "了解 Moonpay 的更多信息",
+            "title": "费用"
+          },
+          "fullCurrenciesList": "在此查看完整货币列表",
+          "payment": {
+            "asteriskText": "* 不适用于美国居民",
+            "bankTransfer": "银行转账*",
+            "bankTransferDetails": {
+              "pix": "PIX（仅限巴西的 BR 交易）",
+              "sepa": "SEPA 及 SEPA Instant（仅限 SEPA 国家内的欧元交易）",
+              "uk": "UK Faster Payments（仅限英国境内的英镑交易）"
+            },
+            "creditDebitCard": "信用/借记卡",
+            "creditDebitCardDetails": {
+              "cards": "Amex、Mastercard、Visa 和 Maestro"
+            },
+            "learnMore": "查看支付方式详情",
+            "title": "支付方式"
+          },
+          "supportedCurrencies": "支持所有主要法定货币：USD、EUR、CHF 等。"
+        },
+        "pocket": {
+          "fees": {
+            "info": "银行转账：{{fee}}%",
+            "title": "费用"
+          },
+          "learnMore": "了解 Pocket 的更多信息",
+          "payment": {
+            "bankTransfer": "银行转账",
+            "bankTransferDetails": {
+              "sepa": "SEPA 与 SEPA Instant（仅限 SEPA 国家/地区的 EUR 交易）",
+              "sic": "瑞士银行间清算系统（仅限瑞士/列支敦士登的 CHF 交易）",
+              "uk": "UK Faster Payments（仅限英国的英镑交易）"
+            },
+            "bankTransferReccuring": "如何通过常设指示设置定期购买？",
+            "title": "支付方式"
+          },
+          "sell": {
+            "title": "出售比特币"
+          },
+          "supportedCurrencies": "支持的欧洲货币：EUR、GBP 和 CHF。",
+          "verification": {
+            "info": "仅在超过每日或年度限额时才需要身份验证。",
+            "link": "在此查看当前阈值",
+            "title": "身份验证"
+          }
+        },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "info": "BitBoxApp 不会收集个人数据。Pocket Private 会根据其隐私政策收集必要的信息以满足监管要求。",
+              "link": "Pocket 隐私政策",
+              "title": "数据保护"
+            },
+            "kyc": {
+              "info": "使用 Pocket Private 需要进行客户身份验证。你的客户经理会指导你完成流程并解答任何疑问。",
+              "title": "身份验证"
+            },
+            "partnership": {
+              "text": "BitBox 与 Pocket Private 合作，提供大额比特币交易。Pocket Private 客户将分配客户经理提供个性化协助。",
+              "title": "通过 Pocket Private 买卖"
+            },
+            "payment": {
+              "info": [
+                "<strong>购买比特币：</strong> 下大额买单并通过银行转账付款。付款后，你的比特币将直接发送到你的 BitBox。",
+                "<strong>出售比特币：</strong> 银行支付将在你将比特币发送到 Pocket Private 后进行。如有需要可获得人工协助。",
+                "<strong>交易费用：</strong> 交易费用基于终身交易量，这意味着无论订单大小如何，随着你的总交易量增加，手续费会下降。"
+              ],
+              "title": "支付方式与费用"
+            },
+            "security": {
+              "info": "Pocket Private 是一个外部服务，不在 BitBox 的安全威胁模型覆盖范围内。然而，Pocket Private 熟悉 BitBox 产品，并提供安全且专业的指导。BitBox 产品在交易过程中会验证比特币地址以确保安全交付。",
+              "link": "BitBox 安全威胁模型",
+              "title": "安全"
+            }
+          },
+          "infobox": {
+            "intro": "对于高额比特币场外交易（OTC），可获得人工协助和更优惠的手续费。使用 Pocket Private，随着你的终身交易量增加，手续费会降低，因此无论订单大小，你都能获得最佳费率。",
+            "learnmore": "了解 Pocket Private 的更多信息",
+            "tradingVolume": "交易量（历史总额）",
+            "transactionFee": "交易费"
+          }
+        },
+        "region": {
+          "title": "选择你的银行账户开户所在地区以查看可用选项。"
         }
       },
-      "next": "下一个"
+      "noExchanges": "抱歉，此地区没有可用的交易所。",
+      "otcInfo": "为大宗场外交易提供专人协助和降低的手续费。",
+      "region": "地区",
+      "selectRegion": "未指定",
+      "sell": "卖出",
+      "sellServices": "出售服务",
+      "spend": "花费",
+      "spendServices": "支出服务",
+      "swapServices": "兑换服务"
+    },
+    "info": {
+      "continue": "同意并继续",
+      "crypto": "加密货币",
+      "disclaimer": {
+        "intro": [
+          "我们与 MoonPay 合作，为你提供在 BitBoxApp 内直接购买 {{coinCode}} 的便捷方式。只需几次点击。",
+          "MoonPay 是一个平台，让你轻松快速购买 {{coinCode}}，覆盖超过 160 个国家/地区。"
+        ],
+        "payment": {
+          "details": "你可以通过 MoonPay 使用以下付款方式即时购买 {{coinCode}}。信用卡或借记卡订单即时且方便，但因退单风险较高而费用更高。我们建议大额使用银行转账。最低手续费为 4 美元/欧元或等值货币。",
+          "footnote": "请注意，MoonPay 的汇率可能与 BitBoxApp 使用的汇率不同，导致金额略有差异。",
+          "table": {
+            "1_description": "费用最低，可能需要最多3个工作日。",
+            "1_method": "银行转账（SEPA）",
+            "2_description": "费用较高，但快速且即时",
+            "2_method": "信用卡和借记卡",
+            "description": "说明",
+            "fee": "费用",
+            "method": "方式"
+          },
+          "title": "支付方式和费用"
+        },
+        "privacyPolicy": "MoonPay 隐私政策",
+        "protection": {
+          "descriptionGeneric_bitcoin": "BitBoxApp 在购买比特币时不会收集任何数据，入账资金被视为普通交易。然而合作交易所需要收集一些信息以开展业务。请参阅其各自的隐私政策，了解更详细的数据处理信息。",
+          "descriptionGeneric_crypto": "在购买加密货币时，BitBoxApp 不会收集任何数据，入账资金被视为普通交易。然而，合作交易所需要收集某些信息以开展业务。请查阅它们各自的隐私政策，了解数据如何处理的详细信息。",
+          "title": "数据保护"
+        },
+        "security": {
+          "descriptionGeneric_bitcoin": "当你通过合作交易所购买比特币时，你使用的是外部服务。该服务不在 BitBox 的安全威胁模型范围内，并依赖于运行 BitBoxApp 的环境的安全性。",
+          "descriptionGeneric_crypto": "当你通过合作交易所购买加密货币时，你使用的是外部服务。该服务不在 BitBox 的安全威胁模型范围内，并依赖于运行 BitBoxApp 的环境的安全性。",
+          "link": "安全威胁模型",
+          "title": "安全模型"
+        },
+        "title_bitcoin": "欢迎使用你的一站式比特币购买服务",
+        "title_crypto": "欢迎来到购买加密货币的一站式平台"
+      },
+      "next": "下一步",
+      "selectLabel": "选择你的账户",
+      "selectPlaceholder": "选择币种",
+      "skip": "不再显示"
+    },
+    "pocket": {
+      "error": {
+        "insufficientFunds": "所选账户资金不足。"
+      },
+      "paymentRequestNote": "付款请求来自",
+      "previousTransactions": "该账户的交易历史不为空。将此账户共享后，Pocket 将能查看其所有过去和未来的交易。仍要继续吗？",
+      "usedAddress": "地址 {{address}} 已被使用，请使用新地址重新开始。",
+      "verifyBitBox02": "请核对你通过电子邮件收到的地址是否与 BitBox 上显示的一致。如可能，请在第二台设备上打开邮件以提高安全性。"
     }
   },
   "changePin": {
     "newTitle": "新设备密码",
     "oldLabel": "当前设备密码"
+  },
+  "chart": {
+    "dataMissing": "正在加载图表，请稍后再来...",
+    "dataOldTimestamp": "历史汇率正在更新。该图表不显示 {{time}} 之后的数据。",
+    "dataUpdating": "正在更新数据…",
+    "displayMode": {
+      "performance": "表现",
+      "switchTo": "切换到 {{displayMode}}",
+      "totalValue": "价值随时间变化",
+      "unavailableSwitchTo": "{{displayMode}} 不可用。切换到 {{nextDisplayMode}}"
+    },
+    "filter": {
+      "all": "全部",
+      "month": "月",
+      "week": "周",
+      "year": "年"
+    },
+    "transactions_other": "{{count}} 笔交易"
   },
   "checkSDcard": "检查microSD卡",
   "clickHere": "点击这里。",
@@ -252,29 +811,125 @@
     "info": "在您的BitBox设备上"
   },
   "confirmOnDevice": "请在设备上进行确认",
+  "connectKeystore": {
+    "promptNoName": "请连接你的 BitBox 以继续",
+    "promptWithName": "请连接名为 \"{{name}}\" 的 BitBox 以继续",
+    "swapHint": "请连接 BitBox Multi 以使用 Swap。"
+  },
+  "darkmode": {
+    "toggle": "深色模式"
+  },
   "device": {
-    "appUpradeRequired": "您的BitBox与该桌面应用程序不兼容。请下载并安装最新版本。"
+    "appUpradeRequired": "您的BitBox与该桌面应用程序不兼容。请下载并安装最新版本。",
+    "firmwareUpgradeRequired": "需要更新固件以使用此功能。",
+    "keystoreConnected": "已连接的钱包",
+    "unsupportedFeature": "此设备不支持此功能。"
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "创建或验证 microSD 卡备份。"
+      },
+      "showRecoveryWords": {
+        "description": "在 BitBox 屏幕上显示并核对助记词。"
+      },
+      "title": "备份"
+    },
+    "bluetoothFirmware": {
+      "title": "蓝牙固件"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "BitBoxApp 会检查你的设备是否为正品。"
+      },
+      "deviceName": {
+        "description": "更改设备名称。"
+      },
+      "passwordStretchingAlgo": {
+        "description": "用于在你的 BitBox 上加密种子的算法。",
+        "title": "解锁算法"
+      },
+      "rootFingerprint": {
+        "description": "根指纹是当前所用钱包的唯一标识。如果你使用 passphrases，它可以帮助你区分不同的钱包。"
+      },
+      "securechip": {
+        "description": "安全芯片的型号。"
+      },
+      "title": "设备信息"
+    },
+    "deviceLanguage": {
+      "description": "更改 BitBox 上使用的语言。",
+      "error_104": "更改设备语言已中止。",
+      "success": "设备语言已成功更改。",
+      "title": "更改设备语言"
+    },
+    "deviceSettings": {
+      "title": "设备设置"
+    },
+    "expert": {
+      "bip85": {
+        "description": "从你的 BitBox 钱包生成子密钥。",
+        "disclaimer": "我了解子密钥的工作原理及其安全注意事项",
+        "how": {
+          "description": "子密钥以助记词的形式显示在你的 BitBox 上。你可以创建任意数量的子密钥。要显示某个子密钥，你需要输入子密钥编号（即第 1、2、3 等）以及助记词的长度（12 或 24 个助记词）。记住，你必须记录 <strong>子密钥编号和助记词个数</strong> 以便以后显示相同的助记词。",
+          "title": "它是如何工作的？"
+        },
+        "recover": {
+          "description": "你可以随时再次显示子密钥的助记词。如上所述，你必须记住 <strong>子密钥编号和助记词个数</strong> 才能显示相同的助记词。切勿将主 BitBox 的恢复助记词导入到其他钱包；导入到其他钱包时仅使用子密钥。",
+          "title": "如何使用 BitBox 子密钥恢复钱包？"
+        },
+        "security": {
+          "description": "切勿重复使用子密钥。例如，不要在热钱包中使用某个子密钥，然后再在硬件钱包中使用相同的子密钥。由于曾用于热钱包，该密钥不再被视为安全。",
+          "title": "安全注意事项"
+        },
+        "title": "显示 BIP-85 子密钥",
+        "what": {
+          "description": "子密钥由你的主种子派生，可用于创建新的钱包而无需备份更多的种子。例如，你可以创建一个子密钥并将其导入到热钱包，而不是让热钱包创建一个全新的种子。",
+          "link": "阅读有关 BIP-85 的更多信息",
+          "title": "什么是子密钥？"
+        }
+      },
+      "factoryReset": {
+        "description": "从 BitBox 中删除该钱包及其数据",
+        "title": "从 BitBox 删除钱包"
+      },
+      "goToStartupSettings": {
+        "description": "进入 BitBox 的引导加载程序。你可以在此启用固件哈希。"
+      },
+      "passphrase": {
+        "description": "启用或禁用 passphrase 功能。",
+        "title": "Passphrase"
+      }
+    },
     "firmware": {
+      "firmwareVersion": "固件版本",
       "newVersion": {
         "label": "可用版本"
       },
       "title": "固件",
       "upToDate": "您的设备固件是最新的",
+      "upgradeAvailable": "有新的 BitBox 升级可用",
+      "upgradeAvailableDescription": "有固件更新可用。立即升级以获得最新的安全改进和功能。",
       "version": {
         "label": "版本"
       }
     },
     "hardware": {
+      "attestation": {
+        "false": "真实性检查失败",
+        "label": "真实性检查",
+        "true": "你的 BitBox 为正品"
+      },
       "sdcard": {
         "false": "未插入",
         "label": "microSD卡",
         "true": "已插入"
       },
+      "securechip": "安全芯片",
       "title": "硬件信息"
     },
     "loading": "检索设备信息…",
+    "noDevice": "未连接任何设备",
     "secrets": {
       "manageBackups": "管理备份",
       "title": "机密信息"
@@ -283,7 +938,127 @@
   "deviceTampered": "您的BitBox是否已提供恢复密码？如果是这样，请停止设置过程并立即与支持人员联系。 Shift公司绝不会为您提供现成的钱包密码或提供密码建议。",
   "dialog": {
     "cancel": "取消",
-    "confirm": "确认"
+    "confirm": "确认",
+    "confirmTitle": "确认"
+  },
+  "error": {
+    "accountAlreadyExists": "该账户已存在。",
+    "accountLimitReached": "无法添加账户。此币种的账户数量已达到上限。",
+    "aoppCallback": "将地址传递给{{host}}时发生错误。",
+    "aoppInvalidRequest": "请求无效。",
+    "aoppNoAccounts": "没有可用账户。",
+    "aoppSigningAborted": "地址所有权请求已取消。",
+    "aoppUnknown": "发生未知错误。",
+    "aoppUnsupportedAsset": "不支持该资产。",
+    "aoppUnsupportedFormat": "没有可用的账户支持所请求的地址格式。",
+    "aoppUnsupportedKeystore": "已连接的设备无法为该资产签名消息。",
+    "aoppVersion": "未知版本。",
+    "keystoreTimeout": "钱包请求已过期。请重试。",
+    "lightningAddressChangeCooldown": "请稍候再更改你的 Lightning 地址。",
+    "lightningAddressInvalidUsername": "仅使用小写字母和数字。",
+    "lightningAddressUsernameUnavailable": "此名称不可用。",
+    "lightningAmountBelowMinimum": "金额必须至少为 {{minAmountSat}} sats。",
+    "lightningBalanceLimitExceeded": "充值金额超过 Lightning 钱包的限额 {{limit}}。最高充值金额必须为 {{remaining}} 或更少。",
+    "lightningInsufficientFunds": "你的 Lightning 钱包余额不足。",
+    "lightningInvalidAmount": "金额无效。",
+    "lightningInvalidPaymentInput": "无效的发票或付款请求。",
+    "lightningInvoiceAlreadyUsed": "该 Lightning 发票已被使用。请请求新的发票。",
+    "lightningPaymentFailed": "Lightning 支付失败。请在重试前检查该支付。",
+    "lightningPaymentPreparationFailed": "无法准备付款。请重试。",
+    "lightningTopUpClaimFailed": "请再次尝试领取充值。",
+    "lightningTopUpRefundFailed": "请再次尝试退款该充值。",
+    "paymentApprovalRequired": "支付费用增加。请再次查看并批准。",
+    "wrongKeystore": "连接了错误的钱包。请确保插入与此账户匹配的正确设备。",
+    "wrongKeystore2": " 如果你使用可选的 passphrase，请确保为该账户输入了正确的 passphrase。"
+  },
+  "evmChains": {
+    "arbitrumOne": "Arbitrum One",
+    "base": "Base",
+    "bnbSmartChain": "BNB Smart Chain",
+    "ethereumMainnet": "Ethereum 主网",
+    "ethereumSepoliaTestnet": "Ethereum Sepolia 测试网",
+    "gnosis": "Gnosis",
+    "hyperEVM": "HyperEVM",
+    "optimism": "Optimism",
+    "polygon": "Polygon",
+    "sonic": "Sonic"
+  },
+  "exchange": {
+    "btcdirect": {
+      "currencyMismatch": "支付请求中出现意外的货币",
+      "insufficientFunds": "所选账户余额不足。"
+    },
+    "buySell": {
+      "coinNotSupported": "该币种没有可用选项。",
+      "regionNotSupported": "此地区暂无可用选项。"
+    },
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "Pocket 隐私政策",
+          "p1": "BitBoxApp 不会收集或获取任何个人数据。Pocket 会如其隐私政策所述收集某些个人数据。",
+          "title": "数据保护"
+        },
+        "fees": {
+          "extraNote": "请注意，你需要先使用 Pocket 购买比特币，才能进行出售。",
+          "note": "注意：Pocket 的汇率可能与 BitBoxApp 的汇率不同。",
+          "p1": "<strong>购买比特币：</strong> 使用 SEPA 银行转账发送 EUR 或 CHF，Pocket 在收到转账后通常会在同一天将比特币直接发送到你的 BitBox。",
+          "p2": "<strong>出售比特币：</strong> 将比特币发送到 Pocket，并将 EUR 或 CHF 存入你注册的银行账户。汇率在 Pocket 收到你的比特币时确定。",
+          "title": "支付方式和费用"
+        },
+        "kyc": {
+          "info": "Pocket 可能需要身份证明文件。详情请参阅其常见问题解答。",
+          "link": "查看 Pocket 常见问题",
+          "title": "KYC/AML（了解你的客户 / 反洗钱）"
+        },
+        "security": {
+          "link": "BitBox 安全威胁模型",
+          "p1": "使用 Pocket 属于外部服务，不包含在 BitBox 的安全威胁模型中。但我们与 Pocket 密切合作以提升整体安全性。",
+          "p2": "<strong>购买比特币：</strong> 你将收到一封电子邮件，通过第二个通信渠道确认你的比特币接收地址。",
+          "p3": "<strong>出售比特币：</strong> BitBox 以密码学方式验证比特币存入地址，并在硬件钱包上显示“Pocket”。",
+          "title": "安全"
+        },
+        "welcome": {
+          "p1": "我们与瑞士经纪商 Pocket 合作，让在 BitBoxApp 内买卖比特币变得更简单。该服务在支持 SEPA 银行转账的欧洲地区可用。",
+          "title": "通过 Pocket 买卖比特币"
+        }
+      }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "link": "SwapKit 隐私政策",
+          "text": "BitBoxApp 不会获取或收集任何个人数据。SwapKit 可能会收集某些数据，具体请参阅其隐私政策。",
+          "title": "数据保护"
+        },
+        "fees": {
+          "note": "注意：SwapKit 的汇率可能与 BitBoxApp 的汇率不同。",
+          "text": "每笔兑换收取固定费率1.5%",
+          "title": "费用"
+        },
+        "intro": {
+          "text": "SwapKit 提供用于非托管兑换的 SDK/API 服务。我们与 SwapKit 合作，在一个平台提供跨不同区块链的加密货币兑换。它可支持快速、简便且非托管的交易，让你始终掌控自己的资产。",
+          "title": "使用 SwapKit 兑换加密货币"
+        },
+        "protocol": {
+          "link": "了解 SwapKit 提供商",
+          "text": "SwapKit API 使用多个提供商执行兑换。为了满足最新的兑换需求并提升性能，提供商可能会随时间添加或移除。",
+          "title": "SwapKit 提供商"
+        },
+        "security": {
+          "link": "BitBox 安全威胁模型",
+          "text": "SwapKit 是一个外部服务，不在 BitBox 的安全威胁模型覆盖范围内。不过，我们与 SwapKit 密切合作，通过在 BitBox 固件中实现支付请求来提高安全性。这意味着在进行兑换时，BitBox 会将目标地址显示为“SwapKit”。",
+          "title": "安全"
+        },
+        "slippage": {
+          "text": "滑点是你开始兑换时预期价格与兑换完成时实际收到价格之间的差异。由于加密货币价格可能快速波动且交易期间流动性可能发生变化，最终收到的金额可能低于估算值。",
+          "title": "滑点"
+        }
+      },
+      "infobox": {
+        "intro": "在 BitBoxApp 中将任何加密货币兑换为其他币种，无需限额或 KYC。此兑换服务由 SwapKit 提供，SwapKit 是一个去中心化兑换服务的聚合器。"
+      }
+    }
   },
   "fiat": {
     "default": "默认设置",
@@ -293,8 +1068,55 @@
   "footer": {
     "appVersion": "App版本"
   },
+  "gapLimit": {
+    "change": "找零地址的间隙限制",
+    "description": "为比特币的接收地址和找零地址配置自定义间隙限制。",
+    "maxValue": "间隙限制不得超过{{max}}。",
+    "minValue": "间隙限制必须至少为 {{min}}。",
+    "receive": "接收地址的间隙限制",
+    "title": "自定义间隙限制设置"
+  },
   "generic": {
-    "resetToDefault": "重置为默认值"
+    "beta": "测试版",
+    "bitcoinOnly": "仅限比特币",
+    "buy": "购买 {{coinCode}}",
+    "buySell": "市场",
+    "buy_bitcoin": "购买比特币",
+    "buy_crypto": "购买加密货币",
+    "calculating": "计算中…",
+    "close": "关闭",
+    "enable": "启用",
+    "enabled_false": "已禁用",
+    "enabled_true": "已启用",
+    "iHaveReadTheInformation": "我已阅读上述信息",
+    "insure": "投保",
+    "max": "最大",
+    "new": "新",
+    "noOptionOnIos": "在 iOS 上不可用",
+    "noOptions": "未找到选项",
+    "paymentRequestNote": "{{name}} 支付 {{orderId}}",
+    "receive": "接收 {{coinCode}}",
+    "receiveWithoutCoinCode": "接收",
+    "receive_bitcoin": "接收比特币",
+    "receive_crypto": "接收加密货币",
+    "received": "已接收",
+    "reset": "重置",
+    "resetToDefault": "重置为默认",
+    "retry": "重试",
+    "search": "搜索…",
+    "searchButton": "搜索",
+    "selectAll": "全选",
+    "sell": "出售 {{coinCode}}",
+    "sell_bitcoin": "出售比特币",
+    "sell_crypto": "出售加密货币",
+    "send": "发送",
+    "sent": "已发送",
+    "skip": "跳过",
+    "spend_bitcoin": "发送比特币",
+    "spend_crypto": "花费加密货币",
+    "swap": "兑换",
+    "unavailable": "不可用",
+    "unknown": "未知"
   },
   "genericError": "发生错误。如果发现任何问题，请重新启动应用程序。",
   "goal": {
@@ -341,6 +1163,22 @@
       "title": "正在传入(的交易)意味着什么？"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "在 \"Account info\" 下的 \"Export transactions\"，然后打开下载文件夹以找到导出的 CSV 文件。这对于像 CoinTracking 这样的税务申报服务很有用。",
+        "title": "如何导出我的交易历史？（例如用于 CoinTracking）"
+      },
+      "multipleXPubs": {
+        "text": "每个 xpub 与显示的 \"Type\" 对应：要么是 \"Native Segwit (bech32)\", 要么是 \"Taproot\"（仅限 Bitcoin）。这些是 {{coinName}} 使用的脚本类型。BitBoxApp 将它们合并，在同一账户中支持多种脚本类型。由于每种脚本类型会产生不同的 xpub，因此每个账户会有多个 xpub。\n\n如果你始终在默认地址（Native Segwit）收到转账，你只需要 \"bech32\" 的 xpub。但如果你也收到发往 \"Taproot\" 的资金，就需要使用 \"Taproot\" 扩展公钥。",
+        "title": "为什么会有多个 xpub？"
+      },
+      "privacy": {
+        "text": "对于此特定账户，扩展公钥（xpub）会暴露完整的交易历史、账户余额以及所有未来的交易。但 xpub 并不允许任何人花费你的资金。\n\n如果你将 xpub 提供给某人，你应当注意该人或公司可以看到同一账户的所有其他交易。因此，最好仅将该账户用于此目的，并将其他资金保存在不同的账户中。",
+        "title": "我需要保密我的 xpub 吗？"
+      },
+      "verify": {
+        "text": "是的，复查你的 xpub 总是个好主意。如果其他人会用此 xpub 生成接收地址来向你付款，这一点尤其重要。你需要在设备上验证它以确保该 xpub 属于你；否则资金可能会流向错误的地址。",
+        "title": "我需要在设备上验证 xpub 吗？"
+      },
       "xpub": {
         "text": "扩展公钥是帐户中所有接收地址的根密钥。\n此处提供扩展公钥供高级用户使用，以及与watch-only(仅限查阅)类型的钱包进行互操作,例如Electrum或Sentinel。",
         "title": "什么是扩展公钥？"
@@ -358,8 +1196,22 @@
       "text": "当余额超过零时，将激活“发送”按钮。",
       "title": "我为什么不能进行发送 {{unit}}？"
     },
+    "accountSummaryAmount": {
+      "text": "总金额为你所有加密账户余额之和。汇率取自 coingecko.com。\n\n注意：如果你使用 MyEtherWallet 管理 BitBoxApp 不支持的代币，则这些代币不会包含在显示的金额中。",
+      "title": "总金额如何计算？"
+    },
     "accountSummaryDescription": {
-      "title": "该页面向我显示了什么？"
+      "text": "在此可查看你的资产组合随时间的价值与表现。图表下方显示了各个加密账户的摘要。",
+      "title": "此页面显示什么？"
+    },
+    "accountSummaryPercentageMeaning": {
+      "listOptions": [
+        "随时间的价值：表示你的投资组合价值随时间的变化，包括存入和取出。",
+        "表现：这是资金加权回报（MWR）。它考虑了存入和取出，因此反映了你投资组合的表现。"
+      ],
+      "outro": "你可以通过点击百分比，或在 设置 → 外观 中切换显示“表现”与“随时间的价值”。默认情况下，应用显示随时间的价值。",
+      "text": "资产组合图表上的百分比表示所选时间范围内的两种选项之一：",
+      "title": "百分比代表什么？"
     },
     "accountTransactionAttributesBTC": {
       "text": "虚拟大小：决定网络费用。如果虚拟大小小于实际大小，则可以成功节省费用。\n实际大小：底层区块链序列化时，实际交易的大小（以字节为单位），。\n重量：隔离见证（Segwit）引入的一种新指标，用于评估交易和区块大小。每个隔离见证字节计为1(个重量单位)，其他所有字节计为4(个重量单位)。因此区块实际大小的限制(上限)不再是一兆字节(1MB)，区块大小的限制(上限)是四百万个重量单位。",
@@ -373,6 +1225,10 @@
       "text": "交易已广播到网络中，但尚未确认。",
       "title": "什么是待处理交易？"
     },
+    "accountTransactionEstimation": {
+      "text": "在交易确认并收到最终换算汇率之前，BitBoxApp 会在法币金额前加上估算符号。",
+      "title": "为什么新交易会显示估算标志？"
+    },
     "accountTransactionLabel": {
       "text": "这是您接收到的数字货币的地址或向其发送数字货币的地址。",
       "title": "每笔交易显示哪个地址？"
@@ -381,9 +1237,60 @@
       "text": "区块链交易确认时间。",
       "title": "显示的是什么时间？"
     },
+    "accounts": {
+      "howManyAccounts": {
+        "text": "比特币和莱特币可以有任意数量的账户。在超过六个账户后，只有在上一个账户已被使用的情况下，才可以再添加账户。\n其他货币最多可创建五个账户。",
+        "title": "我可以创建多少个账户？"
+      },
+      "howtoAddTokens": {
+        "text": "使用 ERC20 标准的代币绑定到特定的以太坊账户。要启用或禁用某个代币，请打开“管理账户”界面，展开你的以太坊账户，然后切换相应代币的开关。",
+        "title": "如何添加额外代币？"
+      },
+      "moveFunds": {
+        "text": "可以。但由于账户是相互独立的，你需要通过普通交易发送资金。",
+        "title": "我可以在账户之间转移资金吗？"
+      },
+      "recoverAccounts": {
+        "text": "是的。BitBoxApp 使用广泛采用的标准创建账户，与大多数其他加密钱包兼容。",
+        "title": "我可以用其他钱包恢复我的账户吗？"
+      },
+      "supportedCoins": {
+        "link": {
+          "text": "查看支持的币种"
+        },
+        "text": "BitBoxApp 支持 Bitcoin、Litecoin 和 Ethereum 以及部分 ERC20 代币。对于 Cardano 及其他代币，请将你的 BitBox 与 AdaLite 或 Rabby 等替代软件配合使用。你可以在我们的网站上找到所有支持币种的完整列表：",
+        "title": "支持哪些币种？"
+      },
+      "whatAreAccounts": {
+        "text": "你的钱包可以管理同一币种的多个账户。当你想将资金分开管理时，账户很有用。",
+        "title": "什么是账户？"
+      },
+      "whatIsRememberWallet": {
+        "text": "启用“记住钱包”后，即使 BitBox 未插入，你也能在 BitBoxApp 中查看该钱包的账户。这样你可以随时查看余额和资产组合。要发送或接收币，仍需将 BitBox 插入并解锁。\n\n禁用“记住钱包”后，要在 BitBoxApp 中查看这些账户，你需要插入相应的 BitBox（或 passphrase wallet）。",
+        "title": "启用/停用“记住钱包”会发生什么？"
+      },
+      "whyIsThisUseful": {
+        "text": "账户适合为不同的人或用途管理资金，因为它们是相互隔离的。你也可以分享某个账户的“扩展公钥”（extended public key），而不会泄露其他账户的任何信息。这使你可以重复接收资金而不重用地址，例如收取工资或定期购买加密货币。",
+        "title": "这有什么用？"
+      }
+    },
+    "appearancePortfolioPercentageOptions": {
+      "listOptions": [
+        "随时间的价值变动：显示你的资产组合价值随时间的变化，包括存入和取出。",
+        "绩效：这是资金加权回报（MWR）。它考虑了存款和取款，因此能反映你的投资组合的表现。"
+      ],
+      "text": "你的投资组合图表上的百分比显示以下两种选项之一：",
+      "title": "投资组合百分比选项是什么意思？"
+    },
     "appendix": {
+      "feedback": {
+        "link": "告诉我们。",
+        "text": "有反馈？"
+      },
       "link": "联系我们！",
-      "text": "另一个问题？"
+      "questionService": "在使用 {{serviceName}} 时遇到问题？",
+      "text": "另一个问题？",
+      "textService": "如果你在使用 {{serviceName}} 时遇到问题，请直接联系他们："
     },
     "backups": {
       "check": {
@@ -427,6 +1334,163 @@
         "title": "如何弹出microSD卡？"
       }
     },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "这可能是因为你使用了 Bitrefill 不支持的电子邮件提供商。如果你需要发票，请联系 Bitrefill 支持，他们可以为你提供发票。",
+        "title": "我未收到来自 Bitrefill 的发票"
+      },
+      "kyc": {
+        "link": {
+          "text": "Bitrefill 购买限额"
+        },
+        "text": "不，Bitrefill 不要求身份验证。在一定额度内，你可以在无需 KYC 的情况下进行购买。有关完整详情，请参阅 Bitrefill 的购买限额政策：",
+        "title": "Bitrefill 是否需要 KYC？"
+      },
+      "limits": {
+        "link": {
+          "text": "Bitrefill 账户验证"
+        },
+        "text": "你可以通过成为已验证客户来提高购买限额。请访问以下链接完成验证流程：",
+        "title": "如何提高在 Bitrefill 的购买限额？"
+      }
+    },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "请查看 Bitsurance 的网站及其常见问题以获取更多详情。",
+        "title": "还有其他问题？"
+      },
+      "privacy": {
+        "link": {
+          "text": "Bitsurance 隐私政策"
+        },
+        "text": "与任何常规保险单一样，它包含你的全名和地址，并指定被保险的对象（由被保险比特币账户的扩展公钥定义）。这些数据直接提交给 Bitsurance，不会与 Shift Crypto 共享。欲了解更多信息，请参阅 Bitsurance 的隐私政策。",
+        "title": "投保需要哪些个人信息？"
+      },
+      "renew": {
+        "text": "保险会自动续保一年。你可以随时在 BitBoxApp 中点击“Manage contract”取消续保，该操作会将你带到 Bitsurance 客户门户。",
+        "title": "我如何续保或取消保险？"
+      },
+      "status": {
+        "text": "成功投保的账户将在每个比特币账户页面的左上角显示绿色“insured”徽章。在“Insurance”部分，你可以查看所有已投保比特币账户及其当前的保险状态。保险状态更新最多可能需要 48 小时。",
+        "title": "我可以查看被保险账户的状态吗？"
+      },
+      "what": {
+        "text": "每份比特币保险合同覆盖一个特定的钱包账户。你可以为多个账户分别投保多份保单。被保险账户仅限使用“Native Segwit”比特币地址。",
+        "title": "整个 BitBox 钱包有保险吗？"
+      },
+      "who": {
+        "text": "该保险由 Bitsurance（一家由比特币爱好者建立的保险经纪公司）提供。他们与 ELEMENT insurance 合作提供比特币保险。两家公司均位于德国。",
+        "title": "谁为我的比特币提供保险？"
+      },
+      "why": {
+        "text": "Bitsurance 覆盖了一些超出最安全钱包保护范围的自我托管风险，例如入室盗窃、勒索或钱包被毁。是否需要为这些风险购买保险由你自行决定。",
+        "title": "我需要比特币保险吗？"
+      }
+    },
+    "device": {
+      "attestation": {
+        "link": {
+          "text": "了解有关真实性检查的更多信息"
+        },
+        "text": "BitBoxApp 会对 BitBox 执行 attestation 检查以验证设备是否为正品。该检查在本地完成，不会连接任何服务器。",
+        "title": "真实性检查如何进行？"
+      },
+      "name": {
+        "text": "这是你的钱包和备份名称。该名称用于日后的备份，并可帮助区分不同的钱包。名称可以随时更改，但请注意，更改前创建的备份仍会使用之前的名称。",
+        "title": "BitBox 名称有什么用？"
+      },
+      "secure-chip": {
+        "link": {
+          "text": "了解有关安全芯片的更多信息"
+        },
+        "text": "此信息显示安全芯片的型号，最新的芯片是 ATECC608B，相较旧型号具有改进的安全功能。",
+        "title": "为什么显示安全芯片型号？"
+      }
+    },
+    "disclaimer": {
+      "link": "查看{{provider}}免责声明",
+      "title": "{{provider}}免责声明"
+    },
+    "guideTitle": {
+      "account": "账户指南",
+      "accountInformation": "账户信息指南",
+      "accountSummary": "账户摘要指南",
+      "advancedSettings": "高级设置指南",
+      "appearance": "外观指南",
+      "buySell": "市场指南",
+      "insurance": "保险指南",
+      "lightningReceive": "接收 Lightning 指南",
+      "lightningSend": "发送 Lightning 指南",
+      "manageAccount": "账户管理指南",
+      "manageDevice": "设备管理指南",
+      "receive": "接收指南",
+      "send": "发送指南",
+      "walletConnect": "WalletConnect 指南"
+    },
+    "lightning": {
+      "multipleDevices": {
+        "text": "是的，只需将 BitBox 插入另一台设备并在 BitBoxApp 中启用 Lightning。如果你使用同一个钱包，Lightning 钱包将与之前设备上的相同。",
+        "title": "我可以在多台设备上使用我的 Lightning 钱包吗？"
+      },
+      "multipleWallets": {
+        "text": "不，目前无法在同一 BitBox 上创建多个 Lightning 钱包，也无法在同一 BitBoxApp 上使用多个 Lightning 钱包，即使你有多台 BitBox。",
+        "title": "我可以创建多个 Lightning 钱包吗？"
+      },
+      "privateKey": {
+        "text": "BitBoxApp 的 Lightning 钱包为非托管，这意味着只有你可以访问密钥。私钥存储在 BitBoxApp 中。由于 Lightning 密钥保存在你的电脑/手机上而不是 BitBox 中，这会使你的 Lightning 钱包成为“热钱包”。因此，只在 Lightning 钱包中存放少量资金。",
+        "title": "我的 Lightning 私钥存储在哪里？"
+      },
+      "providers": {
+        "text": "是的，Lightning 钱包通过 Breez SDK 使用 Spark。BitBoxApp 控制你的 Lightning 密钥，而 Spark 提供发送和接收 Lightning 支付所需的外部基础设施。使用该服务可能会产生费用。",
+        "title": "此方案会涉及第三方吗？"
+      },
+      "receive": {
+        "fee": {
+          "text": "不，接收 Lightning 付款时，接收方不需要支付费用。费用由发送方承担。",
+          "title": "接收时我需要支付费用吗？"
+        },
+        "invoiceOrAddress": {
+          "text": "当你想请求特定金额时，创建一个 Invoice。Invoice 仅用于一次付款，并在 30 天后失效。若要让付款方选择金额，或希望他们保存以便将来付款，请共享你的 Lightning 地址。你可以为 Invoice 添加可选说明，以便日后识别付款。",
+          "title": "何时应创建发票而不是分享我的地址？"
+        },
+        "payment": {
+          "text": "你可以分享可重用的 Lightning 地址，或为一次性付款创建 BOLT11 发票。将二维码或屏幕显示的文本发给付款方。在等待付款时，BitBoxApp 不需要保持打开。",
+          "title": "如何接收 Lightning 支付？"
+        },
+        "reuseAddress": {
+          "text": "是的。与 invoice 不同，你的 Lightning 地址可用于多次付款。发送方选择金额，其钱包会自动请求付款详情。它看起来像电子邮箱地址，但并不是电子邮箱地址。",
+          "title": "我可以重复使用我的 Lightning 地址吗？"
+        }
+      },
+      "securedByBitBox": {
+        "text": "不是，BitBox 仅用于创建和恢复你的闪电钱包。一旦闪电钱包创建完成，它就是一个“热钱包”。",
+        "title": "我的 Lightning 钱包受我的 BitBox 保护吗？"
+      },
+      "send": {
+        "cancel": {
+          "text": "不可以。一旦发送，Lightning 付款无法取消或撤销。发送前务必检查收款人、金额、说明和手续费。如需退款，请请求收款方退还款项。未支付的 invoice 最终会过期。",
+          "title": "我可以取消或撤销 Lightning 付款吗？"
+        },
+        "fee": {
+          "text": "手续费取决于付款金额和当时可用的路由，因此会在你发送前短时间内计算。手续费以及将从你的余额中扣除的总额会在你确认前显示。",
+          "title": "Lightning 付款费用如何计算？"
+        },
+        "invoiceAndAddress": {
+          "text": "BOLT11 Invoice 为单次付款创建。它可能已指定金额，也可能要求你输入金额。Invoice 会过期且只能被支付一次。Lightning 地址可重复使用，允许你在收款方设定的限额内选择任意金额。",
+          "title": "invoice 和 Lightning 地址有什么区别？"
+        },
+        "payment": {
+          "text": "扫描或粘贴 BOLT11 invoice、LNURL-Pay 请求或 Lightning 地址。Lightning 地址看起来像电子邮箱地址，但用于收款。",
+          "title": "如何发送 Lightning 付款？"
+        }
+      }
+    },
     "receive": {
       "address": {
         "text": "您可以将该地址提供给其他人，以便他们向您发送数字货币。但请务必确认您发送了正确的地址。",
@@ -436,9 +1500,17 @@
         "text": "一旦(上一笔)交易完成后，一个新地址会自动添加到列表中，因此始终有20个地址从未收到过任何数字货币。",
         "title": "地址何时更改？"
       },
+      "addressFormats": {
+        "text": "默认地址类型为 Native Segwit。该地址类型被其他钱包/交易所广泛采用，能够在日常交易中提供最佳手续费率。但你也可以选择发送到 Taproot（仅限比特币），它是最新的地址类型，可能尚未被广泛支持。",
+        "title": "何时使用“Change address type”？"
+      },
       "howVerify": {
         "text": "对于BitBox01，单击左侧边栏中的BitBox图标，查看“配对”部分。该指南将进行更新，您可以进一步按照说明进行操作。\n对于BitBox02，您可以在发送/接收过程中直接在设备上验证地址。",
         "title": "如何安全地验证地址？"
+      },
+      "plugout": {
+        "text": "不，一旦你向 BitBox 地址发送了资金，就不需要一直插着 BitBox。你可以断开连接。",
+        "title": "接收时我需要一直将 BitBox 插着吗？"
       },
       "why20": {
         "text": "在启动过程中，该app会通过您的种子生成的地址，以查看这些地址下是否已接收到过资金。由于该app可以生成几乎无限数量的地址，因此可能要花费数年才能确定(该种子下所有地址的)余​​额。为了限制此(无穷)搜索，它会在看到20个从未收到资金的地址后停止。这称为是“间隙限制gap limit”，而20是事实标准，尽管地址数量是任意多个的。而这20个地址是你可以进行选择使用的。",
@@ -449,14 +1521,22 @@
         "title": "为什么有那么多地址？"
       },
       "whyVerify": {
-        "text": "您不应该信任您的计算机来生成和显示真实地址。它的被攻击面很大，因此计算机相比硬件钱包更容易受到攻击。对于BitBox01，用于验证地址的按钮会将地址安全地发送到配对的手机，您还可以从该手机扫描并验证QR码。对于BitBox02，可以直接在BitBox02显示屏上验证地址。",
+        "text": "你不应该信任电脑来生成和显示真实地址。它巨大的攻击面使其比硬件钱包更易受到攻击。地址可在 BitBox 屏幕上直接验证。",
         "title": "为什么我需要对地址进行安全验证？"
       }
     },
     "send": {
+      "change": {
+        "text": "找零将返回到 Taproot 地址，如果你至少有一个 Taproot UTXO。如果你使用 coin control，且在所选 UTXO 中至少有一个 Taproot UTXO，则找零将返回到 Taproot 地址。在所有其他情况下，找零将返回到 Native Segwit 地址。",
+        "title": "找零输出如何确定？"
+      },
       "fee": {
         "text": "收取费用(的计算)基于交易数据大小而不是交易金额。费用标准是由Bitcoin Core的费用估算算法针对您选择的每个网络优先级计算的。如果它们的值与下面的标准值不同，则会显示它们。\n经济：24个区块（比特币大约需4小时，莱特币大约需1小时）\n低：12个区块（比特币大约需2小时，莱特币大约需30分钟）\n一般/普通：6个区块（比特币大约需1小时，莱特币大约需15分钟）\n高：2个区块（比特币大约需20分钟，莱特币大约需5分钟）\n（一个区块平均需要十分钟才能被挖出（在莱特币中为2.5分钟），在上述期间网络负载可能会有很大差异。）",
         "title": "费用如何确定？"
+      },
+      "plugout": {
+        "text": "不，完成交易后无需继续插着 BitBox，你可以断开连接。",
+        "title": "在发送时我需要保持 BitBox 插着吗？"
       },
       "priority": {
         "text": "您愿意支付的费用越高，网络通常会更快地确认您的交易。",
@@ -472,21 +1552,52 @@
       }
     },
     "settings": {
+      "sats": {
+        "text": "聪（简称 sat）是比特币的最小单位。1 聪等于一亿分之一比特币（0.00000001 BTC）。以比特币创造者中本聪（Satoshi Nakamoto）命名。",
+        "title": "什么是聪？"
+      },
       "servers": {
         "text": "该app与Shift Crypto服务器进行通信，以检查更新，加载交易并将信息发送到配对的移动端apps。\n该app还从CoinGecko检索最新汇率。所有转换都是在本地计算的，这意味着不会传输有关交易金额的任何数据。\n注意：对于以太坊和ERC20代币，我们使用Etherscan.io API。",
         "title": "该app与哪些服务器通信？"
       }
     },
     "settings-electrum": {
+      "connection": {
+        "text": "如果你打算仅在与节点处于同一网络（例如你的家庭 Wi-Fi）时连接，那么使用常规网络通信就足够了。\n在这种情况下，建议你的 Electrum 服务器提供 TLS 证书以加密通信。\n如果你打算从任何地方连接你的节点，则使用 Tor 是更好的选择。在这种情况下无需 TLS 证书。",
+        "title": "我应该使用 clearnet TCP、TLS 还是 Tor？"
+      },
+      "instructions": {
+        "link": {
+          "text": "连接节点指南"
+        },
+        "text": "完整教程请参阅我们的指南：",
+        "title": "如何将 BitBoxApp 连接到你自己的全节点？"
+      },
+      "options": {
+        "text": "有多种运行你自己节点的选项，例如购买现成设备、自己组装或运行 Bitcoin Core。\n如果你想将 BitBoxApp 连接到你的节点，请确保该节点运行 Electrum 服务器。该服务器是一个专门的程序，允许钱包应用与你的全节点通信。\n支持的选项包括 Electrs、Electrum Personal Server (EPS) 或 Bitcoin Wallet Tracker (BTW)。",
+        "title": "运行节点有哪些选项？"
+      },
+      "tor": {
+        "text": "Tor 是 “The Onion Router” 的缩写，是一款自由开源软件，提供诸多隐私优势，使用比特币时尤其有用。\n如果你打算通过 Tor 连接到你的节点，请确保电脑上已安装 Tor，然后在 BitBoxApp 设置中启用 Tor 代理。\n在大多数操作系统上运行 Tor 有两种方式：\n1. Tor 浏览器：下载并打开 Tor 浏览器。这样 BitBoxApp 可在 Tor 代理设置中将端口设为 9150 来连接 Tor 网络。\n2. Tor 后台服务：安装 Tor 守护进程（daemon），它始终在后台运行。然后在 Tor 代理设置中将端口设为 9050，让 BitBoxApp 连接。",
+        "title": "什么是 Tor、Tor 代理，我应使用哪个端口？"
+      },
       "what": {
         "text": "可以使用您自己的全节点为你的钱包提供支持，而无需使用Shift公司的服务器。",
         "title": "这是什么？"
+      },
+      "why": {
+        "text": "运行自己的节点并非必需，但可以提高隐私并减少对他人的信任需求。\n首先，这意味着你使用 Bitcoin 时更加私密，因为 BitBoxApp 不会连接到我们的服务器来获取你的交易历史；它会从你自己的节点获取这些信息。\n其次，运行自己的节点意味着节点会自行验证所有交易，确保证共识规则得到执行。",
+        "title": "为什么要运行自己的节点？"
       }
     },
     "title": "指南",
     "toggle": {
       "close": "关闭指南",
       "open": "指南"
+    },
+    "trackingModePortfolioChart": {
+      "text": "在桌面端，将鼠标悬停在图表上。移动端请长按图表并横向拖动。",
+      "title": "如何在图表上查看历史值？"
     },
     "unlock": {
       "forgotDevicePassword": {
@@ -524,6 +1635,27 @@
       "welcome": {
         "text": "感谢您使用由瑞士Shift Crypto公司开发的此应用程序。感谢您分享的任何意见。请使用底部的链接提供反馈。",
         "title": "欢迎使用BitBoxApp！"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "订购 BitBox02 Nova"
+        },
+        "text": "只有 BitBox02 Nova 支持 iOS。常规 BitBox02 可用于其他所有平台。要购买 BitBox02 Nova，请访问我们的商店。",
+        "title": "哪款 BitBox 支持 iOS？"
+      }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "如果你在新手机或电脑上使用 BitBoxApp，需要重新连接 DApps。连接后，你将在 DApp 上像以往一样看到你的币。",
+        "title": "我看不到以前的连接。"
+      },
+      "supportedNetworks": {
+        "text": "目前，BitBoxApp 中通过 WalletConnect 仅支持以太坊主网。如需使用其他兼容 EVM 的链，请使用 Rabby 浏览器扩展钱包。",
+        "title": "支持哪些网络？"
+      },
+      "whatIsWalletConnect": {
+        "text": "WalletConnect 是一种面向 web3 应用的通信协议。它允许你方便地连接基于以太坊的 DApps 和 Web 钱包，无需使用第三方应用，这对 BitBoxApp 的 Android 用户尤其有用。",
+        "title": "什么是 WalletConnect？"
       }
     }
   },
@@ -554,48 +1686,524 @@
     "title": "选择语言"
   },
   "lightning": {
-    "claimTopUp": {
-      "confirm": {
-        "fee": "(交易)费用"
+    "accountLabel": "Lightning",
+    "activate": {
+      "connect": {
+        "content": "连接你的 BitBox 以创建 Lightning 钱包",
+        "title": "连接你的设备"
+      },
+      "disclaimer": {
+        "content": "你的闪电钱包将使用从你的 BitBox 推导出的密钥创建。这样你就可以始终使用 BitBox 或备份来恢复你的闪电钱包。\n\n但是，与 BitBox 不同，闪电钱包是一个<strong>热钱包</strong>。这意味着闪电钱包的密钥存储在 BitBoxApp 上，而不是存储在 BitBox 上。你不应将大量资金或长期存储用于闪电钱包。\n\n          此外，闪电功能目前处于测试阶段，可能会遇到错误、可靠性问题，或功能可能完全停止工作。",
+        "title": "在 BitBoxApp 中如何工作？"
+      },
+      "intro": {
+        "content": "闪电网络是基于通道的比特币二层网络。它使你能够即时发送和接收币，且费用非常低。",
+        "title": "什么是 Lightning？"
+      },
+      "success": {
+        "message": "成功，你的 Lightning 钱包已就绪！"
+      },
+      "title": "创建 Lightning 钱包",
+      "wait": {
+        "activating": "正在启用 Lightning 钱包...",
+        "confirm": "在你的 BitBox 上确认你要创建 Lightning 钱包。",
+        "title": "创建 Lightning 钱包"
       }
+    },
+    "betaWarning": "Lightning 正处于测试阶段。仅使用少量资金。",
+    "bitcoinDeposit": {
+      "claim": "领取充值或退款",
+      "label": "比特币充值",
+      "state": {
+        "claiming": "领取存款",
+        "confirming": "等待确认",
+        "refundPending": "退款等待广播",
+        "unclaimed": "需要领取"
+      },
+      "stateShort": {
+        "claiming": "认领中",
+        "confirming": "确认中",
+        "refundPending": "退款挂起",
+        "unclaimed": "需认领"
+      }
+    },
+    "claimTopUp": {
+      "claimButton": "领取充值",
+      "claimFee": "认领费用",
+      "claimUnavailable": "无法认领",
+      "confirm": {
+        "amount": "未认领的充值",
+        "claimButton": "确认认领",
+        "claimTitle": "确认充值认领",
+        "fee": "手续费",
+        "feeRate": "费率",
+        "refundButton": "确认退款",
+        "refundDestination": "退款目的地",
+        "refundTitle": "确认退还充值"
+      },
+      "description": "认领此充值以将资金添加到你的 Lightning 钱包。",
+      "empty": "未发现未认领的充值。",
+      "failure": {
+        "claimFailedMessage": "充值领取失败。",
+        "claimFailedTryRefund": "改为尝试退款到比特币账户。",
+        "refundFailedMessage": "充值退款失败。",
+        "refundFailedTryAgain": "请重试。"
+      },
+      "feeRate": "{{feeRate}} sat/vByte",
+      "refundButton": "退还充值",
+      "refundFee": "退款费率",
+      "refundPending": "退款尚未广播到比特币网络。系统会自动重试。你也可以使用当前费率重试。",
+      "refundUnavailable": "无法退款",
+      "success": {
+        "claimTitle": "领取充值",
+        "deferredMessage": "充值申领已安排",
+        "deferredNote": "充值尚未被领取。符合费用限制时将自动重试。",
+        "refundMessage": "已请求退款",
+        "refundNote": "一旦交易被确认，退款将返回到你的链上钱包。",
+        "refundTitle": "退还充值",
+        "settledMessage": "充值已认领",
+        "settledNote": "资金现在已可在你的闪电钱包中使用。",
+        "submittedMessage": "充值申领已提交",
+        "submittedNote": "申领正在处理，完成后资金将出现在你的闪电钱包中。"
+      },
+      "title": "认领充值",
+      "topUp": "未认领的充值",
+      "viewTransaction": "查看交易",
+      "warning": "你可以选择领取充值或退款。任一选择都需要支付手续费。"
     },
     "closeWithdrawFunds": {
-      "fee": "(交易)费用"
+      "accountDestination": "账户资金将发送至",
+      "confirm": "确认关闭闪电钱包",
+      "description": "这将关闭你的闪电钱包，并将所有剩余资金发送到你的 BitBox。",
+      "failure": {
+        "message": "关闭 Lightning 钱包失败。",
+        "tryAgain": "请重试。"
+      },
+      "fee": "手续费",
+      "incomingFunds": "收到的资金",
+      "incomingWarning": "关闭你的 Lightning 钱包时，正在到账的资金无法提取。请稍后再尝试提取全部资金。",
+      "incomingWarningConfirm": "我理解正在到账的资金不会被提取。",
+      "lightningBalanceToBeSent": "要发送的 Lightning 余额",
+      "partialFailure": {
+        "action": "关闭钱包",
+        "message": "资金已提取，但闪电钱包无法关闭。请单独关闭它。"
+      },
+      "success": {
+        "message": "闪电钱包已成功关闭。资金将被发送到链上钱包。",
+        "note": "交易确认后，资金将出现在你的钱包中。"
+      },
+      "viewTransaction": "查看交易"
     },
+    "contacts": {
+      "add": "添加联系人",
+      "addAfterPayment": "将 <strong>{{address}}</strong> 添加到你的联系人",
+      "addressPlaceholder": "satoshi@bitbox.cash",
+      "delete": "删除联系人",
+      "deleteAction": "删除",
+      "deleteConfirmation": "确定要删除此联系人吗？",
+      "deleteError": "无法删除联系人。请重试。",
+      "details": "联系方式",
+      "duplicateAddress": "该闪电地址已在你的联系人中。",
+      "empty": "暂无联系人",
+      "invalidAddress": "请输入有效的 Lightning 地址。",
+      "loadError": "无法加载联系人。请重试。",
+      "myAccounts": "我的账户",
+      "name": "名称",
+      "namePlaceholder": "输入名称",
+      "notFound": "未找到联系人。",
+      "optional": "可选",
+      "saveError": "无法保存联系人。请重试。",
+      "saved": "联系人已保存",
+      "sendTo": "发送到",
+      "title": "联系人"
+    },
+    "deactivate": {
+      "intro": {
+        "content": "关闭你的 Lightning 钱包会使你与服务器断开连接，你将无法再使用 Lightning 钱包进行发送和接收。\nLightning 钱包中的资金不会受到影响，你可以在设置中重新启用 Lightning，并连接用于创建该钱包的 BitBox 来再次访问这些资金。"
+      },
+      "success": {
+        "message": "成功，你的闪电钱包已被禁用"
+      },
+      "wait": {
+        "title": "正在停用 Lightning 钱包…"
+      }
+    },
+    "disclaimer": {
+      "backups": {
+        "content": "Lightning 钱包的私钥从 BitBox 派生。这意味着你可以使用用于创建该钱包的同一台 BitBox 恢复该 Lightning 钱包。",
+        "title": "备份"
+      },
+      "beta": {
+        "content": "BitBoxApp 中的 Lightning 实现处于测试阶段（beta）。这意味着你可能会遇到错误，或者它可能完全停止工作。请在使用前了解相关风险，不要往 Lightning 钱包充值超过你愿意承担损失的金额。",
+        "title": "测试版"
+      },
+      "continue": "同意并继续",
+      "fees": {
+        "receiving": {
+          "content": "接收 Lightning 交易免费。发送方支付费用。",
+          "title": "接收"
+        },
+        "sending": {
+          "content": "费用取决于付款金额和当时可用的路径，因此会在你发送前短时间内计算。费用以及将从你的余额中扣除的总额会在你确认前显示。",
+          "title": "发送中"
+        },
+        "title": "费用"
+      },
+      "securityModel": {
+        "content": "Lightning 钱包是一个 <strong>热钱包</strong>。这意味着密钥存储在应用内，因此不会受到 BitBox 的保护。这样你可以在没有 BitBox 的情况下使用 Lightning 钱包。请务必只在 Lightning 钱包中保留少量资金。",
+        "title": "安全模型"
+      },
+      "title": "闪电网络免责声明",
+      "trustModel": {
+        "breezLink": "了解 Breez SDK",
+        "content": "BitBoxApp 中的 Lightning 集成使用 Spark 基础设施和 Breez SDK。请注意，目前无法单方面退出你的资金，因为 Breez SDK 暂不支持。因此，从你的闪电钱包中取出资金依赖于 Spark 基础设施在线并配合。",
+        "sparkLink": "了解 Spark",
+        "title": "信任模型"
+      }
+    },
+    "initializationFailed": "初始化 Lightning 时出现错误。请重启 BitBoxApp 后重试。",
+    "initializing": "正在初始化 Lightning 账户…",
+    "limit": {
+      "accountWarning": "钱包金额超出 {{limit}} 限额 {{excess}}。建议你将部分币转入 BitBox 钱包以提高安全性。",
+      "createInvoiceWarning": "Invoice 金额将超出 {{limit}} 限额 {{excess}}。你仍然可以创建该 Invoice。",
+      "invoiceWarning": "发票金额将超出 {{limit}} 限额 {{excess}}。你仍然可以使用该发票。",
+      "moveCoins": "转移资金"
+    },
+    "lnurlAddress": {
+      "availability": {
+        "available": "该名称可用",
+        "checking": "正在检查可用性...",
+        "taken": "该名称已被占用"
+      },
+      "choose": "你可以在下方选择自己的地址或生成一个。",
+      "description": "LNURL 地址是人类可读的地址，便于你分享以接收闪电网络付款。",
+      "generate": "生成地址",
+      "label": "LNURL 用户名",
+      "notice": "请注意，你的地址 <strong>每24小时只能更改一次。</strong>",
+      "success": {
+        "message": "你的 LNURL 地址已设置。"
+      },
+      "title": "设置 LNURL 地址"
+    },
+    "paymentDescription": "付款请求描述",
     "payments": {
       "header": {
-        "amount": "金额"
-      }
+        "amount": "金额",
+        "date": "日期",
+        "description": "描述",
+        "type": "类型"
+      },
+      "placeholder": "尚无付款。",
+      "title": "支付记录"
     },
     "receive": {
+      "address": {
+        "label": "闪电地址",
+        "scanQRCode": "扫描二维码以接收付款"
+      },
       "amountSats": {
+        "label": "Sats",
         "placeholder": "输入金额"
-      }
+      },
+      "description": {
+        "label": "描述",
+        "optional": "可选",
+        "placeholder": "输入描述"
+      },
+      "invoice": {
+        "copied": "付款请求已复制！",
+        "create": "创建付款请求",
+        "creating": "正在创建发票",
+        "edit": "编辑发票",
+        "newInvoice": "新发票",
+        "title": "扫描二维码以接收"
+      },
+      "openChannelWarning": "将扣除 {{feeSat}} sats 的费用以开启新通道。",
+      "subtitle": "创建闪电网络付款请求",
+      "success": {
+        "message": "已收到闪电网络付款！"
+      },
+      "title": "接收闪电付款"
     },
     "send": {
-      "confirm": {
-        "amount": "金额"
-      }
-    },
-    "settings": {
-      "wallet": "钱包"
-    },
-    "topUp": {
+      "activationRequired": "在付款前启用闪电网络。设置完成后，请重新打开支付链接。",
       "confirm": {
         "amount": "金额",
-        "networkFee": "网络费",
-        "title": "确认交易",
+        "note": "备注",
+        "receiver": "接收方",
+        "title": "确认交易详情"
+      },
+      "enterInvoice": "输入地址或 Invoice",
+      "invoice": {
+        "label": "输入付款详情",
+        "placeholder": "付款信息"
+      },
+      "lnurlPay": {
+        "invalidAmount": "请输入介于 {{minAmount}} 到 {{maxAmount}} 聪之间的金额。"
+      },
+      "onChain": "链上",
+      "pasteClipboard": "从剪贴板粘贴",
+      "qrCode": {
+        "label": "扫描地址或发票"
+      },
+      "scanInstruction": "将相机对准发票二维码",
+      "sending": {
+        "connecting": "正在准备付款",
+        "message": "正在发送付款"
+      },
+      "success": {
+        "message": "交易已确认并发送！"
+      },
+      "title": "发送闪电付款"
+    },
+    "settings": {
+      "closeAndWithdrawFunds": "关闭并提取资金",
+      "disableWallet": "停用闪电钱包",
+      "enableDebugLogs": "启用闪电网络调试日志",
+      "enableWallet": "启用 Lightning 钱包",
+      "enableWalletDescription": "Lightning 可实现即时且低手续费的支付。",
+      "expert": "专家",
+      "serviceProvider": "服务提供商",
+      "setLightningAddress": "Lightning 地址",
+      "status": "状态",
+      "statusConnected": "已连接",
+      "title": "Lightning 设置",
+      "wallet": "钱包"
+    },
+    "sparkStatus": {
+      "degraded": "Spark 网络出现性能下降。Lightning 支付可能会延迟。",
+      "major": "Spark 网络发生严重中断。Lightning 支付可能不可用。",
+      "partial": "Spark 网络部分不可用。闪电支付可能无法使用。",
+      "unknown": "Spark 网络状态未知。闪电支付可能无法使用。"
+    },
+    "testnetWarning": {
+      "message": "即使在测试网模式下，闪电网络上的币也有真实价值。是否继续？",
+      "title": "警告"
+    },
+    "topUp": {
+      "action": "充值",
+      "available": "可用",
+      "claimFeeInfo": "将从你的充值金额中扣除。实际费用可能会根据领取时比特币网络状况变化。",
+      "confirm": {
+        "amount": "金额",
+        "continue": "在你的 BitBox 上继续。",
+        "networkFee": "网络费用",
+        "receiver": "接收方",
+        "title": "确认并发送交易",
         "total": "总计"
-      }
+      },
+      "estimatedClaimFee": "预计认领费用",
+      "from": "从",
+      "noBitcoinAccounts": "未激活任何比特币账户。请激活一个比特币账户。",
+      "note": "Lightning 充值",
+      "success": {
+        "message": "充值已创建！",
+        "note": "充值交易在首次确认前会在付款列表中显示为待处理。当确认数和费用满足要求时，系统会自动认领。标准认领需要三次确认；提前认领可能更早完成。"
+      },
+      "title": "为 Lightning 钱包充值",
+      "to": "到"
     }
   },
   "loading": "载入中...",
+  "logo": {
+    "label": "{{name}} 徽标",
+    "placeholderLabel": "{{name}} 占位徽标"
+  },
+  "manageAccounts": {
+    "accountHidden": "此账户已从你的仅观察账户中隐藏。要再次查看，请插入你的 BitBox。",
+    "editAccount": "编辑",
+    "editAccountNameTitle": "编辑账户名称",
+    "noAccounts": "未找到账户",
+    "settings": {
+      "hideTokens": "隐藏代币",
+      "showTokens": "显示代币 ({{activeTokenCount}})"
+    },
+    "settingsButtonDescription": "添加并显示/隐藏账户",
+    "title": "管理账户",
+    "watchAccount": "观察账户",
+    "watchAccountDescription": "此账户属于你的观察账户。你可以通过切换开关将其从观察账户中隐藏。"
+  },
+  "mobile": {
+    "usingMobileDataWarning": "移动数据使用：在解锁账户后，本应用可能会下载多达几百兆字节的区块链区块头数据。请连接 Wi‑Fi 以避免使用移动数据。关闭此提示后将不再显示。"
+  },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "应用版本"
+      },
+      "feedbackLink": {
+        "description": "如果你有一般性反馈",
+        "title": "反馈"
+      },
+      "licenses": {
+        "description": "查看本应用使用的开源库和依赖项的许可证",
+        "error": "无法加载许可证。",
+        "packagesInfo": "此应用使用下列开源依赖（{{packageCount}} 个软件包）。",
+        "title": "许可证",
+        "unavailableLicenseText": "许可证文本不可用。"
+      },
+      "supportLink": {
+        "description": "如果你遇到问题或需要帮助",
+        "title": "支持"
+      }
+    },
+    "advancedSettings": {
+      "authentication": {
+        "description": "使用屏幕锁或指纹锁锁定应用访问。",
+        "title": "屏幕锁定"
+      },
+      "coinControl": {
+        "description": "选择参与交易的 UTXO 以提升隐私。"
+      },
+      "customFees": {
+        "description": "发送时允许你输入自定义手续费。"
+      },
+      "restartInTestnet": {
+        "description": "使用测试网来探索和测试功能。"
+      },
+      "torProxy": {
+        "description": "通过 Tor 连接以获得更好的隐私。"
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "在账户页面上可切换显示这些额外货币。",
+        "title": "启用的货币"
+      },
+      "darkmode": {
+        "description": "在深色模式下查看 BitBoxApp。"
+      },
+      "defaultCurrency": {
+        "description": "选择默认货币",
+        "title": "默认货币"
+      },
+      "enableAccount": {
+        "description": "停用账户后，它不会出现在侧边栏或资产组合中。你可以随时在此重新启用。该账户中的币不会受到影响并将保持安全。",
+        "title": "启用/停用账户"
+      },
+      "hideAmounts": {
+        "description": "显示一个开关，在公开场合使用应用时隐藏余额和金额以保护隐私。",
+        "hideAmounts": "隐藏金额",
+        "showAmounts": "显示金额",
+        "title": "允许隐藏金额"
+      },
+      "language": {
+        "description": "选择 BitBoxApp 使用的语言。",
+        "title": "语言"
+      },
+      "portfolioPerformance": {
+        "description": "选择资产组合百分比的计算方式。",
+        "options": {
+          "moneyWeightedReturn": "表现",
+          "value": "价值随时间变化"
+        },
+        "title": "资产组合百分比"
+      },
+      "remebmerWallet": {
+        "enable": {
+          "description": "现在你可以在不插入 BitBox 设备的情况下查看与此钱包关联的账户。但进行交易和显示接收地址仍然需要 BitBox。",
+          "title": "记住钱包"
+        },
+        "name": "记住钱包",
+        "warning": "这将移除你已记住的钱包。要再次看到它，你需要插入用于该钱包的 BitBox。该钱包上的任何资金不受影响。你要继续吗？",
+        "warningTitle": "禁用记住钱包"
+      },
+      "toggleSats": {
+        "description": "启用或禁用 Satoshis。"
+      }
+    }
+  },
+  "note": {
+    "input": {
+      "description": "(可选)",
+      "placeholder": "添加备注…"
+    },
+    "title": "注意"
+  },
   "notification": {
     "newTxs_other": "{{count}} 新交易： {{accountName}}"
   },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "连接问题提示",
+    "description1": "只有 BitBox02 Nova 与 iOS 兼容。对于 BitBox02，请使用 Windows、macOS、Android 或 Linux。你可以在我们的在线商店购买 BitBox02 Nova：",
+    "description2": "屏幕应该会亮起。如果屏幕没有亮，说明设备未通电。",
+    "description3": "将 BitBox02 Nova 保持靠近你的 iPhone/iPad。我们建议将 BitBox02 Nova 直接插入你的设备。",
+    "description4": "BitBox02 Nova 通过蓝牙与 iOS 连接。在其他平台上，可在 BitBoxApp 设置中禁用或启用蓝牙。",
+    "link1": "订购 BitBox02 Nova",
+    "link2": "联系支持",
+    "stillHavingIssues": "仍然有问题？",
+    "title1": "仅在 iOS 上使用 BitBox02 Nova",
+    "title2": "确保 BitBox02 Nova 已通电",
+    "title3": "保持 BitBox02 Nova 在有效范围内",
+    "title4": "确保 BitBox02 Nova 的蓝牙未被禁用"
+  },
   "passphrase": {
+    "considerations": {
+      "button": "备份注意事项",
+      "message": "passphrase 为你的钱包备份（microSD 卡或恢复词）增加了一层保护。如果有人获得了你的备份，他们还需要 passphrase 才能访问你的钱包。\n\n但是，这意味着在 BitBox 丢失或损坏时，恢复启用 passphrase 的钱包时，你将需要 <strong>同时具备 passphrase 和钱包备份</strong>。如果你忘记或丢失 passphrase，你将无法访问该钱包中的所有币。\n\n存放 passphrase 时，考虑将其与备份分开放置。这样即使有人找到了你的备份，也不会同时找到你的 passphrase。",
+      "title": "备份注意事项"
+    },
+    "disable": "禁用 passphrase",
+    "disableInfo": {
+      "button": "禁用",
+      "message": "After disabling the passphrase, you will no longer be asked to enter a passphrase after unlocking your BitBox. Therefore, you will enter your default wallet.\n\nAny coins on your passphrase-wallet will still be on that wallet, however you won’t be able to access them because after unlocking your BitBox, you will open your default wallet.\n\nTo access your passphrase-wallets again, simply re-enable the passphrase feature and enter the relevant passphrase after unlocking the BitBox.\n\n<strong>提示：</strong> 你仍可以通过将 passphrase 留空来进入原始钱包。"
+    },
+    "enable": "启用 passphrase",
+    "error": {
+      "e104": "更改 passphrase 设置已中止。"
+    },
+    "how": {
+      "button": "外观示例",
+      "message": "Passphrase 的工作方式不同于你习惯的密码。如果你输入错误的 passphrase，系统不会提醒你。这是因为 <strong>每个 passphrase 会创建一个不同且有效的钱包</strong>。这意味着你可以为任意数量的钱包使用多个 passphrase。但只有在输入对应的 passphrase 时才能访问该钱包。\n\n将 BitBox 插入时，系统会像往常一样提示输入设备密码。之后，会在设备上提示你输入 passphrase。\n\n输入 passphrase 后，设备会显示你输入的 passphrase，以便你确认输入无误。",
+      "title": "它如何工作"
+    },
+    "intro": {
+      "message": "passphrase 为你的钱包提供额外的一层安全保护。\n让我们了解它是如何工作的。",
+      "title": "设置 passphrase"
+    },
+    "progressDisable": {
+      "message": "在你的 BitBox 上确认你想要 <strong>禁用</strong> 可选的 passphrase。",
+      "title": "在设备上确认"
+    },
+    "progressEnable": {
+      "message": "在你的 BitBox 上确认你想要 <strong>启用</strong> 可选的 passphrase。",
+      "title": "在设备上确认"
+    },
+    "successDisabled": {
+      "message": "可选的 passphrase <strong>已成功启用</strong>！\n从现在起系统将要求你输入 passphrase。",
+      "messageEnd": "请现在重新插入 BitBox。",
+      "title": "Passphrase 已启用"
+    },
+    "successEnabled": {
+      "message": "可选 passphrase <strong>已成功禁用</strong>！\n\n系统将不再要求你提供 passphrase。",
+      "messageEnd": "请现在重新插入你的 BitBox。",
+      "tips": "提示",
+      "tipsList": [
+        "我们建议先向带有 passphrase 的钱包发送少量资金。然后拔掉并重新插入 BitBox，输入你的密码和 passphrase。如果你正确输入了 passphrase，你应该能在钱包中看到这些币。",
+        "如果你想在不使用 passphrase 的情况下进入原始钱包，可以在提示输入 passphrase 时直接不输入，或禁用 passphrase 功能。"
+      ],
+      "title": "Passphrase 已禁用"
+    },
     "summary": {
-      "title": "摘要"
+      "button": "启用 passphrase",
+      "title": "摘要",
+      "understand": "我理解 passphrase 的工作原理以及相关风险。",
+      "understandList": [
+        "passphrase 是对备份的额外安全保护层。",
+        "输入不同的 passphrase 将始终生成不同的钱包。",
+        "要恢复你的钱包，你需要 <strong>同时拥有 passphrase 和备份</strong>。",
+        "如果你忘记了 passphrase，<strong>将无法再访问你的资金</strong>。"
+      ]
+    },
+    "what": {
+      "button": "了解其工作原理",
+      "message": "钱包是由一个非常大的随机数创建（派生）的，也称为 seed。该 seed 在你首次设置 BitBox 时生成，并通过 microSD 卡或 recovery words 进行备份。任何获取 seed 的人都能完全控制该钱包中的资金。\n\npassphrase 是添加到 seed 上的<strong>可选的秘密</strong>。使用 passphrase 时，每个 passphrase 都会基于 seed + passphrase（可选的秘密）创建一个新钱包。passphrase 可以是任意内容：字母、单词、特殊字符，甚至可以为空。默认钱包实际上是由 seed + 空 passphrase 派生的。\n\npassphrase 属于 BIP39 标准的一部分，这意味着它与支持同一标准的所有钱包兼容。",
+      "title": "什么是 passphrase？"
+    },
+    "why": {
+      "button": "为什么使用 passphrase",
+      "message": "BitBox 可防止种子从设备中被提取，但备份（microSD 卡或恢复词）可以完全访问钱包。因此应将其存放在安全地点！\n\n由于 passphrase 使用你已有的种子创建一个新钱包，passphrase 钱包在恢复时需要 <strong>同时拥有备份和 passphrase 才能恢复</strong>。其好处是，如果有人找到了你的备份，他们仍然需要 passphrase 才能访问该 passphrase 钱包。\n\n此外，passphrase 功能允许你在同一设备上创建多个钱包，或者在默认钱包之外创建“隐藏钱包”。",
+      "title": "为什么使用 passphrase？"
     }
   },
   "password": {
@@ -606,15 +2214,25 @@
     }
   },
   "receive": {
+    "bitsuranceWarning": "这是受保账户，仅能接收到原生 SegWit 地址。这样可以避免你意外接收至未受保的 Taproot 地址。",
+    "changeScriptType": "更改地址类型",
     "label": "你的地址",
     "onlyThisCoin": {
       "description": "要接收其他代币，请先在设置中启用它们。否则如果您存入其他代币，则可能无法访问它们。",
       "warning": "确保只在这个地址上接收 {{coinName}} 。"
     },
+    "qrCodeCopiedMessage": "已复制！",
+    "scriptType": {
+      "p2tr": "Taproot（最新格式）",
+      "p2wpkh": "Native Segwit（默认）"
+    },
+    "selectAccount": "选择账户",
+    "taprootWarning": "注意：Taproot 是比特币的一项新特性，目前尚未被广泛采用。接收到 Taproot 地址的资金可能在第三方只读钱包中不可见。许多钱包和交易所尚无法向 Taproot 地址发送资金。",
     "title": "获取 {{accountName}}",
     "verify": "安全验证地址",
     "verifyBitBox02": "请在BitBox02设备上的验证地址",
-    "verifyInstruction": "请确认以下地址与设备上显示的地址匹配。"
+    "verifyInstruction": "请确认以下地址与设备上显示的地址匹配。",
+    "verifyTestnetWarning": "这是一个测试网账户，发送到该地址的币没有任何价值"
   },
   "reset": {
     "description": "设备上的所有数据将被删除。其中包括您的私钥！",
@@ -690,53 +2308,116 @@
       "label": "金额",
       "placeholder": "输入金额"
     },
+    "availableBalance": "可用余额",
     "button": "签名并发送",
+    "buyEth": "购买 ETH",
     "coincontrol": {
+      "addressReused": "地址重复使用",
+      "change": "找零",
+      "outpoint": "Outpoint",
       "title": "从输出发送"
     },
     "confirm": {
+      "infoMessage": "请在 BitBox 上仔细核对金额和地址是否正确",
       "selected-coins": "已选择的币种",
       "title": "确认交易",
+      "to": "至",
       "total": "总计"
     },
+    "edit": "编辑交易",
     "error": {
+      "accountNotSynced": "账户尚未同步。请等待同步完成后重试。",
+      "broadcastUncertain": "交易可能仍会被广播。应用会继续尝试提交。再次发送前请检查你的交易记录，以免重复支付。",
+      "erc20InsufficientGasFunds": "你没有足够的以太（Ether）来支付此 ERC20 交易的费用。请向你的钱包添加以太后重试。",
+      "feeTooLow": "手续费过低",
+      "feesNotAvailable": "无法估算手续费",
       "insufficientFunds": "余额不足",
       "invalidAddress": "无效地址",
       "invalidAmount": "无效金额",
-      "invalidData": "无效数据"
+      "invalidData": "无效数据",
+      "paymentRequestAccountMismatch": "该付款请求属于不同的网络或资产。请打开相应账户后重试。",
+      "syncInProgress": "账户仍在同步。请等待同步完成后重试。"
     },
     "fee": {
       "customPlaceholder": "输入金额",
+      "highFee": "手续费高",
+      "highFeeWarning": "费用为发送金额的 {{percentage}}%。继续？",
       "label": "网络费",
       "placeholder": "无法使用"
     },
     "feeTarget": {
+      "customLabel": "费率",
+      "customLabel_eth": "Gas 价格",
       "description": {
         "economy": "24个区块（Bitcoin比特币大约需4小时，Litecoin莱特币大约需1小时）",
+        "economy_eth": "30分钟以内",
+        "economy_ltc": "1小时（24区块）",
         "high": "2个区块（Bitcoin比特币大约需20分钟，Litecoin莱特币大约需5分钟）",
+        "high_eth": "30 秒或更短",
+        "high_ltc": "5 分钟（2 个区块）",
         "low": "12个区块（Bitcoin比特币大约需2小时，Litecoin莱特币大约需30分钟）",
-        "mHalfHour": "2个区块（Bitcoin比特币大约需20分钟，Litecoin莱特币大约需5分钟）",
-        "normal": "6个区块（Bitcoin比特币大约需1小时，Litecoin莱特币大约需15分钟）"
+        "low_eth": "5 分钟内",
+        "low_ltc": "30分钟（12区块）",
+        "mEconomy": "-",
+        "mFastest": "10 分钟（下一个区块）",
+        "mHalfHour": "20 分钟（2 个区块）",
+        "mHour": "30 分钟（3 个区块）",
+        "normal": "6个区块（Bitcoin比特币大约需1小时，Litecoin莱特币大约需15分钟）",
+        "normal_eth": "不超过 2 分钟",
+        "normal_ltc": "15分钟（6区块）"
       },
       "estimate": "预计等待时间：",
       "label": {
+        "custom": "自定义",
         "economy": "经济",
         "high": "高",
         "low": "低",
+        "mEconomy": "无优先级",
         "mFastest": "高",
+        "mHalfHour": "中等",
         "mHour": "低",
         "normal": "正常/普通"
       },
       "placeholder": "正在进行费用估算…"
     },
     "maximum": "发送全部",
+    "maximumSelectedCoins": "发送所选币",
+    "newTransaction": "新交易",
+    "noFeeTargets": "当前无法获取手续费率估算。请稍后重试或输入自定义手续费。",
+    "priority": "优先级",
     "scanQR": "扫描二维码",
+    "scanQRInstruction": "将相机对准地址的二维码",
+    "scanQRNoCameraMessage": "未找到相机。请确认你的设备支持相机且已正确设置权限。",
+    "scanQRToggleFlash": "切换手电筒",
+    "sendToAccount": {
+      "placeholder": "选择账户",
+      "title": "发送到账户"
+    },
     "success": "交易已签名并完成发送。",
     "title": "发送 {{accountName}}",
-    "toggleCoinControl": "切换coin控制"
+    "toggleCoinControl": "切换coin控制",
+    "transactionDetails": "交易详情"
   },
   "settings": {
+    "about": "关于",
     "advancedSettings": "高级设置",
+    "appearance": "外观",
+    "balanceStatement": {
+      "export": {
+        "description": "导出所选快照日期的持仓 PDF 报表。",
+        "dialog": {
+          "accountsLabel": "要包含的账户",
+          "dateLabel": "快照日期",
+          "description": "选择日期并选定要包含在余额快照中的账户。",
+          "generate": "生成 PDF",
+          "noAccounts": "没有可用的活跃账户。"
+        },
+        "errors": {
+          "sepoliaBalanceStatementUnsupported": "Ethereum Sepolia 无法导出，因为历史余额不可用。取消勾选 Sepolia 账户以导出其他账户。"
+        },
+        "title": "导出余额报表"
+      }
+    },
     "electrum": {
       "add": "添加服务器",
       "add-server": "添加",
@@ -754,6 +2435,7 @@
       "step1-text": "输入endpoint",
       "step2": "2",
       "step2-text": "输入服务器证书链的证书。或者下载远程证书并进行视觉对比。",
+      "step2-text-tcp": "如果不想使用 TLS，可跳过此步骤。",
       "step3": "3",
       "step3-text": "检查连接并添加服务器。",
       "step4": "4",
@@ -764,18 +2446,66 @@
       "title-tltc": "Litecoin莱特币测试网Electrum服务器"
     },
     "expert": {
+      "clearCache": {
+        "description": "清除 BitBoxApp 的缓存。这可以帮助修复应用中的问题。",
+        "dialog": {
+          "description": "清除 BitBoxApp 的缓存。如果你遇到 BitBoxApp 问题，此操作可能有助于解决。",
+          "note": "你的账户名称、备注和钱包不会受到影响。",
+          "primaryCTA": "清除缓存"
+        },
+        "success": "缓存已成功清除",
+        "title": "清除缓存"
+      },
       "coinControl": "启用coin控制",
       "electrum": {
+        "description": "你可以连接到你自己的 Electrum 全节点。",
         "title": "连接您自己的全节点"
       },
+      "exportLogs": {
+        "description": "导出日志文件以帮助故障排查和支持。",
+        "title": "导出日志"
+      },
+      "fee": "启用自定义手续费",
+      "restartInTestnet": "测试网模式",
       "setProxyAddress": "设定代理地址",
       "title": "高级/专业用户设置",
-      "useProxy": "启用tor代理"
+      "useProxy": "启用tor代理",
+      "useSats": "以聪显示 BTC 值"
     },
+    "general": "常规",
     "header": {
       "home": "主页"
     },
+    "info": {
+      "out-of-date": "有新更新可用",
+      "title": "信息",
+      "up-to-date": "你的应用已是最新版本",
+      "version": "应用版本"
+    },
+    "more": "更多",
+    "notes": {
+      "export": {
+        "description": "为交易备注和账户名称创建备份。",
+        "success": "笔记已成功导出。",
+        "title": "导出笔记"
+      },
+      "import": {
+        "accountNames_other": "已导入 {{count}} 个账户名称。",
+        "description": "从先前创建的备份文件恢复你的交易备注和账户名称。",
+        "title": "导入备注",
+        "tooLarge": "文件过大。",
+        "transactionNotes_other": "已导入 {{count}} 条交易备注。"
+      },
+      "title": "管理备注"
+    },
+    "other": "其他",
     "restart": "请重新启动BitBoxApp，以使更改生效。",
+    "search": {
+      "noResults": "未找到设置"
+    },
+    "services": {
+      "title": "服务"
+    },
     "success": "请拔出并重新插入BitBox，以使更改生效。",
     "title": "设置"
   },
@@ -786,7 +2516,18 @@
     "settings": "设置"
   },
   "signMessage": {
-    "addressLabel": "地址"
+    "addressLabel": "地址",
+    "emptyMessage": "请输入要签名的消息。",
+    "error": "消息签名失败。请重试。",
+    "messageLabel": "消息",
+    "messagePlaceholder": "输入要签名的消息",
+    "resultDescription": "消息已签名",
+    "signButton": "在设备上签名",
+    "signMessage": "签名消息",
+    "signOnBitBoxSubtitle": "在 BitBox 上签名消息",
+    "signatureLabel": "签名",
+    "signing": "请在你的设备上确认消息。",
+    "unsupportedTaproot": "暂不支持对 Taproot 地址进行消息签名。请返回并更改地址类型。"
   },
   "success": {
     "create": {
@@ -802,36 +2543,115 @@
       "title": "成功"
     }
   },
+  "swap": {
+    "completed": "兑换完成",
+    "confirmOnBitBox": "在 BitBox 上确认兑换",
+    "fastest": "最快",
+    "fetchQuotesError": "无法获取报价，请稍后重试。",
+    "fetchStatusError": "无法检查兑换可用性。请重试。",
+    "fetchingRoutes": "正在获取路径...",
+    "firmwareUpgradeRequired": "请将你的 BitBox 更新到最新固件以进行兑换。",
+    "insufficientGasFunds": "你需要在你的 <strong>{{accountName}}</strong> 账户中有更多 ETH 来支付网络费用。 <buyLink>立即购买 ETH</buyLink>",
+    "new": "新兑换",
+    "noRouteFound": "未找到路由",
+    "noRouteFoundForPair": "未找到从 {{sellCoin}} 到 {{buyCoin}} 的路径。尝试输入更大的金额，或稍后再试。",
+    "oneRouteAvailable": "仅有一条路线可用",
+    "providersUnavailable": "所选卖出资产目前暂无可用的兑换服务提供商。请稍后重试。",
+    "recommended": "推荐",
+    "route": "兑换路径",
+    "routesPlaceholder": "输入金额后，这里会显示路线",
+    "unexpectedError": "发生了意外错误。",
+    "updateFirmware": "更新固件"
+  },
   "testWallet": {
+    "connect": {
+      "description": "用于在测试网中无需设备进行测试的软件钱包。",
+      "title": "测试钱包"
+    },
+    "disconnect": {
+      "description": "移除软件测试钱包。",
+      "title": "断开测试钱包"
+    },
     "prompt": {
-      "button": "解锁(设备)"
+      "button": "解锁",
+      "info": [
+        "测试钱包在应用内使用软件密钥库。",
+        "不同的密码会解锁不同的钱包。这等同于使用 passphrase。",
+        "可不使用密码解锁以进入默认测试钱包。"
+      ],
+      "passwordLabel": "测试密码",
+      "title": "解锁测试钱包"
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "在测试网模式下重启应用以探索和测试功能。",
+      "prompt": "请关闭应用并重新启动以进入测试网模式。",
+      "title": "启动测试网模式"
+    },
+    "deactivate": {
+      "description": "重启应用以退出测试网模式。",
+      "prompt": "请关闭应用以退出测试网模式",
+      "title": "退出测试网模式"
     }
   },
   "transaction": {
+    "advanced": "高级",
     "confirmation": "确认",
     "details": {
+      "activity": "活动",
       "address": "地址",
-      "amount": "金额"
+      "amount": "金额",
+      "currentValue": "当前价值",
+      "date": "日期",
+      "fiatAmount": "法币金额",
+      "historicalValue": "历史价值",
+      "sentToSelf": "发送给自己",
+      "status": "状态",
+      "title": "交易详情",
+      "type": "类型"
     },
     "explorer": "交易ID",
+    "explorerError": "无法打开浏览器。",
     "explorerTitle": "在外部区块浏览器中打开",
     "fee": "(交易)费用",
+    "feeRate": "费率",
     "fiatHistorical": "历史的",
     "gas": "Gas",
+    "no-results": "未找到匹配 \"{{searchTerm}}\" 的交易",
     "pending": "待处理的交易",
     "size": "(区块)大小",
     "status": {
+      "complete": "完成",
       "failed": "失败",
-      "pending_send_to_self": "待处理的交易"
+      "pending": "未确认",
+      "pending_receive": "接收交易",
+      "pending_send": "发出交易",
+      "pending_send_to_self": "待处理交易"
     },
     "statusShort": {
+      "complete": "已完成",
       "failed": "失败",
-      "pending_receive": "传入"
+      "pending": "等待中",
+      "pending_receive": "接收中",
+      "pending_send": "支出",
+      "pending_send_to_self": "待处理"
+    },
+    "tx": {
+      "receive_complete": "接收至",
+      "receive_failed": "接收失败至",
+      "receive_pending": "接收至",
+      "send_complete": "发送至",
+      "send_failed": "发送失败至",
+      "send_pending": "已发送至",
+      "send_to_self": "已发送 <amount /> 给自己",
+      "send_to_self_failed": "向自己发送 <amount /> 失败"
     },
     "vsize": "(区块)虚拟大小",
     "weight": "(区块)重量"
   },
   "transactions": {
+    "errorLoadTransactions": "加载交易时出错",
     "placeholder": "尚无交易记录"
   },
   "unknownError": "出现未知错误： {{errorMessage}}",
@@ -839,8 +2659,20 @@
     "description": "输入您的设备密码以解锁设备",
     "error": {
       "e109_normal": "设备密码错误。 {{remainingAttempts}} 重设设备之前尝试会保留。",
-      "e109_touch": "$t(unlock.error.e109_normal）下次登录需要按住触摸按钮。",
+      "e109_touch": "$t(unlock.error.e109_normal) 下次登录需要按住触摸按钮。",
       "e113": "由于多次登录尝试，下次登录需要按住触摸按钮4秒钟。"
+    },
+    "forgotPassword": {
+      "button": "查看此处",
+      "dialogDescription": "如果你忘记了设备密码，你仍然可以从钱包备份中恢复：",
+      "dialogTitle": "忘记设备密码？",
+      "info": "忘记密码？",
+      "stillHavingIssues": "仍有问题吗？",
+      "supportLink": "联系客服",
+      "text1": "连续输入错误的设备密码 10 次后，你的设备会自动恢复出厂设置。",
+      "text2": "你可以从 microSD 卡或纸质备份恢复钱包，无需旧设备密码。恢复过程中可设置新的设备密码。",
+      "title1": "设备在多次失败尝试后会重置",
+      "title2": "从钱包备份恢复"
     },
     "input": {
       "label": "设备密码",
@@ -849,6 +2681,7 @@
     "unlocking": "解锁中..."
   },
   "upgradeFirmware": {
+    "banner": "BitBox 有可用更新。 <updateLink>立即更新</updateLink> 以获得最新的安全改进和功能。",
     "button": "升级固件",
     "description": "您是否要将固件版本从 {{currentVersion}}升级至 {{newVersion}}？",
     "label": "您的BitBox需要固件升级。",
@@ -859,10 +2692,60 @@
     "unlocked2": "重新插入BitBox时，LED会亮起",
     "unlocked3": "LED屏幕亮起时请轻触设备的触控边框"
   },
+  "walletConnect": {
+    "connect": {
+      "button": "连接",
+      "dappLabel": "输入 dapp 的 URI 地址",
+      "invalidPairingUri": "配对 URI 无效",
+      "scanInstruction": "将相机对准 WalletConnect 的二维码"
+    },
+    "dashboard": {
+      "allSessions": "所有会话",
+      "disclaimer": "WalletConnect 是用于连接基于以太坊的 Dapp 的协议。这些 Dapp 由第三方服务运行，因此请仅连接你信任的 Dapp，并在进行交易时务必确认你正在签署的内容。",
+      "newConnection": "新连接",
+      "noConnectedSessions": "当前没有账户连接到任何 dapp。",
+      "unspecifiedAccount": "未指定账户"
+    },
+    "pairingRequest": {
+      "approve": "批准连接",
+      "chains": "链",
+      "readOnly": "此连接可以查看你的地址，但无法请求签名或发起交易。",
+      "reject": "拒绝",
+      "rejectionFailed": "无法拒绝该请求，但未创建会话。",
+      "title": "新的连接请求来自",
+      "unsupported": "不支持此连接请求。"
+    },
+    "pairingSuccess": "Dapp 已成功连接。你可以在 Dapp 网站继续操作。",
+    "signingRequest": {
+      "chain": "链",
+      "dapp": "Dapp",
+      "data": "数据",
+      "dataParsingError": "解析数据失败",
+      "decodeError": "消息解码失败",
+      "method": {
+        "sendTransaction": "签名并发送交易",
+        "signMessage": "签名消息",
+        "signTransaction": "签署交易",
+        "signTypedData": "签署类型化数据"
+      },
+      "successfullySigned": "请求已成功签名",
+      "walletConnectRequest": "WalletConnect 请求"
+    },
+    "useNewUri": "此 URI 已用于尝试连接。请使用新的 URI。",
+    "walletConnect": "WalletConnect"
+  },
   "warning": {
-    "sdcard": "除非要进行备份管理，否则请将microSD卡与BitBox设备分开存放。"
+    "coincontrol": "一个或多个 UTXO 使用了重复地址。请注意，接收方将看到与这些地址关联的所有 UTXO。",
+    "offline": "你当前处于离线状态。你将无法发送交易或查看最新的汇率。",
+    "sdcard": "除非要进行备份管理，否则请将microSD卡与BitBox设备分开存放。",
+    "testnet": "你正在使用测试网模式。此处的交易和资金不真实且无价值，仅用于测试目的。"
   },
   "welcome": {
+    "connect": "连接你的 BitBox",
+    "getStarted": "让我们先在你的 BitBox 上安装固件。",
+    "loadingAccounts": "正在加载账户",
+    "message": "请连接你的 BitBox 并轻触侧面继续。",
+    "messageIOS": "请连接你的 BitBox Nova 并轻触侧面继续。",
     "title": "欢迎"
   }
 }

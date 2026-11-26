@@ -28,12 +28,16 @@
         "start": "Comece depositando algumas moedas na carteira ou comprando diretamente no BitBoxApp."
       }
     },
+    "contractAddress": "Endereço do contrato",
+    "contractAddressWarning": "Não envies moedas para o endereço do contrato, caso contrário serão perdidas. O endereço do contrato serve apenas para fins informativos.",
+    "descriptorWarning": "Para garantir compatibilidade com outras carteiras, apps ou serviços, por favor copia o descritor inteiro. Selecionar e copiar apenas o xpub pode causar a importação da conta com um tipo de script incorreto, o que pode levar a problemas.",
     "exportTransactions": "Exportar histórico de transações",
     "exportTransactionsDisabled": "Sem transações",
     "extendedPublicKey": "Chave pública estendida",
     "label": "Informações da conta",
     "scriptType": "Tipo de script",
     "title": "Informações da conta",
+    "usedAddresses": "Ver endereços usados",
     "verify": "Verificar no dispositivo",
     "viewAccountDetails": "Ver detalhes da conta",
     "xpubTypeChangeBtn": {
@@ -52,6 +56,7 @@
     "searchPlaceholder": "Pesquisar transações...",
     "title": "Meu portfólio",
     "total": "Total",
+    "totalAssets": "Ativos totais",
     "transactionHistory": "Histórico de transações"
   },
   "addAccount": {
@@ -75,6 +80,7 @@
     "title": "Adicionar conta"
   },
   "addresses": {
+    "changeCopyBody": "Não use um endereço de troco para receber moedas. Para receber moedas, clique <receiveLink>aqui</receiveLink>.",
     "columnAddress": "Endereço",
     "columnLastUsed": "Último utilizado",
     "detail": {
@@ -83,7 +89,7 @@
     "empty": "Nenhum endereço ainda foi utilizado.",
     "emptyFiltered": "Nenhum endereço corresponde aos seus filtros.",
     "filter": {
-      "changeAddresses": "Alterar endereços",
+      "changeAddresses": "Endereços de troco",
       "receiveAddresses": "Endereços de recebimento"
     },
     "listDescriptionPrefix": "Esta página mostra todos os endereços usados da conta.",
@@ -133,6 +139,7 @@
   },
   "backup": {
     "check": {
+      "aborted": "A verificação da cópia de segurança foi abortada no dispositivo.",
       "checking": "Checando backup...",
       "confirmTitle": "Checar backup",
       "notOK": "O Backup NÃO corresponde à carteira.",
@@ -169,6 +176,7 @@
     "restore": {
       "confirmTitle": "Restaurar backup",
       "error": {
+        "e104": "A restauração da cópia de segurança foi abortada.",
         "e200": "Cartão microSD não encontrado",
         "general": "Erro ao restaurar o backup"
       },
@@ -198,7 +206,7 @@
       },
       "scamWarning": "Se alguém te pedir para fazer isto, desliga a chamada. É um golpe.",
       "title": "Mostrar frase de recuperação",
-      "warning": "<strong>Nunca compartilhe suas palavras de recuperação com ninguém.</strong> Suas palavras de recuperação dão acesso total à sua carteira. Se alguém está pedindo suas palavras de recuperação, é um golpista, não as compartilhe!"
+      "warning": "<strong>Nunca partilhes as tuas palavras de recuperação. </strong>Qualquer pessoa que as tenha pode aceder à tua carteira."
     },
     "title": "Gerenciar backups"
   },
@@ -211,6 +219,7 @@
       "toggleShowFirmwareHash": "Mostrar o hash de firmware toda vez na inicialização"
     },
     "flipscreen": "Girar tela",
+    "furtherUpgrades": "Seguir-se-ão mais atualizações.",
     "orientation": "Dispositivo orientado de maneira errada?",
     "success": "Atualização bem sucedida!",
     "success_install": "Instalação com sucesso! ",
@@ -239,10 +248,14 @@
       "alertDisabled": "Bluetooth agora está desativado na sua BitBox. Se futuramente você quiser se conectar com iPhones, você terá que reativar essa opção.",
       "alertEnabled": "Bluetooth ativado.",
       "description": "Bluetooth é usado para conectar-se com o iPhone",
+      "error_104": "A alteração da configuração de Bluetooth foi abortada.",
       "titleDisabled": "Ativar Bluetooth.",
       "titleEnabled": "Desativar Bluetooth"
     },
     "changePassword": {
+      "description": "Alterar a palavra-passe do dispositivo BitBox.",
+      "error_104": "A alteração da senha foi abortada.",
+      "success": "Palavra-passe alterada com sucesso",
       "title": "Mudar senha do dispositivo"
     },
     "deviceName": {
@@ -347,7 +360,8 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Remova o cartão microSD de sua BitBox e guarde-o em um local seguro.",
-      "storeMnemonic": "Guarde suas palavras de recuperação em um local seguro"
+      "storeMnemonic": "Guarde suas palavras de recuperação em um local seguro",
+      "success": "Backup criado com sucesso."
     },
     "stepInsertSD": {
       "insertSDCard": "Por favor insira um cartão microSD na sua BitBox para continuar.",
@@ -390,6 +404,9 @@
       "text": "Se você já se cadastrou no Bitsurance, o BitBoxApp pode sincronizar automaticamente sua cobertura de seguro existente.",
       "title": "Já está segurado?"
     },
+    "error": {
+      "unavailable": "Não foi possível contactar a Bitsurance. Por favor, tenta novamente mais tarde."
+    },
     "insure": {
       "button": "Verificar disponibilidade e preços",
       "faq": "Leia mais sobre perguntas frequentes sobre Bitsurance",
@@ -428,6 +445,11 @@
     "connected": "conectado",
     "connectionFailed": "falhou",
     "connectionIssues": "Está tendo problemas de conexão?",
+    "connectionIssuesLink": "Vê aqui",
+    "disabledGloballyDescription": "Ativa o Bluetooth para conectares à tua BitBox.",
+    "disabledGloballyTitle": "O acesso ao Bluetooth está desativado.",
+    "disabledPermissionDescription": "Permite o acesso ao Bluetooth para conectares à tua BitBox.",
+    "disabledPermissionTitle": "O acesso ao Bluetooth está desativado para o BitBoxApp.",
     "enable": "Por favor ligue o Bluetooth",
     "select": "Selecione seu BitBox"
   },
@@ -513,6 +535,10 @@
               "link": "Modelo de ameaças à segurança da BitBox",
               "text": "O Bitrefill é um serviço externo que não é coberto pelo modelo de ameaças à segurança da BitBox. Quando você faz uma compra, seu pagamento é enviado para um endereço do Bitrefill. A BitBox não pode verificar se esse endereço está correto.",
               "title": "Aviso de segurança"
+            },
+            "validEmail": {
+              "text": "Vários provedores de e-mail temporário não são suportados pelo Bitrefill e, por isso, podes não receber a fatura. O código/vale do cartão-presente continuará disponível no final do processo.",
+              "title": "Endereços de e-mail válidos"
             }
           },
           "infobox": {
@@ -781,7 +807,10 @@
       "month": "Mês",
       "week": "Semana",
       "year": "Ano"
-    }
+    },
+    "transactions_many": "{{count}} transações",
+    "transactions_one": "{{count}} transações",
+    "transactions_other": "{{count}} transações"
   },
   "checkSDcard": "checando cartão microSD",
   "clickHere": "Clique aqui.",
@@ -813,12 +842,19 @@
       },
       "title": "Backups"
     },
+    "bluetoothFirmware": {
+      "title": "Firmware Bluetooth"
+    },
     "deviceInformation": {
       "attestation": {
         "description": "O BitBoxApp verifica se o seu dispositivo é autêntico."
       },
       "deviceName": {
         "description": "Altere o nome do seu dispositivo."
+      },
+      "passwordStretchingAlgo": {
+        "description": "O algoritmo usado para criptografar a seed na tua BitBox.",
+        "title": "Algoritmo de desbloqueio"
       },
       "rootFingerprint": {
         "description": "A impressão digital raiz é um identificador exclusivo da carteira atualmente em uso. Pode ajudá-lo a distinguir entre diferentes carteiras se você usar frases secretas."
@@ -834,12 +870,15 @@
       "success": "Idioma do dispositivo alterado com sucesso.",
       "title": "Alterar o idioma do dispositivo"
     },
+    "deviceSettings": {
+      "title": "Configurações do dispositivo"
+    },
     "expert": {
       "bip85": {
         "description": "Gere chaves filhas de sua carteira BitBox.",
         "disclaimer": "Entendo como funcionam as chaves filhas e as considerações de segurança",
         "how": {
-          "description": "As chaves filhas são exibidas como um mnemônico na sua BitBox. Você pode criar quantas chaves filhas desejar. Para mostrar uma chave filha, será solicitado o número da chave filha (ou seja, 1ª, 2ª, 3ª etc.) e o comprimento desejado do mnemônico (12, 18 ou 24 palavras de recuperação). Lembre-se, você deve manter registro do <strong>número da chave filha e número de palavras</strong> para exibir o mesmo mnemônico posteriormente.",
+          "description": "As chaves filhas são exibidas como um mnemonic na tua BitBox. Podes criar tantas chaves filhas quanto quiseres. Para mostrar uma chave filha, ser-te-á pedido o número da filha (isto é, 1.ª, 2.ª, 3.ª etc.) e o comprimento desejado do mnemonic (12 ou 24 palavras de recuperação). Lembra-te, deves guardar o <strong>número da filha e número de palavras</strong> para mostrar o mesmo mnemonic mais tarde.",
           "title": "Como funciona?"
         },
         "recover": {
@@ -1178,7 +1217,8 @@
         "Desempenho: Este é o retorno ponderado pelo dinheiro (MWR). Ele leva em conta depósitos e saques, por isso reflete o desempenho da sua carteira."
       ],
       "outro": "Você pode alternar entre desempenho e valor ao longo do tempo clicando na porcentagem, ou em Configurações em Aparência. Por padrão, o aplicativo exibe Valor ao longo do tempo.",
-      "text": "A porcentagem no gráfico da sua carteira mostra uma de duas opções para o intervalo de tempo selecionado:"
+      "text": "A porcentagem no gráfico da sua carteira mostra uma de duas opções para o intervalo de tempo selecionado:",
+      "title": "O que significa a percentagem?"
     },
     "accountTransactionAttributesBTC": {
       "text": "Tamanho virtual: determina a taxa de rede. Você economizou com sucesso em taxas se for menor que o tamanho da transação.\nTamanho: tamanho real da transação em bytes quando serializado de acordo com a blockchain subjacente.\nPeso: uma nova métrica introduzida no Segwit para avaliar os tamanhos de transação e bloco. Cada segregated witness (segwit) byte conta como um, todo o resto como quatro unidades de peso. Em vez de um megabyte em tamanho real, o limite de tamanho do bloco agora é de quatro milhões de unidades de peso.",
@@ -1240,6 +1280,14 @@
         "text": "Contas são ótimas para gerenciar seus fundos para pessoas ou propósitos diferentes porque são separadas. Você pode também compartilhar sua \"chave pública estendida\" de uma conta sem revelar nada sobre suas outras contas.Isso permite você repetidamente receber saldo sem reutilizar os seus endereços, bem como receber seu salário ou seu saldo de crypto que for comprado.",
         "title": "Por que isso é útil?"
       }
+    },
+    "appearancePortfolioPercentageOptions": {
+      "listOptions": [
+        "Valor ao longo do tempo: Esta é a variação do valor da sua carteira ao longo do tempo, incluindo depósitos e saques.",
+        "Desempenho: Este é o retorno ponderado pelo dinheiro (MWR). Ele leva em conta depósitos e saques, por isso reflete o desempenho da sua carteira."
+      ],
+      "text": "A percentagem no gráfico do teu portefólio mostra uma de duas opções:",
+      "title": "O que significam as opções de percentagem do portfólio?"
     },
     "appendix": {
       "feedback": {
@@ -1742,7 +1790,16 @@
       "incomingFunds": "Fundos recebidos",
       "incomingWarning": "Os fundos recebidos não podem ser retirados ao fechar a sua carteira Lightning. Por favor, tente novamente mais tarde para retirar todos os fundos",
       "incomingWarningConfirm": "Entendo que os fundos recebidos não serão retirados",
-      "lightningBalanceToBeSent": "Saldo Lightning a ser enviado"
+      "lightningBalanceToBeSent": "Saldo Lightning a ser enviado",
+      "partialFailure": {
+        "action": "Desativar carteira",
+        "message": "Os fundos foram retirados, mas a carteira Lightning não pôde ser fechada. Encerra-a separadamente."
+      },
+      "success": {
+        "message": "Carteira Lightning encerrada com sucesso. As moedas serão enviadas para a carteira on-chain.",
+        "note": "As tuas moedas aparecerão na tua carteira assim que a transação for confirmada."
+      },
+      "viewTransaction": "Ver transação"
     },
     "contacts": {
       "add": "Adicionar contacto",
@@ -1767,15 +1824,40 @@
       "sendTo": "Enviar para",
       "title": "Contatos"
     },
+    "deactivate": {
+      "intro": {
+        "content": "Desativar a tua carteira Lightning irá desconectar-te do servidor e já não poderás usar a carteira Lightning para enviar e receber.\nOs fundos na tua carteira Lightning não são afetados; podes aceder a eles novamente ativando o Lightning nas definições e conectando o BitBox usado para criar essa carteira."
+      },
+      "success": {
+        "message": "Sucesso, sua carteira Lightning agora está desativada"
+      },
+      "wait": {
+        "title": "A desativar a carteira Lightning..."
+      }
+    },
     "disclaimer": {
       "backups": {
+        "content": "A chave privada da carteira Lightning é derivada do BitBox. Isto significa que podes restaurar a carteira Lightning usando o mesmo BitBox que foi utilizado para a criar.",
         "title": "Backups"
+      },
+      "beta": {
+        "content": "A implementação Lightning na BitBoxApp está em beta. Isso significa que podes encontrar bugs ou deixar de funcionar completamente. Compreende os riscos antes de usar e não carregues a tua carteira Lightning com mais moedas do que estás disposto a perder.",
+        "title": "Beta"
       },
       "continue": "Concordo e continue",
       "fees": {
+        "receiving": {
+          "content": "Receber transações Lightning é gratuito. O remetente paga as taxas.",
+          "title": "A receber"
+        },
+        "sending": {
+          "content": "A taxa depende do montante do pagamento e da rota disponível no momento, por isso é calculada pouco antes de enviares. A taxa e o montante total que será deduzido do teu saldo são mostrados antes de confirmares.",
+          "title": "A enviar"
+        },
         "title": "Taxas"
       },
       "securityModel": {
+        "content": "A carteira Lightning é uma <strong>hot wallet</strong>. Isto significa que as chaves são armazenadas na aplicação e, portanto, não estão protegidas pela BitBox. Isto permite que uses a tua carteira Lightning sem precisares de uma BitBox. Mantém apenas uma pequena quantia de fundos na tua carteira Lightning.",
         "title": "Modelo de segurança"
       },
       "title": "Aviso sobre Lightning",
@@ -1786,6 +1868,7 @@
         "title": "Modelo de confiança"
       }
     },
+    "initializationFailed": "Ocorreu um erro ao inicializar o Lightning. Por favor, reinicia a BitBoxApp para tentar novamente.",
     "initializing": "Inicializando a conta Lightning...",
     "limit": {
       "accountWarning": "O saldo da carteira excede o limite de {{limit}} em {{excess}}. Recomendamos que você mova algumas moedas para a sua carteira BitBox para maior segurança.",
@@ -1900,6 +1983,10 @@
       "partial": "A rede Spark está parcialmente indisponível. Pagamentos Lightning podem estar indisponíveis.",
       "unknown": "O status da rede Spark é desconhecido. Pagamentos Lightning podem estar indisponíveis."
     },
+    "testnetWarning": {
+      "message": "As moedas Lightning têm valor real, mesmo ao usar o app em modo testnet. Deseja prosseguir?",
+      "title": "Aviso"
+    },
     "topUp": {
       "action": "Carregar saldo",
       "available": "Disponível",
@@ -2010,6 +2097,14 @@
       "language": {
         "description": "Qual idioma você deseja que o BitBoxApp use.",
         "title": "Idioma"
+      },
+      "portfolioPerformance": {
+        "description": "Escolhe como a percentagem do portefólio é calculada.",
+        "options": {
+          "moneyWeightedReturn": "Desempenho",
+          "value": "Valor ao longo do tempo"
+        },
+        "title": "Percentagem do portfólio"
       },
       "remebmerWallet": {
         "enable": {
@@ -2466,7 +2561,9 @@
     "confirmOnBitBox": "Confirme a troca no BitBox",
     "fastest": "Mais rápido",
     "fetchQuotesError": "Não foi possível obter cotações no momento. Por favor, tente novamente.",
+    "fetchStatusError": "Não foi possível verificar a disponibilidade do swap. Por favor, tenta novamente.",
     "fetchingRoutes": "Buscando rotas...",
+    "firmwareUpgradeRequired": "Atualize seu BitBox para o firmware mais recente para fazer swap.",
     "insufficientGasFunds": "Você precisa de mais ETH na sua conta <strong>{{accountName}}</strong> para pagar as taxas de rede. <buyLink>Comprar ETH agora</buyLink>",
     "new": "Nova troca",
     "noRouteFound": "Nenhuma rota encontrada",
@@ -2476,7 +2573,8 @@
     "recommended": "Recomendado",
     "route": "Rota de troca",
     "routesPlaceholder": "As rotas aparecerão aqui após inserir um valor.",
-    "unexpectedError": "Ocorreu um erro inesperado."
+    "unexpectedError": "Ocorreu um erro inesperado.",
+    "updateFirmware": "Atualizar firmware"
   },
   "testWallet": {
     "connect": {
@@ -2489,6 +2587,11 @@
     },
     "prompt": {
       "button": "Desbloquear",
+      "info": [
+        "A carteira de teste usa um keystore de software no app.",
+        "Senhas diferentes desbloqueiam carteiras diferentes. É o mesmo que usar uma passphrase.",
+        "Você pode desbloquear sem senha para entrar na carteira de teste padrão."
+      ],
       "passwordLabel": "Senha de teste",
       "title": "Desbloquear carteira de teste"
     }
@@ -2512,8 +2615,10 @@
       "activity": "Movimentação",
       "address": "Endereço",
       "amount": "Valor",
+      "currentValue": "Valor atual",
       "date": "Data",
       "fiatAmount": "Valor fiduciário",
+      "historicalValue": "Valor histórico",
       "sentToSelf": "Enviado para você mesmo",
       "status": "Status",
       "title": "Detalhes da transação",
@@ -2571,8 +2676,16 @@
       "e113": "Devido a muitas tentativas de login, o próximo login requer que o botão touch seja pressionado por 4 segundos."
     },
     "forgotPassword": {
+      "button": "Veja aqui",
+      "dialogDescription": "Se você esqueceu a senha do dispositivo, ainda pode restaurar a partir do backup da sua carteira:",
+      "dialogTitle": "Esqueceste a palavra-passe do dispositivo?",
+      "info": "Esqueceu a sua palavra-passe?",
       "stillHavingIssues": "Ainda tendo problemas?",
-      "supportLink": "Contate o suporte"
+      "supportLink": "Contate o suporte",
+      "text1": "Após 10 tentativas de palavra-passe incorretas, o seu dispositivo é reposto automaticamente para as definições de fábrica.",
+      "text2": "Podes restaurar a tua carteira a partir de um cartão microSD ou de um backup em papel, sem precisar da antiga palavra-passe do dispositivo. Durante a restauração, podes definir uma nova palavra-passe do dispositivo.",
+      "title1": "O dispositivo reinicia após repetidas tentativas falhadas.",
+      "title2": "Restaurar a partir do backup da tua carteira"
     },
     "input": {
       "label": "Senha do dispositivo",
@@ -2608,8 +2721,12 @@
     },
     "pairingRequest": {
       "approve": "Aprovar conexão",
+      "chains": "Redes",
+      "readOnly": "Esta conexão pode visualizar seu endereço, mas não pode solicitar assinaturas nem transações.",
       "reject": "Rejeitar",
-      "title": "Nova solicitação de conexão de"
+      "rejectionFailed": "O pedido não pôde ser rejeitado, mas nenhuma sessão foi criada.",
+      "title": "Nova solicitação de conexão de",
+      "unsupported": "Este pedido de ligação não é suportado."
     },
     "pairingSuccess": "Dapp conectado com sucesso. Você pode continuar no site dapp.",
     "signingRequest": {
@@ -2641,6 +2758,7 @@
     "getStarted": "Vamos começar instalando o firmware na sua BitBox.",
     "loadingAccounts": "Carregando contas",
     "message": "Conecte sua BitBox e toque na lateral para continuar.",
+    "messageIOS": "Conecte sua BitBox Nova e toque na lateral para continuar.",
     "title": "Bem-vindo"
   }
 }

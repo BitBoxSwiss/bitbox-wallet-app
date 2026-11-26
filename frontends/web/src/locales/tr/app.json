@@ -1,5 +1,9 @@
 {
   "account": {
+    "account": "Hesap",
+    "accounts": "Hesaplar",
+    "backupReminder": "Cüzdanın <strong>{{name}}</strong> {{fiat}} {{threshold}}'ı aştı!\n\nEk koruma için kağıt bir yedek oluşturmanı öneririz. Hızlı ve kolay.",
+    "backupReminderLink": "Kağıt yedek oluştur",
     "disconnect": "Bağlantı koptu. Tekrar deneniyor...",
     "exportTransactions": "İşlemleri İndirilenler Klasörüne CSV Dosyası Olarak Dışa Aktar",
     "fatalError": "Beklenmeyen bir hata oluştu.",
@@ -10,10 +14,13 @@
     "maybeProxyError": "Tor proxy'si etkinleştirildi. Tor proxy'nizin düzgün çalıştığından emin olun veya proxy ayarını devre dışı bırakın.",
     "reconnecting": "Bağlantı koptu, yeniden bağlantı kuruluyor...",
     "syncedAddressesCount": "{{count}} adres tarandı",
+    "syncing": "Hesap senkronize ediliyor, lütfen bekle…",
+    "uncoveredFunds": "Aşağıdaki sigorta kapsamında olmayan adres türlerinde, <strong>{{name}}</strong> hesabında bakiyen var: {{uncovered}}.\nHesap sigortalandığı için yalnızca <strong>Native Segwit</strong> adres türüne gelen bakiyeler sigorta kapsamındadır. Aynı hesapta olsalar bile farklı adres türlerindeki bakiyeler sigorta kapsamında değildir.\nLütfen bu hesaptaki tüm bakiyelerin sigorta kapsamına alınması için desteklenmeyen adres türlerindeki tüm bakiyelerini <strong>Native Segwit</strong> adres türüne taşı, böylece bu hesaptaki tüm bakiyelerin sigorta kapsamına alınır.",
     "uncoveredFundsLink": "Paralarınızı nasıl taşıyacağınızla ilgili bu kılavuzu takip edin.",
     "warning": "Uyarı!"
   },
   "accountInfo": {
+    "accountDetails": "Hesap detayları",
     "address": "Adres",
     "buyCTA": {
       "information": {
@@ -21,22 +28,35 @@
         "start": "Cüzdanınıza biraz para yatırarak veya doğrudan BitBoxApp'te satın alarak başlayın."
       }
     },
+    "contractAddress": "Sözleşme adresi",
+    "contractAddressWarning": "Sözleşme adresine hiçbir coin gönderme; aksi takdirde kaybolurlar. Sözleşme adresi sadece bilgi amaçlıdır.",
+    "descriptorWarning": "Diğer cüzdanlar, uygulamalar veya hizmetlerle sorunsuz uyumluluk sağlamak için lütfen tüm descriptor'ı kopyalayın. Sadece xpub'yi seçip kopyalamak, hesabın yanlış bir script type ile içe aktarılmasına ve sorunlara yol açmasına neden olabilir.",
+    "exportTransactions": "İşlem geçmişini dışa aktar",
+    "exportTransactionsDisabled": "İşlem yok",
     "extendedPublicKey": "Genişletilmiş Genel Anahtar",
     "label": "Hesap bilgileri",
+    "scriptType": "Script türü",
     "title": "Hesap Bilgileri",
+    "usedAddresses": "Kullanılan adresleri görüntüle",
     "verify": "Bu cihazda doğrula",
+    "viewAccountDetails": "Hesap ayrıntılarını görüntüle",
     "xpubTypeChangeBtn": {
+      "p2pkh": "Legacy P2PKH genişletilmiş açık anahtarını görüntüle",
       "p2tr": "Taproot görüntüle",
       "p2wpkh": "Native Segwit görüntüle"
-    }
+    },
+    "xpubTypeInfo": "Şu anda görüntülenen {{scriptType}} genişletilmiş açık anahtar ({{current}} / {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Mevcut bakiye",
     "balance": "Bakiye",
     "name": "Hesap adı",
     "noAccount": "Gösterilecek hesap yok.",
+    "portfolio": "Portföy",
+    "searchPlaceholder": "İşlemleri ara...",
     "title": "Portföyüm",
     "total": "Toplam",
+    "totalAssets": "Toplam varlıklar",
     "transactionHistory": "İşlem geçmişi"
   },
   "addAccount": {
@@ -47,7 +67,8 @@
     },
     "selectCoin": {
       "nextButton": "Sonraki",
-      "step": "Coin Seç"
+      "step": "Coin Seç",
+      "title": "Kripto para seç"
     },
     "success": {
       "addAnotherAccount": "Başka bir hesap ekle",
@@ -59,31 +80,66 @@
     "title": "Hesap Ekle"
   },
   "addresses": {
+    "changeCopyBody": "Coin almak için change address kullanma. Coin almak için <receiveLink>buraya</receiveLink> tıkla.",
     "columnAddress": "Adres",
+    "columnLastUsed": "Son kullanım",
     "detail": {
       "address": "Adres"
-    }
+    },
+    "empty": "Henüz hiçbir adres kullanılmadı.",
+    "emptyFiltered": "Filtrelerinle eşleşen adres yok.",
+    "filter": {
+      "changeAddresses": "Change adresleri",
+      "receiveAddresses": "Alma adresleri"
+    },
+    "listDescriptionPrefix": "Bu sayfa hesabın kullanılan tüm adreslerini gösterir.",
+    "loadFailed": "Kullanılmış adresler yüklenemedi.",
+    "loadNotSupported": "Kullanılmış adresler bu hesap türü için kullanılamaz.",
+    "loadSyncInProgress": "Kullanılmış adresler hala senkronize ediliyor. Lütfen kısa süre sonra tekrar deneyin.",
+    "new": "Yeni adres",
+    "notFound": "Adres bulunamadı.",
+    "searchPlaceholder": "Adres ara",
+    "skipDeviceVerification": "Cihaz doğrulamasını atla",
+    "skipVerifyBody": "Cihazdaki adresi doğrulamamak, BitBox'una ait olmayan bir adresi kopyalamanıza neden olabilir.",
+    "skipVerifyConfirm": "Evet, doğrulamayı atla",
+    "skipVerifyQuestion": "Devam etmek istediğine emin misin?",
+    "skipVerifyTitle": "Cihaz doğrulamasını atla?",
+    "skipVerifyWarning": "Uyarı",
+    "title": "Kullanılmış adresler",
+    "unverifiedAddressWarning": "Bu adres cihazda doğrulanmadı.",
+    "verifyConnectFailed": "Seçilen cihaza bağlanılamadı.",
+    "verifyFailed": "Adres doğrulaması başarısız oldu."
   },
   "aopp": {
     "addressRequest": "{{host}} alıcı adresi istiyor.",
     "addressRequestWithLogo": "alıcı adresi istiyor.",
+    "addressRequestWithLogoAndXPub": "bir alıcı adresi ve açık anahtar (xpub) istiyor.",
+    "addressRequestWithXPub": "{{host}} bir alım adresi ve genel anahtar (xpub) talep ediyor.",
     "banner": "Adres isteği işleniyor. Devam etmek için lütfen cihazınızı bağlayın.",
     "errorTitle": "Adres isteği sırasında hata",
     "labelAddress": "Adres",
     "labelMessage": "Mesaj",
     "reverifyInfoText": "Adresi Doğrula",
+    "signing": "Devam etmek için BitBox'unda mesajı imzala",
     "success": {
+      "message": "Devam et: {{host}}",
       "title": "Adres başarıyla gönderildi."
-    }
+    },
+    "title": "Adres isteği",
+    "xpubRequested": "xpub'unu paylaşmak, harici hizmetlerin hesap adreslerini görmesini sağlar. Paraların hâlâ güvende ve kontrol sende kalır."
   },
   "app": {
     "upgrade": "Bu uygulamanın yeni bir sürümü mevcut! Lütfen  {{current}} 'dan  {{version}}'a yükseltin."
   },
   "auth": {
-    "dismissButton": "İptal Et"
+    "authButton": "Kimlik doğrula",
+    "dismissButton": "İptal",
+    "missing": "Lütfen cihazının sistem ayarlarından bir ekran kilidi ayarla.",
+    "title": "Devam etmek için kimliğini doğrula"
   },
   "backup": {
     "check": {
+      "aborted": "Yedeğin kontrolü cihazda iptal edildi",
       "checking": "Yedekleme kontrol ediliyor...",
       "confirmTitle": "Yedeklemeyi Kontrol Et",
       "notOK": "Yedekleme cüzdanla eşleşmiyor.",
@@ -114,12 +170,15 @@
     "description": "<strong>cüzdan yedekleme dosyasını</strong> seçin",
     "insert": "Yedeklemeleri yönetmek için lütfen micro SD kartı takın.",
     "insertButton": "Mikro SD kartımı taktım",
+    "link": "Yedekleri yönetme sayfasına gidin",
     "list": "MicroSD kart yedekleriniz",
     "noBackups": "Bu microSD kartta yedekleme yok.",
     "restore": {
       "confirmTitle": "Yedeklemeyi Geri Yükle",
       "error": {
-        "e200": "SD kart bulunamadı"
+        "e104": "Yedeğin geri yüklenmesi iptal edildi.",
+        "e200": "SD kart bulunamadı",
+        "general": "Yedeği geri yüklerken hata oluştu."
       },
       "password": {
         "label": "Kurtarma şifresi veya gizli kurtarma şifresi",
@@ -128,23 +187,43 @@
         "showLabel": "Kurtarma şifresi"
       },
       "restoring": "Yedekleme geri yükleniyor...",
+      "selectedBackup": "<strong>{{backupName}}</strong>, {{createdDateTime}} tarihinde oluşturuldu; geri yüklenecek.",
+      "subtitle": "Devam etmek için lütfen bir yedek seçin",
       "title": "Geri Yükle",
       "understand": "Yanlış kurtarma şifresinin farklı bir cüzdan yaratacağını onaylıyorum"
     },
     "showMnemonic": {
-      "title": "BIP39 Anımsatıcısını Göster"
+      "availableIn_one": "{{count}} saniye içinde kullanılabilir",
+      "availableIn_other": "{{count}} saniye içinde kullanılabilir",
+      "instructions": "BitBox, kurtarma kelimelerini gösterecek. <strong>Onları kağıda yaz.</strong>",
+      "safetyWarnings": {
+        "noAppsOrWebsites": "Onları hiçbir zaman bir uygulamaya veya web sitesine girmeyin.",
+        "noDigitalCopies": "Onları fotoğraflamayın veya dijital olarak kaydetmeyin.",
+        "noSharing": "BitBox desteği veya başka herhangi bir şirket sizden recovery words paylaşmanızı asla istemez.",
+        "noSpeaking": "Onları yüksek sesle söylemeyin.",
+        "safeStorage": "Parola korumalı değiller. Güvenli bir yerde saklayın."
+      },
+      "scamWarning": "Biri senden bunu yapmanı istiyorsa, telefonu kapat. Bu bir dolandırıcılıktır.",
+      "title": "BIP39 Anımsatıcısını Göster",
+      "warning": "<strong>Recovery words'lerini asla paylaş. </strong>Onlara sahip olan herkes cüzdanına erişebilir."
     },
     "title": "Yedeklemeleri Yönet"
   },
   "bb02Bootloader": {
     "abort": "Yükseltmeyi durdur – Beni geri götür",
+    "abort_noUpgrade": "Geri dön",
+    "additionalUpgradeFollows2": "Tüm yükseltmeler tamamlanana kadar BitBox'unu takılı tut.",
     "advanced": {
       "label": "Gelişmiş Ayarlar",
       "toggleShowFirmwareHash": "Her açılışta bellenim hash'ini göster"
     },
     "flipscreen": "Ekran çevir",
+    "furtherUpgrades": "Daha fazla güncelleme gelecek.",
     "orientation": "Cihaz yanlış yöne mi yöneldi?",
-    "success": "Yükseltme başarılı!  "
+    "success": "Yükseltme başarılı!  ",
+    "success_install": "Kurulum başarılı!",
+    "upgradeTitle": "BitBox yazılımını güncelleme",
+    "upgradeTitle_install": "BitBox firmware'i yükleniyor"
   },
   "bitbox": {
     "error": {
@@ -154,20 +233,54 @@
     }
   },
   "bitbox02Interact": {
+    "confirmDate": "BitBox'unuzda bugünün tarihini onaylayın",
+    "confirmDateText": "Bu tarih yedeğin oluşturulmasında kullanılacaktır.",
+    "confirmName": "BitBox'ta adı onayla",
+    "confirmWords": "BitBox'undan {{amount}} recovery words'u yaz.",
+    "confirmWordsText": "Bundan sonra BitBox, yedeğin doğru olduğunu doğrulamak için her kelimeyi onaylamanızı isteyecektir.",
     "followInstructions": "Lütfen BitBox02 üzerindeki talimatları takip edin.",
-    "followInstructionsMnemonicTitle": "Anımsatıcıdan geri yükle"
+    "followInstructionsMnemonic": "Yedeklemedeki recovery words'lerini girmek ve cüzdanını geri yüklemek için BitBox'ındaki talimatları izle.",
+    "followInstructionsMnemonicTitle": "Recovery words'tan geri yükle"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "Bluetooth artık BitBox'ta devre dışı. Gelecekte iPhone'larla bağlanmak istersen tekrar etkinleştirmen gerekecek.",
+      "alertEnabled": "Bluetooth artık etkin.",
+      "description": "iPhone ile bağlanmak için Bluetooth kullanılır.",
+      "error_104": "Bluetooth ayarının değiştirilmesi iptal edildi.",
+      "titleDisabled": "Bluetooth'u etkinleştir",
+      "titleEnabled": "Bluetooth'u devre dışı bırak"
+    },
     "changePassword": {
-      "title": "Cihaz Şifresini Değiştir"
+      "description": "BitBox'un cihaz şifresini değiştir.",
+      "error_104": "Şifre değiştirme işlemi iptal edildi.",
+      "success": "Parola başarıyla değiştirildi",
+      "title": "Cihaz şifresini değiştir"
     },
     "deviceName": {
       "current": "Geçerli cihaz adı",
+      "error": "Cihaz adı ayarlanamadı",
+      "error_104": "Cihazda cihaz adının onaylanması iptal edildi.",
       "input": "BitBox02 Adı",
+      "placeholder": "Yeni cihaz adı",
       "title": "BitBox02 cihazınızı isimlendirin"
+    },
+    "gotoStartupSettings": {
+      "description": "Bu, BitBox'unu yeniden başlatacak ve başlangıç ayarlarına girecek.",
+      "title": "Başlangıç ayarlarına gidin"
     }
   },
   "bitbox02Wizard": {
+    "advanced": {
+      "button": "Gelişmiş seçenekler",
+      "outOfDate": "Firmware güncellemesi gerekli",
+      "seed12WordInfo": "Cüzdan oluşturulduktan sonra kelime sayısı değiştirilemez.",
+      "seed12WordLabel": "24 kelimelik seed yerine 12 kelimelik seed oluştur",
+      "seed12WordText": "Varsayılan olarak BitBox 24-word seed kullanır. Her iki seed uzunluğu da pratikte kaba kuvvet saldırılarına karşı güvenlidir. Bazı kullanıcılar bunun yerine 12-word seed'in sağladığı kolaylığı tercih edebilir.",
+      "skipSDCardLabel": "microSD kart yedeğini atla ve bunun yerine recovery words'ları yaz.",
+      "skipSDCardText": "Kurulumdan sonra her zaman microSD kart yedeği oluşturma veya recovery words'lerini yazma seçeneğin var. Bu ayarlardan yapılabilir.",
+      "title": "Gelişmiş yedekleme seçenekleri"
+    },
     "attestationFailed": "Cihaz onayı başarısız oldu. BitBox'ınız sahte veya tehlikede olabilir. BitBox02 üzerindeki paralar kaybolma riski altında olabilir. Lütfen acilen support@bitbox.swiss ile iletişime geçin.",
     "backup": {
       "point1": "MicroSD karttan bir yedek seçin",
@@ -179,7 +292,9 @@
       "userConfirmation1": "Yedeklememi güvenli bir yerde saklamalıyım.",
       "userConfirmation2": "Yedeklerim şifre korumalı değil. Buna erişimi olan herkes cüzdanıma erişebilir.",
       "userConfirmation3": "BitBox02 yazılımımı kaybedersem veya zarar verirsem, paramı kurtarmanın tek yolu yedeklememden geri yüklemektir.",
-      "userConfirmation4": "Hem yedeğimi hem de BitBox02’mi kaybedersem veya zarar verirsem fonlarım kaybolacak."
+      "userConfirmation4": "Hem yedeğimi hem de BitBox02’mi kaybedersem veya zarar verirsem fonlarım kaybolacak.",
+      "userConfirmation5": "microSD kart yedeğimi bir bilgisayara, telefona, yazıcıya veya BitBox dışındaki hiçbir cihaza takmamalıyım.",
+      "userConfirmation5mnemonic": "Kurtarma kelimelerimi bilgisayar, telefon, yazıcı veya BitBox dışındaki herhangi bir cihaza koymamalıyım."
     },
     "create": {
       "button": "Cihazı adlandır ve devam et",
@@ -190,21 +305,38 @@
       "point3": "Yedekleme oluştur",
       "text": "Tamam, hadi yeni bir cüzdan yaratalım!"
     },
+    "createBackupAborted": "Yedekleme oluşturma iptal edildi.",
+    "createBackupFailed": "Yedekleme oluşturma başarısız oldu, tekrar dene.",
     "initialize": {
       "tip": "Başlamadan önce, işlemlere güvenli bir ortamda devam etmeniz şiddetle tavsiye edilir."
     },
+    "noPasswordMatch": "Şifreler eşleşmedi, lütfen tekrar deneyin.",
     "pairing": {
       "failed": "Onaylanmamış eşleştirme. Lütfen BitBox02'nizi değiştirin.",
       "paired": "Cihazınızda kodun eşleştiğini onayladınız. Bu doğruysa, aşağıdaki düğmeye tıklayarak devam edebilirsiniz.",
       "title": "Eşleştirme Kodunu Doğrulayın",
       "unpaired": "Yeni bir BitBox02 tespit edildi. Lütfen aşağıdaki kodun cihazınızda gösterilenlerle eşleştiğini doğrulayın. Kod eşleşirse, BitBox02 üzerindeki onay işaretinin altındaki simgeye dokunun ve devam etmek için aşağıdaki düğmeye tıklayın."
     },
+    "passphrase": {
+      "confirmHostEntry": "Passphrase'i uygulamaya girmek için BitBox'ta onayla",
+      "confirmTitle": "Passphrase'i BitBox'ta onayla",
+      "dialogTitle": "Passphrase'i gir",
+      "enter": "BitBox için passphrase'i gir",
+      "enterInApp": "Uygulamada passphrase'i gir",
+      "error": {
+        "invalidChars": "Passphrase, BitBox'ta girilemeyen karakterler içeriyor.",
+        "tooLong": "Passphrase en fazla 149 karakter uzunluğunda olmalıdır."
+      }
+    },
     "restoreFromMnemonic": {
-      "failed": "BIP39 anımsatıcısından geri yükleme başarısız oldu, lütfen tekrar deneyin."
+      "e104": "Recovery words'tan yapılan geri yükleme iptal edildi.",
+      "failed": "BIP39 anımsatıcısından geri yükleme başarısız oldu, lütfen tekrar deneyin.",
+      "securityNotice": "BitBox'ta oluşturulmamış bir cüzdan mı geri yüklüyorsun? Başka bir yerde oluşturulmuş bir cüzdan, BitBox'ta oluşturulan bir cüzdanla aynı güvenliğe sahip olmayabilir. Emin değilsen, burada yeni bir cüzdan oluşturup fonlarını ona taşımanı öneririz."
     },
     "stepBackup": {
       "beforeProceed": "Devam etmeden önce, lütfen şu önemli güvenlik hususlarını okuyun:",
-      "createBackup": "Şimdi microSD kartınızda bir yedekleme oluşturacaksınız."
+      "createBackup": "Şimdi microSD kartınızda bir yedekleme oluşturacaksınız.",
+      "createBackupMnemonic": "Şimdi kurtarma kelimelerini yazacaksın."
     },
     "stepBackupSuccess": {
       "fundsSafe": "Fonlarınızı güvende tutmak için lütfen aşağıdakileri unutmayın:",
@@ -214,6 +346,12 @@
       "unlock": "Kilidi açmak için BitBox02 şifresini girin."
     },
     "stepCreate": {
+      "description": "Bu isim, cihaz ve yedek adı olarak kullanılır.",
+      "error": {
+        "genericMessage": "Harf, rakam, temel semboller ve boşluk kullan. Maks. 30 karakter.",
+        "invalidChars": "İsim geçersiz karakterler içeriyor: {{invalidChars}}.",
+        "tooLong": "İsim çok uzun."
+      },
       "nameLabel": "BitBox02 adı",
       "namePlaceholder": "Benim BitBox02 cüzdanım",
       "title": "BitBox02 adını seçin",
@@ -221,9 +359,16 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": "Lütfen microSD kartı BitBox02 cihazınızdan çıkarın ve güvenli bir yerde saklayın.",
+      "storeMnemonic": "Lütfen kurtarma kelimelerinizi güvenli bir yerde saklayın.",
       "success": "Yedeklemenizi başarıyla oluşturdunuz."
     },
+    "stepInsertSD": {
+      "insertSDCard": "Devam etmek için lütfen microSD kartını BitBox'una takın.",
+      "insertSDCardToSeeBackups": "Yedeklerinizi görmek için lütfen microSD kartı BitBox'unuza takın.",
+      "insertSDcardTitle": "microSD kartını tak"
+    },
     "stepPassword": {
+      "e104": "Parola ayarı iptal edildi.",
       "title": "BitBox02 şifresini ayarla",
       "useControls": "Bir şifre belirlemek için BitBox02 üzerindeki kontrolleri kullanın."
     },
@@ -239,16 +384,76 @@
     }
   },
   "bitsurance": {
+    "dashboard": {
+      "active": "Sigorta poliçesi aktif",
+      "button": "Yeni hesap sigortala",
+      "canceled": "İptal edildi",
+      "coverage": "Maksimum kapsam",
+      "inactive": "Etkin değil",
+      "processing": "İşleniyor",
+      "refused": "Reddedildi",
+      "supportLink": "Sözleşmeyi yönet",
+      "title": "Sigortalı hesaplar",
+      "waitpayment": "Ödeme bekleniyor"
+    },
+    "detect": {
+      "button": "Mevcut sigortayı kontrol et",
+      "insured": "Sigortalı hesap tespit edildi:",
+      "notInsured": "Sigortalı hesap tespit edilmedi. Sigortalı bir hesabın olduğundan eminsen, lütfen doğru cüzdanın bağlı olduğundan emin ol.",
+      "text": "Bitsurance'a zaten kayıt olduysan, BitBoxApp mevcut sigorta kapsamını otomatik olarak senkronize edebilir.",
+      "title": "Zaten sigortalı mısınız?"
+    },
     "insure": {
-      "title": "Başlarken"
-    }
+      "button": "Kullanılabilirliği ve fiyatları kontrol et",
+      "faq": "Bitsurance SSS'lerinde daha fazlasını oku",
+      "listItem1": "Hırsızlık",
+      "listItem2": "Şantaj (örn. $5 wrench attack)",
+      "listItem3": "Yangın, su veya doğal afetler nedeniyle tahrip olma",
+      "month": "ay",
+      "text": "BitBox'unu ve €100.000 değerine kadar bitcoin'i şu risklere karşı sigortala",
+      "text2": "Sigorta planları yıllık €30'dan (€2,50/ay) başlar. Bitsurance ve sundukları kesin sigorta teklifleri hakkında daha fazla bilgi edinebilirsin",
+      "text3": "Şu anda Almanya'da mevcut, daha fazla bölge yakında eklenecek.",
+      "title": "Başla"
+    },
+    "intro": {
+      "link": "Bitsurance web sitesi",
+      "text1": "BitBox, bitcoin'ine ek bir koruma katmanı eklemek için Bitsurance ile çalışır. BitBox fonlarını güvende tutarken, Bitsurance hırsızlık, şantaj veya donanım cüzdanının tahrip edilmesi gibi teknolojiyle tek başına önlenemeyen ev içi tehditleri kapsar."
+    },
+    "terms": {
+      "link": "Bitsurance Gizlilik Politikası",
+      "text1": "Bitsurance bağımsız bir üçüncü taraf hizmetidir. Sunulan hizmetler ve sigorta talepleriyle ilgili sorular için lütfen doğrudan Bitsurance ile iletişime geçin.",
+      "text2": "Sigorta şu anda Almanya'da kullanılabilir; yakında daha fazla bölge eklenecek.",
+      "text3": "Şu anda mevcut maksimum Bitcoin teminatı kişi başı €100.000'dir. Daha yüksek tutarlar gelecekte planlanmaktadır.",
+      "text4": "Kişisel bilgiler ve sigortalı hesabının genişletilmiş açık anahtarı sigorta poliçesinin bir parçasıdır ve Bitsurance ile sigorta sağlayıcısına verilecektir.",
+      "text5": "Gizlilik hakkında daha fazla bilgi için lütfen şu belgeye bak."
+    },
+    "title": "Sigorta"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "Hata: Hesaptan xpub alınamadı.",
+    "noAccount": "Sigortalanabilecek hesap yok.",
+    "select": "Hesap seç"
   },
   "blink": {
     "button": "Göz ardı et"
   },
+  "bluetooth": {
+    "connected": "bağlı",
+    "connectionFailed": "başarısız",
+    "connectionIssues": "Bağlantı sorunları mı yaşıyorsun?",
+    "connectionIssuesLink": "Buraya bak",
+    "disabledGloballyDescription": "BitBox'a bağlanmak için lütfen Bluetooth'u aç.",
+    "disabledGloballyTitle": "Bluetooth erişimi devre dışı bırakıldı.",
+    "disabledPermissionDescription": "BitBox'a bağlanmak için Bluetooth'a izin ver.",
+    "disabledPermissionTitle": "BitBoxApp için Bluetooth erişimi devre dışı bırakıldı.",
+    "enable": "Bluetooth'u açın",
+    "select": "BitBox'unu seç"
+  },
   "bootloader": {
     "button": "Donanım yazılımını şimdi yükselt",
+    "button_install": "Firmware'i şimdi yükle",
     "progress": "Yükseltme",
+    "progress_install": "Yükleniyor",
     "success": "Yükseltme başarılı! Lütfen cihazı tekrar takın. Bu kez, düğmeye dokunmayın."
   },
   "button": {
@@ -258,34 +463,349 @@
     "check": "Yedeklemeyi Kontrol Et",
     "continue": "Devam et",
     "copy": "Kopyala",
+    "copyAddress": "Adresi kopyala",
     "create": "Oluştur",
-    "done": "Bitti",
+    "dismiss": "Kapat",
+    "done": "Tamam",
     "download": "İndir",
     "next": "Sonraki",
     "ok": "Tamam",
+    "openInBrowser": "Tarayıcıda aç",
     "previous": "Önceki",
+    "proceedOnBitBox": "BitBox'unda devam et",
     "restore": "Geri Yükle",
-    "review": "İmzala ve Gönder",
+    "review": "Gözden geçir",
+    "save": "Kaydet",
     "select": "Seç",
     "unlock": "Kilidini aç",
     "update": "Güncelleştirme",
     "upgrade": "Yükselt"
   },
   "buy": {
-    "info": {
-      "disclaimer": {
-        "payment": {
-          "table": {
-            "fee": "Ücret"
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": "Hediye kartı satın almak için yeterli bakiye yok."
+      },
+      "transactionNote": "Bitrefill'e gönderildi"
+    },
+    "exchange": {
+      "bankTransfer": "Banka havalesi",
+      "bestDeal": "En iyi teklif",
+      "buy": "Satın al",
+      "buyServices": "Hizmetleri satın al",
+      "creditCard": "Kredi kartı",
+      "description_bitrefill": "Hediye kartları, telefon dolumları ve daha fazlası",
+      "description_btcdirect-otc": "BTC Direct - Özel işlem masası",
+      "description_pocket-otc": "Pocket Private",
+      "description_swapkit": "Merkeziyetsiz takas BTC, ETH, USDT vb.",
+      "fast": "Hızlı",
+      "fee": "ücret",
+      "infoContent": {
+        "bitrefill": {
+          "disclaimer": {
+            "account": {
+              "link": "Bitrefill satın alma limitleri",
+              "text": "Bitrefill'i hesap oluşturmadan, belirli sınırlar dahilinde kullanabilirsin. Harcama limitlerini artırmak için temel bir hesap oluşturabilir veya doğrulanmış müşteri olabilirsin. Detaylar için Bitrefill'in satın alma limitlerine bak.",
+              "title": "Hesap ve limitler"
+            },
+            "claims": {
+              "link": "Bitrefill desteği",
+              "text": "Satın alımla ilgili herhangi bir sorun yaşarsan, lütfen siparişinden itibaren 30 gün içinde doğrudan Bitrefill ile iletişime geç.",
+              "title": "İddialar"
+            },
+            "dataProtection": {
+              "link": "Bitrefill gizlilik politikası",
+              "text": "BitBoxApp kişisel verileri toplamaz. Bitrefill, bilgileri Gizlilik Politikası'na göre toplar.",
+              "title": "Veri Koruma"
+            },
+            "fees": {
+              "text": "Bitrefill açık ücret talep etmez, ancak ürün fiyatlarına perakendeciye, bölgeye ve Bitrefill'in uyguladığı döviz kuruna bağlı olarak değişebilen bir fiyat farkı dahil edilebilir.",
+              "title": "Ücretler"
+            },
+            "intro": {
+              "text": "Bitrefill, hediye kartı satın almaya, cep telefonlarına bakiye yüklemeye ve faturaları bitcoin veya diğer kripto paralarla ödemeye olanak tanıyan çevrimiçi bir platformdur. Kripto parayı geleneksel paraya çevirmeden günlük mal ve hizmetlerde harcamak için kolay bir yoldur. Bitrefill, global markalardan geniş bir ürün yelpazesi sunar ve kripto ile yaşamak veya gizlilik içinde alışveriş yapmak isteyenler arasında popülerdir.",
+              "title_bitcoin": "Bitrefill ile bitcoin harcayın",
+              "title_crypto": "Bitrefill ile kripto harcayın"
+            },
+            "security": {
+              "link": "BitBox güvenlik tehdit modeli",
+              "text": "Bitrefill, BitBox güvenlik tehdit modeli kapsamına girmeyen harici bir hizmettir. Satın alma yaptığında ödemen Bitrefill adresine gönderilir. BitBox bu adresin doğru olduğunu doğrulayamaz.",
+              "title": "Güvenlik bildirimi"
+            },
+            "validEmail": {
+              "text": "Çeşitli geçici e-posta sağlayıcıları Bitrefill tarafından desteklenmez; bu nedenle faturayı alamayabilirsin. Hediye kartı kodun/kuponun iş akışının sonunda yine de mevcut olacaktır.",
+              "title": "Geçerli e-posta adresleri"
+            }
+          },
+          "infobox": {
+            "intro": "Bitrefill, hediye kartları, mobil bakiye yüklemeleri ve çeşitli hizmetler satın alarak bitcoin ve diğer kripto paralarla günlük ihtiyaçlarını karşılayabileceğin bir çevrimiçi platformdur. BitBoxApp ile entegrasyonu, paralarını bir borsaya veya başka bir cüzdana taşımadan doğrudan BitBox'undan harcamanı sağlar."
           }
+        },
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "BTC Direct gizlilik politikası",
+              "text": "BitBoxApp kişisel verileri toplamaz. BTC Direct, düzenleyici standartlara uymak için gerekli bilgileri Gizlilik Politikası'na uygun olarak toplar.",
+              "title": "Veri Koruma"
+            },
+            "kyc": {
+              "text": "Tüm işlemler için müşteri kimlik doğrulaması gereklidir. Hesap yöneticin seni süreç boyunca yönlendirecek ve sorularını yanıtlayacaktır.",
+              "title": "Kimlik doğrulaması"
+            },
+            "partnership": {
+              "text": "Güvenilir bir Avrupa aracı kurumu olan BTC Direct ile ortaklık içinde, BitBox Bitcoin, Ethereum, stablecoin'ler ve diğerleri için büyük ölçekli OTC işlemleri ve uzman desteğini doğrudan BitBoxApp içinde sunar.",
+              "title": "BTC Direct'in Private Trading Desk'i ile alım ve satım yap"
+            },
+            "paymentMethods": {
+              "buy": "Bitcoin satın alma:",
+              "buy2": "Hesap yöneticinle büyük alım emirleri ver, sabit fiyatı kilitle ve banka havalesiyle öde. Ödeme sonrası kripton doğrudan BitBox'una teslim edilir.",
+              "fee": "Minimum işlem tutarı €50.000'dır; şeffaf ücret %0,5 ile %1 arasındadır.",
+              "sell": "Bitcoin satma:",
+              "sell2": "Satış emri verirken sabit bir OTC fiyatı kilitlenir. EUR ödemesi, kriptoyu BTC Direct'e gönderdiğinde yapılır. Gerekirse kişisel destek sağlanır.",
+              "title": "Ödeme yöntemleri ve ücretler"
+            },
+            "personal": {
+              "text": "Her Özel Ticaret müşterisine telefon, görüntülü arama, e-posta veya sohbet yoluyla kişiselleştirilmiş destek sunmak üzere özel bir hesap yöneticisi atanır. Emir verildiğinde alım ve satım fiyatları, takas daha sonra gerçekleşse bile anında sabitlenir. Emirler BTC Direct'in OTC masasından yürütülür ve böylece kayma (slippage) en aza indirilir.",
+              "title": "Sabit fiyatlı kişisel hizmet"
+            },
+            "security": {
+              "link": "BitBox güvenlik tehdit modeli",
+              "text": "BTC Direct'in Private Trading Desk hizmeti, BitBox güvenlik tehdit modeli kapsamında olmayan harici bir hizmettir. Ancak BTC Direct, BitBox ürünlerini iyi tanır ve güvenli, uzman rehberlik sunar. BitBox ürünleri işlemler sırasında kripto adreslerini doğrulayarak güvenli teslimatı sağlar.",
+              "title": "Güvenlik"
+            },
+            "title": "Feragatname"
+          },
+          "infobox": {
+            "intro_btconly": "Yüksek değerli, OTC Bitcoin işlemleri için kişisel destek al.",
+            "intro_multi": "Bitcoin, Ethereum stablecoin'leri ve daha fazlası için yüksek değerli tezgahüstü (OTC) işlemlerinde kişisel destek alın.",
+            "kyc": "BTC Direct tüm işlemler için kimlik doğrulaması gerektirir; hesap yöneticiniz her adımda size rehberlik edecektir.",
+            "learnmore": "BTC Direct'in Private Trading Desk'i hakkında daha fazla bilgi edinin.",
+            "listItem1": "Hesap yöneticinle telefon, e-posta, görüntülü arama veya sohbet yoluyla iletişime geçerek istediğin zaman alıp sat.",
+            "listItem2": "Ödemeler sipariş verildikten sonra banka havalesiyle tamamlanır.",
+            "listItem3": "Minimum sipariş tutarı: €50,000.",
+            "listItem4": "Kişisel rehberlik dahil, %0,5-%1 aralığında sabit, şeffaf ücretler.",
+            "manager": "Her adımda sana rehberlik edecek özel bir hesap yöneticin olacak; sabit kurlar ve düşük kayma ile güvenli, basit bir deneyim sağlar."
+          }
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "Kripto alım satımını BitBoxApp içinde kolaylaştırmak için güvenilir bir Avrupa aracı kurumu olan BTC Direct ile çalışıyoruz. Bu hizmet banka transferleri, kredi kartları ve birçok yerel ödeme yöntemi ile Avrupa genelinde kullanılabilir.",
+            "kyc": {
+              "description": "Tüm işlemler için müşteri kimlik doğrulaması gereklidir. Bir selfie çekmen ve resmi bir belgenin fotoğrafını çekmen gerekecek.",
+              "title": "Kimlik doğrulaması"
+            },
+            "paymentMethods": {
+              "buy": "Satın alma: Coinlerin doğrudan BitBox'ına teslim edilmesi için EUR ile ödeme yap. Tek seferlik veya düzenli alımlar arasında seçim yapabilirsin. Banka transferlerinde, kur BTC Direct parayı aldığında sabitlenir. Anında yöntemler sınırlı süre için sabit dönüşüm oranı kullanır.",
+              "note": "Not: BTC Direct'in kurları BitBoxApp'inkilerden biraz farklı olabilir.",
+              "sell": "Satış: Kripto paranızı BTC Direct'e gönderin; EUR banka hesabınıza yatırılacaktır. BTC Direct coinlerinizi aldığı anda döviz kuru sabitlenir.",
+              "title": "Ödeme yöntemleri ve ücretler"
+            },
+            "security": {
+              "description": "BTC Direct, BitBox güvenlik tehdit modeli kapsamına girmeyen bir dış hizmettir. Genel güvenliği artırmak için BTC Direct ile yakın çalışıyoruz.",
+              "link": "BitBox güvenlik tehdit modeli",
+              "title": "Güvenlik"
+            },
+            "title_bitcoin": "BTC Direct ile bitcoin alıp sat",
+            "title_crypto": "BTC Direct ile kripto alıp sat"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact: {{fee}}%",
+              "bankTransfer": "Banka havalesi, SEPA, iDEAL: {{fee}}%",
+              "creditDebitCard": "Kredi kartları, Cartes Bancaires: {{fee}}%",
+              "sofort": "Sofort: {{fee}}%",
+              "title": "Satın alma ücretleri"
+            },
+            "feesSelling": {
+              "bankTransfer": "Banka havalesi: {{fee}}%",
+              "title": "Satış ücretleri"
+            },
+            "intro": "EUR ile Avrupa'da kripto para alım ve satımı.",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "Banka transferi, SEPA Instant, iDEAL",
+              "creditDebitCard": "Kredi kartları (Mastercard, Visa), Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "Ödeme yöntemleri"
+            }
+          },
+          "learnmore": "BTC Direct hakkında daha fazla bilgi edinin"
+        },
+        "moonpay": {
+          "fees": {
+            "bankTransfer": "Banka transferi: {{fee}}%",
+            "creditDebitCard": "Kredi/banka kartı: {{fee}}%",
+            "learnMore": "Moonpay hakkında daha fazla bilgi edinin",
+            "title": "Ücretler"
+          },
+          "fullCurrenciesList": "Para birimlerinin tam listesini burada görüntüle",
+          "payment": {
+            "asteriskText": "* ABD sakinleri için kullanılamaz",
+            "bankTransfer": "Banka havalesi*",
+            "bankTransferDetails": {
+              "pix": "PIX (sadece Brezilya'daki BR işlemleri)",
+              "sepa": "SEPA ve SEPA Instant (sadece SEPA ülkelerindeki EUR işlemleri için)",
+              "uk": "UK Faster Payments (sadece Birleşik Krallık'taki GBP işlemleri için)"
+            },
+            "creditDebitCard": "Kredi/banka kartı",
+            "creditDebitCardDetails": {
+              "cards": "Amex, Mastercard, Visa ve Maestro"
+            },
+            "learnMore": "Ödeme yöntemleri hakkında daha fazla bilgi al",
+            "title": "Ödeme yöntemleri"
+          },
+          "supportedCurrencies": "Tüm büyük fiat para birimlerini destekler: USD, EUR, CHF ve diğerleri."
+        },
+        "pocket": {
+          "fees": {
+            "info": "Banka transferi: {{fee}}%",
+            "title": "Ücretler"
+          },
+          "learnMore": "Pocket hakkında daha fazla bilgi al",
+          "payment": {
+            "bankTransfer": "Banka havalesi",
+            "bankTransferDetails": {
+              "sepa": "SEPA ve SEPA Instant (sadece SEPA ülkelerinde EUR işlemleri)",
+              "sic": "Swiss Interbank Clearing (sadece CH/LI'de CHF işlemleri)",
+              "uk": "UK Faster Payments (sadece Birleşik Krallık'ta GBP işlemleri)"
+            },
+            "bankTransferReccuring": "Havale talimatı ile düzenli alımları nasıl ayarlarsın?",
+            "title": "Ödeme yöntemleri"
+          },
+          "sell": {
+            "title": "Bitcoin sat"
+          },
+          "supportedCurrencies": "Avrupa para birimlerini destekler: EUR, GBP ve CHF.",
+          "verification": {
+            "info": "Günlük ve yıllık eşikler aşıldığında kimlik doğrulaması gerekir.",
+            "link": "Güncel eşikleri burada bulabilirsiniz.",
+            "title": "Kimlik doğrulaması"
+          }
+        },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "info": "BitBoxApp kişisel veri toplamaz. Pocket Private, düzenleyici gereksinimleri karşılamak için Gizlilik Politikası'na uygun olarak gerekli bilgileri toplar.",
+              "link": "Pocket gizlilik politikası",
+              "title": "Veri Koruma"
+            },
+            "kyc": {
+              "info": "Pocket Private'ı kullanmak için müşteri kimlik doğrulaması gereklidir. Hesap yöneticin seni süreç boyunca yönlendirecek ve sorularını yanıtlayacaktır.",
+              "title": "Kimlik doğrulama"
+            },
+            "partnership": {
+              "text": "Pocket Private ile iş ortaklığı kapsamında BitBox, büyük hacimli Bitcoin işlemleri için alım-satım imkanı sunar. Pocket Private müşterilerine kişisel destek için bir hesap yöneticisi atanır.",
+              "title": "Pocket Private ile alım-satım yap"
+            },
+            "payment": {
+              "info": [
+                "<strong>Bitcoin satın alma:</strong> Hesap yöneticinle büyük alım emirleri ver ve banka havalesiyle öde. Ödeme yapıldıktan sonra Bitcoin'lerin doğrudan BitBox'una teslim edilir.",
+                "<strong>Bitcoin sat:</strong> Bitcoin'i Pocket Private'a gönderdiğinizde banka ödemesi yapılır. Gerekirse kişisel yardım sağlanır.",
+                "<strong>İşlem ücretleri:</strong> İşlem ücretleri ömür boyu işlem hacmine göre belirlenir; yani toplam işlem hacmin arttıkça ücretin azalır, emir büyüklüğünden bağımsızdır."
+              ],
+              "title": "Ödeme yöntemleri ve ücretler"
+            },
+            "security": {
+              "info": "Pocket Private, BitBox güvenlik tehdit modeli kapsamında olmayan harici bir hizmettir. Ancak Pocket Private, BitBox ürünleriyle iyi tanışık olup güvenli ve bilgili rehberlik sunar. BitBox ürünleri, güvenli teslimatı sağlamak için işlemler sırasında Bitcoin adreslerini doğrular.",
+              "link": "BitBox güvenlik tehdit modeli",
+              "title": "Güvenlik"
+            }
+          },
+          "infobox": {
+            "intro": "Yüksek değerli tezgâh üstü (OTC) Bitcoin işlemleri için kişisel destek ve daha iyi ücretler al. Pocket Private ile ücretlerin yaşam boyu işlem hacmine göre azalır, böylece sipariş büyüklüğü ne olursa olsun her zaman en iyi ücreti alırsın.",
+            "learnmore": "Pocket Private hakkında daha fazla bilgi edin",
+            "tradingVolume": "İşlem hacmi (ömür boyu)",
+            "transactionFee": "İşlem ücreti"
+          }
+        },
+        "region": {
+          "title": "Hangi seçeneklerin mevcut olduğunu görmek için banka hesabınızın kayıtlı olduğu bölgeyi seçin."
         }
       },
-      "next": "Sonraki"
+      "noExchanges": "Üzgünüz, bu bölgede kullanılabilir borsa yok.",
+      "otcInfo": "Büyük hacimli tezgâh üstü işlemler için kişisel destek ve daha düşük ücretler al.",
+      "region": "Bölge",
+      "selectRegion": "Belirtilmemiş",
+      "sell": "Sat",
+      "sellServices": "Hizmetleri sat",
+      "spend": "Harca",
+      "spendServices": "Harcamaya yönelik hizmetler",
+      "swapServices": "Swap hizmetleri"
+    },
+    "info": {
+      "continue": "Kabul et ve devam et",
+      "crypto": "kripto",
+      "disclaimer": {
+        "intro": [
+          "MoonPay ile ortaklık kuruyoruz; BitBoxApp içinde doğrudan {{coinCode}} satın almanız için sorunsuz bir yol sunuyoruz. Sadece birkaç tıklama.",
+          "MoonPay, 160'tan fazla ülkede {{coinCode}} satın almayı kolay ve hızlı hale getiren bir platformdur."
+        ],
+        "payment": {
+          "details": "Aşağıdaki ödeme yöntemleriyle {{coinCode}}'yi MoonPay üzerinden anında satın alabilirsin. Kredi veya banka kartı ile yapılan işlemler anında ve kullanışlıdır, ancak artan chargeback riski nedeniyle daha pahalı olabilir. Daha yüksek tutarlar için banka havalesi seçeneğini kullanmanı öneririz. Minimum ücret 4 USD/EUR veya muadildir.",
+          "footnote": "Lütfen MoonPay'in kurlarının BitBoxApp'inkilerden farklı olabileceğini ve bunun sonucunda tutarların biraz farklı çıkabileceğini unutmayın.",
+          "table": {
+            "1_description": "En düşük ücretler, işlemler 3 iş gününe kadar sürebilir.",
+            "1_method": "Banka havaleleri (SEPA)",
+            "2_description": "Daha yüksek ücretler ama hızlı ve anında",
+            "2_method": "Kredi ve banka kartları",
+            "description": "Açıklama",
+            "fee": "Ücret",
+            "method": "Yöntem"
+          },
+          "title": "Ödeme yöntemleri ve ücretler"
+        },
+        "privacyPolicy": "MoonPay gizlilik politikası",
+        "protection": {
+          "descriptionGeneric_bitcoin": "BitBoxApp Bitcoin satın alırken hiçbir veri toplamaz; gelen fonlar normal bir işlem gibi muamele edilir. Ancak ortak borsaların çalışabilmesi için bazı bilgileri toplaması gerekir. Verilerin nasıl işlendiğini daha ayrıntılı görmek için ilgili gizlilik politikalarına bak.",
+          "descriptionGeneric_crypto": "BitBoxApp kripto alırken herhangi bir veri toplamaz; gelen fonlar normal bir işlem gibi muamele görür. Ancak partner borsaların çalışması için bazı bilgileri toplamaları gerekir. Verilerin nasıl işlendiğini daha ayrıntılı görmek için ilgili gizlilik politikalarına bakın.",
+          "title": "Veri koruma"
+        },
+        "security": {
+          "descriptionGeneric_bitcoin": "Bir partner borsası aracılığıyla Bitcoin satın aldığında dış bir hizmet kullanıyorsun. Bu hizmet BitBox güvenlik tehdit modelinin kapsamı dışındadır ve BitBoxApp yazılımının çalıştığı ortamın güvenliğine bağlıdır.",
+          "descriptionGeneric_crypto": "Bir ortak borsa aracılığıyla kripto satın aldığında, dış bir hizmet kullanıyorsun. Bu hizmet BitBox güvenlik tehdit modelinin kapsamı dışındadır ve BitBoxApp'in çalıştığı ortamın güvenliğine bağlıdır.",
+          "link": "Güvenlik tehdit modeli",
+          "title": "Güvenlik modeli"
+        },
+        "title_bitcoin": "Bitcoin almak için tek adresine hoş geldin",
+        "title_crypto": "Kripto satın almak için tek durak noktanıza hoş geldiniz."
+      },
+      "next": "İleri",
+      "selectLabel": "Hesabını seç",
+      "selectPlaceholder": "Bir coin seç",
+      "skip": "Bir daha gösterme"
+    },
+    "pocket": {
+      "error": {
+        "insufficientFunds": "Seçilen hesapta yetersiz bakiye."
+      },
+      "paymentRequestNote": "Şuradan gelen ödeme isteği",
+      "previousTransactions": "Bu hesabın işlem geçmişi boş değil. Bu hesabı paylaşırsan geçmiş ve gelecekteki tüm işlemleri Pocket için görünür hale gelir. Yine de devam etmek istiyor musun?",
+      "usedAddress": "Adres {{address}} zaten kullanılmış; lütfen yeni bir adresle tekrar başla.",
+      "verifyBitBox02": "E-postayla aldığın adresin Bitbox'ta gösterilen adresle eşleştiğini doğrula. Mümkünse, daha iyi güvenlik için e-postayı ikinci bir cihazda açmalısın."
     }
   },
   "changePin": {
     "newTitle": "Yeni cihazın şifresi",
     "oldLabel": "Mevcut cihazın şifresi"
+  },
+  "chart": {
+    "dataMissing": "Grafik yükleniyor, daha sonra tekrar gel...",
+    "dataOldTimestamp": "Tarihi döviz kurları güncelleniyor. Grafik {{time}} sonrası veri göstermiyor.",
+    "dataUpdating": "veriler güncelleniyor…",
+    "displayMode": {
+      "performance": "Performans",
+      "switchTo": "Geçiş yap: {{displayMode}}",
+      "totalValue": "Zamana göre değer",
+      "unavailableSwitchTo": "{{displayMode}} kullanılamıyor. Geçiş yap: {{nextDisplayMode}}"
+    },
+    "filter": {
+      "all": "Tümü",
+      "month": "Ay",
+      "week": "Hafta",
+      "year": "Yıl"
+    },
+    "transactions_one": "{{count}} işlem",
+    "transactions_other": "{{count}} işlemler"
   },
   "checkSDcard": "Mikro SD kart kontrol ediliyor",
   "clickHere": "Buraya tıklayın.",
@@ -293,29 +813,125 @@
     "info": "BitBox'ınızda"
   },
   "confirmOnDevice": "Lütfen cihazınızda onaylayın.",
+  "connectKeystore": {
+    "promptNoName": "Devam etmek için BitBox'unu bağla",
+    "promptWithName": "Devam etmek için \"{{name}}\" adlı BitBox'u bağla.",
+    "swapHint": "Swap yapmak için bir BitBox Multi bağla."
+  },
+  "darkmode": {
+    "toggle": "Karanlık mod"
+  },
   "device": {
-    "appUpradeRequired": "BitBox'ınız bu masaüstü uygulaması ile uyumlu değil. Lütfen en son sürümü indirin ve yükleyin."
+    "appUpradeRequired": "BitBox'ınız bu masaüstü uygulaması ile uyumlu değil. Lütfen en son sürümü indirin ve yükleyin.",
+    "firmwareUpgradeRequired": "Bu özelliği kullanmak için firmware güncellemesi gereklidir.",
+    "keystoreConnected": "Bağlı cüzdan",
+    "unsupportedFeature": "Bu özellik bu cihazda kullanılamıyor."
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "microSD kart yedeğinizi oluşturun veya doğrulayın."
+      },
+      "showRecoveryWords": {
+        "description": "Kurtarma kelimelerini BitBox ekranında göster ve doğrula."
+      },
+      "title": "Yedekler"
+    },
+    "bluetoothFirmware": {
+      "title": "Bluetooth ürün yazılımı"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "BitBoxApp cihazının orijinal olup olmadığını kontrol eder."
+      },
+      "deviceName": {
+        "description": "Cihazının adını değiştir."
+      },
+      "passwordStretchingAlgo": {
+        "description": "BitBox'undaki seed'i şifrelemek için kullanılan algoritma.",
+        "title": "Parola güçlendirme algoritması"
+      },
+      "rootFingerprint": {
+        "description": "Kök parmak izi, şu anda kullanılan cüzdan için benzersiz bir tanımlayıcıdır. Passphrases kullanıyorsan farklı cüzdanları ayırt etmene yardımcı olabilir."
+      },
+      "securechip": {
+        "description": "Güvenli çipin modeli."
+      },
+      "title": "Cihaz bilgileri"
+    },
+    "deviceLanguage": {
+      "description": "BitBox'unda kullanılan dili değiştir.",
+      "error_104": "Cihaz dili değiştirme işlemi iptal edildi.",
+      "success": "Cihaz dili başarıyla değiştirildi.",
+      "title": "Cihaz dilini değiştir"
+    },
+    "deviceSettings": {
+      "title": "Cihaz ayarları"
+    },
+    "expert": {
+      "bip85": {
+        "description": "BitBox cüzdanından alt anahtarlar oluştur.",
+        "disclaimer": "Alt anahtarların nasıl çalıştığını ve güvenlik hususlarını anlıyorum",
+        "how": {
+          "description": "Alt anahtarlar BitBox'ında bir mnemonic olarak görüntülenir. İstediğin kadar alt anahtar oluşturabilirsin. Bir alt anahtarı göstermek için senden alt anahtar numarası (örn. 1., 2., 3. vb.) ve mnemonic'in istenen uzunluğu (12 veya 24 recovery words) istenecektir. Aynı mnemonic'i daha sonra gösterebilmek için <strong>alt anahtar numarasını ve kelime sayısını</strong> takip etmelisin.",
+          "title": "Nasıl çalışır?"
+        },
+        "recover": {
+          "description": "Alt anahtarların mnemonic'ini her zaman tekrar görüntüleyebilirsin. Belirtildiği gibi, aynı mnemonic'i görüntülemek için <strong>alt anahtar numarasını ve kelime sayısını</strong> hatırlaman gerekir. Ana BitBox kurtarma kelimelerini başka bir cüzdana asla içe aktarma; başka bir cüzdana aktarırken yalnızca alt anahtarları kullan.",
+          "title": "BitBox child key kullanarak cüzdanlar nasıl kurtarılır?"
+        },
+        "security": {
+          "description": "Alt anahtarı asla yeniden kullanma. Örneğin, bir alt anahtarı sıcak cüzdan için kullanıp ardından aynı anahtarı donanım cüzdanında kullanma. Anahtar, sıcak cüzdan için kullanıldığı için güvenli kabul edilmez.",
+          "title": "Güvenlik hususları"
+        },
+        "title": "BIP-85 alt anahtarını göster",
+        "what": {
+          "description": "Alt anahtarlar ana seed'inden türetilir ve ek seed'leri yedeklemeye gerek kalmadan yeni cüzdanlar oluşturmak için kullanılabilir. Örneğin, bir alt anahtar oluşturarak bunu bir hot wallet'e içe aktarabilir; böylece hot wallet'in tamamen yeni bir seed oluşturmasına gerek kalmaz.",
+          "link": "BIP-85 hakkında daha fazla oku",
+          "title": "Child key'ler nedir?"
+        }
+      },
+      "factoryReset": {
+        "description": "BitBox'tan cüzdanı ve verilerini siler.",
+        "title": "BitBox'tan cüzdanı sil"
+      },
+      "goToStartupSettings": {
+        "description": "BitBox'un bootloader'ına gir. Buradan firmware hash'ini etkinleştirebilirsin."
+      },
+      "passphrase": {
+        "description": "Passphrase özelliğini etkinleştir veya devre dışı bırak.",
+        "title": "Passphrase"
+      }
+    },
     "firmware": {
+      "firmwareVersion": "Bellenim sürümü",
       "newVersion": {
         "label": "Mevcut sürüm"
       },
       "title": "Donanım yazılımı",
       "upToDate": "Cihazınız güncel",
+      "upgradeAvailable": "Yeni BitBox güncellemesi mevcut",
+      "upgradeAvailableDescription": "Bir bellenim güncellemesi mevcut. En son güvenlik iyileştirmeleri ve özellikler için şimdi güncelle.",
       "version": {
         "label": "Versiyon"
       }
     },
     "hardware": {
+      "attestation": {
+        "false": "Özgünlük doğrulaması başarısız oldu",
+        "label": "Orijinallik kontrolü",
+        "true": "BitBox'un orijinaldir."
+      },
       "sdcard": {
         "false": "Takılı değil",
         "label": "Mikro SD kart",
         "true": "Takılı"
       },
+      "securechip": "Güvenli çip",
       "title": "Donanım"
     },
     "loading": "Cihaz bilgisi alınıyor…",
+    "noDevice": "Bağlı cihaz yok",
     "secrets": {
       "manageBackups": "Yedekleri Yönet",
       "title": "Secrets"
@@ -324,7 +940,127 @@
   "deviceTampered": "BitBox'ınıza kurtarma şifresi mi sağlandı? Öyleyse, kurulum işlemini durdurun ve hemen desteğe başvurun. Ekibimiz asla size hazır bir cüzdan vermez veya şifre önerileri yapmaz.",
   "dialog": {
     "cancel": "İptal Et",
-    "confirm": "Doğrula"
+    "confirm": "Doğrula",
+    "confirmTitle": "Onay"
+  },
+  "error": {
+    "accountAlreadyExists": "Hesap zaten mevcut.",
+    "accountLimitReached": "Hesap eklenemiyor. Bu coin için maksimum hesap sayısına ulaşıldı.",
+    "aoppCallback": "Adresi {{host}}'ye teslim ederken bir hata oluştu.",
+    "aoppInvalidRequest": "Geçersiz istek.",
+    "aoppNoAccounts": "Kullanılabilir hesap yok.",
+    "aoppSigningAborted": "Adres sahipliği talebi iptal edildi.",
+    "aoppUnknown": "Bilinmeyen bir hata oluştu.",
+    "aoppUnsupportedAsset": "Varlık desteklenmiyor.",
+    "aoppUnsupportedFormat": "İstenen adres formatını destekleyen kullanılabilir hesap yok.",
+    "aoppUnsupportedKeystore": "Bağlı cihaz bu varlık için mesajları imzalayamaz.",
+    "aoppVersion": "Bilinmeyen sürüm.",
+    "keystoreTimeout": "Cüzdan isteği süresi doldu. Lütfen tekrar dene.",
+    "lightningAddressChangeCooldown": "Lightning adresini tekrar değiştirmeden önce lütfen bekle.",
+    "lightningAddressInvalidUsername": "Sadece küçük harfler ve rakamlar kullan.",
+    "lightningAddressUsernameUnavailable": "Bu isim kullanılamıyor.",
+    "lightningAmountBelowMinimum": "Miktar en az {{minAmountSat}} sats olmalıdır.",
+    "lightningBalanceLimitExceeded": "Yükleme tutarı Lightning cüzdanı limiti olan {{limit}}'yi aşıyor. Maksimum yükleme tutarı {{remaining}} veya daha az olmalıdır.",
+    "lightningInsufficientFunds": "Lightning cüzdanında yeterli bakiye yok.",
+    "lightningInvalidAmount": "Geçersiz miktar.",
+    "lightningInvalidPaymentInput": "Geçersiz fatura veya ödeme isteği.",
+    "lightningInvoiceAlreadyUsed": "Bu Lightning faturası zaten kullanıldı. Lütfen yeni bir fatura isteyin.",
+    "lightningPaymentFailed": "Lightning ödemesi başarısız oldu. Tekrar denemeden önce ödemeyi kontrol et.",
+    "lightningPaymentPreparationFailed": "Ödeme hazırlanamadı. Lütfen tekrar deneyin.",
+    "lightningTopUpClaimFailed": "Lütfen yüklemeyi yeniden talep etmeyi dene.",
+    "lightningTopUpRefundFailed": "Lütfen yüklemeyi geri ödemeyi tekrar deneyin.",
+    "paymentApprovalRequired": "Ödeme ücreti arttı. Lütfen tekrar inceleyip onayla.",
+    "wrongKeystore": "Yanlış cüzdan bağlı. Lütfen bu hesapla eşleşen doğru cihazı taktığından emin ol.",
+    "wrongKeystore2": " Eğer isteğe bağlı passphrase'i kullanıyorsan, hesap için doğru passphrase'i girdiğinden emin ol."
+  },
+  "evmChains": {
+    "arbitrumOne": "Arbitrum One",
+    "base": "Base",
+    "bnbSmartChain": "BNB Smart Chain",
+    "ethereumMainnet": "Ethereum mainnet",
+    "ethereumSepoliaTestnet": "Ethereum Sepolia testnet",
+    "gnosis": "Gnosis",
+    "hyperEVM": "HyperEVM",
+    "optimism": "Optimism",
+    "polygon": "Polygon",
+    "sonic": "Sonic"
+  },
+  "exchange": {
+    "btcdirect": {
+      "currencyMismatch": "Ödeme isteğinde beklenmeyen para birimi",
+      "insufficientFunds": "Seçili hesapta yeterli bakiye yok."
+    },
+    "buySell": {
+      "coinNotSupported": "Bu coin türü için seçenek yok.",
+      "regionNotSupported": "Bu bölge için seçenek yok."
+    },
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "Pocket gizlilik politikası",
+          "p1": "BitBoxApp herhangi bir kişisel veri öğrenmez veya toplamaz. Pocket, Gizlilik Politikası'nda açıklandığı gibi bazı kişisel veriler toplar.",
+          "title": "Veri Koruması"
+        },
+        "fees": {
+          "extraNote": "Satış yapabilmek için önce Pocket ile Bitcoin satın alman gerektiğini unutma.",
+          "note": "Not: Pocket'in kurları BitBoxApp'inkilerden farklı olabilir.",
+          "p1": "<strong>Bitcoin satın alma:</strong> EUR veya CHF göndermek için SEPA banka havalesi kullan ve Pocket havaleyi aldıktan sonra, genellikle aynı gün, bitcoin doğrudan BitBox'ına teslim edilir.",
+          "p2": "<strong>Bitcoin satışı:</strong> Bitcoin'i Pocket'e gönderin; kayıtlı banka hesabınıza EUR veya CHF yatırılır. Kur, Pocket Bitcoin'i aldığında sabitlenir.",
+          "title": "Ödeme yöntemleri ve ücretler"
+        },
+        "kyc": {
+          "info": "Pocket kimlik belgeleri isteyebilir. Daha fazla bilgi için SSS'lerine bakın.",
+          "link": "Pocket SSS'lerini oku",
+          "title": "KYC/AML (Müşterini Tanı / Kara Para Aklamayı Önleme)"
+        },
+        "security": {
+          "link": "BitBox güvenlik tehdit modeli",
+          "p1": "Pocket, dışarıdan bir hizmet olup BitBox güvenlik tehdit modeli kapsamında değildir. Ancak genel güvenliği artırmak için Pocket ile yakın çalışıyoruz.",
+          "p2": "<strong>Bitcoin alımı:</strong> Bitcoin alma adresinizi ikinci bir iletişim kanalı üzerinden onaylamak için bir e-posta alacaksınız.",
+          "p3": "<strong>Bitcoin satışı:</strong> BitBox, Bitcoin yatırma adresini kriptografik olarak doğrular ve donanım cüzdanında \"Pocket\" gösterir.",
+          "title": "Güvenlik"
+        },
+        "welcome": {
+          "p1": "BitBoxApp içinde bitcoin alım ve satımını kolaylaştırmak için İsviçreli broker Pocket ile çalışıyoruz. Bu hizmet, SEPA banka transferlerinin desteklendiği Avrupa genelinde kullanılabilir.",
+          "title": "Pocket ile bitcoin alıp sat"
+        }
+      }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "link": "SwapKit gizlilik politikası",
+          "text": "BitBoxApp herhangi bir kişisel veriyi öğrenmez veya toplamaz. SwapKit, gizlilik politikasında açıklandığı gibi bazı veriler toplayabilir.",
+          "title": "Veri Koruması"
+        },
+        "fees": {
+          "note": "Not: SwapKit'in döviz kurları BitBoxApp'in kurlarından farklı olabilir.",
+          "text": "Her takas için %1,5 sabit oran uygulanır.",
+          "title": "Ücretler"
+        },
+        "intro": {
+          "text": "SwapKit, emanete dayanmayan takaslar için bir SDK/API hizmeti sunar. Farklı blok zincirleri arasında kripto para takasını tek bir yerde sağlamak için SwapKit ile çalışıyoruz. Bu, varlıkların üzerinde kontrolü elinde tutarken hızlı, basit ve emanete dayanmayan işlemleri mümkün kılar.",
+          "title": "SwapKit ile kripto para takası"
+        },
+        "protocol": {
+          "link": "SwapKit sağlayıcıları hakkında bilgi edin",
+          "text": "SwapKit API'si, takasları gerçekleştirmek için birden fazla sağlayıcı kullanır. Sağlayıcılar, en son takas gereksinimlerini ve daha iyi performansı sağlamak için zaman içinde eklenip çıkarılabilir.",
+          "title": "SwapKit sağlayıcıları"
+        },
+        "security": {
+          "link": "BitBox güvenlik tehdit modeli",
+          "text": "SwapKit harici bir hizmettir ve BitBox güvenlik tehdit modeli kapsamında değildir. Ancak, ödeme taleplerini BitBox donanım yazılımına uygulayarak güvenliği artırmak için SwapKit ile yakın iş birliği yapıyoruz. Bu, bir takas yaparken BitBox'un hedef adresi 'SwapKit' olarak görüntüleneceği anlamına gelir.",
+          "title": "Güvenlik"
+        },
+        "slippage": {
+          "text": "Slippage, bir takasa başladığında beklediğin fiyat ile takas tamamlandığında gerçekte aldığın fiyat arasındaki farktır. Kripto para fiyatları hızlı hareket edebilir ve işlem sırasında likidite değişebilir; bu nedenle alacağın nihai tutar tahmin edilenden daha düşük olabilir.",
+          "title": "Slippage"
+        }
+      },
+      "infobox": {
+        "intro": "BitBoxApp içinde herhangi bir kripto parayı sınırsız ve KYC olmadan başka bir kriptoya takas et. Bu takas hizmeti, merkeziyetsiz takas hizmetlerini toplayan bir aracı olan SwapKit tarafından sağlanır."
+      }
+    }
   },
   "fiat": {
     "default": "Varsayılan",
@@ -334,8 +1070,55 @@
   "footer": {
     "appVersion": "Uygulama Sürümü:"
   },
+  "gapLimit": {
+    "change": "Change adresleri için gap limiti",
+    "description": "bitcoin alım ve change adresleri için özel gap limitlerini yapılandır.",
+    "maxValue": "Gap limiti {{max}}'u aşmamalıdır.",
+    "minValue": "Gap limiti en az {{min}}.",
+    "receive": "Alma adresleri için gap limiti",
+    "title": "Özel gap limit ayarları"
+  },
   "generic": {
-    "resetToDefault": "Varsayılana sıfırla"
+    "beta": "Beta",
+    "bitcoinOnly": "Sadece Bitcoin",
+    "buy": "Satın al {{coinCode}}",
+    "buySell": "Pazar Yeri",
+    "buy_bitcoin": "Bitcoin satın al",
+    "buy_crypto": "Kripto satın al",
+    "calculating": "Hesaplanıyor…",
+    "close": "Kapat",
+    "enable": "Etkinleştir",
+    "enabled_false": "Devre dışı",
+    "enabled_true": "Etkin",
+    "iHaveReadTheInformation": "Yukarıdaki bilgileri okudum",
+    "insure": "Sigortala",
+    "max": "Maks",
+    "new": "Yeni",
+    "noOptionOnIos": "iOS'ta mevcut değil",
+    "noOptions": "Seçenek bulunamadı",
+    "paymentRequestNote": "{{name}} ödemesi {{orderId}}",
+    "receive": "Al {{coinCode}}",
+    "receiveWithoutCoinCode": "Al",
+    "receive_bitcoin": "Bitcoin al",
+    "receive_crypto": "Kripto al",
+    "received": "Alındı",
+    "reset": "Sıfırla",
+    "resetToDefault": "Varsayılanlara sıfırla",
+    "retry": "Tekrar dene",
+    "search": "Ara…",
+    "searchButton": "Ara",
+    "selectAll": "Tümünü seç",
+    "sell": "Sat {{coinCode}}",
+    "sell_bitcoin": "Bitcoin sat",
+    "sell_crypto": "Kripto sat",
+    "send": "Gönder",
+    "sent": "Gönderildi",
+    "skip": "Atla",
+    "spend_bitcoin": "Bitcoin harca",
+    "spend_crypto": "Kripto harca",
+    "swap": "Takas",
+    "unavailable": "Kullanılamıyor",
+    "unknown": "Bilinmiyor"
   },
   "genericError": "Bir hata oluştu. Herhangi bir sorunla karşılaşırsanız, lütfen uygulamayı yeniden başlatın.",
   "goal": {
@@ -382,6 +1165,22 @@
       "title": "Yatırılanlar ne demek?"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "\"Hesap bilgileri\" altındaki \"İşlemleri dışa aktar\" seçeneğini kullan ve dışa aktarılan CSV dosyasını bulmak için İndirilenler klasörünü aç. Bu, vergi raporlaması için CoinTracking gibi hizmetlerde yararlı olabilir.",
+        "title": "İşlem geçmişimi nasıl dışa aktarabilirim? (ör. CoinTracking için)"
+      },
+      "multipleXPubs": {
+        "text": "Her xpub, gösterilen \"Type\" ile ilişkilidir: ya \"Native Segwit (bech32)\" ya da \"Taproot\" (yalnızca Bitcoin). Bunlar {{coinName}} tarafından kullanılan script türleridir. BitBoxApp bunları birleştirir ve aynı hesapta birden fazla script türünü destekler. Her script türü farklı bir xpub verdiği için hesap başına birden fazla xpub vardır.\n\nEğer varsayılan adrese (Native Segwit) düzenli olarak alım yapıyorsan sadece \"bech32\" xpub'a ihtiyacın vardır. Ancak ayrıca \"Taproot\" adresine de fon geliyorsa, \"Taproot\" genişletilmiş açık anahtarını da kullanman gerekir.",
+        "title": "Neden birden fazla xpub var?"
+      },
+      "privacy": {
+        "text": "Bu özel hesap için, genişletilmiş genel anahtar (xpub) tüm işlem geçmişini, hesap bakiyesini ve gelecekteki tüm işlemleri ortaya çıkarır. Ancak xpub, kimsenin coinlerinizi harcamasına izin vermez.\n\nBirine xpub verirseniz, bu kişi veya şirketin aynı hesaba ait diğer tüm işlemleri görebileceğini bilmelisiniz. Bu nedenle, bu hesabı yalnızca bu amaçla kullanmak ve diğer fonları farklı hesaplarda tutmak iyi bir fikirdir.",
+        "title": "xpub'umu gizli tutmam gerekiyor mu?"
+      },
+      "verify": {
+        "text": "Evet, xpub'unu tekrar kontrol etmek her zaman iyi bir fikirdir. Başkası bu xpub'dan alım adresleri oluşturup sana para gönderecekse bu özellikle önemlidir. Bu xpub'un sana ait olduğunu doğrulamak için cihazda onaylaman gerekir; aksi takdirde tüm fonlar yanlış adreslere gidebilir.",
+        "title": "xpub'u cihazda doğrulamam gerekiyor mu?"
+      },
       "xpub": {
         "text": "Genişletilmiş bir genel anahtar, bir hesabın tüm alıcı adreslerinin türetildiği bir kök anahtardır.\nBurada Electrum veya Sentinel gibi yalnızca izlemek için olan cüzdanlarla ileri düzeyde kullanım ve birlikte çalışabilirlik için sağlanmıştır.",
         "title": "Genişletilmiş genel anahtar nedir?"
@@ -399,8 +1198,26 @@
       "text": "Bakiyeniz sıfırdan fazla olduğunda \"Gönder\" butonu etkinleşir.",
       "title": "Neden hiçbir şey gönderemiyorum {{unit}}?"
     },
+    "accountSummaryAmount": {
+      "text": "Toplam tutar, tüm kripto hesaplarının toplamıdır. Döviz kurları coingecko.com'dan alınır.\n\nNot: BitBoxApp tarafından desteklenmeyen tokenler için MyEtherWallet kullanırsan, bunlar görüntülenen tutara dahil edilmeyecektir.",
+      "title": "Toplam tutar nasıl hesaplanır?"
+    },
     "accountSummaryDescription": {
+      "text": "Burada portföyünün zaman içindeki değerini ve performansını görebilirsin. Bireysel kripto hesaplarının özeti grafik altında gösterilir.",
       "title": "Bu sayfa bana ne gösteriyor?"
+    },
+    "accountSummaryPercentageMeaning": {
+      "listOptions": [
+        "Zamana göre değer: Bu, para yatırma ve çekme işlemleri de dahil olmak üzere portföy değerinin zaman içindeki değişimidir.",
+        "Performans: Bu, para ağırlıklı getiri (MWR)'dir. Para yatırma ve çekme işlemlerini dikkate alır, dolayısıyla portföyünün performansını yansıtır."
+      ],
+      "outro": "Yüzdeye tıklayarak veya Ayarlar > Görünüm altında performans ile zaman içindeki değer arasında geçiş yapabilirsin. Varsayılan olarak uygulama zaman içindeki değeri gösterir.",
+      "text": "Portföy grafiğindeki yüzde, seçili zaman aralığı için iki seçenekten birini gösterir:",
+      "title": "Yüzde ne anlama geliyor?"
+    },
+    "accountTransactionAttributesBTC": {
+      "text": "Sanal boyut: Ağ ücretini belirler. Eğer sanal boyut, işlem boyutundan küçükse ücretlerden tasarruf etmiş olursunuz.\nBoyut: Temel blok zincirine göre serileştirildiğinde işlemin bayt cinsinden gerçek boyutu.\nAğırlık: Segwit ile getirilen, işlem ve blok boyutlarını değerlendirmeye yönelik yeni bir ölçüttür. Her segregated witness baytı bir birim sayılır, geri kalan her şey dört ağırlık birimi sayılır. Gerçek boyutta bir megabayt yerine, blok boyutu limiti şimdi dört milyon ağırlık birimidir.",
+      "title": "Bitcoin'e özgü işlem ayrıntıları ne olacak?"
     },
     "accountTransactionAttributesGeneric": {
       "text": "Onaylar: İlk işlem yayınınız, bir madenci bir bloğa dahil edinceye kadar onaylanmaz, ardından bir onay verilir. Ağda yayınlanan her blok, işleminize başka bir onay ekler. Genel olarak, tüccarlar ve diğer ağ aktörler üç ila altı onay aldığında işlemleri gerçekleştirir.\nİşlem Kimliği: Bir blok gezgininde bir işlem aramanıza izin veren benzersiz bir kimlik numarası.\nÜcret: Madencilere, işlemleri onaylamalarını teşvik etmek için işlem ücreti ödenir. Daha fazla bilgi için, gönder düğmesine tıklayın.",
@@ -410,6 +1227,10 @@
       "text": "Ağda yayınlanan ancak henüz onaylanmayan bir işlem.",
       "title": "Beklemedeki işlem nedir?"
     },
+    "accountTransactionEstimation": {
+      "text": "BitBoxApp, işlem onaylanana ve nihai dönüşüm oranı alınana kadar fiat tutarlarının önüne bir tahmin işareti ekler.",
+      "title": "Yeni işlemler neden tahmin işareti gösteriyor?"
+    },
     "accountTransactionLabel": {
       "text": "Kripto paralarınızı aldığınız veya gönderdiğiniz adres.",
       "title": "Her işlemde görüntülenen adres hangisi?"
@@ -418,9 +1239,60 @@
       "text": "Blockchain işlem onay süresi.",
       "title": "Ne zaman görüntülenir?"
     },
+    "accounts": {
+      "howManyAccounts": {
+        "text": "Bitcoin ve Litecoin için hesap sayısı sınırsızdır. Altı hesaptan sonra, önceki hesap kullanıldıysa yeni hesap ekleyebilirsin.\n\nDiğer coinlerde en fazla beş hesap olabilir.",
+        "title": "Kaç hesap oluşturabilirim?"
+      },
+      "howtoAddTokens": {
+        "text": "ERC20 standardını kullanan tokenlar belirli bir Ethereum hesabına bağlıdır. Belirli bir tokeni etkinleştirmek veya devre dışı bırakmak için \"Hesapları yönet\" ekranını aç, Ethereum hesabını genişlet ve istediğin tokeni açıp kapat.",
+        "title": "Ek tokenleri nasıl ekleyebilirim?"
+      },
+      "moveFunds": {
+        "text": "Evet. Ancak hesaplar bağımsız olduğundan, fonlarını normal bir işlemle göndermen gerekir.",
+        "title": "Hesaplar arasında fon taşıyabilir miyim?"
+      },
+      "recoverAccounts": {
+        "text": "Evet. BitBoxApp, diğer çoğu kripto cüzdanıyla uyumlu, yerleşik standartları kullanarak hesaplar oluşturur.",
+        "title": "Hesaplarımı başka cüzdanlarla geri yükleyebilir miyim?"
+      },
+      "supportedCoins": {
+        "link": {
+          "text": "Desteklenen coinleri görüntüle"
+        },
+        "text": "BitBoxApp, Bitcoin, Litecoin ve Ethereum ile seçilmiş ERC20 tokenlerini destekler. Cardano ve diğer tokenler için BitBox'unuzu AdaLite veya Rabby gibi alternatif yazılımlarla kullanın. Desteklenen tüm coinlerin eksiksiz listesini web sitemizde bulabilirsiniz:",
+        "title": "Hangi coinler destekleniyor?"
+      },
+      "whatAreAccounts": {
+        "text": "Cüzdanın aynı coin için birden fazla hesabı yönetebilir. Hesaplar, fonları ayrı tutmak istediğinde faydalıdır.",
+        "title": "Hesaplar nedir?"
+      },
+      "whatIsRememberWallet": {
+        "text": "“Cüzdanı hatırla” etkinleştirildiğinde, BitBox takılı olmasa bile BitBoxApp'te bu cüzdana ait hesapları görebilirsin. Bu sayede bakiye ve portföyünü istediğin zaman kontrol edebilirsin. Coin göndermek veya almak için BitBox'un yine de takılı ve kilidi açılmış olması gerekir.\n\n“Cüzdanı hatırla”’yı devre dışı bırakmak, bu hesapları BitBoxApp'te görmek için ilgili BitBox'u (veya passphrase cüzdanını) bağlamanı gerektirir.",
+        "title": "“Remember wallet”'ı etkinleştirdiğimde/devre dışı bıraktığımda ne olur?"
+      },
+      "whyIsThisUseful": {
+        "text": "Hesaplar, farklı kişiler veya amaçlar için fonları ayrı tutmak için idealdir. Bir hesabın \"genişletilmiş açık anahtar\"ını diğer hesapların hakkında herhangi bir bilgi ifşa etmeden paylaşabilirsin. Bu, maaş almak veya düzenli olarak kripto satın almak gibi durumlarda adresleri yeniden kullanmadan tekrar tekrar fon almanı sağlar.",
+        "title": "Bu neden yararlı?"
+      }
+    },
+    "appearancePortfolioPercentageOptions": {
+      "listOptions": [
+        "Zamana göre değer: Bu, yatırma ve çekme işlemleri de dahil olmak üzere portföy değerinin zaman içindeki değişimidir.",
+        "Performans: Bu, para ağırlıklı getiri (MWR)'dir. Yatırma ve çekme işlemlerini hesaba katar, bu yüzden portföyünün performansını yansıtır."
+      ],
+      "text": "Portföy grafiğindeki yüzde, iki seçenekten birini gösterir:",
+      "title": "Portföy yüzdesi seçenekleri ne anlama geliyor?"
+    },
     "appendix": {
+      "feedback": {
+        "link": "Bize bildir.",
+        "text": "Geri bildirimin var mı?"
+      },
       "link": "Bizimle iletişime geçin!",
-      "text": "Başka bir soru?"
+      "questionService": "{{serviceName}} ile ilgili sorun mu yaşıyorsun?",
+      "text": "Başka bir soru?",
+      "textService": "Eğer {{serviceName}}, lütfen doğrudan onlarla iletişime geç:"
     },
     "backups": {
       "check": {
@@ -456,11 +1328,169 @@
     },
     "bitbox": {
       "ejectBitbox": {
+        "text": "BitBox'u önce güvenli şekilde çıkarmana gerek kalmadan istediğin zaman fişini çekebilirsin.",
         "title": "BitBox'ı nasıl çıkarabilirim?"
       },
       "ejectSD": {
         "text": "MicroSD kartı BitBox'tan istediğiniz zaman yedekleme oluşturma veya geri yükleme işlemi yapmadığınız sürece kaldırabilirsiniz.",
         "title": "MicroSD kartı nasıl çıkarabilirim?"
+      }
+    },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "Bu, Bitrefill'in desteklemediği bir e-posta sağlayıcısı kullanmış olman nedeniyle olabilir. Faturaya ihtiyacın varsa lütfen Bitrefill destek ile iletişime geç; faturanı sağlayabilirler.",
+        "title": "Bitrefill'den fatura almadım"
+      },
+      "kyc": {
+        "link": {
+          "text": "Bitrefill satın alma limitleri"
+        },
+        "text": "Hayır, Bitrefill kimlik doğrulaması gerektirmez. Belirli limitlere kadar KYC olmadan satın alma yapabilirsin. Ayrıntılar için lütfen Bitrefill'in satın alma limitleri politikasına bak:",
+        "title": "Bitrefill KYC gerektiriyor mu?"
+      },
+      "limits": {
+        "link": {
+          "text": "Bitrefill hesap doğrulaması"
+        },
+        "text": "Doğrulanmış müşteri olarak satın alma limitlerini artırabilirsin. Doğrulama işlemini tamamlamak için aşağıdaki bağlantıyı ziyaret et:",
+        "title": "Bitrefill ile satın alma limitlerimi nasıl artırırım?"
+      }
+    },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "Daha fazla bilgi için Bitsurance'ın web sitesini ve SSS'ini kontrol et.",
+        "title": "Başka sorular?"
+      },
+      "privacy": {
+        "link": {
+          "text": "Bitsurance gizlilik politikası"
+        },
+        "text": "Herhangi bir normal sigorta poliçesi gibi, tam adını ve adresini içerir ve sigortalı nesneyi (sigortalı Bitcoin hesabının extended public key'i ile tanımlanan) belirtir. Bu veriler doğrudan Bitsurance'a gönderilir ve Shift Crypto ile paylaşılmaz. Daha fazla bilgi için Bitsurance gizlilik politikasına bakın.",
+        "title": "Sigorta için hangi kişisel bilgiler gerekli?"
+      },
+      "renew": {
+        "text": "Sigorta otomatik olarak bir sonraki yıl için yenilenecektir. Yenilemeyi herhangi bir zamanda BitBoxApp'te “Manage contract”e tıklayarak iptal edebilirsin; bu seni Bitsurance müşteri portaline götürür.",
+        "title": "Sigortayı nasıl yenileyebilir veya iptal edebilirim?"
+      },
+      "status": {
+        "text": "Başarıyla sigortalanmış hesaplar, her Bitcoin hesap sayfasının sol üst köşesinde yeşil bir “insured” rozeti ile işaretlenir. “Insurance” bölümünde tüm sigortalı Bitcoin hesaplarının ve mevcut sigorta durumlarının genel görünümünü görebilirsin. Sigorta durumunun güncellenmesi 48 saate kadar sürebilir.",
+        "title": "Sigortalı bir hesabın durumunu kontrol edebilir miyim?"
+      },
+      "what": {
+        "text": "Her Bitcoin sigorta sözleşmesi belirli bir hesap(lar)ı kapsar. Birden fazla hesap için birden fazla poliçe yaptırarak sigorta kapsamını genişletebilirsin. Sigortalı hesaplar yalnızca \"Native Segwit\" Bitcoin adreslerini kullanmakla sınırlıdır.",
+        "title": "Tüm BitBox cüzdanı sigortalı mı?"
+      },
+      "who": {
+        "text": "Sigorta, bitcoinciler tarafından kurulmuş bir sigorta aracısı olan Bitsurance tarafından sunulmaktadır. Bitcoin sigortası sağlamak için ELEMENT sigorta ile çalışmaktadır. Her iki şirket de Almanya'da bulunmaktadır.",
+        "title": "Bitcoin'imi kim sigortalıyor?"
+      },
+      "why": {
+        "text": "Bitsurance, en güvenli cüzdanların kapsamına girmeyen bazı self-custody risklerini kapsar; örneğin hırsızlık, şantaj veya cüzdanın tahribi. Bu riskler için sigorta kapsamına ihtiyacın olup olmadığı kişisel bir karardır.",
+        "title": "Bitcoin sigortasına ihtiyacım var mı?"
+      }
+    },
+    "device": {
+      "attestation": {
+        "link": {
+          "text": "Orijinallik doğrulaması hakkında daha fazla bilgi edinin"
+        },
+        "text": "BitBoxApp, cihazın orijinal olduğunu doğrulamak için BitBox'ta bir attestation kontrolü yapar. Kontrol yerel olarak yapılır ve herhangi bir sunucuya bağlanmaz.",
+        "title": "Orijinallik kontrolü nasıl çalışır?"
+      },
+      "name": {
+        "text": "Bu, cüzdanının ve yedeğinin adıdır. İsim gelecekteki yedeklemelerde kullanılır ve farklı cüzdanları ayırt etmene yardımcı olabilir. İstediğin zaman değiştirilebilir; ancak değişiklikten önce yapılan yedeklerin hâlâ önceki ismi kullanacağını unutma.",
+        "title": "BitBox adı ne için kullanılır?"
+      },
+      "secure-chip": {
+        "link": {
+          "text": "Güvenli çip hakkında daha fazla bilgi edinin"
+        },
+        "text": "Bu bilgi güvenli çipin model numarasını gösterir; en güncel çip ATECC608B'dir ve eski modellere göre geliştirilmiş güvenlik özelliklerine sahiptir.",
+        "title": "Güvenli çip modelini neden gösteriyoruz?"
+      }
+    },
+    "disclaimer": {
+      "link": "{{provider}} feragatnamesini görüntüle",
+      "title": "{{provider}} feragatnamesi"
+    },
+    "guideTitle": {
+      "account": "Hesap kılavuzu",
+      "accountInformation": "Hesap bilgileri kılavuzu",
+      "accountSummary": "Hesap özeti kılavuzu",
+      "advancedSettings": "Gelişmiş ayarlar kılavuzu",
+      "appearance": "Görünüm rehberi",
+      "buySell": "Pazar yeri rehberi",
+      "insurance": "Sigorta kılavuzu",
+      "lightningReceive": "Lightning alma kılavuzu",
+      "lightningSend": "Lightning gönderme kılavuzu",
+      "manageAccount": "Hesap yönetimi rehberi",
+      "manageDevice": "Cihaz yönetimi kılavuzu",
+      "receive": "Alma kılavuzu",
+      "send": "Gönderme kılavuzu",
+      "walletConnect": "WalletConnect kılavuzu"
+    },
+    "lightning": {
+      "multipleDevices": {
+        "text": "Evet, BitBox'unu farklı bir cihaza tak ve BitBoxApp'te Lightning'i etkinleştir. Aynı cüzdanı kullanırsan Lightning cüzdanı önceki cihazındakinin aynısı olacaktır.",
+        "title": "Lightning cüzdanımı birden fazla cihazda kullanabilir miyim?"
+      },
+      "multipleWallets": {
+        "text": "Hayır; şu anda aynı BitBox ile birden fazla Lightning cüzdanı oluşturamazsın ve aynı BitBoxApp içinde birden fazla Lightning cüzdanı kullanamazsın, BitBox'ların birden fazla olsa bile.",
+        "title": "Birden fazla Lightning cüzdanı oluşturabilir miyim?"
+      },
+      "privateKey": {
+        "text": "BitBoxApp Lightning cüzdanı non-custodial'dir; bu, yalnızca senin anahtarlara erişimin olduğu anlamına gelir. Özel anahtarlar BitBoxApp içinde saklanır. Lightning anahtarları BitBox yerine bilgisayarında/telefonunda bulunduğu için Lightning cüzdanın bir “Hot wallet” olur. Bu nedenle Lightning cüzdanında yalnızca az miktarda coin sakla.",
+        "title": "Lightning özel anahtarlarım nerede saklanıyor?"
+      },
+      "providers": {
+        "text": "Evet, Lightning cüzdanı Breez SDK üzerinden Spark kullanır. BitBoxApp Lightning anahtarlarını kontrol eder; Spark ise Lightning ödemelerini göndermek ve almak için gereken dış altyapıyı sağlar. Hizmeti kullanırken ücret uygulanabilir.",
+        "title": "Bu çözümde dış taraflar yer alıyor mu?"
+      },
+      "receive": {
+        "fee": {
+          "text": "Hayır, alıcı Lightning ödemesini almak için ücret ödemez. Ücretleri gönderen öder.",
+          "title": "Alırken ücret öder miyim?"
+        },
+        "invoiceOrAddress": {
+          "text": "Belirli bir tutar talep etmek istediğinde bir invoice oluştur. Bir invoice tek bir ödeme içindir ve 30 gün sonra süresi dolar. Gönderenin tutarı seçmesi gerektiğinde veya gelecekteki ödemeler için kaydetmesini istediğinde bunun yerine Lightning address'ini paylaş. Bir invoice'a isteğe bağlı bir açıklama ekleyerek ödemeyi daha sonra tanımlamaya yardımcı olabilirsin.",
+          "title": "Adresimi paylaşmak yerine ne zaman bir invoice oluşturmalıyım?"
+        },
+        "payment": {
+          "text": "Yeniden kullanılabilir Lightning adresini paylaşabilir veya tek seferlik bir ödeme için BOLT11 faturasını oluşturabilirsin. QR kodunu veya ekranda görünen metni göndericiyle paylaş. Ödemeyi beklerken BitBoxApp'in açık kalmasına gerek yok.",
+          "title": "Lightning ödemesini nasıl alabilirim?"
+        },
+        "reuseAddress": {
+          "text": "Evet. Bir Invoice'ın aksine Lightning adresin birden fazla ödeme için kullanılabilir. Gönderen miktarı seçer ve gönderenin cüzdanı ödeme bilgilerini otomatik olarak ister. Görünüşe benzer olsa da bu bir e-posta adresi değildir.",
+          "title": "Lightning adresimi yeniden kullanabilir miyim?"
+        }
+      },
+      "securedByBitBox": {
+        "text": "Hayır, BitBox yalnızca Lightning cüzdanını oluşturmak ve geri yüklemek için kullanılır. Lightning cüzdanın oluşturulduktan sonra bir \"hot wallet\" olur.",
+        "title": "Lightning cüzdanım BitBox tarafından korunuyor mu?"
+      },
+      "send": {
+        "cancel": {
+          "text": "Hayır. Lightning ödemeleri gönderildikten sonra iptal edilemez veya geri alınamaz. Göndermeden önce alıcıyı, tutarı, açıklamayı ve ücreti her zaman kontrol et. İade gerekliyse alıcıdan parayı geri göndermesini iste. Ödenmemiş bir fatura eninde sonunda süresi dolar.",
+          "title": "Bir Lightning ödemesini iptal edebilir veya geri alabilir miyim?"
+        },
+        "fee": {
+          "text": "Ücret, ödeme tutarına ve o an kullanılabilir rotaya bağlıdır; bu nedenle gönderimden hemen önce hesaplanır. Ücret ve bakiyenden düşülecek toplam tutar onaylamadan önce gösterilir.",
+          "title": "Lightning ödeme ücreti nasıl hesaplanır?"
+        },
+        "invoiceAndAddress": {
+          "text": "Bir BOLT11 invoice tek bir ödeme için oluşturulur. Tutarı zaten belirtebilir veya girmeni isteyebilir. Invoice'lar süresi dolabilir ve sadece bir kez ödenebilir. Bir Lightning address yeniden kullanılabilir ve alıcının belirlediği sınırlar içinde istediğin herhangi bir tutarı seçmene olanak tanır.",
+          "title": "Bir invoice ile bir Lightning adresi arasındaki fark nedir?"
+        },
+        "payment": {
+          "text": "Bir BOLT11 invoice'ını tara veya yapıştır, bir LNURL-Pay isteğini veya bir Lightning adresini.",
+          "title": "Lightning ödemesini nasıl gönderirim?"
+        }
       }
     },
     "receive": {
@@ -472,11 +1502,20 @@
         "text": "İşlem yaptığınız anda, otomatik olarak listeye yeni bir adres eklenir, böylece her zaman kripto para almayan 20 adres bulunur.",
         "title": "Adresler ne zaman değişir?"
       },
+      "addressFormats": {
+        "text": "Varsayılan olarak adres türü Native Segwit'tir. Bu adres türü diğer cüzdanlar/borsalar tarafından yaygın olarak kullanılır ve günlük işlemler için en iyi ücret oranlarını sağlar. Ancak Taproot'a (sadece Bitcoin) göndermeyi de seçebilirsiniz; bu en yeni adres türüdür, ancak henüz yaygın olarak desteklenmeyebilir.",
+        "title": "“Change address type” seçeneğini ne zaman kullanmalıyım?"
+      },
       "howVerify": {
         "text": "BitBox01 için soldaki kenar çubuğundaki BitBox simgesine tıklayın ve Eşleştirme bölümüne bakın. Kılavuz güncellenir ve oradaki talimatları izlemeye devam edebilirsiniz.\nBitBox02 için, gönderme/alma işlemi sırasında adresleri doğrudan cihaz üzerinde doğrulayabilirsiniz.",
         "title": "Bir adresi güvenli bir şekilde nasıl doğrulayabilirim?"
       },
+      "plugout": {
+        "text": "Hayır — BitBox adresine coin gönderdikten sonra cihazını bağlı bırakmana gerek yok. BitBox'unu çıkarabilirsin.",
+        "title": "Alırken BitBox'umu bağlı bırakmam gerekiyor mu?"
+      },
       "why20": {
+        "text": "Başlatma sırasında uygulama, seed'inden türetilen adresleri bu adreslere fon gelip gelmediğini görmek için oluşturur. Uygulama neredeyse sonsuz sayıda adres oluşturabildiğinden bakiye tespit etmesi yıllar alabilir. Bu aramayı sınırlamak için, hiç fon almamış 20 adres gördükten sonra durur. Bu \"gap limit\"tir ve 20 de‑facto bir standarttır; sayı keyfidir. Bunlar seçebileceğin 20 adrestir.",
         "title": "Neden sadece 20 adres?"
       },
       "whyMany": {
@@ -484,14 +1523,22 @@
         "title": "Neden bu kadar çok adres var?"
       },
       "whyVerify": {
-        "text": "Orijinal adresleri oluşturmak ve görüntülemek için bilgisayarınıza güvenmemelisiniz. Büyük bir saldırı, donanım cüzdanınızın daha savunmasız kalmasını sağlar. BitBox01'in güvenli bir şekilde doğrulama düğmesi, adresi QR kodunu da tarayabileceğiniz ve doğrulayabileceğiniz eşleştirilmiş bir cep telefonuna gönderir. BitBox02 için, adres doğrudan BitBox02 ekranında doğrulanabilir.",
+        "text": "Bilgisayarına gerçek adresleri oluşturup göstermesi için güvenmemelisin. Geniş saldırı yüzeyi nedeniyle bir donanım cüzdanına kıyasla çok daha savunmasızdır. Adresi doğrudan BitBox ekranında doğrulayabilirsin.",
         "title": "Neden adresi güvenli bir şekilde doğrulamalıyım?"
       }
     },
     "send": {
+      "change": {
+        "text": "En az bir Taproot UTXO'na sahipsen değişim Taproot adresine iade edilir. Coin control kullanıyorsan, seçilen UTXO'lar arasında en az bir Taproot UTXO varsa değişim Taproot adresine iade edilir. Diğer tüm durumlarda değişim Native Segwit adresine iade edilir.",
+        "title": "Change output nasıl belirlenir?"
+      },
       "fee": {
         "text": "Ücret, işlem miktarına değil işlem miktarına göre belirlenir. Ücret hedefleri, seçtiğiniz her ağ önceliği için Bitcoin Core'un ücret tahmin algoritması ile hesaplanır. Aşağıdaki hedeften farklı bir değere sahiplerse gösterilirler.\nEkonomi: 24 blok (Bitcoin için yaklaşık 4 saat, Litecoin için 1 saat)\nDüşük: 12 blok (Bitcoin için yaklaşık 2 saat, Litecoin için 30 dakika)\nNormal: 6 blok (Bitcoin için yaklaşık 1 saat, Litecoin için 15 dakika)\nYüksek: 2 blok (Bitcoin için yaklaşık 20 dakika, Litecoin için 5 dakika)\n(Bir blok Bitcoin için ortalama on dakika sürer (Litecoin'de 2.5 dakika) ve ağ yükü yukarıdaki periyotlarda önemli ölçüde değişebilir.)",
         "title": "Ücret nasıl belirlenir?"
+      },
+      "plugout": {
+        "text": "Hayır, bir işlem gerçekleştirdikten sonra BitBox'unuzu bağlı tutmanız gerekmez. BitBox'unuzun bağlantısını kesebilirsiniz.",
+        "title": "Gönderirken BitBox'u bağlı bırakmam gerekir mi?"
       },
       "priority": {
         "text": "Ödemek istediğiniz ücret ne kadar yüksekse, işleminiz genellikle ağ tarafından daha erken onaylanır.",
@@ -507,21 +1554,52 @@
       }
     },
     "settings": {
+      "sats": {
+        "text": "Satoshi ('sat' kısaltması), Bitcoin'in en küçük birimidir. Bir Satoshi bir bitcoinin yüz milyonda biridir (0.00000001 BTC). Adını Bitcoin'in yaratıcısı Satoshi Nakamoto'dan alır.",
+        "title": "Satoshi nedir?"
+      },
       "servers": {
         "text": "Bu uygulama, güncellemeleri kontrol etmek, işlemleri yüklemek ve eşleştirilmiş mobil uygulamalara bilgi göndermek için Shift Crypto sunucuları ile iletişim kurar.\nBu uygulama aynı zamanda CoinGecko'den en son döviz kurlarını alıyor. Tüm dönüşümler yerel olarak hesaplanır, bu işleminizin miktarı ile ilgili hiçbir veri iletilmediği anlamına gelir.\nNot: Ethereum ve ERC20 Tokens için Etherscan.io API'lerini kullanıyoruz.",
         "title": "Bu uygulama hangi sunucularla konuşuyor?"
       }
     },
     "settings-electrum": {
+      "connection": {
+        "text": "Düğümüne sadece aynı ağdayken (ör. ev Wi‑Fi'in) bağlanmayı planlıyorsan, normal ağ iletişimi yeterlidir.\nBu durumda Electrum sunucunun iletişimi şifrelemek için bir TLS sertifikası sağlaması tavsiye edilir.\nDüğümüne her yerden bağlanmayı planlıyorsan, Tor kullanmak daha iyi bir seçenektir. Bu durumda TLS sertifikasına gerek yoktur.",
+        "title": "Clearnet TCP, TLS mi yoksa Tor mu kullanmalıyım?"
+      },
+      "instructions": {
+        "link": {
+          "text": "Node'unuzu bağlama kılavuzu"
+        },
+        "text": "Tam bir eğitim için lütfen rehberimizi ziyaret edin:",
+        "title": "BitBoxApp'ini kendi full node'una nasıl bağlarım?"
+      },
+      "options": {
+        "text": "Kendi node'unu çalıştırmak için hazır bir cihaz satın almak, kendi cihazını inşa etmek veya Bitcoin Core çalıştırmak gibi birden fazla seçenek vardır.\nBitBoxApp'ini node'una bağlamak istiyorsan, node'unun bir Electrum server çalıştırdığından emin ol. Bu, bir cüzdan uygulamasının full node'unla iletişim kurmasını sağlayan özel bir programdır.\nDesteklenen seçenekler arasında Electrs, Electrum Personal Server (EPS) veya Bitcoin Wallet Tracker (BTW) bulunur.",
+        "title": "Bir node çalıştırmak için hangi seçenekler var?"
+      },
+      "tor": {
+        "text": "Tor, 'The Onion Router'ın kısaltmasıdır; ücretsiz ve açık kaynaklı bir yazılımdır ve birçok gizlilik avantajı sunar; Bitcoin kullanırken özellikle faydalıdır.\nEğer node'unuza Tor üzerinden bağlanmayı planlıyorsan, Tor'un bilgisayarında yüklü olduğundan emin ol ve sonra BitBoxApp ayarlarında Tor Proxy'yi etkinleştir.\nÇoğu işletim sisteminde Tor'u çalıştırmanın iki yolu vardır:\n1. Tor Browser: Tor Browser'ı indirip aç. Bu, BitBoxApp'in Tor ağına bağlanmasına izin verir; Tor proxy ayarlarında portu 9150 olarak ayarlaman yeterlidir.\n2. Tor arka plan servisi: Tor daemon'ı yükle; bu arka planda sürekli çalışır. BitBoxApp daha sonra Tor proxy ayarlarında portu 9050 olarak ayarlayarak bağlanabilir.",
+        "title": "Tor ve Tor proxy nedir, hangi portu kullanmalıyım?"
+      },
       "what": {
         "text": "Shift sunucularını kullanmak yerine cüzdanınıza kendi tam node'larınızla güç vermek mümkündür.",
         "title": "Bu nedir?"
+      },
+      "why": {
+        "text": "Kendi node'unu çalıştırmak gerekli değildir ama gizliliği artırır ve başkalarına güvenme ihtiyacını azaltır.\nBirincisi, BitBoxApp işlem geçmişini almak için bizim sunucularımıza bağlanmayacağı için Bitcoin'i daha özel kullanırsın; bunun yerine bu bilgiyi kendi node'undan çeker.\nİkincisi, kendi node'unu çalıştırmak, node'unun tüm işlemleri kendisi doğrulaması anlamına gelir; böylece konsensüs kurallarının uygulandığından emin olunur.",
+        "title": "Neden kendi node'umu çalıştırmalıyım?"
       }
     },
     "title": "Kılavuz",
     "toggle": {
       "close": "Kılavuzu kapat",
       "open": "Kılavuz"
+    },
+    "trackingModePortfolioChart": {
+      "text": "Masaüstünde imleci grafiğin üzerine getirin. Mobilde parmağınızı grafiğe basılı tutun ve yatay olarak sürükleyin.",
+      "title": "Grafikte geçmiş değerleri nasıl görebilirim?"
     },
     "unlock": {
       "forgotDevicePassword": {
@@ -559,6 +1637,27 @@
       "welcome": {
         "text": "Shift Crypto tarafından İsviçre'de üretilen bu uygulamayı kullandığınız için teşekkür ederiz. Paylaşmanız gereken herhangi bir geri bildirimi takdir ediyoruz. Lütfen alttaki bağlantıyı kullanarak geri bildirimde bulunun.",
         "title": "BitBoxApp'a Hoşgeldiniz!"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "BitBox02 Nova sipariş et"
+        },
+        "text": "Sadece BitBox02 Nova iOS ile çalışır. Normal BitBox02 diğer tüm platformlarda kullanılabilir. BitBox02 Nova satın almak için lütfen mağazamızı ziyaret edin.",
+        "title": "Hangi BitBox iOS ile uyumludur?"
+      }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "BitBoxApp'i yeni bir telefon/bilgisayarda kullanıyorsan, DApp'lere yeniden bağlanman gerekecek. Ardından coinlerini dapp'te her zamanki gibi tekrar göreceksin.",
+        "title": "Önceki bağlantılarımı görmüyorum."
+      },
+      "supportedNetworks": {
+        "text": "Şu anda BitBoxApp'te WalletConnect kullanılarak yalnızca Ethereum mainnet desteklenmektedir. Diğer EVM uyumlu zincirleri kullanmak için lütfen Rabby tarayıcı uzantısı cüzdanını kullanın.",
+        "title": "Hangi ağlar destekleniyor?"
+      },
+      "whatIsWalletConnect": {
+        "text": "WalletConnect, web3 uygulamaları için bir iletişim protokolüdür. Ethereum tabanlı DApp'lere ve web cüzdanlarına üçüncü taraf bir uygulama kullanmadan rahatça bağlanmanı sağlar; bu, BitBoxApp'in Android kullanıcıları için özellikle kullanışlıdır.",
+        "title": "WalletConnect nedir?"
       }
     }
   },
@@ -589,49 +1688,525 @@
     "title": "Dil Seçin"
   },
   "lightning": {
-    "claimTopUp": {
-      "confirm": {
-        "fee": "Ücret"
+    "accountLabel": "Lightning",
+    "activate": {
+      "connect": {
+        "content": "Lightning cüzdanını oluşturmak için BitBox'ını bağla",
+        "title": "Cihazını bağla"
+      },
+      "disclaimer": {
+        "content": "Lightning cüzdanın, BitBox'undan türetilen bir anahtarla oluşturulacak. Böylece Lightning cüzdanını her zaman BitBox'unu veya yedeğini kullanarak geri yükleyebilirsin.\n\nAncak BitBox'un aksine, Lightning cüzdanı <strong>hot wallet</strong>. Bu, Lightning cüzdanının anahtarlarının BitBox'ta değil BitBoxApp'te saklandığı anlamına gelir. Lightning cüzdanını yüksek miktarda fon için veya uzun süreli saklama amaçlı kullanmamalısın.\n\n          Ayrıca Lightning özelliği şu anda beta aşamasındadır; hata veya güvenilirlik sorunlarıyla karşılaşabilir ya da tamamen çalışmayı durdurabilir.",
+        "title": "BitBoxApp ile nasıl çalışır?"
+      },
+      "intro": {
+        "content": "Lightning, Bitcoin için kanal tabanlı bir ikinci katmandır. Ödemeleri anında ve çok düşük ücretle göndermeni ve almanı sağlar.",
+        "title": "Lightning nedir?"
+      },
+      "success": {
+        "message": "Başarılı, Lightning cüzdanın hazır!"
+      },
+      "title": "Lightning cüzdanı oluştur",
+      "wait": {
+        "activating": "Lightning cüzdanı etkinleştiriliyor...",
+        "confirm": "BitBox'unda Lightning cüzdanı oluşturmak istediğini onayla.",
+        "title": "Lightning cüzdanı oluştur"
       }
+    },
+    "betaWarning": "Lightning beta aşamasında. Sadece az miktarda fonla kullan.",
+    "bitcoinDeposit": {
+      "claim": "Yükleme veya iade talep et",
+      "label": "Bitcoin yükleme",
+      "state": {
+        "claiming": "Depozito talep ediliyor",
+        "confirming": "Onaylar bekleniyor",
+        "refundPending": "İade yayınlanmayı bekliyor",
+        "unclaimed": "Talep gerekli"
+      },
+      "stateShort": {
+        "claiming": "Talep ediliyor",
+        "confirming": "Onaylanıyor",
+        "refundPending": "İade bekleniyor",
+        "unclaimed": "Talep gerekli"
+      }
+    },
+    "claimTopUp": {
+      "claimButton": "Yüklemeyi talep et",
+      "claimFee": "Talep ücreti",
+      "claimUnavailable": "Talep yapılamıyor",
+      "confirm": {
+        "amount": "Talep edilmemiş yükleme",
+        "claimButton": "Talebi onayla",
+        "claimTitle": "Yükleme talebini onayla",
+        "fee": "Ücret",
+        "feeRate": "Ücret oranı",
+        "refundButton": "İadeyi onayla",
+        "refundDestination": "İade hedefi",
+        "refundTitle": "Yükleme iadesini onayla"
+      },
+      "description": "Bu yüklemeyi talep ederek fonları Lightning cüzdanına ekle.",
+      "empty": "Talep edilmemiş yükleme bulunamadı.",
+      "failure": {
+        "claimFailedMessage": "Yükleme talebi başarısız oldu.",
+        "claimFailedTryRefund": "Bunun yerine bir Bitcoin hesabına iade etmeyi dene.",
+        "refundFailedMessage": "Yükleme iadesi başarısız oldu.",
+        "refundFailedTryAgain": "Lütfen tekrar dene."
+      },
+      "feeRate": "{{feeRate}} sat/vByte",
+      "refundButton": "Yüklemeyi iade et",
+      "refundFee": "İade ücret oranı",
+      "refundPending": "İade Bitcoin ağına ulaşmadı. Otomatik olarak yeniden denenecek. Ayrıca mevcut ücret oranıyla yeniden deneyebilirsin.",
+      "refundUnavailable": "İade yapılamıyor",
+      "success": {
+        "claimTitle": "Yüklemeyi talep et",
+        "deferredMessage": "Yükleme talebi planlandı",
+        "deferredNote": "Yükleme henüz talep edilmedi. Ücret limiti dahilinde uygun olduğunda otomatik olarak yeniden denenecek.",
+        "refundMessage": "İade talep edildi",
+        "refundNote": "İşlem onaylandıktan sonra iade, zincir üstü cüzdanında tekrar görünecektir.",
+        "refundTitle": "Yükleme iadesi",
+        "settledMessage": "Yükleme talep edildi",
+        "settledNote": "Fonlar artık Lightning cüzdanında kullanılabilir.",
+        "submittedMessage": "Yükleme talebi gönderildi",
+        "submittedNote": "Talep işleniyor. İşlem tamamlandığında fonlar Lightning cüzdanında görünecektir."
+      },
+      "title": "Yüklemeyi talep et",
+      "topUp": "Talep edilmemiş yükleme",
+      "viewTransaction": "İşlemi görüntüle",
+      "warning": "Yüklemeyi ya talep edebilir ya da iade edebilirsin. Her iki durumda da ücret alınır."
     },
     "closeWithdrawFunds": {
-      "fee": "Ücret"
+      "accountDestination": "Hesap coinleri şu adrese gönderilecek",
+      "confirm": "Lightning cüzdanını kapatmayı onayla",
+      "description": "Bu, Lightning cüzdanını kapatacak ve kalan tüm coinleri BitBox'una gönderecek.",
+      "failure": {
+        "message": "Lightning cüzdanı kapatma başarısız oldu.",
+        "tryAgain": "Lütfen tekrar dene."
+      },
+      "fee": "Ücret",
+      "incomingFunds": "Gelen fonlar",
+      "incomingWarning": "Lightning cüzdanını kapatırken gelen fonlar çekilemez. Lütfen tüm fonları çekmek için daha sonra tekrar dene.",
+      "incomingWarningConfirm": "Gelen fonların çekilmeyeceğini anlıyorum.",
+      "lightningBalanceToBeSent": "Gönderilecek Lightning bakiyesi",
+      "partialFailure": {
+        "action": "Cüzdanı kapat",
+        "message": "Fonlar çekildi, ancak Lightning cüzdanı kapatılamadı. Lütfen onu ayrı olarak kapat."
+      },
+      "success": {
+        "message": "Lightning cüzdanı başarıyla kapatıldı. Coinler on-chain cüzdana gönderilecek.",
+        "note": "İşlem onaylandığında coinlerin cüzdanında görünecek."
+      },
+      "viewTransaction": "İşlemi görüntüle"
     },
+    "contacts": {
+      "add": "Kişi ekle",
+      "addAfterPayment": "Kişilerine <strong>{{address}}</strong> ekle",
+      "addressPlaceholder": "satoshi@bitbox.cash",
+      "delete": "Kişiyi sil",
+      "deleteAction": "Sil",
+      "deleteConfirmation": "Bu kişiyi silmek istediğine emin misin?",
+      "deleteError": "Kişi silinemedi. Lütfen tekrar dene.",
+      "details": "İletişim bilgileri",
+      "duplicateAddress": "Bu Lightning adresi zaten rehberinde.",
+      "empty": "Henüz kişi yok",
+      "invalidAddress": "Geçerli bir Lightning adresi gir.",
+      "loadError": "Kişiler yüklenemedi. Lütfen tekrar deneyin.",
+      "myAccounts": "Hesaplarım",
+      "name": "İsim",
+      "namePlaceholder": "İsim gir",
+      "notFound": "Kişi bulunamadı.",
+      "optional": "isteğe bağlı",
+      "saveError": "Kişi kaydedilemedi. Lütfen tekrar deneyin.",
+      "saved": "Kişi kaydedildi",
+      "sendTo": "Alıcı",
+      "title": "Kişiler"
+    },
+    "deactivate": {
+      "intro": {
+        "content": "Lightning cüzdanını kapatmak seni sunucudan ayırır ve Lightning cüzdanını gönderme ve alma için kullanamazsın.\nLightning cüzdanındaki fonlar etkilenmez; ayarlardan Lightning'i etkinleştirip o cüzdanı oluşturmak için kullanılan BitBox'u bağlayarak onlara tekrar erişebilirsin."
+      },
+      "success": {
+        "message": "Başarılı, Lightning cüzdanın artık devre dışı."
+      },
+      "wait": {
+        "title": "Lightning cüzdanı devre dışı bırakılıyor..."
+      }
+    },
+    "disclaimer": {
+      "backups": {
+        "content": "Lightning cüzdanının özel anahtarı BitBox'tan türetilir. Bu, cüzdanı oluşturmak için kullanılan aynı BitBox'u kullanarak Lightning cüzdanını geri yükleyebileceğin anlamına gelir.",
+        "title": "Yedeklemeler"
+      },
+      "beta": {
+        "content": "BitBoxApp'teki Lightning uygulaması beta aşamasındadır. Bu, hata veya güvenilirlik sorunlarıyla karşılaşabileceğin ya da özelliğin tamamen çalışmayı durdurabileceği anlamına gelir. Kullanmadan önce riskleri anla ve Lightning cüzdanını kaybetmeyi göze aldığından fazla coin ile doldurma.",
+        "title": "Beta"
+      },
+      "continue": "Kabul et ve devam et",
+      "fees": {
+        "receiving": {
+          "content": "Lightning işlemleri almak ücretsizdir. Ücretleri gönderen öder.",
+          "title": "Alma"
+        },
+        "sending": {
+          "content": "Ücret, ödeme tutarına ve o an mevcut olan rotaya bağlıdır; bu nedenle gönderme işleminden hemen önce hesaplanır. Ücret ve bakiyenden düşülecek toplam tutar onaylamadan önce gösterilir.",
+          "title": "Gönderme"
+        },
+        "title": "Ücretler"
+      },
+      "securityModel": {
+        "content": "Lightning cüzdanı bir <strong>hot wallet</strong>. Bu, anahtarların uygulamada saklandığı ve bu nedenle BitBox tarafından korunmadığı anlamına gelir. Bu, BitBox'a ihtiyaç duymadan Lightning cüzdanını kullanmana olanak tanır. Lightning cüzdanında yalnızca küçük bir miktar fon bulundurmayı unutma.",
+        "title": "Güvenlik modeli"
+      },
+      "title": "Lightning uyarısı",
+      "trustModel": {
+        "breezLink": "Breez SDK hakkında bilgi edinin",
+        "content": "BitBoxApp'taki Lightning entegrasyonu Spark altyapısını ve Breez SDK'yı kullanır. Lütfen şu anda Breez SDK'nın tek taraflı coin çekimini desteklemediğini, bu yüzden coinlerini tek taraflı olarak çekmenin mümkün olmadığını unutma. Bu nedenle Lightning cüzdanından coin çekmek, Spark altyapısının çevrimiçi ve işbirlikçi olmasına bağlıdır.",
+        "sparkLink": "Spark hakkında bilgi edinin",
+        "title": "Güven modeli"
+      }
+    },
+    "initializationFailed": "Lightning başlatılırken bir hata oluştu. Tekrar denemek için BitBoxApp'i yeniden başlat.",
+    "initializing": "Lightning hesabı başlatılıyor...",
+    "limit": {
+      "accountWarning": "Cüzdan bakiyesi {{limit}} limitini {{excess}} kadar aşıyor. Güvenliği artırmak için bazı coinleri BitBox cüzdanına taşımanı öneririz.",
+      "createInvoiceWarning": "Invoice tutarı {{limit}} limitini {{excess}} kadar aşacak. Yine de invoice'ı oluşturabilirsin.",
+      "invoiceWarning": "Invoice tutarı {{limit}} limitini {{excess}} kadar aşacak. Yine de invoice'ı kullanabilirsin.",
+      "moveCoins": "Coinleri taşı"
+    },
+    "lnurlAddress": {
+      "availability": {
+        "available": "Bu isim müsait",
+        "checking": "Kullanılabilirlik kontrol ediliyor...",
+        "taken": "Bu isim alınmış"
+      },
+      "choose": "Aşağıdan kendi adresini seçebilir veya bir tane oluşturabilirsin.",
+      "description": "LNURL adresi, Lightning ödemeleri almak için kolayca paylaşabileceğin insan tarafından okunabilir bir adresdir",
+      "generate": "Adres oluştur",
+      "label": "LNURL kullanıcı adı",
+      "notice": "Lütfen unutma, adresin yalnızca <strong>her 24 saatte bir.</strong>",
+      "success": {
+        "message": "LNURL adresin ayarlandı."
+      },
+      "title": "LNURL adresi ayarla"
+    },
+    "paymentDescription": "Fatura açıklaması",
     "payments": {
       "header": {
-        "amount": "Miktar"
-      }
+        "amount": "Tutar",
+        "date": "Tarih",
+        "description": "Açıklama",
+        "type": "Tür"
+      },
+      "placeholder": "Henüz ödeme yok.",
+      "title": "Ödeme geçmişi"
     },
     "receive": {
+      "address": {
+        "label": "Lightning adresi",
+        "scanQRCode": "Almak için QR kodunu tara"
+      },
       "amountSats": {
-        "placeholder": "Miktarı girin"
-      }
+        "label": "Sats",
+        "placeholder": "Tutar gir"
+      },
+      "description": {
+        "label": "Açıklama",
+        "optional": "İsteğe bağlı",
+        "placeholder": "Açıklama gir"
+      },
+      "invoice": {
+        "copied": "Fatura kopyalandı!",
+        "create": "Fatura oluştur",
+        "creating": "Fatura oluşturuluyor",
+        "edit": "Faturayı düzenle",
+        "newInvoice": "Yeni fatura",
+        "title": "Almak için QR kodunu tara"
+      },
+      "openChannelWarning": "Yeni bir kanal açmak için {{feeSat}} sats ücret kesilecektir.",
+      "subtitle": "Lightning faturası oluştur",
+      "success": {
+        "message": "Lightning ödemesi alındı!"
+      },
+      "title": "Lightning ile ödeme al"
     },
     "send": {
+      "activationRequired": "Ödemeden önce Lightning'i etkinleştir. Kurulumdan sonra ödeme bağlantısını tekrar aç.",
       "confirm": {
-        "amount": "Miktar"
-      }
+        "amount": "Tutar",
+        "note": "Not",
+        "receiver": "Alıcı",
+        "title": "İşlem ayrıntılarını onayla"
+      },
+      "enterInvoice": "Adres veya fatura gir",
+      "invoice": {
+        "label": "Ödeme bilgilerini gir",
+        "placeholder": "Ödeme bilgisi"
+      },
+      "lnurlPay": {
+        "invalidAmount": "{{minAmount}} ile {{maxAmount}} sats arasında bir miktar gir."
+      },
+      "onChain": "On-chain",
+      "pasteClipboard": "Panodan yapıştır",
+      "qrCode": {
+        "label": "Adres veya invoice tara"
+      },
+      "scanInstruction": "Kameranı bir invoice QR koduna doğrult",
+      "sending": {
+        "connecting": "Ödeme hazırlanıyor",
+        "message": "Ödeme gönderiliyor"
+      },
+      "success": {
+        "message": "İşlem onaylandı ve gönderildi!"
+      },
+      "title": "Lightning gönder"
     },
     "settings": {
+      "closeAndWithdrawFunds": "Kapat ve fonları çek",
+      "disableWallet": "Lightning cüzdanını devre dışı bırak",
+      "enableDebugLogs": "Lightning hata ayıklama günlüklerini etkinleştir",
+      "enableWallet": "Lightning cüzdanını etkinleştir",
+      "enableWalletDescription": "Lightning, anında ve düşük ücretli ödemelere olanak tanır.",
+      "expert": "Uzman",
+      "serviceProvider": "Hizmet sağlayıcısı",
+      "setLightningAddress": "Lightning adresi",
+      "status": "Durum",
+      "statusConnected": "Bağlı",
+      "title": "Lightning ayarları",
       "wallet": "Cüzdan"
     },
+    "sparkStatus": {
+      "degraded": "Spark ağı performans sorunları yaşıyor. Lightning ödemeleri gecikebilir.",
+      "major": "Spark ağında büyük bir kesinti yaşanıyor. Lightning ödemeleri kullanılamayabilir.",
+      "partial": "Spark ağı kısmen kullanılamıyor. Lightning ödemeleri kullanılamayabilir.",
+      "unknown": "Spark ağının durumu bilinmiyor. Lightning ödemeleri kullanılamayabilir."
+    },
+    "testnetWarning": {
+      "message": "Lightning coinleri gerçek değere sahiptir; uygulamayı testnet modunda kullansan bile. Devam edilsin mi?",
+      "title": "Uyarı"
+    },
     "topUp": {
+      "action": "Yükle",
+      "available": "Mevcut",
+      "claimFeeInfo": "Yükleme tutarından düşülür. Gerçek ücret, talep sırasında Bitcoin ağ koşullarına göre değişebilir.",
       "confirm": {
         "amount": "Miktar",
-        "networkFee": "Ağ Ücreti",
-        "title": "İşlemi Onayla",
+        "continue": "BitBox'ta devam et.",
+        "networkFee": "Ağ ücreti",
+        "receiver": "Alıcı",
+        "title": "İşlemi onayla ve gönder",
         "total": "Toplam"
-      }
+      },
+      "estimatedClaimFee": "Tahmini talep ücreti",
+      "from": "Kimden",
+      "noBitcoinAccounts": "Aktif Bitcoin hesabı yok. Lütfen bir Bitcoin hesabı etkinleştir.",
+      "note": "Lightning yüklemesi",
+      "success": {
+        "message": "Yükleme oluşturuldu!",
+        "note": "Yükleme işlemi, ilk onayı gelmeden önce ödeme listesinde beklemede olarak görünecektir. Onaylar ve ücretler uygun olduğunda otomatik olarak talep edilir. Standart talepler üç onay gerektirir; erken talepler daha önce tamamlanabilir."
+      },
+      "title": "Lightning cüzdanını yükle",
+      "to": "Kime"
     }
   },
   "loading": "Yükleniyor…",
+  "logo": {
+    "label": "{{name}} logo",
+    "placeholderLabel": "{{name}} yer tutucu logo"
+  },
+  "manageAccounts": {
+    "accountHidden": "Bu hesap watch-only hesaplarından gizlendi. Tekrar görmek için lütfen BitBox'unu tak.",
+    "editAccount": "Düzenle",
+    "editAccountNameTitle": "Hesap adını düzenle",
+    "noAccounts": "hesap bulunamadı",
+    "settings": {
+      "hideTokens": "Tokenleri gizle",
+      "showTokens": "Jetonları göster ({{activeTokenCount}})"
+    },
+    "settingsButtonDescription": "Hesap ekle ve göster/gizle",
+    "title": "Hesapları yönet",
+    "watchAccount": "İzleme hesabı",
+    "watchAccountDescription": "Bu hesap watch-only hesaplarının bir parçasıdır. Açma/kapama anahtarıyla izleme hesaplarından gizleyebilirsin."
+  },
+  "mobile": {
+    "usingMobileDataWarning": "Mobil veri kullanımı: Bu uygulama bir hesabın kilidini açtıktan sonra birkaç yüz megabayta kadar blok zinciri üstbilgisi verisi indirebilir. Mobil veri kullanmamak için Wi‑Fi'ye bağlan. Bu mesajı kapattıktan sonra bir daha gösterilmeyecek."
+  },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "Uygulama sürümü"
+      },
+      "feedbackLink": {
+        "description": "Genel geri bildirimin varsa",
+        "title": "Geri bildirim"
+      },
+      "licenses": {
+        "description": "Bu uygulamada kullanılan açık kaynaklı kütüphanelerin ve bağımlılıkların lisanslarını görüntüle",
+        "error": "Lisanslar yüklenemedi.",
+        "packagesInfo": "Bu uygulama aşağıdaki açık kaynaklı bağımlılıkları kullanır ({{packageCount}} paket).",
+        "title": "Lisanslar",
+        "unavailableLicenseText": "Lisans metni mevcut değil."
+      },
+      "supportLink": {
+        "description": "Sorun yaşıyorsan veya yardıma ihtiyacın varsa",
+        "title": "Destek"
+      }
+    },
+    "advancedSettings": {
+      "authentication": {
+        "description": "Uygulamaya erişimi ekran kilidi/parmak izi ile kilitle.",
+        "title": "Ekran kilidi"
+      },
+      "coinControl": {
+        "description": "Gizliliği artırmak için bir işleme dahil olacak UTXO'ları seç."
+      },
+      "customFees": {
+        "description": "Kendi ücretini gönderirken girmeni sağlar."
+      },
+      "restartInTestnet": {
+        "description": "Testnet kullanarak özellikleri keşfet ve dene."
+      },
+      "torProxy": {
+        "description": "Daha iyi gizlilik için Tor üzerinden bağlan."
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "Bu ek para birimlerini hesap sayfanda açıp kapatabilirsin.",
+        "title": "Aktif para birimleri"
+      },
+      "darkmode": {
+        "description": "BitBoxApp'i koyu modda gör."
+      },
+      "defaultCurrency": {
+        "description": "Varsayılan para birimini seç",
+        "title": "Varsayılan para birimi"
+      },
+      "enableAccount": {
+        "description": "Hesabını devre dışı bırakmak, onun kenar çubuğunda veya portföyde görünmeyeceği anlamına gelir. Buradan tekrar etkinleştirebilirsin. Bu hesaptaki coin'ler etkilenmez ve güvende kalır.",
+        "title": "Hesabı etkinleştir/devre dışı bırak"
+      },
+      "hideAmounts": {
+        "description": "Uygulamayı halka açıkta kullanırken gizliliğini artırmak için bakiye ve tutarları gizleyen bir anahtar gösterir.",
+        "hideAmounts": "Tutarları gizle",
+        "showAmounts": "Tutarları göster",
+        "title": "Tutarların gizlenmesine izin ver"
+      },
+      "language": {
+        "description": "BitBoxApp'in hangi dili kullanmasını istiyorsun.",
+        "title": "Dil"
+      },
+      "portfolioPerformance": {
+        "description": "Portföy yüzdesinin nasıl hesaplanacağını seç.",
+        "options": {
+          "moneyWeightedReturn": "Performans",
+          "value": "Zaman içindeki değer"
+        },
+        "title": "Portföy yüzdesi"
+      },
+      "remebmerWallet": {
+        "enable": {
+          "description": "Artık BitBox cihazını takmadan bu cüzdana bağlı hesapları görüntüleyebilirsin. Ancak işlem yapmak ve alım adreslerini görüntülemek için BitBox hâlâ gereklidir.",
+          "title": "Cüzdan hatırlandı"
+        },
+        "name": "Cüzdanı hatırla",
+        "warning": "Bu, hatırlanan cüzdanını kaldıracak. Tekrar görmek için bu cüzdan için BitBox'u takman gerekecek. Bu cüzdandaki coinler etkilenmez. Devam etmek istiyor musun?",
+        "warningTitle": "Cüzdanı hatırlamayı devre dışa bırak"
+      },
+      "toggleSats": {
+        "description": "Satoshileri etkinleştir veya devre dışı bırak."
+      }
+    }
+  },
+  "note": {
+    "input": {
+      "description": "(isteğe bağlı)",
+      "placeholder": "Not ekle…"
+    },
+    "title": "Not"
+  },
   "notification": {
     "newTxs_one": "{{accountName}}'da yeni işlem",
     "newTxs_other": "{{count}} Yeni işlem: {{accountName}}"
   },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "Bağlantı sorunları için ipuçları",
+    "description1": "Yalnızca BitBox02 Nova iOS ile uyumludur. BitBox02 için Windows, macOS, Android veya Linux kullanın. BitBox02 Nova'yı çevrimiçi mağazamızdan satın alabilirsiniz:",
+    "description2": "Ekran yanmalıdır. Eğer ekran açık değilse, cihaz güç almıyor demektir.",
+    "description3": "BitBox02 Nova'yı iPhone/iPad'ine yakın tut. BitBox02 Nova'yı cihazına doğrudan takmanı öneririz.",
+    "description4": "BitBox02 Nova iOS ile Bluetooth üzerinden bağlanır. Diğer platformlarda Bluetooth, BitBoxApp ayarlarından devre dışı bırakılabilir/etkinleştirilebilir.",
+    "link1": "BitBox02 Nova sipariş et",
+    "link2": "Destekle iletişime geç",
+    "stillHavingIssues": "Hala sorun yaşıyor musun?",
+    "title1": "BitBox02 Nova'yı yalnızca iOS ile kullan",
+    "title2": "BitBox02 Nova'nın açık olduğundan emin ol",
+    "title3": "BitBox02 Nova'yı menzil içinde tut",
+    "title4": "BitBox02 Nova'da Bluetooth'un devre dışı bırakılmadığından emin ol"
+  },
   "passphrase": {
+    "considerations": {
+      "button": "Yedekleme hususları",
+      "message": "Passphrase, cüzdan yedeğine (microSD kart veya recovery words) bir koruma katmanı ekler. Eğer birinin yedeğine erişimi olursa, cüzdanına erişmek için passphrase'e de ihtiyacı olur.\n\nAncak bu, BitBox'un kaybolması veya bozulması durumunda passphrase etkin cüzdanını geri yüklemek için <strong>hem passphrase'e hem de cüzdan yedeğine</strong> ihtiyacın olacağı anlamına gelir. Passphrase'i unutursan veya kaybedersen, o cüzdandaki tüm coin'lere erişimini kaybedersin.\n\nPassphrase'i saklarken, yedeğinden ayrı bir yerde saklamayı düşün. Böylece biri yedeğini bulursa, passphrase'ini de bulmaz.",
+      "title": "Yedekleme hususları"
+    },
+    "disable": "Passphrase'i devre dışı bırak",
+    "disableInfo": {
+      "button": "Devre dışı bırak",
+      "message": "Passphrase'ı devre dışı bıraktıktan sonra BitBox'un kilidini açarken passphrase girmeniz istenmeyecektir. Bu durumda varsayılan cüzdanınız açılacaktır.\n\nPassphrase cüzdanınızdaki herhangi bir coin hâlâ o cüzdanda kalacaktır; ancak BitBox'un kilidini açtığınızda varsayılan cüzdan açılacağı için onlara erişemeyeceksiniz.\n\nPassphrase cüzdanlarına tekrar erişmek için passphrase özelliğini yeniden etkinleştirin ve BitBox'un kilidini açtıktan sonra ilgili passphrase'i girin.\n\n<strong>İpucu:</strong> Passphrase'i boş bırakarak orijinal cüzdanınıza yine de girebilirsiniz."
+    },
+    "enable": "Passphrase'i etkinleştir",
+    "error": {
+      "e104": "Passphrase ayarının değiştirilmesi iptal edildi."
+    },
+    "how": {
+      "button": "Nasıl görünüyor?",
+      "message": "Passphrase, alışık olduğun bir parola gibi çalışmaz. Passphrase'i yanlış girersen, bilgilendirilmezsin. Bunun nedeni <strong>her passphrase farklı ancak geçerli bir cüzdan oluşturur</strong>. Bu, istediğin kadar farklı passphrase kullanabileceğin anlamına gelir. Ancak her cüzdana yalnızca ilgili passphrase'i yazarak erişilebilir.\n\nBitBox'u bağlarken cihaz parolası her zamanki gibi istenir. Ardından cihazda bir passphrase girmen istenir.\n\nPassphrase'i girdikten sonra girilen passphrase gösterilir. Bu, doğru girdiğini onaylaman içindir.",
+      "title": "Nasıl çalışır"
+    },
+    "intro": {
+      "message": "Passphrase, cüzdanına ek bir güvenlik katmanı sağlar.\nNasıl çalıştığını öğrenelim.",
+      "title": "Passphrase ayarla"
+    },
+    "progressDisable": {
+      "message": "BitBox'unda opsiyonel passphrase'i <strong>devre dışı bırakmak</strong> istediğini onayla.",
+      "title": "Cihazda onayla"
+    },
+    "progressEnable": {
+      "message": "BitBox'unda opsiyonel passphrase'i <strong>etkinleştirmek</strong> istediğini onayla.",
+      "title": "Cihazda onayla"
+    },
+    "successDisabled": {
+      "message": "İsteğe bağlı passphrase <strong>başarıyla etkinleştirildi</strong>!\nBundan sonra passphrase girmen istenecek.",
+      "messageEnd": "Lütfen şimdi BitBox'u yeniden tak.",
+      "title": "Passphrase etkin"
+    },
+    "successEnabled": {
+      "message": "İsteğe bağlı passphrase <strong>başarıyla devre dışı bırakıldı</strong>!\n\nArtık passphrase girmen istenmeyecek.",
+      "messageEnd": "Lütfen şimdi BitBox'unuzu yeniden takın.",
+      "tips": "İpuçları",
+      "tipsList": [
+        "Öncelikle passphrase cüzdanına küçük bir miktar göndermenizi öneririz. Ardından BitBox'u çıkarıp tekrar takın ve parolanızı ile passphrase'inizi girin. Passphrase'i doğru girdiyseniz, coinleri cüzdanınızda görmelisiniz.",
+        "Eğer orijinal cüzdanına passphrase olmadan erişmek istiyorsan, passphrase girmen istendiğinde hiçbir şey girerek bunu yapabilirsin. Ya da passphrase özelliğini devre dışı bırakabilirsin."
+      ],
+      "title": "Passphrase devre dışı bırakıldı"
+    },
     "summary": {
-      "title": "Özet"
+      "button": "Passphrase'i etkinleştir",
+      "title": "Özet",
+      "understand": "Passphrase'in nasıl çalıştığını ve bununla ilgili riskleri anlıyorum.",
+      "understandList": [
+        "Passphrase, yedeklemen üzerine ek bir güvenlik katmanıdır.",
+        "Farklı bir passphrase girmek her zaman farklı bir cüzdan oluşturur.",
+        "Cüzdanını geri yüklemek için <strong>hem passphrase'e hem de yedeğe</strong>.",
+        "Passphrase'ini unutursan, <strong>varlıklarına artık erişemezsin</strong>."
+      ]
+    },
+    "what": {
+      "button": "Bunun nasıl çalıştığını öğren",
+      "message": "Bir cüzdan çok büyük bir rastgele sayıdan, seed olarak da bilinen bir değerden oluşturulur (türetilir). Bu seed BitBox'u ilk kurduğunuzda oluşturulur ve microSD kart veya recovery words ile yedeklenir. Seed'e erişimi olan herkes o cüzdandaki fonlar üzerinde tam kontrole sahiptir.\n\nPassphrase, seed'e eklenen bir <strong>isteğe bağlı gizli ifade</strong>. Passphrase kullandığında, her passphrase seed + passphrase'e (isteğe bağlı gizli ifade) dayanarak yeni bir cüzdan oluşturur. Passphrase her şey olabilir: harfler, kelimeler, özel karakterler veya boş olabilir. Varsayılan cüzdan aslında seed + boş passphrase'ten türetilir.\n\nPassphrase BIP39 standardının bir parçasıdır; bu, aynı standardı destekleyen tüm cüzdanlarla uyumlu olduğu anlamına gelir.",
+      "title": "Passphrase nedir?"
+    },
+    "why": {
+      "button": "Passphrase neden kullanılır",
+      "message": "BitBox, seed'in cihazdan çıkarılmasını engeller, ancak yedek (microSD kart veya recovery words) cüzdana tam erişim sağlar. Bu yüzden yedeği güvenli bir yerde saklamalısın!\n\nPassphrase mevcut seed'i kullanarak yeni bir cüzdan oluşturduğundan, passphrase-cüzdanı <strong>geri yüklemek için hem yedeğe hem de passphrase'e ihtiyaç duyar</strong>. Bunun faydası, eğer birisi yedeğinizi bulursa, passphrase'e sahip olmadan passphrase-cüzdanına erişemeyecek olmalarıdır.\n\nAyrıca passphrase özelliği aynı cihazda birden fazla cüzdan veya varsayılan cüzdanın yanı sıra \"gizli cüzdanlar\" oluşturmanıza olanak tanır.",
+      "title": "Passphrase neden kullanılır?"
     }
   },
   "password": {
@@ -642,15 +2217,25 @@
     }
   },
   "receive": {
+    "bitsuranceWarning": "Bu, sigortalı bir hesaptır; yani yalnızca Native Segwit adreslerine ödeme alabilir. Böylece sigortası olmayan Taproot adreslerine yanlışlıkla ödeme almazsın.",
+    "changeScriptType": "Adres türünü değiştir",
     "label": "Sizin adresiniz",
     "onlyThisCoin": {
       "description": "Başka token'ları almak için, onları ayarlardan etkinleştirin. Diğer token'ları yatırırsanız, erişilebilir olmayabilir.",
       "warning": "Sadece bu adresle  {{coinName}} almak istediğinize emin olun"
     },
+    "qrCodeCopiedMessage": "Kopyalandı!",
+    "scriptType": {
+      "p2tr": "Taproot (en yeni format)",
+      "p2wpkh": "Native Segwit (varsayılan)"
+    },
+    "selectAccount": "Hesap seç",
+    "taprootWarning": "Not: Taproot yeni bir Bitcoin özelliğidir ve henüz yaygın olarak benimsenmemiştir. Taproot adreslerine gelen fonlar üçüncü taraf watch-only cüzdanlarda görünmeyebilir. Birçok cüzdan ve borsa henüz Taproot adreslerine gönderim yapamıyor.",
     "title": "{{accountName}} Al",
     "verify": "Adresi güvenli bir şekilde doğrulayın",
     "verifyBitBox02": "BitBox02'deki adresi doğrulayın",
-    "verifyInstruction": "Lütfen aşağıdaki adresin cihazınızda görüntülenen adresiyle eşleştiğini doğrulayın."
+    "verifyInstruction": "Lütfen aşağıdaki adresin cihazınızda görüntülenen adresiyle eşleştiğini doğrulayın.",
+    "verifyTestnetWarning": "Bu bir testnet hesabıdır; bu adrese gönderilen coinlerin bir değeri yoktur"
   },
   "reset": {
     "description": "Cihazdaki tüm veriler silinecek. Buna Özel Anahtarınız da dahil!",
@@ -726,55 +2311,116 @@
       "label": "Miktar",
       "placeholder": "Miktarı girin"
     },
-    "availableBalance": "Mevcut bakiye",
+    "availableBalance": "Kullanılabilir bakiye",
     "button": "İmzala ve Gönder",
+    "buyEth": "ETH Satın Al",
     "coincontrol": {
+      "addressReused": "Adres yeniden kullanıldı",
+      "change": "Change",
       "outpoint": "Çıktı",
       "title": "Çıktıdan Gönder"
     },
     "confirm": {
+      "infoMessage": "Tutar ve adresin BitBox üzerinde doğru olduğunu dikkatlice kontrol et.",
       "selected-coins": "Seçilmiş Kripto Paralar",
       "title": "İşlemi Onayla",
+      "to": "Kime",
       "total": "Toplam"
     },
+    "edit": "İşlemi düzenle",
     "error": {
+      "accountNotSynced": "Hesap henüz senkronize edilmedi. Lütfen senkronizasyon tamamlanana kadar bekleyin ve tekrar deneyin.",
+      "broadcastUncertain": "İşlem yine de gerçekleşebilir. Uygulama göndermeye çalışmaya devam edecektir. Tekrar göndermeden önce iki kez ödeme yapmamak için işlem geçmişinizi kontrol et.",
+      "erc20InsufficientGasFunds": "Bu ERC20 işlemi için yeterli Ether'in yok. Lütfen cüzdanınıza Ether ekleyin ve tekrar deneyin.",
+      "feeTooLow": "ücret çok düşük",
+      "feesNotAvailable": "Ücretler tahmin edilemedi",
       "insufficientFunds": "yetersiz bakiye",
       "invalidAddress": "geçersiz adres",
       "invalidAmount": "geçersiz miktar",
-      "invalidData": "geçersiz veri"
+      "invalidData": "geçersiz veri",
+      "paymentRequestAccountMismatch": "Bu ödeme isteği farklı bir ağ veya varlık içindir. Eşleşen hesabı açın ve tekrar deneyin.",
+      "syncInProgress": "Hesap hâlâ senkronize ediliyor. Senkronizasyon tamamlanana kadar bekleyin ve tekrar deneyin."
     },
     "fee": {
       "customPlaceholder": "Miktarı girin",
+      "highFee": "Yüksek ücret",
+      "highFeeWarning": "Ücret, gönderim tutarının {{percentage}}% kadardır. Devam edilsin mi?",
       "label": "Ağ Ücreti",
       "placeholder": "Kullanılabilir değil"
     },
     "feeTarget": {
+      "customLabel": "Ücret oranı",
+      "customLabel_eth": "Gas fiyatı",
       "description": {
         "economy": "24 blok (Bitcoin için yaklaşık 4 saat, Litecoin için 1 saat)",
+        "economy_eth": "30 dakika veya daha kısa",
+        "economy_ltc": "1 saat (24 blok)",
         "high": "2 blok (Bitcoin için yaklaşık 20 dakika, Litecoin için 5 dakika)",
+        "high_eth": "30 saniye veya daha az",
+        "high_ltc": "5 dakika (2 blok)",
         "low": "12 blok (Bitcoin için yaklaşık 2 saat, Litecoin için 30 dakika)",
-        "mHalfHour": "2 blok (Bitcoin için yaklaşık 20 dakika, Litecoin için 5 dakika)",
-        "normal": "6 blok (Bitcoin için yaklaşık 1 saat, Litecoin için 15 dakika)"
+        "low_eth": "5 dakika veya daha az",
+        "low_ltc": "30 dakika (12 blok)",
+        "mEconomy": "-",
+        "mFastest": "10 dakika (sonraki blok)",
+        "mHalfHour": "20 dakika (2 blok)",
+        "mHour": "30 dakika (3 blok)",
+        "normal": "6 blok (Bitcoin için yaklaşık 1 saat, Litecoin için 15 dakika)",
+        "normal_eth": "2 dakika veya daha az",
+        "normal_ltc": "15 dakika (6 blok)"
       },
       "estimate": "Tahmini bekleme süresi:",
       "label": {
+        "custom": "Özel",
         "economy": "ekonomi",
         "high": "yüksek",
         "low": "düşük",
-        "mFastest": "yüksek",
-        "mHour": "düşük",
+        "mEconomy": "Öncelik yok",
+        "mFastest": "Yüksek",
+        "mHalfHour": "Orta",
+        "mHour": "Düşük",
         "normal": "normal"
       },
       "placeholder": "Hesaplanan tahmini ücret"
     },
     "maximum": "Hepsini gönder",
+    "maximumSelectedCoins": "Seçili coin'leri gönder",
+    "newTransaction": "Yeni işlem",
+    "noFeeTargets": "Ücret oranı tahminleri şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin veya özel bir ücret girin.",
+    "priority": "Öncelik",
     "scanQR": "QR Kodunu Tara",
+    "scanQRInstruction": "Kameranı bir adresin QR koduna doğrult",
+    "scanQRNoCameraMessage": "Kamera bulunamadı. Lütfen cihazının kamera desteklediğinden ve izinlerin doğru ayarlandığından emin ol.",
+    "scanQRToggleFlash": "El fenerini aç/kapat",
+    "sendToAccount": {
+      "placeholder": "Hesap seç",
+      "title": "Hesaba gönder"
+    },
     "success": "İşlem imzalandı ve gönderildi.",
     "title": "Gönder {{accountName}}",
-    "toggleCoinControl": "Kripto para kontrolünü aç"
+    "toggleCoinControl": "Kripto para kontrolünü aç",
+    "transactionDetails": "İşlem detayları"
   },
   "settings": {
-    "advancedSettings": "Gelişmiş Ayarlar",
+    "about": "Hakkında",
+    "advancedSettings": "Gelişmiş ayarlar",
+    "appearance": "Görünüm",
+    "balanceStatement": {
+      "export": {
+        "description": "Seçilen tarih anına ait varlık bakiyelerinin PDF ekstresini dışa aktar.",
+        "dialog": {
+          "accountsLabel": "Dahil edilecek hesaplar",
+          "dateLabel": "Anlık görüntü tarihi",
+          "description": "Tarihi seç ve bakiye anlık görüntüsüne dahil edilecek hesapları belirle.",
+          "generate": "PDF oluştur",
+          "noAccounts": "Aktif hesap bulunmuyor."
+        },
+        "errors": {
+          "sepoliaBalanceStatementUnsupported": "Ethereum Sepolia geçmiş bakiye değerleri mevcut olmadığı için dışa aktarılamaz. Diğer hesapları dışa aktarmak için Sepolia hesaplarının seçimini kaldır."
+        },
+        "title": "Bakiye ekstresini dışa aktar"
+      }
+    },
     "electrum": {
       "add": "Bir sunucu ekle",
       "add-server": "Ekle",
@@ -792,6 +2438,7 @@
       "step1-text": "Bitiş noktasını girin.",
       "step2": "2",
       "step2-text": "Sunucunun sertifika zincirinden bir sertifikasını girin. Alternatif olarak, uzak sertifikayı indirin ve görsel olarak karşılaştırın.",
+      "step2-text-tcp": "TLS kullanmak istemiyorsan bu adımı atlayabilirsin.",
       "step3": "3",
       "step3-text": "Bağlantınızı kontrol edin ve sunucuyu ekleyin.",
       "step4": "4",
@@ -802,18 +2449,68 @@
       "title-tltc": "Litecoin Testnet Electrum Sunucuları"
     },
     "expert": {
+      "clearCache": {
+        "description": "BitBoxApp'in önbelleğini temizle. Bu, uygulamadaki sorunları gidermeye yardımcı olabilir.",
+        "dialog": {
+          "description": "BitBoxApp'in önbelleğini temizle. BitBoxApp ile sorun yaşıyorsan, bu sorunları çözmeye yardımcı olabilir.",
+          "note": "Hesap adların, notların ve cüzdanların etkilenmez.",
+          "primaryCTA": "Önbelleği Temizle"
+        },
+        "success": "Önbellek başarıyla temizlendi",
+        "title": "Önbelleği temizle"
+      },
       "coinControl": "Coin kontrolünü etkinleştir",
       "electrum": {
+        "description": "Kendi Electrum tam düğümüne bağlanabilirsin.",
         "title": "Kendi tam node'unuza bağlayın"
       },
+      "exportLogs": {
+        "description": "Sorun giderme ve destek için günlük dosyasını dışa aktar.",
+        "title": "Logları dışa aktar"
+      },
+      "fee": "Özel ücretleri etkinleştir",
+      "restartInTestnet": "Testnet modu",
       "setProxyAddress": "Proxy adresini ayarla",
       "title": "Uzman Ayarları",
-      "useProxy": "Tor proxy'yi etkinleştir"
+      "useProxy": "Tor proxy'yi etkinleştir",
+      "useSats": "BTC değerlerini Satoshi cinsinden göster"
     },
+    "general": "Genel",
     "header": {
       "home": "Ev"
     },
+    "info": {
+      "out-of-date": "Yeni güncelleme mevcut",
+      "title": "Bilgi",
+      "up-to-date": "Uygulaman güncel.",
+      "version": "Uygulama Sürümü"
+    },
+    "more": "Daha fazla",
+    "notes": {
+      "export": {
+        "description": "İşlem notları ve hesap adlarının yedeğini oluştur.",
+        "success": "Notlar başarıyla dışa aktarıldı.",
+        "title": "Notları dışa aktar"
+      },
+      "import": {
+        "accountNames_one": "İçe aktarılan {{count}} hesap adı.",
+        "accountNames_other": "İçe aktarılan {{count}} hesap adları.",
+        "description": "Önceden oluşturulmuş bir yedek dosyasından işlem notlarını ve hesap adlarını geri yükle.",
+        "title": "Notları içe aktar",
+        "tooLarge": "Dosya çok büyük.",
+        "transactionNotes_one": "İçe aktarılan {{count}} işlem notu.",
+        "transactionNotes_other": "İçe aktarılan {{count}} işlem notları."
+      },
+      "title": "Notları yönet"
+    },
+    "other": "Diğer",
     "restart": "Lütfen değişikliklerin geçerli olması için BitBoxApp’i yeniden başlatın.",
+    "search": {
+      "noResults": "Ayar bulunamadı"
+    },
+    "services": {
+      "title": "Hizmetler"
+    },
     "success": "Değişikliklerin etkili olması için lütfen BitBox’un fişini çekin ve yeniden takın.",
     "title": "Ayarlar"
   },
@@ -825,7 +2522,17 @@
   },
   "signMessage": {
     "addressLabel": "Adres",
-    "messageLabel": "Mesaj"
+    "emptyMessage": "Lütfen imzalanacak bir mesaj gir.",
+    "error": "Mesaj imzalanamadı. Lütfen tekrar deneyin.",
+    "messageLabel": "Mesaj",
+    "messagePlaceholder": "İmzalanacak mesajı gir",
+    "resultDescription": "Mesaj imzalandı",
+    "signButton": "Cihazda imzala",
+    "signMessage": "Mesajı imzala",
+    "signOnBitBoxSubtitle": "Mesajı BitBox'ta imzala",
+    "signatureLabel": "İmza",
+    "signing": "Lütfen mesajı cihazında onayla.",
+    "unsupportedTaproot": "Taproot adresleri için mesaj imzalama henüz desteklenmiyor. Geri dönüp adres türünü değiştir."
   },
   "success": {
     "create": {
@@ -841,36 +2548,115 @@
       "title": "Başarılı"
     }
   },
+  "swap": {
+    "completed": "Swap tamamlandı",
+    "confirmOnBitBox": "Swap'i BitBox'ta onayla",
+    "fastest": "En hızlı",
+    "fetchQuotesError": "Teklifler şu anda alınamıyor. Lütfen tekrar dene.",
+    "fetchStatusError": "Swap uygunluğunu kontrol etmek mümkün değil. Lütfen tekrar dene.",
+    "fetchingRoutes": "Rotalar getiriliyor...",
+    "firmwareUpgradeRequired": "Swap yapmak için BitBox'ını en son firmware'e güncelle.",
+    "insufficientGasFunds": "Ağ ücretlerini ödemek için <strong>{{accountName}}</strong> hesabında daha fazla ETH'ye ihtiyacın var. <buyLink>Şimdi ETH al</buyLink>",
+    "new": "Yeni takas",
+    "noRouteFound": "Rota bulunamadı",
+    "noRouteFoundForPair": "{{sellCoin}}'den {{buyCoin}}'e giden bir yol bulunamadı. Daha büyük bir miktar girerek deneyin. Aksi takdirde daha sonra tekrar deneyin.",
+    "oneRouteAvailable": "Bir rota mevcut",
+    "providersUnavailable": "Seçilen satış varlığı için takas sağlayıcıları şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.",
+    "recommended": "Önerilen",
+    "route": "Swap rotası",
+    "routesPlaceholder": "Tutar girildikten sonra rotalar burada görünecek",
+    "unexpectedError": "Beklenmeyen bir hata oluştu.",
+    "updateFirmware": "Firmware'i güncelle"
+  },
   "testWallet": {
+    "connect": {
+      "description": "Testnet'te cihaz olmadan denemek için yazılımsal bir test cüzdanı.",
+      "title": "Test cüzdanı"
+    },
+    "disconnect": {
+      "description": "Yazılım test cüzdanını kaldırır.",
+      "title": "Test cüzdanının bağlantısını kes"
+    },
     "prompt": {
-      "button": "Kilidini aç"
+      "button": "Kilidi aç",
+      "info": [
+        "Test cüzdanı, uygulamadaki yazılımsal bir keystore'u kullanır.",
+        "Farklı parolalar farklı cüzdanların kilidini açar. Bu, passphrase kullanmakla aynıdır.",
+        "Varsayılan test cüzdanına girmek için parola girmeden kilidi açabilirsin."
+      ],
+      "passwordLabel": "Test şifresi",
+      "title": "Test cüzdanının kilidini aç"
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "Özellikleri keşfetmek ve test etmek için uygulamayı testnet modunda yeniden başlat.",
+      "prompt": "Testnet moduna girmek için lütfen uygulamayı kapatıp tekrar başlat.",
+      "title": "Testnet modunu başlat"
+    },
+    "deactivate": {
+      "description": "Testnet modundan çıkmak için uygulamayı yeniden başlat.",
+      "prompt": "Testnet modundan çıkmak için lütfen uygulamayı kapatın",
+      "title": "Testnet modundan çık"
     }
   },
   "transaction": {
+    "advanced": "Gelişmiş",
     "confirmation": "Onaylar",
     "details": {
+      "activity": "Etkinlik",
       "address": "Adres",
-      "amount": "Miktar"
+      "amount": "Tutar",
+      "currentValue": "Mevcut değer",
+      "date": "Tarih",
+      "fiatAmount": "Fiat tutarı",
+      "historicalValue": "Geçmiş değer",
+      "sentToSelf": "Kendine gönderildi",
+      "status": "Durum",
+      "title": "İşlem Ayrıntıları",
+      "type": "Tür"
     },
     "explorer": "İşlem Kimliği",
+    "explorerError": "Tarayıcı açılamıyor.",
     "explorerTitle": "Harici explorer'da aç",
     "fee": "Ücret",
+    "feeRate": "Ücret oranı",
     "fiatHistorical": "Tarih",
     "gas": "Gas",
+    "no-results": "\"{{searchTerm}}\" ile eşleşen işlem bulunamadı",
     "pending": "Bekleyen işlem",
     "size": "Boyut",
     "status": {
-      "failed": "Başarısız oldu",
+      "complete": "Tamamlandı",
+      "failed": "Başarısız",
+      "pending": "Beklemede",
+      "pending_receive": "Gelen işlem",
+      "pending_send": "Giden işlem",
       "pending_send_to_self": "Bekleyen işlem"
     },
     "statusShort": {
-      "failed": "Başarısız oldu",
-      "pending_receive": "Gelen"
+      "complete": "Tamamlandı",
+      "failed": "Başarısız",
+      "pending": "Beklemede",
+      "pending_receive": "Gelen",
+      "pending_send": "Giden",
+      "pending_send_to_self": "Beklemede"
+    },
+    "tx": {
+      "receive_complete": "Alındığı hesap",
+      "receive_failed": "Alma başarısız",
+      "receive_pending": "Alındı",
+      "send_complete": "Gönderildi",
+      "send_failed": "Gönderilemedi",
+      "send_pending": "Gönderildi",
+      "send_to_self": "Kendine <amount /> gönderildi",
+      "send_to_self_failed": "Kendine <amount /> gönderilemedi."
     },
     "vsize": "Sanal boyut",
     "weight": "Ağırlık"
   },
   "transactions": {
+    "errorLoadTransactions": "İşlemler yüklenirken hata oluştu",
     "placeholder": "Henüz işlem yok."
   },
   "unknownError": "Bilinmeyen bir hata oluştu: {{errorMessage}}",
@@ -881,6 +2667,18 @@
       "e109_touch": "$t(unlock.error.e109_normal) Bir sonraki giriş için dokunmatik düğmeye basılı tutmanız gerektirir.",
       "e113": "Birçok giriş denemesi nedeniyle, bir sonraki giriş için dokunmatik düğmeye 4 saniye basılı tutmanız gerekiyor."
     },
+    "forgotPassword": {
+      "button": "Buraya bak",
+      "dialogDescription": "Cihaz şifreni unuttuysan, yine de cüzdan yedeğinden geri yükleyebilirsin:",
+      "dialogTitle": "Cihaz parolanı mı unuttun?",
+      "info": "Parolanı mı unuttun?",
+      "stillHavingIssues": "Hâlâ sorun yaşıyor musun?",
+      "supportLink": "Destekle iletişime geç",
+      "text1": "Cihaz şifresini 10 kez yanlış girersen, cihaz otomatik olarak fabrika ayarlarına sıfırlanır.",
+      "text2": "Eski cihaz şifresine ihtiyaç duymadan cüzdanını microSD kart veya kağıt yedekten geri yükleyebilirsin. Geri yükleme sırasında yeni bir cihaz şifresi belirleyebilirsin.",
+      "title1": "Tekrarlanan başarısız denemelerden sonra cihaz sıfırlanır",
+      "title2": "Cüzdan yedeğinden geri yükle"
+    },
     "input": {
       "label": "Cihaz şifresi",
       "placeholder": "Cihazın kilidini açmak için cihaz şifrenizi girin."
@@ -888,6 +2686,7 @@
     "unlocking": "Kilit açılıyor"
   },
   "upgradeFirmware": {
+    "banner": "BitBox güncellemesi mevcut. <updateLink>Şimdi güncelle</updateLink> en son güvenlik iyileştirmeleri ve özellikler için.",
     "button": "Donanım yazılımını yükselt",
     "description": "Donanım yazılımını  {{currentVersion}}'dan {{newVersion}}'a yükseltmek istiyor musunuz??",
     "label": "BitBox'ınızın ürün yazılımının yükseltilmesi gerekiyor.",
@@ -898,10 +2697,60 @@
     "unlocked2": "BitBox'unuz tekrar takıldığında LED yanacaktır",
     "unlocked3": "LED yandığında düğmeye dokunun"
   },
+  "walletConnect": {
+    "connect": {
+      "button": "Bağlan",
+      "dappLabel": "dapp'in URI adresini gir",
+      "invalidPairingUri": "Geçersiz eşleştirme URI'si",
+      "scanInstruction": "Kameranı WalletConnect QR koduna doğrult."
+    },
+    "dashboard": {
+      "allSessions": "Tüm oturumlar",
+      "disclaimer": "Walletconnect, Ethereum tabanlı dApp'lere bağlanmak için kullanılan bir protokoldür. Bu dApp'ler üçüncü taraf hizmetler tarafından çalıştırıldığı için yalnızca güvendiğin dApp'lere bağlan ve bir işlem imzaladığında ne imzaladığını her zaman bildiğinden emin ol.",
+      "newConnection": "Yeni bağlantı",
+      "noConnectedSessions": "Şu anda hiçbir hesap herhangi bir dapp'e bağlı değil.",
+      "unspecifiedAccount": "Belirtilmemiş hesap"
+    },
+    "pairingRequest": {
+      "approve": "Bağlantıyı onayla",
+      "chains": "Zincirler",
+      "readOnly": "Bu bağlantı adresini görüntüleyebilir ancak imza veya işlem talep edemez.",
+      "reject": "Reddet",
+      "rejectionFailed": "İstek reddedilemedi, ancak hiçbir oturum oluşturulmadı.",
+      "title": "Yeni bağlantı isteği geldi:",
+      "unsupported": "Bu bağlantı isteği desteklenmiyor."
+    },
+    "pairingSuccess": "Dapp başarıyla bağlandı. Dapp web sitesinde devam edebilirsin.",
+    "signingRequest": {
+      "chain": "Zincir",
+      "dapp": "Dapp",
+      "data": "Veri",
+      "dataParsingError": "Veri ayrıştırılamadı",
+      "decodeError": "Mesaj çözülemedi",
+      "method": {
+        "sendTransaction": "İşlemi imzala ve gönder",
+        "signMessage": "Mesajı imzala",
+        "signTransaction": "İşlemi imzala",
+        "signTypedData": "Typed data'yı imzala"
+      },
+      "successfullySigned": "İstek başarıyla imzalandı",
+      "walletConnectRequest": "WalletConnect isteği"
+    },
+    "useNewUri": "Bu URI zaten bir bağlantı denemesi için kullanıldı. Lütfen yeni bir URI kullanın.",
+    "walletConnect": "WalletConnect"
+  },
   "warning": {
-    "sdcard": "Yedeklemeleri yönetmek istemediğiniz sürece, mikro SD kartı BitBox'tan ayrı saklayın."
+    "coincontrol": "Bir veya daha fazla UTXO yeniden kullanılmış bir adrese sahip. Alıcının bu adreslerle ilişkili tüm UTXO'ları göreceğini unutma.",
+    "offline": "Şu anda çevrimdışısınız. İşlem gönderemezsiniz ve en son döviz kurlarını göremezsiniz.",
+    "sdcard": "Yedeklemeleri yönetmek istemediğiniz sürece, mikro SD kartı BitBox'tan ayrı saklayın.",
+    "testnet": "Testnet modunu kullanıyorsun. Buradaki işlemler ve coin'ler gerçek değildir ve değeri yoktur. Sadece test amaçlı kullan."
   },
   "welcome": {
+    "connect": "BitBox'ını bağla",
+    "getStarted": "BitBox'ına firmware yükleyerek başlayalım.",
+    "loadingAccounts": "Hesaplar yükleniyor",
+    "message": "Lütfen BitBox'ını bağla ve devam etmek için yan tarafına dokun.",
+    "messageIOS": "Lütfen BitBox Nova'yı bağla ve devam etmek için yan tarafına dokun.",
     "title": "Hoşgeldiniz"
   }
 }

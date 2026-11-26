@@ -403,6 +403,9 @@
       "text": "Wenn du bereits bei Bitsurance angemeldet bist, kann die BitBoxApp deinen bestehenden Versicherungsschutz automatisch synchronisieren.",
       "title": "Bereits versichert?"
     },
+    "error": {
+      "unavailable": "Bitsurance konnte nicht erreicht werden. Bitte versuche es später erneut."
+    },
     "insure": {
       "button": "Verfügbarkeit und Preis prüfen",
       "faq": "Lese mehr in den Bitsurance FAQs",
@@ -2553,7 +2556,9 @@
     "confirmOnBitBox": "Bestätige Swap auf der BitBox",
     "fastest": "Am schnellsten",
     "fetchQuotesError": "Preise können derzeit nicht abgerufen werden. Bitte versuche es erneut.",
+    "fetchStatusError": "Die Verfügbarkeit des Swaps konnte nicht geprüft werden. Bitte versuche es erneut.",
     "fetchingRoutes": "Sammle Routen...",
+    "firmwareUpgradeRequired": "Aktualisiere deine BitBox auf die neuste Firmware, um zu Swappen.",
     "insufficientGasFunds": "Du benötigst mehr ETH auf deinem <strong>{{accountName}}</strong> Konto, um die Netzwerkgebühren zu bezahlen. <buyLink>Jetzt ETH kaufen</buyLink>",
     "new": "Neuer Swap",
     "noRouteFound": "Keine Route gefunden",
@@ -2563,7 +2568,8 @@
     "recommended": "Empfohlen",
     "route": "Swap Route",
     "routesPlaceholder": "Routen werden hier angezeigt, nachdem ein Betrag eingegeben wurde",
-    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten."
+    "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten.",
+    "updateFirmware": "Firmware aktualisieren"
   },
   "testWallet": {
     "connect": {

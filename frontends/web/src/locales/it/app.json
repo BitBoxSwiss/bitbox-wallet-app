@@ -2558,7 +2558,9 @@
     "confirmOnBitBox": "Conferma swap sul BitBox",
     "fastest": "Più veloce",
     "fetchQuotesError": "Impossibile recuperare le quotazioni in questo momento. Riprova.",
+    "fetchStatusError": "Impossibile verificare la disponibilità dello swap. Riprova.",
     "fetchingRoutes": "Recupero percorsi...",
+    "firmwareUpgradeRequired": "Aggiorna il tuo BitBox all'ultima versione del firmware per eseguire uno swap.",
     "insufficientGasFunds": "Hai bisogno di più ETH nel tuo account <strong>{{accountName}}</strong> per pagare le commissioni di rete. <buyLink>Acquista ETH ora</buyLink>",
     "new": "Nuovo swap",
     "noRouteFound": "Nessun percorso trovato",
@@ -2568,7 +2570,8 @@
     "recommended": "Consigliato",
     "route": "Percorso swap",
     "routesPlaceholder": "I percorsi appariranno qui dopo aver inserito un importo",
-    "unexpectedError": "Si è verificato un errore imprevisto."
+    "unexpectedError": "Si è verificato un errore imprevisto.",
+    "updateFirmware": "Aggiorna il firmware"
   },
   "testWallet": {
     "connect": {

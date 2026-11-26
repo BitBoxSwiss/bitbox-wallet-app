@@ -28,12 +28,16 @@
         "start": "Begin door coins naar deze wallet te sturen, of direct vanuit de BitBoxApp te kopen."
       }
     },
+    "contractAddress": "Contractadres",
+    "contractAddressWarning": "Stuur geen munten naar het contractadres; ze gaan dan verloren. Het contractadres is alleen ter informatie.",
+    "descriptorWarning": "Kopieer de volledige descriptor om compatibiliteitsproblemen met andere wallets, apps of services te voorkomen. Als je alleen de xpub selecteert en kopieert, kan het account met een onjuist scripttype worden geïmporteerd, wat tot problemen kan leiden.",
     "exportTransactions": "Transactiegeschiedenis exporteren",
     "exportTransactionsDisabled": "Geen transacties",
     "extendedPublicKey": "Uitgebreide publieke sleutel",
     "label": "Accountinformatie",
     "scriptType": "Script-type",
     "title": "Accountinformatie",
+    "usedAddresses": "Bekijk gebruikte adressen",
     "verify": "Verifieer op je adres",
     "viewAccountDetails": "Bekijk accountgegevens",
     "xpubTypeChangeBtn": {
@@ -52,6 +56,7 @@
     "searchPlaceholder": "Zoek transacties…",
     "title": "Mijn portfolio",
     "total": "Totaal",
+    "totalAssets": "Totale activa",
     "transactionHistory": "Transactiegeschiedenis"
   },
   "addAccount": {
@@ -75,13 +80,16 @@
     "title": "Account toevoegen"
   },
   "addresses": {
+    "changeCopyBody": "Gebruik geen change-adres om munten te ontvangen. Om munten te ontvangen, klik <receiveLink>hier</receiveLink>.",
     "columnAddress": "Adres",
+    "columnLastUsed": "Laatst gebruikt",
     "detail": {
       "address": "Adres"
     },
+    "empty": "Er zijn nog geen adressen gebruikt.",
     "emptyFiltered": "Geen adressen komen overeen met uw filters.",
     "filter": {
-      "changeAddresses": "Adressen wijzigen",
+      "changeAddresses": "Wisselgeldadressen",
       "receiveAddresses": "Adressen ontvangen"
     },
     "listDescriptionPrefix": "Deze pagina toont alle gebruikte adressen van het account.",
@@ -210,6 +218,7 @@
       "toggleShowFirmwareHash": "Toon de firmware hash iedere keer tijdens het opstarten"
     },
     "flipscreen": "Scherm omkeren",
+    "furtherUpgrades": "Verdere upgrades volgen.",
     "orientation": "Tekst op je BitBox ondersteboven?",
     "success": "Upgrade voltooid! ",
     "success_install": "Installatie voltooid! ",
@@ -432,6 +441,7 @@
     "connected": "Verbonden",
     "connectionFailed": "mislukt",
     "connectionIssues": "Heb je verbindingsproblemen?",
+    "connectionIssuesLink": "Zie hier",
     "disabledGloballyDescription": "Schakel Bluetooth in om verbinding te maken met je BitBox.",
     "disabledGloballyTitle": "Bluetooth-toegang is uitgeschakeld.",
     "disabledPermissionDescription": "Sta Bluetooth toe om verbinding te maken met je BitBox.",
@@ -1033,12 +1043,22 @@
           "title": "[X0X]Cryptocurrency ruilen met SwapKit"
         },
         "protocol": {
-          "link": "[X0X]Leer meer over SwapKit-aanbieders."
+          "link": "[X0X]Leer meer over SwapKit-aanbieders.",
+          "text": "De SwapKit API gebruikt meerdere providers om Swaps uit te voeren. Providers kunnen in de loop der tijd worden toegevoegd of verwijderd om te voldoen aan de nieuwste swapvereisten en betere prestaties te bieden.",
+          "title": "SwapKit-providers"
         },
         "security": {
           "link": "BitBox Beveiligings- en Risicomodel",
+          "text": "SwapKit is een externe dienst en valt niet onder het BitBox security threat model. We werken echter nauw samen met SwapKit om de beveiliging te verbeteren door betaalverzoeken in de BitBox-firmware te implementeren. Dit betekent dat de BitBox bij het uitvoeren van een swap het bestemmingsadres als “SwapKit” zal weergeven.",
           "title": "Beveiliging"
+        },
+        "slippage": {
+          "text": "Slippage is het verschil tussen de prijs die je verwacht bij het starten van een swap en de prijs die je daadwerkelijk ontvangt wanneer de swap is voltooid. Omdat cryptoprijzen snel kunnen bewegen en de liquiditeit tijdens de transactie kan veranderen, kan het uiteindelijke bedrag dat je ontvangt lager zijn dan geschat.",
+          "title": "Slippage"
         }
+      },
+      "infobox": {
+        "intro": "Ruil elke cryptovaluta in de BitBoxApp naar een andere zonder limieten of KYC. Deze ruildienst wordt geleverd door SwapKit, een aggregator voor gedecentraliseerde ruildiensten."
       }
     }
   },
@@ -1072,6 +1092,8 @@
     "enabled_true": "Ingeschakeld",
     "iHaveReadTheInformation": "Ik heb bovenstaande informatie gelezen.",
     "insure": "Verzekeren",
+    "max": "Max",
+    "new": "Nieuw",
     "noOptionOnIos": "Niet beschikbaar op iOS",
     "noOptions": "Geen opties gevonden",
     "paymentRequestNote": "{{name}} betaling {{orderId}}",
@@ -1094,6 +1116,7 @@
     "skip": "Overslaan",
     "spend_bitcoin": "Bitcoin uitgeven",
     "spend_crypto": "Crypto uitgeven",
+    "swap": "Swap",
     "unavailable": "Niet beschikbaar",
     "unknown": "Onbekend"
   },
@@ -1203,6 +1226,10 @@
     "accountTransactionConfirmation": {
       "text": "Een transactie die is uitgezondern naar het netwerk, maar nog geen bevestigingen heeft. ",
       "title": "Wat is een transactie in afwachting?"
+    },
+    "accountTransactionEstimation": {
+      "text": "De BitBoxApp voorziet fiatbedragen van een schattingssymbool totdat de transactie is bevestigd en een definitieve wisselkoers is ontvangen.",
+      "title": "Waarom tonen nieuwe transacties een schattingssymbool?"
     },
     "accountTransactionLabel": {
       "text": "Dit is het adres waarop je coins hebt ontvangen of naartoe hebt verzonden. ",
@@ -1459,6 +1486,10 @@
         "invoiceAndAddress": {
           "text": "Een BOLT11-factuur wordt aangemaakt voor één betaling. Het kan al het bedrag specificeren, of het kan je vragen een bedrag in te voeren. Facturen verlopen en kunnen maar één keer worden betaald. Een Lightning-adres is herbruikbaar en laat je binnen de door de ontvanger vastgestelde limieten een bedrag kiezen.",
           "title": "Wat is het verschil tussen een factuur en een Lightning-adres?"
+        },
+        "payment": {
+          "text": "Scan of plak een BOLT11-invoice, een LNURL-Pay-verzoek of een Lightning-adres. Een Lightning-adres lijkt op een e-mailadres, maar wordt voor betalingen gebruikt.",
+          "title": "Hoe stuur ik een Lightning-betaling?"
         }
       }
     },
@@ -1657,9 +1688,39 @@
     "title": "Selecteer je taal"
   },
   "lightning": {
+    "accountLabel": "Lightning",
+    "activate": {
+      "connect": {
+        "content": "verbind je BitBox om je Lightning-wallet aan te maken",
+        "title": "Verbind je apparaat"
+      },
+      "disclaimer": {
+        "content": "Je Lightning-wallet wordt aangemaakt met een sleutel die is afgeleid van je BitBox. Zo kun je je Lightning-wallet altijd herstellen met je BitBox of back-up.\n\nEchter, in tegenstelling tot de BitBox, is de Lightning-wallet een <strong>hot wallet</strong>. Dit betekent dat de sleutels voor je Lightning-wallet in de BitBoxApp worden opgeslagen, niet op de BitBox. Je moet de Lightning-wallet niet gebruiken voor grote bedragen of voor langdurige opslag.\n\n          Daarnaast is de Lightning-functie momenteel in bèta, wat betekent dat je bugs, betrouwbaarheidsproblemen kunt tegenkomen of dat het helemaal kan stoppen met werken.",
+        "title": "Hoe werkt het met de BitBoxApp?"
+      },
+      "intro": {
+        "content": "Lightning is een kanaalgebaseerde tweede laag voor Bitcoin. Hiermee kun je munten direct uitgeven en ontvangen tegen een zeer lage vergoeding.",
+        "title": "Wat is Lightning?"
+      },
+      "success": {
+        "message": "Succes, je Lightning-wallet is klaar!"
+      },
+      "title": "Lightning-wallet aanmaken",
+      "wait": {
+        "activating": "Lightning-wallet inschakelen...",
+        "confirm": "Bevestig op je BitBox dat je een Lightning-wallet wilt aanmaken.",
+        "title": "Lightning-wallet aanmaken"
+      }
+    },
+    "betaWarning": "Lightning is in bèta. Gebruik het alleen met een klein bedrag.",
     "bitcoinDeposit": {
+      "claim": "Claim opwaardering of terugbetaling",
+      "label": "Bitcoin-opwaardering",
       "state": {
-        "refundPending": "Terugbetaling in afwachting van uitzending."
+        "claiming": "Storting claimen",
+        "confirming": "Wachten op bevestigingen",
+        "refundPending": "Terugbetaling in afwachting van uitzending.",
+        "unclaimed": "Claim vereist"
       },
       "stateShort": {
         "claiming": "Claimen",
@@ -1946,6 +2007,10 @@
     }
   },
   "loading": "laden...",
+  "logo": {
+    "label": "logo van {{name}}",
+    "placeholderLabel": "placeholder-logo van {{name}}"
+  },
   "manageAccounts": {
     "accountHidden": "Deze account is verborgen in je alleen-kijken accounts. Om hem weer te zien moet je je BitBox verbinden.",
     "editAccount": "Bewerken",
@@ -2484,14 +2549,24 @@
     }
   },
   "swap": {
+    "completed": "Swap voltooid",
+    "confirmOnBitBox": "Bevestig swap op BitBox",
+    "fastest": "Snelste",
+    "fetchQuotesError": "Kan momenteel geen koersen ophalen. Probeer het opnieuw.",
+    "fetchStatusError": "Kan de beschikbaarheid van swaps niet controleren. Probeer het opnieuw.",
+    "fetchingRoutes": "Routes ophalen...",
+    "firmwareUpgradeRequired": "Werk je BitBox bij naar de nieuwste firmware om te swappen.",
     "insufficientGasFunds": "Je hebt meer ETH nodig in je <strong>{{accountName}}</strong> account om de netwerkkosten te betalen. <buyLink>Koop nu ETH</buyLink>",
+    "new": "Nieuwe swap",
+    "noRouteFound": "Geen route gevonden",
     "noRouteFoundForPair": "Geen route gevonden van {{sellCoin}} naar {{buyCoin}}. Voer een groter bedrag in. Probeer het anders later opnieuw.",
     "oneRouteAvailable": "1 route beschikbaar",
     "providersUnavailable": "Swap-aanbieders zijn momenteel niet beschikbaar voor het geselecteerde verkoopactief. Probeer het later opnieuw.",
     "recommended": "Aanbevolen",
     "route": "Ruilroute",
     "routesPlaceholder": "Routes verschijnen hier nadat je een bedrag hebt ingevoerd.",
-    "unexpectedError": "Er is een onverwachte fout opgetreden."
+    "unexpectedError": "Er is een onverwachte fout opgetreden.",
+    "updateFirmware": "Firmware bijwerken"
   },
   "testWallet": {
     "connect": {
@@ -2532,8 +2607,10 @@
       "activity": "Activiteit",
       "address": "Adres",
       "amount": "Hoeveelheid",
+      "currentValue": "Huidige waarde",
       "date": "Datum",
       "fiatAmount": "Hoeveelheid in fiat",
+      "historicalValue": "Historische waarde",
       "sentToSelf": "Verzonden naar jezelf",
       "status": "Status",
       "title": "Transactiedetails",
@@ -2591,8 +2668,16 @@
       "e113": "Omdat je tevaak geprobeerd hebt in te loggen, moet je de touchknop 4 seconden ingedrukt houden bij de volgende login."
     },
     "forgotPassword": {
+      "button": "Zie hier",
+      "dialogDescription": "Als je je apparaatwachtwoord bent vergeten, kun je je wallet nog steeds herstellen vanaf je wallet-backup:",
+      "dialogTitle": "Apparaatwachtwoord vergeten?",
+      "info": "Wachtwoord vergeten?",
       "stillHavingIssues": "Heb je nog steeds problemen?",
-      "supportLink": "Neem contact op voor ondersteuning"
+      "supportLink": "Neem contact op voor ondersteuning",
+      "text1": "Als je 10 keer het verkeerde apparaatwachtwoord invoert, wordt je apparaat automatisch teruggezet naar de fabrieksinstellingen.",
+      "text2": "Je kunt je wallet herstellen vanaf een microSD-kaart of papieren back-up, zonder het oude apparaatwachtwoord. Tijdens het herstellen kun je een nieuw apparaatwachtwoord instellen.",
+      "title1": "Apparaat wordt gereset na herhaalde mislukte pogingen",
+      "title2": "Herstel vanaf je wallet-backup"
     },
     "input": {
       "label": "Apparaatwachtwoord",
@@ -2665,6 +2750,7 @@
     "getStarted": "Laten we beginnen door de firmware op je BitBox te installeren.",
     "loadingAccounts": "Accounts laden",
     "message": "Verbind je BitBox en tik op de zijkant om verder te gaan.",
+    "messageIOS": "Verbind je BitBox Nova en tik op de zijkant om verder te gaan.",
     "title": "Welkom"
   }
 }
