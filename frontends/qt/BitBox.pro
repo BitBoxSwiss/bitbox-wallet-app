@@ -11,6 +11,9 @@ win32 {
     # For setting 'AlwaysActivate', see.
     # See https://forum.qt.io/topic/133694/using-alwaysactivatewindow-to-gain-foreground-in-win10-using-qt6-2/2
     QT += gui-private
+    # windeployqt includes Qt Positioning's NMEA plug-in, which needs Qt Serial Port.
+    # Require its installation even though the app does not use serial ports directly.
+    QT += serialport
 }
 
 TARGET = BitBox

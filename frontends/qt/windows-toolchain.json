@@ -47,13 +47,14 @@
   },
   "qt": {
     "version": "6.8.2",
-    "install": "Qt 6.8.2 MSVC 2022 64-bit with Qt WebEngine, Qt WebChannel and Qt Positioning",
+    "install": "Qt 6.8.2 MSVC 2022 64-bit with Qt WebEngine, Qt WebChannel, Qt Positioning and Qt Serial Port",
     "url": "https://download.qt.io/official_releases/online_installers/qt-online-installer-windows-x64-online.exe",
     "arch": "win64_msvc2022_64",
     "modules": [
       "qtwebengine",
       "qtwebchannel",
-      "qtpositioning"
+      "qtpositioning",
+      "qtserialport"
     ],
     "runtime": [
       "D3Dcompiler_47.dll",
@@ -69,6 +70,7 @@
       "Qt6QmlWorkerScript.dll",
       "Qt6Quick.dll",
       "Qt6QuickWidgets.dll",
+      "Qt6SerialPort.dll",
       "Qt6Svg.dll",
       "Qt6WebChannel.dll",
       "Qt6WebEngineCore.dll",
@@ -105,6 +107,7 @@
     "files": {
       "bin/Qt6Core.dll": "130c6ef3c126e97aaec1a5cb1c638d7404473a3dda837d6e161c69db7a5bc339",
       "bin/Qt6Positioning.dll": "13da48746f6b5b204829ac8fb138ac9d83c8d35376a16be228469430be14f0c6",
+      "bin/Qt6SerialPort.dll": "abd4bdfab7231f5f1196e216441c941fab53a64cbfda7ac8e1d0313a56dc5057",
       "bin/Qt6WebChannel.dll": "6f7b232c882cb5296884aad28344d0c1690be9dd84faa6a9f39444d2592e6766",
       "bin/Qt6WebEngineCore.dll": "5dca45b24c6a674fb43cb2a12e3a5ce519df6faeb110f9b87a0a5f814b9714bb",
       "bin/QtWebEngineProcess.exe": "6cf7aebe7aa2dd592c319d171f06ef067647d8f394d8b2a4526ba3f961e73ee5",

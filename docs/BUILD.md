@@ -82,10 +82,13 @@ xcrun altool --list-providers --username "APPLE_ID" --password "PASSWORD"
 ## Windows
 
 The build requires `Microsoft Visual Studio 2022 Community Edition`, with the `MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest)`
-individual component.
+and Windows 10 SDK individual components.
 
-It also requires `mingw-w64`, `bash` (e.g. `git-bash`), `make`,`go 1.26.10`, `node@26`, `QT 6.8.2` with `qtwebengine`
-and possibly other tools.
+It also requires Git for Windows (including Git Bash and its Unix tools), `mingw-w64`,
+GNU Make, Go 1.26.10, Node.js 26 (including npm), and the Qt 6.8.2 MSVC 2022 64-bit kit with
+`qtwebengine`, `qtwebchannel`, `qtpositioning` and `qtserialport`.
+
+NSIS (`makensis`) is required only when building the installer with `WINDOWS_INSTALLER=1`.
 
 Some of the tools are easy to install with `choco`:
 
