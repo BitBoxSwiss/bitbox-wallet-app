@@ -99,6 +99,7 @@ describe.each([false, true])('Bitrefill messages (dev servers: %s)', isDevServer
             hasBottomNavigation: false,
             hasDevices: false,
             lightningAccount: undefined,
+            isBitboxBootloader: false,
             hasLightningAccount: false,
           }}
         >

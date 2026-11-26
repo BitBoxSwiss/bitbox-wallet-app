@@ -10,6 +10,7 @@ import type { TDevices } from '@/api/devices';
 import type { TAccount } from '@/api/account';
 import { deregisterTest } from '@/api/keystore';
 import { getVersion } from '@/api/bitbox02';
+import { useAppState } from '@/contexts/app-state-context';
 import { debug } from '@/utils/env';
 import { AppLogoInverted, Logo } from '@/components/icon/logo';
 import { CloseXWhite, CogLight, Coins, Device, Eject, Linechart, RedDot } from '@/components/icon';
@@ -83,10 +84,8 @@ const Sidebar = ({
   const [ canUpgrade, setCanUpgrade ] = useState(false);
   const { activeSidebar, toggleSidebar } = useContext(AppContext);
   const { lightningAccount } = useLightning();
+  const { deviceIDs, hasDevices, isBitboxBootloader } = useAppState();
   const hasPortfolio = accounts.length > 0 || !!lightningAccount;
-
-  const deviceIDs: string[] = Object.keys(devices);
-  const isBitboxBootloader = Object.values(devices).includes('bitbox02-bootloader');
 
   useEffect(() => {
     const checkUpgradableDevices = async () => {
@@ -119,7 +118,7 @@ const Sidebar = ({
   const inMarketSection = pathname.startsWith('/market');
 
   const homePath = (
-    isBitboxBootloader && deviceIDs.length > 0
+    isBitboxBootloader && hasDevices
       ? `/settings/device-settings/${deviceIDs[0] || ''}`
       : hasPortfolio ? '/account-summary' : '/'
   );
@@ -234,7 +233,7 @@ const Sidebar = ({
             </SkipForTesting>
           </div>
         ) : null }
-        {(debug && keystores?.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
+        {(debug && keystores?.some(({ type }) => type === 'software') && !hasDevices) && (
           <div key="eject" className={style.sidebarItem}>
             <Button transparent onClick={eject} className={style.closeSoftwareKeystore}>
               <div className={style.single}>

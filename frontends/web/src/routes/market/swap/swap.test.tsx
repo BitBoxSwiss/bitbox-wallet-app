@@ -221,6 +221,7 @@ const firmwareSwap = (appState: Partial<ContextType<typeof AppStateContext>> = {
             hasDevices: true,
             lightningAccount: undefined,
             hasLightningAccount: false,
+            isBitboxBootloader: false,
             ...appState,
           }}>
             <MemoryRouter initialEntries={['/market/swap']}>
@@ -482,6 +483,7 @@ describe('routes/market/swap', () => {
               hasDevices: false,
               lightningAccount: undefined,
               hasLightningAccount: false,
+              isBitboxBootloader: false,
             }}
           >
             <MemoryRouter>
@@ -548,6 +550,7 @@ describe('routes/market/swap', () => {
               hasDevices: false,
               lightningAccount: undefined,
               hasLightningAccount: false,
+              isBitboxBootloader: false,
             }}
           >
             <MemoryRouter>
@@ -603,6 +606,7 @@ describe('routes/market/swap', () => {
               hasDevices: false,
               lightningAccount: undefined,
               hasLightningAccount: false,
+              isBitboxBootloader: false,
             }}
           >
             <MemoryRouter>
@@ -656,6 +660,7 @@ describe('routes/market/swap', () => {
                 hasDevices: false,
                 lightningAccount: undefined,
                 hasLightningAccount: false,
+                isBitboxBootloader: false,
               }}
             >
               <MemoryRouter>
@@ -727,6 +732,7 @@ describe('routes/market/swap', () => {
               hasDevices: false,
               lightningAccount: undefined,
               hasLightningAccount: false,
+              isBitboxBootloader: false,
             }}
           >
             <MemoryRouter>
@@ -804,6 +810,7 @@ describe('routes/market/swap', () => {
               hasDevices: false,
               lightningAccount: undefined,
               hasLightningAccount: false,
+              isBitboxBootloader: false,
             }}
           >
             <MemoryRouter initialEntries={['/market/swap']}>
@@ -887,6 +894,7 @@ describe('routes/market/swap', () => {
               hasDevices: false,
               lightningAccount: undefined,
               hasLightningAccount: false,
+              isBitboxBootloader: false,
             }}
           >
             <MemoryRouter>

@@ -115,6 +115,7 @@ const renderSend = (props: Omit<ComponentProps<typeof Send>, 'params'> = {}) => 
           hasBottomNavigation: false,
           hasDevices: false,
           lightningAccount: undefined,
+          isBitboxBootloader: false,
           hasLightningAccount: false,
         }}
       >

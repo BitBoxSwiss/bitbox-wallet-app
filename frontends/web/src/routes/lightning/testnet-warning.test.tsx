@@ -71,6 +71,7 @@ const renderApp = (path = '/lightning', previousPath?: string) => render(
           hasBottomNavigation: false,
           hasDevices: false,
           lightningAccount: undefined,
+          isBitboxBootloader: false,
           hasLightningAccount: false,
         }}
       >

@@ -92,6 +92,7 @@ const renderClaimTopUp = (activeAccounts: TAccount[] = []) => render(
           hasBottomNavigation: false,
           hasDevices: false,
           lightningAccount: undefined,
+          isBitboxBootloader: false,
           hasLightningAccount: false,
         }}
       >

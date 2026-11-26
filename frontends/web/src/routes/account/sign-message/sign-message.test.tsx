@@ -121,6 +121,7 @@ describe('routes/account/sign-message', () => {
             hasBottomNavigation: false,
             hasDevices: false,
             lightningAccount: undefined,
+            isBitboxBootloader: false,
             hasLightningAccount: false,
           }}
         >
@@ -198,6 +199,7 @@ describe('routes/account/sign-message', () => {
             hasBottomNavigation: false,
             hasDevices: false,
             lightningAccount: undefined,
+            isBitboxBootloader: false,
             hasLightningAccount: false,
           }}
         >
@@ -256,6 +258,7 @@ describe('routes/account/sign-message', () => {
             hasBottomNavigation: false,
             hasDevices: false,
             lightningAccount: undefined,
+            isBitboxBootloader: false,
             hasLightningAccount: false,
           }}
         >
@@ -319,6 +322,7 @@ describe('routes/account/sign-message', () => {
             hasBottomNavigation: false,
             hasDevices: false,
             lightningAccount: undefined,
+            isBitboxBootloader: false,
             hasLightningAccount: false,
           }}
         >
@@ -374,6 +378,7 @@ describe('routes/account/sign-message', () => {
             hasBottomNavigation: false,
             hasDevices: false,
             lightningAccount: undefined,
+            isBitboxBootloader: false,
             hasLightningAccount: false,
           }}
         >
@@ -430,6 +435,7 @@ describe('routes/account/sign-message', () => {
             hasBottomNavigation: false,
             hasDevices: false,
             lightningAccount: undefined,
+            isBitboxBootloader: false,
             hasLightningAccount: false,
           }}
         >
@@ -499,6 +505,7 @@ describe('routes/account/sign-message', () => {
             hasBottomNavigation: false,
             hasDevices: false,
             lightningAccount: undefined,
+            isBitboxBootloader: false,
             hasLightningAccount: false,
           }}
         >

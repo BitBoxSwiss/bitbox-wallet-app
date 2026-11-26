@@ -51,6 +51,7 @@ const appState: TAppState = {
   hasDevices: false,
   lightningAccount: undefined,
   hasLightningAccount: false,
+  isBitboxBootloader: false,
 };
 
 describe('routes/market/components/markettab', () => {

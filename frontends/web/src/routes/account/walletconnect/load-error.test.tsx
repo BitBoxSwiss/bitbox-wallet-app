@@ -39,7 +39,7 @@ describe('WalletConnect address loading failures', () => {
             <AppStateContext.Provider value={{
               accounts: [], activeAccounts: [], deviceIDs: [], devices: {},
               hasAccounts: false, hasBottomNavigation: false, hasDevices: false,
-              hasLightningAccount: false, lightningAccount: null,
+              hasLightningAccount: false, isBitboxBootloader: false, lightningAccount: null,
             }}>
               <WCWeb3WalletContext.Provider value={{
                 isWalletInitialized: false,

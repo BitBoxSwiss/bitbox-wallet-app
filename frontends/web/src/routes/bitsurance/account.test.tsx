@@ -98,6 +98,7 @@ describe('routes/bitsurance/account', () => {
             hasBottomNavigation: false,
             hasDevices: false,
             lightningAccount: undefined,
+            isBitboxBootloader: false,
             hasLightningAccount: false,
           }}
         >
