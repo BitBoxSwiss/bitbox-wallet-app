@@ -197,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
                 goViewModel.getGoEnvironment(),
                 goViewModel.getGoAPI()
         );
+        goViewModel.getGoAPI().startLightningWidgetSync();
 
         // Trigger connectivity and mobile connection check (as the network may already be unavailable when the app starts).
         goViewModel.getNetworkHelper().checkConnectivity();
@@ -225,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         Util.log("lifecycle: onResume");
         Mobileserver.triggerAuth();
+        goViewModel.getGoAPI().syncLightningWidget();
 
         usbDeviceManager.startMonitoring();
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Show a clear error and allow retrying when Bitsurance is unavailable
+- Android: add a Home Screen widget for receiving payments with a Lightning address
 
 ## v4.53.1
 - Extend Windows code signing to the BitBoxApp executable, previously unsigned DLLs, and the uninstaller
