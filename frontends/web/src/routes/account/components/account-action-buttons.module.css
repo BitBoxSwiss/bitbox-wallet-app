@@ -14,28 +14,6 @@
     word-break: normal;
 }
 
-@media (max-width: 768px) {
-    .actionsContainer {
-        container-type: inline-size;
-        max-width: 100%;
-        min-width: 0;
-    }
-
-    .actionsContainer .button {
-        gap: var(--space-eight);
-        min-width: 0;
-        padding-left: clamp(var(--space-quarter), 3cqi, var(--space-half));
-        padding-right: clamp(var(--space-quarter), 3cqi, var(--space-half));
-    }
-
-    .actionsContainer span {
-        flex-shrink: 1;
-        font-size: clamp(var(--size-smaller), 4.6cqi, var(--size-small));
-        min-width: 0;
-        white-space: nowrap;
-    }
-}
-
 .withWalletConnect.actionsContainer {
     justify-content: flex-end;
 }
@@ -43,6 +21,7 @@
 @media (max-width: 768px) {
 
     .actionsContainer {
+        container-type: inline-size;
         justify-content: center;
         margin-bottom: var(--space-half);
         margin-top: var(--space-half);
@@ -54,6 +33,13 @@
 
     .withWalletConnect.actionsContainer {
         justify-content: center;
+    }
+
+    .actionsContainer span {
+        flex-shrink: 1;
+        font-size: clamp(var(--size-smaller), 4.6cqi, var(--size-small));
+        min-width: 0;
+        white-space: nowrap;
     }
 
     .actionsContainer a,
@@ -68,20 +54,9 @@
     .actionsContainer {
         gap: var(--space-eight);
     }
-
-    .actionsContainer .button {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
 }
 
 @container (max-width: 360px) {
-    .actionsContainer .button {
-        gap: calc(var(--space-eight) / 2);
-        padding-left: var(--space-eight);
-        padding-right: var(--space-eight);
-    }
-
     .actionsContainer span {
         font-size: var(--size-smaller);
     }
