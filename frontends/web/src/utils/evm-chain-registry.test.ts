@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, expect, it } from 'vitest';
-import app from '@/locales/en/app.json';
 import { EVM_CHAIN_REGISTRY } from './evm-chain-registry';
 
 const svgIcon = () => expect.stringMatching(/^(?:data:image\/svg\+xml|.*\.svg$)/);
@@ -11,31 +10,18 @@ describe('EVM_CHAIN_REGISTRY', () => {
     expect(Object.entries(EVM_CHAIN_REGISTRY).map(([chainID, chain]) => ({
       chainID: Number(chainID),
       icon: chain.icon,
-      nameKey: chain.nameKey,
+      name: chain.name,
     }))).toEqual([
-      { chainID: 1, icon: svgIcon(), nameKey: 'evmChains.ethereumMainnet' },
-      { chainID: 10, icon: svgIcon(), nameKey: 'evmChains.optimism' },
-      { chainID: 56, icon: svgIcon(), nameKey: 'evmChains.bnbSmartChain' },
-      { chainID: 100, icon: svgIcon(), nameKey: 'evmChains.gnosis' },
-      { chainID: 137, icon: svgIcon(), nameKey: 'evmChains.polygon' },
-      { chainID: 146, icon: svgIcon(), nameKey: 'evmChains.sonic' },
-      { chainID: 999, icon: svgIcon(), nameKey: 'evmChains.hyperEVM' },
-      { chainID: 8453, icon: svgIcon(), nameKey: 'evmChains.base' },
-      { chainID: 42161, icon: svgIcon(), nameKey: 'evmChains.arbitrumOne' },
-      { chainID: 11155111, icon: svgIcon(), nameKey: 'evmChains.ethereumSepoliaTestnet' },
+      { chainID: 1, icon: svgIcon(), name: 'Ethereum mainnet' },
+      { chainID: 10, icon: svgIcon(), name: 'Optimism' },
+      { chainID: 56, icon: svgIcon(), name: 'BNB Smart Chain' },
+      { chainID: 100, icon: svgIcon(), name: 'Gnosis' },
+      { chainID: 137, icon: svgIcon(), name: 'Polygon' },
+      { chainID: 146, icon: svgIcon(), name: 'Sonic' },
+      { chainID: 999, icon: svgIcon(), name: 'HyperEVM' },
+      { chainID: 8453, icon: svgIcon(), name: 'Base' },
+      { chainID: 42161, icon: svgIcon(), name: 'Arbitrum One' },
+      { chainID: 11155111, icon: svgIcon(), name: 'Ethereum Sepolia testnet' },
     ]);
-
-    expect(app.evmChains).toEqual({
-      arbitrumOne: 'Arbitrum One',
-      base: 'Base',
-      bnbSmartChain: 'BNB Smart Chain',
-      ethereumMainnet: 'Ethereum mainnet',
-      ethereumSepoliaTestnet: 'Ethereum Sepolia testnet',
-      gnosis: 'Gnosis',
-      hyperEVM: 'HyperEVM',
-      optimism: 'Optimism',
-      polygon: 'Polygon',
-      sonic: 'Sonic',
-    });
   });
 });
