@@ -28,15 +28,17 @@ var activeProbeLeaseDuration = 90 * time.Second
 var activeProbeRetryDelay = 30 * time.Second
 var activeProbeBackoffDuration = 5 * time.Minute
 
-// BalanceAndBlockNumberFetcher is an interface that defines a method to fetch balances for a list of addresses,
-// as well as the block number for a chain.
+// BalanceAndBlockNumberFetcher fetches native and ERC20 balances together with the block number they belong to.
 //
 //go:generate moq -pkg mocks -out mocks/balanceandblocknumberfetcher.go . BalanceAndBlockNumberFetcher
 type BalanceAndBlockNumberFetcher interface {
-	// Balances returns balances at the specified block, or the latest if nil, for a list of addresses.
-	Balances(ctx context.Context, addresses []common.Address, blockNumber *big.Int) (map[common.Address]*big.Int, error)
-	// BlockNumber returns the current latest block number.
-	BlockNumber(ctx context.Context) (*big.Int, error)
+	// BalancesSnapshot returns the latest block number with the native balances of addresses and the
+	// ERC20 balances of {token contract, holder} pairs at that block. Unreadable balances are omitted.
+	BalancesSnapshot(
+		ctx context.Context,
+		addresses []common.Address,
+		tokenHolders [][2]common.Address,
+	) (*big.Int, map[common.Address]*big.Int, map[[2]common.Address]*big.Int, error)
 }
 
 // TokenTransactionsFetcher can prefetch token transactions for an address.
@@ -186,6 +188,7 @@ func (u *Updater) probeActiveAccounts() {
 func (u *Updater) PollBalances() {
 	timer := time.After(0)
 	activeProbeTimer := time.After(activeProbeInterval)
+	retryDelay := activeProbeRetryDelay
 
 	for {
 		select {
@@ -197,7 +200,7 @@ func (u *Updater) PollBalances() {
 				return
 			case account := <-u.enqueueUpdateForAccount:
 				etherScanClient := etherscan.NewEtherScan(account.ETHCoin().ChainIDstr(), u.etherscanClient, u.etherscanRateLimiter)
-				u.UpdateBalancesAndBlockNumber([]*Account{account}, etherScanClient)
+				_ = u.UpdateBalancesAndBlockNumber([]*Account{account}, etherScanClient)
 				continue
 			case <-u.updateETHAccountsCh:
 			case <-timer:
@@ -206,17 +209,16 @@ func (u *Updater) PollBalances() {
 				activeProbeTimer = time.After(activeProbeInterval)
 				continue
 			}
-			u.runUpdate()
-			timer = time.After(pollInterval)
+			if err := u.updateAccounts(); err != nil {
+				timer = time.After(retryDelay)
+				retryDelay = min(2*retryDelay, pollInterval)
+			} else {
+				retryDelay = activeProbeRetryDelay
+				timer = time.After(pollInterval)
+			}
 		}
 	}
 
-}
-
-func (u *Updater) runUpdate() {
-	if err := u.updateAccounts(); err != nil {
-		u.log.WithError(err).Error("could not update ETH accounts")
-	}
 }
 
 func (account *Account) remoteBalance() *big.Int {
@@ -232,15 +234,9 @@ func (u *Updater) probeActiveAccountBalances(
 		return
 	}
 
-	nativeAccountsByAddress := map[common.Address][]*Account{}
-	nativeAddresses := []common.Address{}
-	changedAccounts := []*Account{}
-	addChangedAccount := func(account *Account, remoteBalance *big.Int) {
-		if account.remoteBalance().Cmp(remoteBalance) != 0 {
-			changedAccounts = append(changedAccounts, account)
-		}
-	}
-
+	probedAccounts := []*Account{}
+	addresses := []common.Address{}
+	tokenHolders := [][2]common.Address{}
 	for _, account := range ethAccounts {
 		if account.isClosed() {
 			u.SetAccountActivity(account, false)
@@ -251,68 +247,65 @@ func (u *Updater) probeActiveAccountBalances(
 			u.log.WithError(err).Errorf("Could not get address for account %s", account.Config().Code)
 			continue
 		}
+		probedAccounts = append(probedAccounts, account)
 		if IsERC20(account) {
-			balance, err := account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token, nil)
-			if err != nil {
-				u.log.WithError(err).Errorf("Could not probe ERC20 balance for address %s", address.Address.Hex())
-				u.setActiveProbeBackoff()
-				continue
-			}
-			addChangedAccount(account, balance)
-			continue
+			tokenHolders = append(tokenHolders, [2]common.Address{account.coin.erc20Token.ContractAddress(), address.Address})
+		} else {
+			addresses = append(addresses, address.Address)
 		}
-		if _, ok := nativeAccountsByAddress[address.Address]; !ok {
-			nativeAddresses = append(nativeAddresses, address.Address)
-		}
-		nativeAccountsByAddress[address.Address] = append(nativeAccountsByAddress[address.Address], account)
+	}
+	if len(probedAccounts) == 0 {
+		return
 	}
 
-	if len(nativeAddresses) > 0 {
-		balances, err := etherScanClient.Balances(context.TODO(), nativeAddresses, nil)
-		if err != nil {
-			u.log.WithError(err).Error("Could not probe ETH account balances")
-			u.setActiveProbeBackoff()
+	_, balances, tokenBalances, err := etherScanClient.BalancesSnapshot(context.TODO(), addresses, tokenHolders)
+	if err != nil {
+		u.log.WithError(err).Error("Could not probe ETH account balances")
+		u.setActiveProbeBackoff()
+		return
+	}
+	changedAccounts := []*Account{}
+	for _, account := range probedAccounts {
+		var balance *big.Int
+		var ok bool
+		if IsERC20(account) {
+			balance, ok = tokenBalances[[2]common.Address{account.coin.erc20Token.ContractAddress(), account.address.Address}]
 		} else {
-			for address, accounts := range nativeAccountsByAddress {
-				balance, ok := balances[address]
-				if !ok {
-					u.log.Errorf("Could not find probed balance for address %s", address.Hex())
-					continue
-				}
-				for _, account := range accounts {
-					addChangedAccount(account, balance)
-				}
-			}
+			balance, ok = balances[account.address.Address]
+		}
+		if !ok {
+			u.log.Errorf("Could not find probed balance for address %s", account.address.Address.Hex())
+			continue
+		}
+		if account.remoteBalance().Cmp(balance) != 0 {
+			changedAccounts = append(changedAccounts, account)
 		}
 	}
 
 	if len(changedAccounts) == 0 {
 		return
 	}
-	// The probed balances are from the latest block. Refresh at a single block so balances and
-	// outgoing transactions are consistent.
-	u.UpdateBalancesAndBlockNumber(changedAccounts, etherScanClient)
-	// Etherscan can report a new balance before indexing the transaction. Refresh again after
-	// 30 seconds to pick up missing transactions without waiting for the next five-minute poll.
-	for _, account := range changedAccounts {
-		u.scheduleAccountUpdate(account, activeProbeRetryDelay)
-	}
+	// The probe only reads balances, the full update also refreshes the transactions.
+	_ = u.UpdateBalancesAndBlockNumber(changedAccounts, etherScanClient)
 }
 
 // UpdateBalancesAndBlockNumber updates the balances of the accounts in the provided slice.
-func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScanClient BalanceAndBlockNumberFetcher) {
+// It returns an error if the block number and balances could not be read, in which case no account
+// was updated.
+func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScanClient BalanceAndBlockNumberFetcher) error {
 	if len(ethAccounts) == 0 {
-		return
+		return nil
 	}
 	chainId := ethAccounts[0].ETHCoin().ChainID()
 	for _, account := range ethAccounts {
 		if account.ETHCoin().ChainID() != chainId {
 			u.log.Error("Cannot update balances and block number for accounts with different chain IDs")
-			return
+			return nil
 		}
 	}
 
 	ethNonErc20Addresses := make([]common.Address, 0, len(ethAccounts))
+	tokenHolders := [][2]common.Address{}
 	for _, account := range ethAccounts {
 		if account.isClosed() {
 			continue
@@ -323,21 +316,17 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 			account.SetOffline(err)
 			continue
 		}
-		if !IsERC20(account) {
+		if IsERC20(account) {
+			tokenHolders = append(tokenHolders, [2]common.Address{account.coin.erc20Token.ContractAddress(), address.Address})
+		} else {
 			ethNonErc20Addresses = append(ethNonErc20Addresses, address.Address)
 		}
 	}
 
-	blockNumber, err := etherScanClient.BlockNumber(context.TODO())
+	blockNumber, balances, tokenBalances, err := etherScanClient.BalancesSnapshot(context.TODO(), ethNonErc20Addresses, tokenHolders)
 	if err != nil {
-		u.log.WithError(err).Error("Could not get block number")
-		return
-	}
-	updateNonERC20 := true
-	balances, err := etherScanClient.Balances(context.TODO(), ethNonErc20Addresses, blockNumber)
-	if err != nil {
-		u.log.WithError(err).Error("Could not get balances for ETH accounts")
-		updateNonERC20 = false
+		u.log.WithError(err).Error("Could not get block number and balances")
+		return err
 	}
 
 	reconciled := make(map[senderKey]error)
@@ -373,26 +362,14 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 		}
 		account.SetOffline(nil)
 		var balance *big.Int
-		switch {
-		case IsERC20(account):
-			var err error
-			balance, err = account.coin.client.ERC20Balance(account.address.Address, account.coin.erc20Token, blockNumber)
-			if err != nil {
-				u.log.WithError(err).Errorf("Could not get ERC20 balance for address %s", address.Address.Hex())
-				account.SetOffline(err)
-			}
-		case updateNonERC20:
-			var ok bool
+		var ok bool
+		if IsERC20(account) {
+			balance, ok = tokenBalances[[2]common.Address{account.coin.erc20Token.ContractAddress(), address.Address}]
+		} else {
 			balance, ok = balances[address.Address]
-			if !ok {
-				errMsg := fmt.Sprintf("Could not find balance for address %s", address.Address.Hex())
-				u.log.Error(errMsg)
-				account.SetOffline(errp.Newf(errMsg))
-			}
-		default:
-			// If we get there, this is a non-erc20 account and we failed getting balances.
-			// If we couldn't get the balances for non-erc20 accounts, we mark them as offline
-			errMsg := fmt.Sprintf("Could not get balance for address %s", address.Address.Hex())
+		}
+		if !ok {
+			errMsg := fmt.Sprintf("Could not find balance for address %s", address.Address.Hex())
 			u.log.Error(errMsg)
 			account.SetOffline(errp.Newf(errMsg))
 		}
@@ -408,13 +385,19 @@ func (u *Updater) UpdateBalancesAndBlockNumber(ethAccounts []*Account, etherScan
 			}
 			confirmedTransactions = prefetched
 		}
+		wasSynced, previousBalance := account.Synced(), account.remoteBalance()
 		if err := account.Update(balance, blockNumber, confirmedTransactions, outgoingRecords[key]); err != nil {
 			u.log.WithError(err).Errorf("Could not update balance for address %s", address.Address.Hex())
 			account.SetOffline(err)
 		} else {
 			account.SetOffline(nil)
+			// Etherscan can report a new balance before indexing its transaction.
+			if wasSynced && previousBalance.Cmp(balance) != 0 {
+				u.scheduleAccountUpdate(account, activeProbeRetryDelay)
+			}
 		}
 	}
+	return nil
 }
 
 func (u *Updater) prefetchTokenTransactions(

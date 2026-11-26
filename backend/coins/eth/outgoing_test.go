@@ -516,12 +516,20 @@ func TestFinalRecordsSkipLookups(t *testing.T) {
 }
 
 type updaterBalanceFetcher struct {
-	rpcclient.Interface
-	balances func(context.Context, []common.Address, *big.Int) (map[common.Address]*big.Int, error)
+	BalanceAndBlockNumberFetcher
+	balancesSnapshot func([]common.Address, [][2]common.Address) (*big.Int, map[common.Address]*big.Int, map[[2]common.Address]*big.Int, error)
 }
 
-func (fetcher updaterBalanceFetcher) Balances(ctx context.Context, addresses []common.Address, block *big.Int) (map[common.Address]*big.Int, error) {
-	return fetcher.balances(ctx, addresses, block)
+func (fetcher updaterBalanceFetcher) BalancesSnapshot(
+	_ context.Context, addresses []common.Address, tokenHolders [][2]common.Address,
+) (*big.Int, map[common.Address]*big.Int, map[[2]common.Address]*big.Int, error) {
+	return fetcher.balancesSnapshot(addresses, tokenHolders)
+}
+
+type transactionsSourceFunc func() ([]*accounts.TransactionData, error)
+
+func (f transactionsSourceFunc) Transactions(*big.Int, common.Address, *big.Int, *erc20.Token) ([]*accounts.TransactionData, error) {
+	return f()
 }
 
 func TestUpdateBalanceAtConfirmation(t *testing.T) {
@@ -535,7 +543,6 @@ func TestUpdateBalanceAtConfirmation(t *testing.T) {
 	tx.Value = big.NewInt(59000) // 80000 debit including gas.
 	putOutgoingTx(t, native, &ethtypes.TransactionWithMetadata{Transaction: types.NewTx(tx)})
 	tip := int64(99)
-	client.BlockNumberFunc = func(context.Context) (*big.Int, error) { return big.NewInt(tip), nil }
 	client.NonceAtFunc = func(_ context.Context, _ common.Address, block *big.Int) (uint64, error) {
 		if block.Int64() >= 100 {
 			return 1, nil
@@ -545,19 +552,26 @@ func TestUpdateBalanceAtConfirmation(t *testing.T) {
 	client.TransactionReceiptWithBlockNumberFunc = func(context.Context, common.Hash) (*types.Receipt, error) {
 		return &types.Receipt{BlockNumber: big.NewInt(100), GasUsed: 21000, Status: types.ReceiptStatusSuccessful}, nil
 	}
-	fetcher := updaterBalanceFetcher{Interface: client, balances: func(_ context.Context, _ []common.Address, block *big.Int) (map[common.Address]*big.Int, error) {
-		tip = 100 // The debit confirms between the tip and balance requests.
+	fetcher := updaterBalanceFetcher{balancesSnapshot: func(
+		[]common.Address, [][2]common.Address,
+	) (*big.Int, map[common.Address]*big.Int, map[[2]common.Address]*big.Int, error) {
 		balance := int64(100000)
-		if block.Int64() >= 100 {
+		if tip >= 100 {
 			balance = 20000
 		}
-		return map[common.Address]*big.Int{native.address.Address: big.NewInt(balance)}, nil
+		tokenHolder := [2]common.Address{token.coin.erc20Token.ContractAddress(), token.address.Address}
+		return big.NewInt(tip),
+			map[common.Address]*big.Int{native.address.Address: big.NewInt(balance)},
+			map[[2]common.Address]*big.Int{tokenHolder: big.NewInt(1000)},
+			nil
 	}}
-	client.ERC20BalanceFunc = func(common.Address, *erc20.Token, *big.Int) (*big.Int, error) {
-		// A send-time refresh advances the shared state after the updater took its snapshot.
+	token.coin.TstSetTransactionsSource(transactionsSourceFunc(func() ([]*accounts.TransactionData, error) {
+		// The debit confirms and a send-time refresh advances the shared state after the
+		// updater took its snapshot.
+		tip = 100
 		reconcileOutgoing(t, native, 100)
-		return big.NewInt(1000), nil
-	}
+		return nil, nil
+	}))
 	updater := NewUpdater(nil, nil, nil, nil)
 	defer updater.Close()
 	for range 2 {
