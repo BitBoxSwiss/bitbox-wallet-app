@@ -1,14 +1,3 @@
-.container {
-    max-width: 100%;
-    width: 100%;
-    min-height: 100%;
-    padding: 0;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-}
-
 .accountHeader {
     margin-bottom: var(--space-half);
 }
@@ -35,27 +24,6 @@
     width: var(--size-default);
 }
 
-.button {
-    height: 37px;
-    min-height: auto;
-    display: flex;
-    align-items: center;
-    gap: var(--space-quarter);
-}
-
-@media (max-width: 768px) {
-    .button {
-        min-height: var(--button-height);
-    }
-}
-
-.subTitle {
-    color: var(--color-secondary);
-    font-size: var(--size-subheader);
-    font-weight: normal;
-    margin: 0;
-}
-
 .balanceHeader {
     align-items: flex-end;
     color: var(--color-default);
@@ -64,58 +32,6 @@
     flex-wrap: wrap;
     gap: var(--space-half);
     min-height: var(--button-height);
-}
-
-.actionsContainer {
-    --size-default: var(--size-small);
-    display: flex;
-    flex-grow: 1;
-    flex-shrink: 0;
-    flex-wrap: nowrap;
-    gap: var(--space-quarter);
-    justify-content: flex-end;
-    margin-top: 0;
-    padding-bottom: 0;
-}
-
-.actionsContainer span {
-    word-break: normal;
-}
-
-@media (max-width: 768px) {
-    .actionsContainer {
-        container-type: inline-size;
-        max-width: 100%;
-        min-width: 0;
-    }
-
-    .actionsContainer .button {
-        gap: var(--space-eight);
-        min-width: 0;
-        padding-left: clamp(var(--space-quarter), 3cqi, var(--space-half));
-        padding-right: clamp(var(--space-quarter), 3cqi, var(--space-half));
-    }
-
-    .actionsContainer span {
-        flex-shrink: 1;
-        font-size: clamp(var(--size-smaller), 4.6cqi, var(--size-small));
-        min-width: 0;
-        white-space: nowrap;
-    }
-}
-
-.withWalletConnect.actionsContainer {
-    justify-content: flex-end;
-}
-
-.iconWalletConnect {
-    height: var(--size-header);
-    max-width: var(--size-header);
-}
-
-.disabled {
-    cursor: default;
-    opacity: 0.4;
 }
 
 .accountInfoLink {
@@ -155,11 +71,6 @@
     text-align: right;
 }
 
-.emptyTransactions {
-    color: var(--color-secondary);
-    text-align: center;
-}
-
 @media (max-width: 768px) {
     .accountInfoLink {
         margin-right: 0;
@@ -170,61 +81,14 @@
         margin-right: 0;
     }
 
-    .actionsContainer {
-        justify-content: center;
-        margin-bottom: var(--space-half);
-        margin-top: var(--space-half);
-        max-width: 100%;
-        min-width: 0;
-        padding-bottom: 0;
-        width: 100%;
-    }
-
-    .withWalletConnect.actionsContainer {
-        justify-content: center;
-    }
-
     .balanceHeader {
         margin-bottom: 0;
     }
 
-    .actionsContainer a,
-    .actionsContainer > button {
-        flex: 1 1 auto;
-        min-width: 0;
-    }
-
-}
-
-@media (max-width: 480px) {
-    .actionsContainer {
-        gap: var(--space-eight);
-    }
-
-    .actionsContainer .button {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-}
-
-@container (max-width: 360px) {
-    .actionsContainer .button {
-        gap: calc(var(--space-eight) / 2);
-        padding-left: var(--space-eight);
-        padding-right: var(--space-eight);
-    }
-
-    .actionsContainer span {
-        font-size: var(--size-smaller);
-    }
 }
 
 .status {
     white-space: pre-line;
-}
-
-.txHistorySkeleton {
-    margin-top: var(--space-quarter);
 }
 
 .fadeIn {

@@ -11,7 +11,7 @@ import { AccountActionButtonLink } from './components/account-action-button-link
 import { AccountActionButtons } from './components/account-action-buttons';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
 import { useFeatureConnect } from '@/hooks/keystore';
-import style from './account.module.css';
+import style from './actionButtons.module.css';
 
 type TProps = {
   canSend?: boolean;

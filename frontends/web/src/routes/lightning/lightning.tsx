@@ -44,7 +44,6 @@ import { SubTitle } from '@/components/title';
 import { useDebounce } from '@/hooks/debounce';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { useScrollIntoView } from '@/hooks/scroll-into-view';
-import accountStyle from '@/routes/account/account.module.css';
 import style from './lightning.module.css';
 
 const sparkStatusPollInterval = 60 * 1000;
@@ -95,7 +94,7 @@ const LightningPageLayout = ({
           </ContentWrapper>
           <View>
             <ViewHeader>
-              <div className={accountStyle.balanceHeader}>
+              <div className={style.balanceHeader}>
                 <Balance
                   balance={balance}
                   className={style.fadeIn}
@@ -222,14 +221,14 @@ const LightningInner = ({
 
   return (
     <div className={style.fadeIn}>
-      <div className={accountStyle.accountHeader}>
-        <div className={accountStyle.titleRow}>
-          <SubTitle className={accountStyle.titleWithButton}>
+      <div className={style.accountHeader}>
+        <div className={style.titleRow}>
+          <SubTitle className={style.titleWithButton}>
             {t('accountSummary.transactionHistory')}
           </SubTitle>
 
           <Button
-            className={accountStyle.searchButton}
+            className={style.searchButton}
             transparent
             disabled={!hasPayments}
             onClick={() => {
@@ -245,7 +244,7 @@ const LightningInner = ({
               <>✕ {t('generic.close')}</>
             ) : (
               <>
-                <LoupeBlue className={accountStyle.loupe} />
+                <LoupeBlue className={style.loupe} />
                 {t('generic.searchButton')}
               </>
             )}
@@ -253,8 +252,8 @@ const LightningInner = ({
         </div>
 
         <div className={`
-          ${accountStyle.searchContainer || ''}
-          ${!showSearchBar && accountStyle.searchHidden || ''}
+          ${style.searchContainer || ''}
+          ${!showSearchBar && style.searchHidden || ''}
         `}>
           <SearchInput
             ref={searchInputRef}

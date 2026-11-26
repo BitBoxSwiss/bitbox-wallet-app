@@ -1,0 +1,32 @@
+.button {
+    height: 37px;
+    min-height: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-quarter);
+}
+
+@media (max-width: 768px) {
+    .button {
+        min-height: var(--button-height);
+        gap: var(--space-eight);
+        min-width: 0;
+        padding-left: clamp(var(--space-quarter), 3cqi, var(--space-half));
+        padding-right: clamp(var(--space-quarter), 3cqi, var(--space-half));
+    }
+}
+
+@media (max-width: 480px) {
+    .button {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+@container (max-width: 360px) {
+    .button {
+        gap: calc(var(--space-eight) / 2);
+        padding-left: var(--space-eight);
+        padding-right: var(--space-eight);
+    }
+}
