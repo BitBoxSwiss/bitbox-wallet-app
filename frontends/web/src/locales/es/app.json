@@ -2558,7 +2558,9 @@
     "confirmOnBitBox": "Confirma el intercambio en la BitBox",
     "fastest": "Más rápido",
     "fetchQuotesError": "No se pueden obtener cotizaciones ahora mismo. Inténtalo de nuevo.",
+    "fetchStatusError": "No se pudo verificar la disponibilidad del intercambio. Por favor, inténtalo de nuevo.",
     "fetchingRoutes": "Obteniendo rutas...",
+    "firmwareUpgradeRequired": "Actualiza tu BitBox al firmware más reciente para realizar intercambios.",
     "insufficientGasFunds": "Necesitas más ETH en tu cuenta <strong>{{accountName}}</strong> para pagar las comisiones de la red. <buyLink>Comprar ETH ahora</buyLink>",
     "new": "Nuevo intercambio",
     "noRouteFound": "No se encontró ruta",
@@ -2568,7 +2570,8 @@
     "recommended": "Recomendado",
     "route": "Ruta de intercambio",
     "routesPlaceholder": "Las rutas aparecerán aquí después de introducir una cantidad",
-    "unexpectedError": "Ocurrió un error inesperado."
+    "unexpectedError": "Ocurrió un error inesperado.",
+    "updateFirmware": "Actualizar firmware"
   },
   "testWallet": {
     "connect": {
