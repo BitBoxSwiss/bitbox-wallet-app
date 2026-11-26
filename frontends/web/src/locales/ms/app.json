@@ -33,7 +33,7 @@
     "descriptorWarning": "Untuk memastikan keserasian lancar dengan dompet, aplikasi, atau perkhidmatan lain, sila salin keseluruhan descriptor. Memilih dan menyalin hanya xpub mungkin menyebabkan akaun diimport dengan jenis skrip yang salah, yang boleh menyebabkan masalah.",
     "exportTransactions": "Eksport sejarah transaksi",
     "exportTransactionsDisabled": "Tiada transaksi",
-    "extendedPublicKey": "Public key lanjutan",
+    "extendedPublicKey": "Kunci awam lanjutan",
     "label": "Maklumat akaun",
     "scriptType": "Jenis skrip",
     "title": "Maklumat akaun",
@@ -41,11 +41,11 @@
     "verify": "Sahkan pada peranti",
     "viewAccountDetails": "Lihat butiran akaun",
     "xpubTypeChangeBtn": {
-      "p2pkh": "Lihat legacy P2PKH extended public key",
+      "p2pkh": "Lihat kunci awam lanjutan P2PKH legasi",
       "p2tr": "Lihat Taproot",
       "p2wpkh": "Lihat Segwit Asli"
     },
-    "xpubTypeInfo": "Sedang memaparkan {{scriptType}} public key lanjutan ({{current}} daripada {{numberOfXPubs}})"
+    "xpubTypeInfo": "Sedang memaparkan {{scriptType}} kunci awam lanjutan ({{current}} daripada {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "Baki yang ada",
@@ -80,7 +80,7 @@
     "title": "Tambah akaun"
   },
   "addresses": {
-    "changeCopyBody": "Jangan gunakan change address untuk menerima syiling. Untuk menerima syiling, klik <receiveLink>di sini</receiveLink>.",
+    "changeCopyBody": "Jangan gunakan alamat baki untuk menerima syiling. Untuk menerima syiling, klik <receiveLink>di sini</receiveLink>.",
     "columnAddress": "Alamat",
     "columnLastUsed": "Terakhir digunakan",
     "detail": {
@@ -89,7 +89,7 @@
     "empty": "Belum ada alamat yang telah digunakan.",
     "emptyFiltered": "Tiada alamat sepadan dengan penapis anda.",
     "filter": {
-      "changeAddresses": "Alamat perubahan",
+      "changeAddresses": "Alamat baki",
       "receiveAddresses": "Alamat penerima"
     },
     "listDescriptionPrefix": "Halaman ini menunjukkan semua alamat yang telah digunakan untuk akaun ini.",
@@ -143,7 +143,7 @@
       "checking": "Memeriksa backup...",
       "confirmTitle": "Semak sandaran",
       "notOK": "Tiada sandaran pada kad microSD yang sepadan dengan dompet di BitBox. Ini boleh berlaku jika anda memasukkan kad microSD yang digunakan untuk menyediakan BitBox yang lain. Sila cari kad microSD yang betul yang digunakan semasa menyediakan BitBox ini dan cuba lagi.",
-      "ok": "Backup sepadan dengan wallet.",
+      "ok": "Backup sepadan dengan dompet.",
       "password": {
         "label": "Kata laluan pemulihan",
         "placeholder": "Kata laluan pemulihan",
@@ -155,7 +155,7 @@
     "create": {
       "alreadyExists": "Anda sudah mempunyai backup yang sah. Adakah anda ingin menciptanya kembali?",
       "fail": "TIDAK BERJAYA membuat backup!",
-      "info": "Sila masukkan kata laluan pemulihan dari wallet terkini untuk pengesahan",
+      "info": "Sila masukkan kata laluan pemulihan dari dompet terkini untuk pengesahan",
       "name": {
         "label": "Nama sandaran",
         "placeholder": "Sila memberi nama backup"
@@ -167,7 +167,7 @@
       "title": "Buat sandaran",
       "verificationFailed": "Kata laluan pemulihan TIDAK SEPADAN dengan dompet semasa. Sandaran telah dibuat. Sila gunakan 'Semak sandaran' untuk mengesahkan kata laluan pemulihan anda sekali lagi."
     },
-    "description": "Pilih <strong>fail backup wallet</strong>",
+    "description": "Pilih <strong>fail backup dompet</strong>",
     "insert": "Sila masukkan kad microSD untuk menguruskan sandaran.",
     "insertButton": "Saya telah memasukkan kad microSD",
     "link": "Pergi ke manage backups",
@@ -194,17 +194,17 @@
     },
     "showMnemonic": {
       "availableIn_other": "Tersedia dalam {{count}} saat",
-      "instructions": "BitBox akan menunjukkan kata pemulihan anda. <strong>Tuliskannya pada kertas.</strong>",
+      "instructions": "BitBox akan menunjukkan perkataan pemulihan anda. <strong>Tuliskannya pada kertas.</strong>",
       "safetyWarnings": {
         "noAppsOrWebsites": "Jangan sesekali memasukkannya ke dalam aplikasi atau laman web",
         "noDigitalCopies": "Jangan mengambil gambar atau menyimpannya secara digital",
-        "noSharing": "Sokongan BitBox atau mana-mana syarikat tidak akan meminta anda berkongsi kata pemulihan anda.",
+        "noSharing": "Sokongan BitBox atau mana-mana syarikat tidak akan meminta anda berkongsi perkataan pemulihan anda.",
         "noSpeaking": "Jangan ucapkannya dengan kuat",
-        "safeStorage": "Kata pemulihan tidak dilindungi oleh kata laluan. Simpan di tempat yang selamat."
+        "safeStorage": "Perkataan pemulihan tidak dilindungi oleh kata laluan. Simpan di tempat yang selamat."
       },
       "scamWarning": "Jika sesiapa meminta anda melakukan ini, tamatkan panggilan. Ini adalah penipuan.",
       "title": "Tunjukkan perkataan pemulihan",
-      "warning": "<strong>Jangan berkongsi kata pemulihan kamu. </strong>Sesiapa yang memilikinya boleh mengakses dompet kamu."
+      "warning": "<strong>Jangan berkongsi perkataan pemulihan kamu. </strong>Sesiapa yang memilikinya boleh mengakses dompet kamu."
     },
     "title": "Uruskan sandaran"
   },
@@ -293,7 +293,7 @@
       "userConfirmation3": "Jika saya kehilangan atau merosakkan BitBox saya, satu-satunya cara untuk memulihkan dana saya ialah memulihkan daripada sandaran saya.",
       "userConfirmation4": "Jika saya kehilangan atau merosakkan kedua-dua sandaran saya dan BitBox saya maka dana saya akan hilang.",
       "userConfirmation5": "Saya tidak sepatutnya memasukkan sandaran kad mikroSD saya ke dalam komputer, telefon, pencetak atau mana-mana peranti selain daripada BitBox.",
-      "userConfirmation5mnemonic": "Saya tidak sepatutnya meletakkan perkataan pemulihan saya dalam komputer, telefon, pencetak atau mana-mana peranti selain daripada BitBox."
+      "userConfirmation5mnemonic": "Saya tidak boleh memasukkan perkataan pemulihan saya ke dalam komputer, telefon, pencetak atau mana-mana peranti selain BitBox."
     },
     "create": {
       "button": "Namakan peranti & teruskan",
@@ -317,20 +317,20 @@
       "unpaired": "BitBox yang tidak berpasangan telah dikesan. Sila sahkan kod berpasangan sepadan dengan apa yang ditunjukkan pada BitBox anda."
     },
     "passphrase": {
-      "confirmHostEntry": "Sahkan pada BitBox untuk memasukkan passphrase dalam aplikasi",
-      "confirmTitle": "Sahkan passphrase pada BitBox",
-      "dialogTitle": "Masukkan passphrase",
-      "enter": "Masukkan passphrase BitBox",
-      "enterInApp": "Masukkan passphrase dalam aplikasi",
+      "confirmHostEntry": "Sahkan pada BitBox untuk memasukkan frasa laluan dalam aplikasi",
+      "confirmTitle": "Sahkan frasa laluan pada BitBox",
+      "dialogTitle": "Masukkan frasa laluan",
+      "enter": "Masukkan frasa laluan BitBox",
+      "enterInApp": "Masukkan frasa laluan dalam aplikasi",
       "error": {
-        "invalidChars": "Passphrase mengandungi aksara yang tidak boleh dimasukkan pada BitBox.",
-        "tooLong": "Passphrase mesti maksimum 149 aksara."
+        "invalidChars": "Frasa laluan mengandungi aksara yang tidak boleh dimasukkan pada BitBox.",
+        "tooLong": "Frasa laluan mesti maksimum 149 aksara."
       }
     },
     "restoreFromMnemonic": {
       "e104": "Pemulihan daripada perkataan pemulihan telah dibatalkan.",
       "failed": "Pemulihan daripada perkataan pemulihan gagal, sila cuba lagi.",
-      "securityNotice": "Memulihkan wallet yang tidak dibuat pada BitBox? Wallet yang dibuat di tempat lain mungkin tidak mempunyai tahap keselamatan yang sama seperti yang dibuat pada BitBox anda. Jika anda tidak pasti, kami mengesyorkan menyediakan wallet baru di sini dan memindahkan dana anda kepadanya."
+      "securityNotice": "Memulihkan dompet yang tidak dibuat pada BitBox? Dompet yang dibuat di tempat lain mungkin tidak mempunyai tahap keselamatan yang sama seperti yang dibuat pada BitBox anda. Jika anda tidak pasti, kami mengesyorkan menyediakan dompet baru di sini dan memindahkan dana anda kepadanya."
     },
     "stepBackup": {
       "beforeProceed": "Sebelum meneruskan, sila baca pertimbangan keselamatan berikut:",
@@ -423,7 +423,7 @@
       "text1": "Bitsurance ialah perkhidmatan pihak ketiga yang bebas. Untuk pertanyaan mengenai tawaran dan tuntutan insurans mereka, sila hubungi Bitsurance secara terus.",
       "text2": "Insurans kini tersedia di Jerman, dengan lebih banyak wilayah untuk diikuti.",
       "text3": "Perlindungan Bitcoin maksimum yang tersedia pada masa ini ialah €100,000 setiap orang. Jumlah yang lebih tinggi dirancang untuk masa hadapan.",
-      "text4": "Maklumat peribadi dan kunci awam lanjutan (extended public key) akaun anda yang diinsuranskan adalah sebahagian daripada polisi insurans dan akan dikongsi dengan Bitsurance dan pembekal insurans.",
+      "text4": "Maklumat peribadi dan kunci awam lanjutan akaun anda yang diinsuranskan adalah sebahagian daripada polisi insurans dan akan dikongsi dengan Bitsurance dan pembekal insurans.",
       "text5": "Untuk maklumat lanjut tentang privasi, sila rujuk"
     },
     "title": "Insurans"
@@ -491,7 +491,7 @@
       "bankTransfer": "Transfer bank",
       "bestDeal": "Tawaran terbaik",
       "buy": "Beli",
-      "buyServices": "Beli perkhidmatan",
+      "buyServices": "Perkhidmatan pembelian",
       "creditCard": "Kad kredit",
       "description_bitrefill": "Beli kad hadiah, isi semula telefon & banyak lagi",
       "description_btcdirect-otc": "BTC Direct - Meja dagangan peribadi",
@@ -725,11 +725,11 @@
       "otcInfo": "Dapatkan bantuan peribadi dan yuran yang dikurangkan untuk dagangan over-the-counter (OTC) berskala besar.",
       "region": "Wilayah",
       "selectRegion": "Tidak dinyatakan",
-      "sell": "jual",
-      "sellServices": "Jual perkhidmatan",
+      "sell": "Jual",
+      "sellServices": "Perkhidmatan penjualan",
       "spend": "Berbelanja",
       "spendServices": "Perkhidmatan belanja",
-      "swapServices": "Perkhidmatan swap"
+      "swapServices": "Perkhidmatan pertukaran"
     },
     "info": {
       "continue": "Setuju dan teruskan",
@@ -814,7 +814,7 @@
   "connectKeystore": {
     "promptNoName": "Sila sambungkan BitBox anda untuk meneruskan",
     "promptWithName": "Sila sambungkan BitBox anda bernama \"{{name}}\"untuk meneruskan",
-    "swapHint": "Sila sambungkan BitBox Multi ke Swap."
+    "swapHint": "Sila sambungkan BitBox Multi untuk membuat pertukaran."
   },
   "darkmode": {
     "toggle": "Mod gelap"
@@ -822,7 +822,7 @@
   "device": {
     "appUpradeRequired": "BitBox anda tidak sesuai dengan aplikasi desktop ini. Sila muat turun dan pasang versi terkini.",
     "firmwareUpgradeRequired": "Kemas kini perisian tegar diperlukan untuk menggunakan ciri ini.",
-    "keystoreConnected": "Wallet bersambung",
+    "keystoreConnected": "Dompet bersambung",
     "unsupportedFeature": "Ciri ini tidak tersedia pada peranti ini."
   },
   "deviceSettings": {
@@ -850,7 +850,7 @@
         "title": "Algoritma buka kunci (unlock algorithm)"
       },
       "rootFingerprint": {
-        "description": "Root fingerprint ialah pengecam unik untuk dompet yang sedang digunakan. Root fingerpri boleh membantu anda membezakan antara dompet yang berbeza jika anda menggunakan frasa laluan."
+        "description": "Root fingerprint ialah pengecam unik untuk dompet yang sedang digunakan. Ia boleh membantu anda membezakan antara dompet yang berbeza jika anda menggunakan frasa laluan."
       },
       "securechip": {
         "description": "Model cip selamat."
@@ -871,20 +871,20 @@
         "description": "Hasilkan kunci anak (child keys) daripada dompet BitBox anda.",
         "disclaimer": "Saya memahami cara kunci kanak-kanak berfungsi dan pertimbangan keselamatan",
         "how": {
-          "description": "Kunci anak dipaparkan sebagai mnemonic pada BitBox anda. Anda boleh mencipta sebanyak mana kunci anak yang anda mahukan. Untuk memaparkan kunci anak, anda akan diminta nombor anak (contohnya ke-1, ke-2, ke-3 dan sebagainya) dan panjang mnemonic yang dikehendaki (12 atau 24 recovery words). Ingat, anda mesti mencatatkan <strong>nombor anak dan bilangan perkataan</strong> untuk memaparkan mnemonic yang sama kemudian.",
+          "description": "Kunci anak dipaparkan sebagai mnemonik pada BitBox anda. Anda boleh mencipta seberapa banyak kunci anak yang anda mahu. Untuk memaparkan kunci anak, anda akan diminta nombor kunci anak (contohnya ke-1, ke-2, ke-3 dan sebagainya) dan panjang mnemonik yang dikehendaki (12 atau 24 perkataan pemulihan). Ingat, anda mesti mencatatkan <strong>nombor kunci anak dan bilangan perkataan</strong> untuk memaparkan mnemonik yang sama kemudian.",
           "title": "Bagaimanakah ia berfungsi?"
         },
         "recover": {
-          "description": "Anda sentiasa boleh memaparkan mnemonik untuk kunci anak (child keys) sekali lagi. Seperti yang dinyatakan, anda mesti ingat <strong>bilangan anak dan bilangan perkataan</strong> untuk memaparkan mnemonik yang sama. Jangan sekali-kali mengimport perkataan pemulihan BitBox utama anda ke dalam dompet lain, hanya gunakan kunci anak apabila mengimport ke dompet lain.",
+          "description": "Anda sentiasa boleh memaparkan mnemonik untuk kunci anak (child keys) sekali lagi. Seperti yang dinyatakan, anda mesti ingat <strong>nombor kunci anak dan bilangan perkataan</strong> untuk memaparkan mnemonik yang sama. Jangan sekali-kali mengimport perkataan pemulihan BitBox utama anda ke dalam dompet lain, hanya gunakan kunci anak apabila mengimport ke dompet lain.",
           "title": "Bagaimana untuk memulihkan dompet menggunakan kunci anak (child key) dari BitBox?"
         },
         "security": {
-          "description": "Jangan sekali-kali menggunakan semula kunci anak (child key). Sebagai contoh, jangan gunakan kunci anak untuk dompet panas dan kemudian gunakan kunci yang sama untuk dompet perkakasan. Kunci itu tidak dianggap selamat kerana ia digunakan untuk dompet panas (hot wallet).",
+          "description": "Jangan sekali-kali menggunakan semula kunci anak (child key). Sebagai contoh, jangan gunakan kunci anak untuk dompet panas dan kemudian gunakan kunci yang sama untuk dompet perkakasan. Kunci itu tidak dianggap selamat kerana ia digunakan untuk dompet panas.",
           "title": "Pertimbangan keselamatan"
         },
         "title": "Tunjukkan kunci anak BIP-85",
         "what": {
-          "description": "Kunci anak (child keys) diturunkan dari benih utama (main seed) anda dan boleh digunakan untuk membuat dompet baru tanpa perlu membuat sandaran benih tambahan. Sebagai contoh, anda boleh membuat kunci anak dan mengimportnya ke dalam dompet panas (hot wallet) daripada membiarkan dompet panas tersebut membuat benih yang baru sepenuhnya.",
+          "description": "Kunci anak (child keys) diturunkan dari benih utama (main seed) anda dan boleh digunakan untuk membuat dompet baru tanpa perlu membuat sandaran benih tambahan. Sebagai contoh, anda boleh membuat kunci anak dan mengimportnya ke dalam dompet panas daripada membiarkan dompet panas tersebut membuat benih yang baru sepenuhnya.",
           "link": "Baca lebih lanjut mengenai BIP-85",
           "title": "Apa itu kunci anak (child keys)?"
         }
@@ -898,7 +898,7 @@
       },
       "passphrase": {
         "description": "Dayakan atau lumpuhkan ciri frasa laluan.",
-        "title": "Ungkapan laluan"
+        "title": "Frasa laluan"
       }
     },
     "firmware": {
@@ -959,7 +959,7 @@
     "lightningAddressUsernameUnavailable": "Nama ini tidak tersedia.",
     "lightningAmountBelowMinimum": "Jumlah mesti sekurang-kurangnya {{minAmountSat}} sats.",
     "lightningBalanceLimitExceeded": "Jumlah tambah nilai melebihi had dompet Lightning sebanyak {{limit}}. Jumlah tambah nilai maksimum mestilah {{remaining}} atau kurang.",
-    "lightningInsufficientFunds": "Dana tidak mencukupi dalam wallet Lightning anda.",
+    "lightningInsufficientFunds": "Dana tidak mencukupi dalam dompet Lightning anda.",
     "lightningInvalidAmount": "Jumlah tidak sah.",
     "lightningInvalidPaymentInput": "Invois atau permintaan pembayaran tidak sah.",
     "lightningInvoiceAlreadyUsed": "Invois Lightning ini telah digunakan. Sila minta invois baru.",
@@ -1069,12 +1069,12 @@
     "appVersion": "Versi apl:"
   },
   "gapLimit": {
-    "change": "Had jurang untuk menukar alamat",
-    "description": "Konfigurasikan had jurang tersuai untuk bitcoin menerima dan menukar alamat.",
-    "maxValue": "Gap limit tidak boleh melebihi {{max}}.",
-    "minValue": "Gap limit mestilah sekurang-kurangnya {{min}}.",
-    "receive": "Gap limit untuk menerima alamat",
-    "title": "Tetapan gap limit tersuai"
+    "change": "Had jurang untuk alamat baki",
+    "description": "Konfigurasikan had jurang tersuai untuk alamat penerimaan bitcoin dan alamat baki.",
+    "maxValue": "Had jurang tidak boleh melebihi {{max}}.",
+    "minValue": "Had jurang mestilah sekurang-kurangnya {{min}}.",
+    "receive": "Had jurang untuk alamat penerimaan",
+    "title": "Tetapan had jurang tersuai"
   },
   "generic": {
     "beta": "Beta",
@@ -1121,8 +1121,8 @@
   "genericError": "Kesalahan muncul. Sekiranya anda melihat sebarang masalah, sila mulakan semula aplikasi.",
   "goal": {
     "buttons": {
-      "create": "Buat wallet baru",
-      "restore": "Pulihkan wallet dari backup"
+      "create": "Buat dompet baru",
+      "restore": "Pulihkan dompet dari backup"
     },
     "paragraph": "Sila pilih salah satu pilihan berikut:",
     "step": {
@@ -1134,8 +1134,8 @@
         "title": "Peranti"
       },
       "3-create": {
-        "description": "Buat wallet baru",
-        "title": "Wallet"
+        "description": "Buat dompet baru",
+        "title": "Dompet"
       },
       "3-restore": {
         "description": "dari backup",
@@ -1168,7 +1168,7 @@
         "title": "Bagaimanakah saya boleh mengeksport sejarah transaksi saya? (cth., untuk CoinTracking)"
       },
       "multipleXPubs": {
-        "text": "Setiap xpub diikat kepada \"Type\" yang dipaparkan: sama ada \"Native Segwit (bech32)\", atau \"Taproot\" (Bitcoin sahaja). Ini adalah jenis skrip yang digunakan oleh {{coinName}}. BitBoxApp menggabungkannya, menyokong berbilang jenis skrip dalam akaun yang sama. Oleh kerana setiap jenis skrip menghasilkan xpub yang berbeza, terdapat berbilang xpub bagi setiap akaun.\n\nJika anda sentiasa menerima pada alamat lalai (Native Segwit), anda hanya memerlukan xpub \"bech32\". Walau bagaimanapun, jika anda juga menerima dana ke \"Taproot\", anda juga perlu menggunakan extended public key \"Taproot\".",
+        "text": "Setiap xpub diikat kepada \"Jenis skrip\" yang dipaparkan: sama ada \"Native Segwit (bech32)\", atau \"Taproot\" (Bitcoin sahaja). Ini adalah jenis skrip yang digunakan oleh {{coinName}}. BitBoxApp menggabungkannya, menyokong berbilang jenis skrip dalam akaun yang sama. Oleh kerana setiap jenis skrip menghasilkan xpub yang berbeza, terdapat berbilang xpub bagi setiap akaun.\n\nJika anda sentiasa menerima pada alamat lalai (Native Segwit), anda hanya memerlukan xpub \"bech32\". Walau bagaimanapun, jika anda juga menerima dana ke \"Taproot\", anda juga perlu menggunakan kunci awam lanjutan \"Taproot\".",
         "title": "Mengapa terdapat banyak xpub?"
       },
       "privacy": {
@@ -1180,8 +1180,8 @@
         "title": "Adakah saya perlu mengesahkan xpub pada peranti?"
       },
       "xpub": {
-        "text": "Kunci awam lanjutan (xpub) ialah kunci akar yang daripadanya semua alamat penerima akaun diperoleh.\n\nIa disediakan di sini untuk kegunaan lanjutan dan saling kendali dengan dompet jam tangan sahaja, seperti Electrum atau Sentinel. Jika anda menerima jenis alamat yang berbeza, sila import semua format xpub yang berbeza ke dalam dompet jam tangan sahaja untuk melihat semua syiling anda.\n\nSila ambil perhatian, dompet pihak ketiga mungkin belum menyokong Taproot xpubs lagi.",
-        "title": "Apa itu Public Key Lanjutan?"
+        "text": "Kunci awam lanjutan (xpub) ialah kunci akar yang daripadanya semua alamat penerima akaun diperoleh.\n\nIa disediakan di sini untuk kegunaan lanjutan dan saling kendali dengan dompet untuk pemerhatian sahaja, seperti Electrum atau Sentinel. Jika anda menerima syiling pada jenis alamat yang berbeza, sila import semua format xpub yang berbeza ke dalam dompet untuk pemerhatian sahaja untuk melihat semua syiling anda.\n\nSila ambil perhatian, dompet pihak ketiga mungkin belum menyokong Taproot xpubs lagi.",
+        "title": "Apa itu kunci awam lanjutan?"
       }
     },
     "accountRates": {
@@ -1197,7 +1197,7 @@
       "title": "Mengapa saya tidak dapat menghantar sebarang {{unit}}?"
     },
     "accountSummaryAmount": {
-      "text": "Jumlah keseluruhan ialah jumlah semua akaun crypto anda. Kadar pertukaran diperoleh daripada coingecko.com.\n\nNota: Jika anda menggunakan MyEtherWallet untuk token yang tidak disokong dalam BitBoxApp, ia tidak akan dimasukkan dalam jumlah yang dipaparkan.",
+      "text": "Jumlah keseluruhan ialah jumlah semua akaun crypto anda. Kadar pertukaran diperoleh daripada coingecko.com.\n\nNota: Jika anda menggunakan MyEtherDompet untuk token yang tidak disokong dalam BitBoxApp, ia tidak akan dimasukkan dalam jumlah yang dipaparkan.",
       "title": "Bagaimanakah jumlah keseluruhan dikira?"
     },
     "accountSummaryDescription": {
@@ -1277,7 +1277,7 @@
     "appearancePortfolioPercentageOptions": {
       "listOptions": [
         "Nilai dari masa ke masa: Ini ialah perubahan nilai portfolio anda dari masa ke masa, termasuk deposit dan pengeluaran.",
-        "Prestasi: Ini ialah money-weighted return (MWR). Ia mengambil kira deposit dan pengeluaran, jadi ia mencerminkan prestasi portfolio anda."
+        "Prestasi: Ini ialah pulangan berpembobot wang (MWR). Ia mengambil kira deposit dan pengeluaran, jadi ia mencerminkan prestasi portfolio anda."
       ],
       "text": "Peratusan pada carta portfolio anda menunjukkan salah satu daripada dua pilihan:",
       "title": "Apakah maksud pilihan peratusan portfolio?"
@@ -1298,7 +1298,7 @@
         "title": "Apakah itu 'Semak sandaran'?"
       },
       "encrypt": {
-        "text": "Tidak, tetapi kata laluan pemulihan diperlukan untuk memperoleh wallet dari benih yang disimpan.",
+        "text": "Tidak, tetapi kata laluan pemulihan diperlukan untuk memperoleh dompet dari benih yang disimpan.",
         "title": "Bolehkah saya menyulitkan backup?"
       },
       "howOften": {
@@ -1316,7 +1316,7 @@
         "title": "Apakah itu 'Semak sandaran'?"
       },
       "encrypt": {
-        "text": "Tidak. Sila pastikan kad microSD selamat, kerana ia mengandungi benih yang tidak disulitkan untuk memulihkan dompet anda. Jika anda ingin melindungi kata laluan benih anda, anda boleh mendayakan frasa laluan pilihan dalam tetapan pakar di bawah \"Urus peranti\".",
+        "text": "Tidak. Sila simpan kad microSD dengan selamat kerana ia mengandungi benih yang tidak disulitkan untuk memulihkan dompet anda. Jika anda ingin melindungi benih anda dengan kata laluan, anda boleh mendayakan frasa laluan pilihan dalam tetapan pakar di bawah \"Urus peranti\".",
         "title": "Bolehkah saya menyulitkan backup?"
       },
       "whatIsABackup": {
@@ -1340,7 +1340,7 @@
           "text": "help.bitrefill.com"
         },
         "text": "Ini mungkin kerana anda menggunakan penyedia e-mel yang tidak disokong oleh Bitrefill. Jika anda memerlukan invois, sila hubungi sokongan Bitrefill dan mereka boleh menyediakan invois anda.",
-        "title": "Saya tidak menerima invoice daripada Bitrefill"
+        "title": "Saya tidak menerima invois daripada Bitrefill"
       },
       "kyc": {
         "link": {
@@ -1415,7 +1415,7 @@
     },
     "disclaimer": {
       "link": "Lihat penafian {{provider}}",
-      "title": "{{provider}} penafian"
+      "title": "Penafian {{provider}}"
     },
     "guideTitle": {
       "account": "Panduan akaun",
@@ -1431,7 +1431,7 @@
       "manageDevice": "Urus panduan peranti",
       "receive": "Panduan Menerima",
       "send": "Panduan Menghantar",
-      "walletConnect": "Panduan WalletConnect"
+      "walletConnect": "Panduan DompetConnect"
     },
     "lightning": {
       "multipleDevices": {
@@ -1443,7 +1443,7 @@
         "title": "Bolehkah saya membuat berbilang dompet Lightning?"
       },
       "privateKey": {
-        "text": "Dompet Lightning BitBoxApp adalah non-custodial, bermakna hanya anda mempunyai akses kepada kunci. Kunci peribadi disimpan dalam BitBoxApp. Ini menjadikan dompet Lightning anda sebuah 'Hot wallet', kerana kunci Lightning berada pada komputer/telefon anda dan bukannya pada BitBox anda. Oleh itu, hanya simpan sejumlah kecil syiling dalam dompet Lightning anda.",
+        "text": "Dompet Lightning BitBoxApp adalah non-custodial, bermakna hanya anda mempunyai akses kepada kunci. Kunci peribadi disimpan dalam BitBoxApp. Ini menjadikan dompet Lightning anda sebuah 'dompet panas', kerana kunci Lightning berada pada komputer/telefon anda dan bukannya pada BitBox anda. Oleh itu, hanya simpan sejumlah kecil syiling dalam dompet Lightning anda.",
         "title": "Di manakah kunci peribadi Lightning saya disimpan?"
       },
       "providers": {
@@ -1456,25 +1456,25 @@
           "title": "Perlukah anda membayar yuran apabila menerima?"
         },
         "invoiceOrAddress": {
-          "text": "Buat invoice apabila anda mahu meminta jumlah tertentu. Invoice adalah untuk satu pembayaran dan luput selepas 30 hari. Kongsi Lightning address sebaliknya apabila pengirim perlu memilih jumlah, atau apabila anda mahu mereka menyimpannya untuk pembayaran akan datang. Anda boleh menambah keterangan pilihan pada invoice untuk membantu mengenal pasti pembayaran kemudian.",
-          "title": "Bilakah anda patut membuat invoice dan bukannya berkongsi alamat anda?"
+          "text": "Buat invois apabila anda mahu meminta jumlah tertentu. Invois adalah untuk satu pembayaran dan luput selepas 30 hari. Kongsi alamat Lightning sebaliknya apabila pengirim perlu memilih jumlah, atau apabila anda mahu mereka menyimpannya untuk pembayaran akan datang. Anda boleh menambah keterangan pilihan pada invois untuk membantu mengenal pasti pembayaran kemudian.",
+          "title": "Bilakah anda patut membuat invois dan bukannya berkongsi alamat anda?"
         },
         "payment": {
-          "text": "Anda boleh berkongsi Lightning address yang boleh digunakan semula atau membuat invoice BOLT11 untuk satu pembayaran. Kongsi kod QR atau teks yang dipaparkan dengan pengirim. BitBoxApp tidak perlu kekal terbuka semasa anda menunggu pembayaran.",
+          "text": "Anda boleh berkongsi alamat Lightning yang boleh digunakan semula atau membuat invois BOLT11 untuk satu pembayaran. Kongsi kod QR atau teks yang dipaparkan dengan pengirim. BitBoxApp tidak perlu kekal terbuka semasa anda menunggu pembayaran.",
           "title": "Bagaimana anda boleh menerima pembayaran Lightning?"
         },
         "reuseAddress": {
-          "text": "Ya. Tidak seperti invoice, Lightning address anda boleh digunakan untuk berbilang pembayaran. Pengirim memilih jumlah, dan dompet mereka meminta butiran pembayaran secara automatik. Ia bukan alamat e-mel, walaupun kelihatan seperti satu.",
-          "title": "Bolehkah anda menggunakan semula Lightning address anda?"
+          "text": "Ya. Tidak seperti invois, alamat Lightning anda boleh digunakan untuk berbilang pembayaran. Pengirim memilih jumlah, dan dompet mereka meminta butiran pembayaran secara automatik. Ia bukan alamat e-mel, walaupun kelihatan seperti satu.",
+          "title": "Bolehkah anda menggunakan semula alamat Lightning anda?"
         }
       },
       "securedByBitBox": {
-        "text": "'Tidak, BitBox hanya digunakan untuk membuat dan memulihkan dompet Lightning anda. Setelah dompet Lightning anda dibuat, ia menjadi 'hot wallet'.",
+        "text": "Tidak, BitBox hanya digunakan untuk mencipta dan memulihkan dompet Lightning anda. Setelah dompet Lightning anda dicipta, ia menjadi dompet panas.",
         "title": "Adakah dompet Lightning saya dilindungi oleh BitBox saya?"
       },
       "send": {
         "cancel": {
-          "text": "Tidak. Pembayaran Lightning tidak boleh dibatalkan atau diterbalikkan setelah dihantar. Sentiasa semak penerima, jumlah, keterangan, dan yuran sebelum menghantar. Jika anda memerlukan bayaran balik, minta penerima menghantar semula dana. Invoice yang tidak dibayar akhirnya akan luput.",
+          "text": "Tidak. Pembayaran Lightning tidak boleh dibatalkan atau diterbalikkan setelah dihantar. Sentiasa semak penerima, jumlah, keterangan, dan yuran sebelum menghantar. Jika anda memerlukan bayaran balik, minta penerima menghantar semula dana. Invois yang tidak dibayar akhirnya akan luput.",
           "title": "Bolehkah saya membatalkan atau membalikkan pembayaran Lightning?"
         },
         "fee": {
@@ -1482,11 +1482,11 @@
           "title": "Bagaimana yuran pembayaran Lightning dikira?"
         },
         "invoiceAndAddress": {
-          "text": "Sebuah BOLT11 invoice dicipta untuk satu pembayaran. Ia mungkin sudah menetapkan jumlah, atau ia mungkin meminta anda memasukkan jumlah. Invoice tamat tempoh dan hanya boleh dibayar sekali. Alamat Lightning boleh digunakan semula dan membolehkan anda memilih sebarang jumlah dalam had yang ditetapkan oleh penerima.",
-          "title": "Apakah perbezaan antara invoice dan alamat Lightning?"
+          "text": "Sebuah BOLT11 invois dicipta untuk satu pembayaran. Ia mungkin sudah menetapkan jumlah, atau ia mungkin meminta anda memasukkan jumlah. Invois tamat tempoh dan hanya boleh dibayar sekali. Alamat Lightning boleh digunakan semula dan membolehkan anda memilih sebarang jumlah dalam had yang ditetapkan oleh penerima.",
+          "title": "Apakah perbezaan antara invois dan alamat Lightning?"
         },
         "payment": {
-          "text": "Imbas atau tampal invoice BOLT11, permintaan LNURL-Pay, atau Lightning address. Lightning address kelihatan seperti alamat e-mel, tetapi ia digunakan untuk pembayaran.",
+          "text": "Imbas atau tampal invois BOLT11, permintaan LNURL-Pay, atau alamat Lightning. alamat Lightning kelihatan seperti alamat e-mel, tetapi ia digunakan untuk pembayaran.",
           "title": "Bagaimana saya menghantar pembayaran Lightning?"
         }
       }
@@ -1501,7 +1501,7 @@
         "title": "Bila alamat berubah?"
       },
       "addressFormats": {
-        "text": "Secara lalai, jenis alamat ialah Native Segwit. Jenis alamat ini digunakan secara meluas oleh dompet/pertukaran lain dan memberikan kadar yuran terbaik untuk transaksi harian. Walau bagaimanapun, kamu juga boleh memilih untuk menghantar ke Taproot (Bitcoin sahaja), yang merupakan jenis alamat terkini, tetapi mungkin belum disokong secara meluas.",
+        "text": "Secara lalai, jenis alamat ialah Native Segwit. Jenis alamat ini digunakan secara meluas oleh dompet dan bursa lain serta memberikan kadar yuran terbaik untuk transaksi harian. Walau bagaimanapun, anda juga boleh memilih untuk menerima ke alamat Taproot (Bitcoin sahaja), iaitu jenis alamat terkini, tetapi mungkin belum disokong secara meluas.",
         "title": "Bilakah saya menggunakan \"Tukar jenis alamat\"?"
       },
       "howVerify": {
@@ -1527,8 +1527,8 @@
     },
     "send": {
       "change": {
-        "text": "Perubahan akan dikembalikan ke alamat Taproot jika anda mempunyai sekurang-kurangnya satu Taproot UTXO. Jika anda menggunakan kawalan syiling, perubahan akan dikembalikan ke alamat Taproot jika terdapat sekurang-kurangnya satu Taproot UTXO antara UTXO yang dipilih. Dalam semua kes lain, perubahan dikembalikan ke alamat Segwit Asli.",
-        "title": "Bagaimanakah output perubahan ditentukan?"
+        "text": "Baki transaksi akan dikembalikan ke alamat Taproot jika anda mempunyai sekurang-kurangnya satu UTXO Taproot. Jika anda menggunakan kawalan syiling, baki akan dikembalikan ke alamat Taproot jika sekurang-kurangnya satu UTXO yang dipilih ialah UTXO Taproot. Dalam semua kes lain, baki dikembalikan ke alamat Native Segwit.",
+        "title": "Bagaimanakah output baki ditentukan?"
       },
       "fee": {
         "text": "Yuran ini didasarkan pada saiz data transaksi dan bukan jumlahnya. Sasaran yuran dikira oleh algoritma pengiraan yuran Bitcoin Core untuk setiap keutamaan rangkaian yang anda pilih. Mereka ditunjukkan jika mereka mempunyai nilai yang berbeza dari sasaran di bawah.\nEkonomi: 24 blok (sekitar 4 jam untuk Bitcoin, 1 jam untuk Litecoin)\nRendah: 12 blok (sekitar 2 jam untuk Bitcoin, 30 minit untuk Litecoin)\nNormal: 6 blok (sekitar 1 jam untuk Bitcoin, 15 minit untuk Litecoin)\nTinggi: 2 blok (sekitar 20 minit untuk Bitcoin, 5 minit untuk Litecoin)\n(Blok mengambil purata sepuluh minit untuk Bitcoin (2.5 minit di Litecoin) untuk melombong dan beban rangkaian mungkin berbeza-beza untuk tempoh di atas.)",
@@ -1574,7 +1574,7 @@
         "title": "Bagaimanakah cara saya menyambungkan BitBoxApp saya ke nod penuh saya sendiri?"
       },
       "options": {
-        "text": "Terdapat pelbagai pilihan untuk menjalankan nod anda sendiri seperti membeli peranti siap, membina sendiri atau menjalankan Bitcoin Core.\nJika anda ingin menyambungkan BitBoxApp anda ke nod anda, pastikan ia menjalankan pelayan Electrum. Ini ialah program khusus yang membolehkan apl dompet berkomunikasi dengan nod penuh anda.\nPilihan yang disokong termasuk Electrs, Electrum Personal Server (EPS) atau Bitcoin Wallet Tracker (BTW).",
+        "text": "Terdapat pelbagai pilihan untuk menjalankan nod anda sendiri seperti membeli peranti siap, membina sendiri atau menjalankan Bitcoin Core.\nJika anda ingin menyambungkan BitBoxApp anda ke nod anda, pastikan ia menjalankan pelayan Electrum. Ini ialah program khusus yang membolehkan apl dompet berkomunikasi dengan nod penuh anda.\nPilihan yang disokong termasuk Electrs, Electrum Personal Server (EPS) atau Bitcoin Dompet Tracker (BTW).",
         "title": "Apakah pilihan yang ada untuk menjalankan nod?"
       },
       "tor": {
@@ -1601,7 +1601,7 @@
     },
     "unlock": {
       "forgotDevicePassword": {
-        "text": "Anda perlu menetapkan semula peranti dan memulihkan wallet dari backup dengan menggunakan kata laluan pemulihan.",
+        "text": "Anda perlu menetapkan semula peranti dan memulihkan dompet dari backup dengan menggunakan kata laluan pemulihan.",
         "title": "Apa yang perlu saya lakukan jika saya lupa kata laluan peranti?"
       },
       "reset": {
@@ -1618,7 +1618,7 @@
         "title": "Bagaimana saya boleh mendapatkan peranti?"
       },
       "internet": {
-        "text": "Ya, sambungan internet diperlukan untuk menyegerakkan wallet, menghantar transaksi dan mendapatkan kadar pertukaran terkini.",
+        "text": "Ya, sambungan internet diperlukan untuk menyegerakkan dompet, menghantar transaksi dan mendapatkan kadar pertukaran terkini.",
         "title": "Apakah aplikasi ini memerlukan sambungan internet?"
       },
       "lostDevice": {
@@ -1650,12 +1650,12 @@
         "title": "Saya tidak melihat sambungan saya sebelum ini."
       },
       "supportedNetworks": {
-        "text": "Pada masa ini, hanya mainnet Ethereum disokong menggunakan WalletConnect dalam BitBoxApp. Untuk menggunakan rantaian serasi EVM lain, sila gunakan dompet sambungan penyemak imbas Rabby.",
+        "text": "Pada masa ini, hanya mainnet Ethereum disokong menggunakan DompetConnect dalam BitBoxApp. Untuk menggunakan rantaian serasi EVM lain, sila gunakan dompet sambungan penyemak imbas Rabby.",
         "title": "Apakah rangkaian yang disokong?"
       },
       "whatIsWalletConnect": {
-        "text": "WalletConnect ialah protokol komunikasi untuk aplikasi web3. Ia membolehkan anda menyambung dengan mudah ke DApps berasaskan Ethereum dan dompet web tanpa menggunakan aplikasi pihak ketiga, yang amat berguna untuk pengguna Android BitBoxApp.",
-        "title": "Apakah itu WalletConnect?"
+        "text": "DompetConnect ialah protokol komunikasi untuk aplikasi web3. Ia membolehkan anda menyambung dengan mudah ke DApps berasaskan Ethereum dan dompet web tanpa menggunakan aplikasi pihak ketiga, yang amat berguna untuk pengguna Android BitBoxApp.",
+        "title": "Apakah itu DompetConnect?"
       }
     }
   },
@@ -1671,7 +1671,7 @@
     "info": {
       "description1": "Pilih kata laluan peranti anda. Ini akan digunakan untuk membuka kunci BitBox anda.",
       "description2": "Anda boleh menggunakan nombor, huruf dan simbol. Kata laluan yang lebih panjang memberikan keselamatan yang lebih tinggi",
-      "description3": "Jika anda kehilangan kata laluan peranti, anda perlu menetapkan semula peranti anda dan memulihkan backup wallet anda.",
+      "description3": "Jika anda kehilangan kata laluan peranti, anda perlu menetapkan semula peranti anda dan memulihkan backup dompet anda.",
       "subtitle": "Sekarang anda boleh menetapkan kata laluan peranti anda",
       "title": "Memulakan peranti anda"
     },
@@ -1693,7 +1693,7 @@
         "title": "Sambungkan peranti anda"
       },
       "disclaimer": {
-        "content": "Dompet Lightning anda akan dibuat menggunakan kunci yang diturunkan daripada BitBox anda. Dengan cara itu anda sentiasa boleh memulihkan dompet Lightning anda menggunakan BitBox atau sandaran anda.\n\nWalau bagaimanapun, tidak seperti BitBox, dompet Lightning adalah <strong>hot wallet</strong>. Ini bermakna kunci untuk dompet Lightning anda disimpan pada BitBoxApp, bukan pada BitBox. Anda tidak harus menggunakan dompet Lightning untuk jumlah dana yang besar atau penyimpanan jangka panjang.\n\n          Selain itu, ciri Lightning masih dalam versi beta, bermakna anda mungkin menghadapi pepijat, masalah kebolehpercayaan atau ia mungkin berhenti berfungsi sepenuhnya.",
+        "content": "Dompet Lightning anda akan dibuat menggunakan kunci yang diturunkan daripada BitBox anda. Dengan cara itu anda sentiasa boleh memulihkan dompet Lightning anda menggunakan BitBox atau sandaran anda.\n\nWalau bagaimanapun, tidak seperti BitBox, dompet Lightning adalah <strong>dompet panas</strong>. Ini bermakna kunci untuk dompet Lightning anda disimpan pada BitBoxApp, bukan pada BitBox. Anda tidak harus menggunakan dompet Lightning untuk jumlah dana yang besar atau penyimpanan jangka panjang.\n\n          Selain itu, ciri Lightning masih dalam versi beta, bermakna anda mungkin menghadapi pepijat, masalah kebolehpercayaan atau ia mungkin berhenti berfungsi sepenuhnya.",
         "title": "Bagaimana ia berfungsi dengan BitBoxApp?"
       },
       "intro": {
@@ -1728,25 +1728,25 @@
       }
     },
     "claimTopUp": {
-      "claimButton": "Tuntut isian semula",
+      "claimButton": "Tuntut tambah nilai",
       "claimFee": "Yuran tuntutan",
       "claimUnavailable": "Tuntutan tidak tersedia",
       "confirm": {
-        "amount": "Isian semula belum dituntut",
+        "amount": "Tambah nilai belum dituntut",
         "claimButton": "Sahkan tuntutan",
-        "claimTitle": "Sahkan tuntutan top-up",
+        "claimTitle": "Sahkan tuntutan tambah nilai",
         "fee": "Yuran",
         "feeRate": "Kadar yuran",
         "refundButton": "Sahkan bayaran balik",
         "refundDestination": "Destinasi bayaran balik",
-        "refundTitle": "Sahkan bayaran balik isian semula"
+        "refundTitle": "Sahkan bayaran balik tambah nilai"
       },
-      "description": "Tuntut isian semula ini untuk menambah dana ke dompet Lightning anda.",
-      "empty": "Tiada top-up yang belum dituntut ditemui.",
+      "description": "Tuntut tambah nilai ini untuk menambah dana ke dompet Lightning anda.",
+      "empty": "Tiada tambah nilai yang belum dituntut ditemui.",
       "failure": {
-        "claimFailedMessage": "Tuntutan isian semula gagal.",
+        "claimFailedMessage": "Tuntutan tambah nilai gagal.",
         "claimFailedTryRefund": "Cuba lakukan bayaran balik ke akaun Bitcoin sebaliknya.",
-        "refundFailedMessage": "Bayaran balik isian semula gagal.",
+        "refundFailedMessage": "Bayaran balik tambah nilai gagal.",
         "refundFailedTryAgain": "Sila cuba lagi."
       },
       "feeRate": "{{feeRate}} sat/vByte",
@@ -1755,24 +1755,24 @@
       "refundPending": "Bayaran balik belum sampai ke rangkaian Bitcoin. Ia akan dicuba semula secara automatik. Anda juga boleh cuba semula dengan kadar yuran semasa.",
       "refundUnavailable": "Bayaran balik tidak tersedia",
       "success": {
-        "claimTitle": "Tuntut top-up",
+        "claimTitle": "Tuntut tambah nilai",
         "deferredMessage": "Tuntutan tambah nilai dijadualkan",
-        "deferredNote": "Top-up belum dituntut lagi. Ia akan dicuba semula secara automatik apabila layak di bawah had yuran.",
-        "refundMessage": "Permintaan bayaran balik",
+        "deferredNote": "Tambah nilai belum dituntut lagi. Ia akan dicuba semula secara automatik apabila layak di bawah had yuran.",
+        "refundMessage": "Bayaran balik telah diminta",
         "refundNote": "Bayaran balik akan muncul kembali dalam dompet on-chain anda setelah transaksi disahkan.",
         "refundTitle": "Bayaran balik tambah nilai",
-        "settledMessage": "Top-up dituntut",
+        "settledMessage": "Tambah nilai dituntut",
         "settledNote": "Dana kini tersedia dalam dompet Lightning anda.",
-        "submittedMessage": "Tuntutan top-up dihantar",
+        "submittedMessage": "Tuntutan tambah nilai dihantar",
         "submittedNote": "Tuntutan sedang diproses. Dana akan muncul dalam dompet Lightning anda setelah ia selesai."
       },
       "title": "Tuntut tambah nilai",
-      "topUp": "Top-up belum dituntut",
+      "topUp": "Tambah nilai belum dituntut",
       "viewTransaction": "Lihat transaksi",
-      "warning": "Anda boleh menuntut isian semula atau memulangkan wangnya. Kedua-dua pilihan akan dikenakan yuran."
+      "warning": "Anda boleh menuntut tambah nilai atau memulangkan wangnya. Kedua-dua pilihan akan dikenakan yuran."
     },
     "closeWithdrawFunds": {
-      "accountDestination": "Syiling akaun akan dihantar ke",
+      "accountDestination": "Akaun penerima syiling",
       "confirm": "Sahkan penutupan dompet Lightning",
       "description": "Ini akan menutup dompet Lightning anda dan menghantar semua syiling yang tinggal ke BitBox anda.",
       "failure": {
@@ -1819,13 +1819,13 @@
     },
     "deactivate": {
       "intro": {
-        "content": "Menutup wallet Lightning anda akan memutuskan sambungan dari pelayan dan anda tidak lagi boleh menggunakan wallet Lightning anda untuk menghantar dan menerima.\nDana dalam wallet Lightning anda tidak terjejas; anda masih boleh mengaksesnya semula dengan mengaktifkan Lightning dalam tetapan dan menyambungkan BitBox yang digunakan untuk membuat wallet itu."
+        "content": "Menutup dompet Lightning anda akan memutuskan sambungan dari pelayan dan anda tidak lagi boleh menggunakan dompet Lightning anda untuk menghantar dan menerima.\nDana dalam dompet Lightning anda tidak terjejas; anda masih boleh mengaksesnya semula dengan mengaktifkan Lightning dalam tetapan dan menyambungkan BitBox yang digunakan untuk membuat dompet itu."
       },
       "success": {
         "message": "Berjaya, dompet Lightning anda kini dinyahaktifkan"
       },
       "wait": {
-        "title": "Melumpuhkan wallet Lightning..."
+        "title": "Menyahdayakan dompet Lightning..."
       }
     },
     "disclaimer": {
@@ -1850,7 +1850,7 @@
         "title": "Yuran"
       },
       "securityModel": {
-        "content": "The Lightning wallet is a <strong>dompet panas</strong>. This means the keys are stored in the app and are therefore not protected by the BitBox. This allows you to use your Lightning wallet without needing a BitBox. Be sure to keep only a small amount of funds in your Lightning wallet.",
+        "content": "Dompet Lightning ialah <strong>dompet panas</strong>. Ini bermakna kuncinya disimpan dalam aplikasi dan oleh itu tidak dilindungi oleh BitBox. Ini membolehkan anda menggunakan dompet Lightning tanpa memerlukan BitBox. Pastikan anda hanya menyimpan sejumlah kecil dana dalam dompet Lightning anda.",
         "title": "Model keselamatan"
       },
       "title": "Penafian Lightning",
@@ -1864,9 +1864,9 @@
     "initializationFailed": "Ada masalah semasa memulakan Lightning. Sila mulakan semula BitBoxApp untuk cuba lagi.",
     "initializing": "Akaun Lightning sedang dimulakan...",
     "limit": {
-      "accountWarning": "Jumlah wallet melebihi had {{limit}} sebanyak {{excess}}. Kami mengesyorkan anda memindahkan beberapa syiling ke wallet BitBox anda untuk keselamatan yang lebih baik.",
-      "createInvoiceWarning": "Jumlah Invoice akan melebihi had {{limit}} sebanyak {{excess}}. Anda masih boleh membuat Invoice.",
-      "invoiceWarning": "Jumlah Invoice akan melebihi had {{limit}} sebanyak {{excess}}. Anda masih boleh menggunakan Invoice.",
+      "accountWarning": "Jumlah dompet melebihi had {{limit}} sebanyak {{excess}}. Kami mengesyorkan anda memindahkan beberapa syiling ke dompet BitBox anda untuk keselamatan yang lebih baik.",
+      "createInvoiceWarning": "Jumlah Invois akan melebihi had {{limit}} sebanyak {{excess}}. Anda masih boleh membuat Invois.",
+      "invoiceWarning": "Jumlah Invois akan melebihi had {{limit}} sebanyak {{excess}}. Anda masih boleh menggunakan Invois.",
       "moveCoins": "Pindahkan syiling"
     },
     "lnurlAddress": {
@@ -1885,7 +1885,7 @@
       },
       "title": "Tetapkan alamat LNURL"
     },
-    "paymentDescription": "Deskripsi invois",
+    "paymentDescription": "Keterangan invois",
     "payments": {
       "header": {
         "amount": "Jumlah",
@@ -1919,7 +1919,7 @@
         "title": "Imbas kod QR untuk menerima"
       },
       "openChannelWarning": "Caj sebanyak {{feeSat}} sats akan ditolak untuk membuka saluran baru.",
-      "subtitle": "Buat Invoice Lightning",
+      "subtitle": "Buat Invois Lightning",
       "success": {
         "message": "Pembayaran Lightning diterima!"
       },
@@ -1933,7 +1933,7 @@
         "receiver": "Penerima",
         "title": "Sahkan butiran transaksi"
       },
-      "enterInvoice": "Masukkan alamat atau invoice",
+      "enterInvoice": "Masukkan alamat atau invois",
       "invoice": {
         "label": "Masukkan butiran pembayaran",
         "placeholder": "Maklumat pembayaran"
@@ -1973,7 +1973,7 @@
     "sparkStatus": {
       "degraded": "Rangkaian Spark sedang mengalami prestasi terjejas. Pembayaran Lightning mungkin tertunda.",
       "major": "Rangkaian Spark sedang mengalami gangguan besar. Pembayaran Lightning mungkin tidak tersedia.",
-      "partial": "Rangkaian Spark sebahagianya tidak tersedia. Pembayaran Lightning mungkin tidak tersedia.",
+      "partial": "Sebahagian daripada rangkaian Spark tidak tersedia. Pembayaran Lightning mungkin tidak tersedia.",
       "unknown": "Status rangkaian Spark tidak diketahui. Pembayaran Lightning mungkin tidak tersedia."
     },
     "testnetWarning": {
@@ -2000,7 +2000,7 @@
         "message": "Tambah nilai berjaya dibuat!",
         "note": "Transaksi tambah nilai akan dipaparkan sebagai tertunda dalam senarai pembayaran sebelum pengesahan pertamanya. Ia dituntut secara automatik apabila pengesahan dan yuran membenarkan. Tuntutan standard memerlukan tiga pengesahan; tuntutan awal mungkin selesai lebih cepat."
       },
-      "title": "Tambah baki dompet Lightning",
+      "title": "Tambah nilai dompet Lightning",
       "to": "Kepada"
     }
   },
@@ -2170,19 +2170,19 @@
       "title": "Sahkan pada peranti"
     },
     "successDisabled": {
-      "message": "Ungkapan laluan pilihan <strong>berjaya didayakan</strong>!\nAnda akan diminta untuk memberikan frasa laluan mulai sekarang.",
+      "message": "Frasa laluan pilihan <strong>berjaya didayakan</strong>!\nAnda akan diminta untuk memberikan frasa laluan mulai sekarang.",
       "messageEnd": "Sila pasang semula BitBox sekarang.",
-      "title": "Ungkapan laluan didayakan"
+      "title": "Frasa laluan didayakan"
     },
     "successEnabled": {
-      "message": "Ungkapan laluan pilihan <strong>berjaya dilumpuhkan</strong>!\n\nAnda tidak akan diminta untuk memberikan frasa laluan lagi.",
+      "message": "Frasa laluan pilihan <strong>berjaya dilumpuhkan</strong>!\n\nAnda tidak akan diminta untuk memberikan frasa laluan lagi.",
       "messageEnd": "Sila pasang semula BitBox anda sekarang.",
       "tips": "Petua",
       "tipsList": [
         "Kami cadangkan menghantar sejumlah kecil ke dompet frasa laluan terlebih dahulu. Kemudian cabut dan pasang semula BitBox dan masukkan kata laluan dan frasa laluan anda. Jika anda memasukkan frasa laluan dengan betul, anda sepatutnya melihat syiling dalam dompet anda.",
-        "Jika anda ingin memasukkan dompet asal anda tanpa frasa laluan, anda masih boleh melakukan ini dengan memasukkan apa-apa apabila digesa untuk memasukkan frasa laluan. Atau anda boleh melumpuhkan ciri frasa laluan."
+        "Jika anda ingin mengakses dompet asal anda tanpa frasa laluan, biarkan medan frasa laluan kosong apabila diminta. Anda juga boleh menyahdayakan ciri frasa laluan."
       ],
-      "title": "Ungkapan laluan dilumpuhkan"
+      "title": "Frasa laluan dilumpuhkan"
     },
     "summary": {
       "button": "Dayakan frasa laluan",
@@ -2192,7 +2192,7 @@
         "Frasa laluan ialah lapisan keselamatan tambahan di atas sandaran anda.",
         "Memasukkan frasa laluan yang berbeza akan sentiasa menghasilkan dompet yang berbeza.",
         "Untuk memulihkan dompet anda yang anda perlukan <strong>kedua-dua frasa laluan dan sandaran</strong>.",
-        "Jika anda terlupa frasa laluan anda, anda boleh <strong>tidak lagi mengakses syiling anda</strong>."
+        "Jika anda terlupa frasa laluan anda, anda <strong>tidak lagi boleh mengakses syiling anda</strong>."
       ]
     },
     "what": {
@@ -2246,14 +2246,14 @@
       "description1": "Kami mengesyorkan anda menyediakan peranti anda dalam persekitaran yang selamat, bermakna anda berada jauh daripada orang lain yang boleh melihat kata laluan yang anda pilih.",
       "description2": "Anda akan diminta untuk membuat dua kata laluan.",
       "description3": "Yang pertama adalah <strong> kata laluan peranti </strong> yang digunakan untuk membuka peranti BitBox anda dan boleh diubah kemudian.",
-      "description4": "Yang kedua ialah <strong>kata laluan pemulihan</strong> yang digunakan untuk membuka wallet anda. Kata laluan ini tidak boleh diubah kemudian.",
+      "description4": "Yang kedua ialah <strong>kata laluan pemulihan</strong> yang digunakan untuk membuka dompet anda. Kata laluan ini tidak boleh diubah kemudian.",
       "description5": "Dompet yang anda buat akan disandarkan ke fail pada kad mikroSD yang disediakan. Ini boleh digunakan semasa kecemasan untuk mendapatkan semula dana anda menggunakan anda <strong>kata laluan pemulihan</strong>.",
       "title": "Maklumat keselamatan"
     },
     "restore": {
       "description1": "Anda akan diminta untuk memasukkan kad microSD yang anda gunakan untuk menyimpan sandaran anda.",
       "description2": "Untuk memulihkan peranti, anda memerlukan kata laluan pemulihan anda.",
-      "description3": "Sila berhati-hati semasa memasukkan kata laluan pemulihan. Sebarang kata laluan yang anda masukkan akan membuat wallet yang sah. Jika anda memasukkan kata laluan yang salah, anda mungkin akan mendapatkan baki wallet yang tidak anda harapkan.",
+      "description3": "Sila berhati-hati semasa memasukkan kata laluan pemulihan. Sebarang kata laluan yang anda masukkan akan membuat dompet yang sah. Jika anda memasukkan kata laluan yang salah, anda mungkin akan mendapatkan baki dompet yang tidak anda harapkan.",
       "title": "Maklumat keselamatan"
     }
   },
@@ -2273,10 +2273,10 @@
     "info": {
       "button": "Tetapkan kata laluan pemulihan sekarang",
       "description1": "Masukkan kad mikroSD ke dalam BitBox",
-      "description2": "Pilih kata laluan pemulihan untuk wallet dan pilih \"Tetapkan kata laluan pemulihan sekarang\"",
+      "description2": "Pilih kata laluan pemulihan untuk dompet dan pilih \"Tetapkan kata laluan pemulihan sekarang\"",
       "description3": "Sandaran kepada kad microSD dan kata laluan pemulihan anda adalah satu-satunya kaedah untuk mendapatkan semula dana anda sekiranya peranti BitBox hilang atau dicuri.",
       "description4": "Anda tidak dapat mengganti kata laluan pemulihan anda di kemudian hari tanpa memindahkan wang anda.",
-      "title": "Buat wallet baru"
+      "title": "Buat dompet baru"
     },
     "password": {
       "label": "Kata laluan pemulihan",
@@ -2295,7 +2295,7 @@
       "description2": "Pilih sandaran dan klik \"Pulihkan\"",
       "description3": "Masukkan kata laluan pemulihan",
       "description4": "Anda perlu mengesahkan untuk memahami bahawa kata laluan salah akan membuat dompet yang berbeza.",
-      "title": "Bagaimana cara memulihkan wallet dari backup"
+      "title": "Bagaimana cara memulihkan dompet dari backup"
     }
   },
   "send": {
@@ -2313,7 +2313,7 @@
     "buyEth": "Beli ETH",
     "coincontrol": {
       "addressReused": "Alamat digunakan semula",
-      "change": "Berubah",
+      "change": "Baki",
       "outpoint": "Outpoint",
       "title": "Hantar dari output"
     },
@@ -2439,7 +2439,7 @@
       "step3": "3",
       "step3-text": "Semak sambungan dan tambahkan server.",
       "step4": "4",
-      "step4-text": "Mulakan semula wallet anda. Jika anda tidak menyingkirkan server standard, nod anda akan ditambah sebagai redundansi.",
+      "step4-text": "Mulakan semula dompet anda. Jika anda tidak menyingkirkan server standard, nod anda akan ditambah sebagai redundansi.",
       "title-btc": "Pelayan Bitcoin Electrum",
       "title-ltc": "Pelayan Litecoin Electrum",
       "title-tbtc": "Pelayan Bitcoin Testnet Electrum",
@@ -2533,13 +2533,13 @@
     "create": {
       "info1": "Dompet anda telah disandarkan dengan selamat ke Kad microSD. Keluarkan dan pastikan ia selamat.",
       "info2": "Anda telah membuat kata laluan peranti yang selamat yang dapat membuka BitBox.",
-      "info3": "Anda telah membuat kata laluan pemulihan yang selamat untuk wallet anda yang dapat membuka wang anda dan mengembalikan backup anda.",
+      "info3": "Anda telah membuat kata laluan pemulihan yang selamat untuk dompet anda yang dapat membuka wang anda dan mengembalikan backup anda.",
       "summary": "Berikut adalah ringkasan dari apa yang telah anda lakukan",
       "title": "Berjaya"
     },
     "getstarted": "Mulakan",
     "restore": {
-      "summary": "Anda telah berjaya memulihkan wallet dari backup anda.",
+      "summary": "Anda telah berjaya memulihkan dompet dari backup anda.",
       "title": "Berjaya"
     }
   },
@@ -2576,7 +2576,7 @@
       "button": "Buka",
       "info": [
         "Dompet ujian menggunakan keystore perisian dalam aplikasi.",
-        "Kata laluan berbeza membuka dompet yang berbeza. Ia sama seperti menggunakan passphrase.",
+        "Kata laluan berbeza membuka dompet yang berbeza. Ia sama seperti menggunakan frasa laluan.",
         "Anda boleh buka kunci tanpa kata laluan untuk masuk ke dompet ujian lalai."
       ],
       "passwordLabel": "Uji Kata Laluan",
@@ -2697,11 +2697,11 @@
       "button": "Sambung",
       "dappLabel": "Masukkan alamat URI dapp",
       "invalidPairingUri": "Uri gandingan tidak sah",
-      "scanInstruction": "Arahkan kamera anda ke kod QR WalletConnect"
+      "scanInstruction": "Arahkan kamera anda ke kod QR DompetConnect"
     },
     "dashboard": {
       "allSessions": "Semua sesi",
-      "disclaimer": "Walletconnect ialah protokol untuk menyambung ke Dapps berasaskan Ethereum. Dapps ini dijalankan oleh perkhidmatan pihak ketiga, jadi hanya sambungkan kepada dapps yang anda percayai dan pastikan anda sentiasa mengetahui perkara yang anda tandatangani semasa membuat transaksi.",
+      "disclaimer": "Dompetconnect ialah protokol untuk menyambung ke Dapps berasaskan Ethereum. Dapps ini dijalankan oleh perkhidmatan pihak ketiga, jadi hanya sambungkan kepada dapps yang anda percayai dan pastikan anda sentiasa mengetahui perkara yang anda tandatangani semasa membuat transaksi.",
       "newConnection": "Sambungan baharu",
       "noConnectedSessions": "Tiada akaun disambungkan ke mana-mana dapp pada masa ini.",
       "unspecifiedAccount": "Akaun tidak ditentukan"
@@ -2729,10 +2729,10 @@
         "signTypedData": "Tandatangani data yang ditaip"
       },
       "successfullySigned": "Permintaan berjaya ditandatangani",
-      "walletConnectRequest": "Permintaan WalletConnect"
+      "walletConnectRequest": "Permintaan DompetConnect"
     },
     "useNewUri": "URI ini telah digunakan untuk mencuba sambungan. Sila gunakan URI baharu.",
-    "walletConnect": "WalletConnect"
+    "walletConnect": "DompetConnect"
   },
   "warning": {
     "coincontrol": "Satu atau lebih UTXO mempunyai alamat yang digunakan semula. Berjaga jaga bahawa penerima akan melihat semua UTXO yang dikaitkan dengan alamat tersebut.",
