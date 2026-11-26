@@ -11,6 +11,9 @@ win32 {
     # For setting 'AlwaysActivate', see.
     # See https://forum.qt.io/topic/133694/using-alwaysactivatewindow-to-gain-foreground-in-win10-using-qt6-2/2
     QT += gui-private
+    # windeployqt includes Qt Positioning's NMEA plug-in, which needs Qt Serial Port.
+    # Require its installation even though the app does not use serial ports directly.
+    QT += serialport
 }
 
 TARGET = BitBox
@@ -35,6 +38,9 @@ win32 {
     LIBS += -L$$OUT_PWD -llibserver
     DESTDIR = $$OUT_PWD/windows
     RC_ICONS += $$PWD/resources/win/icon.ico
+    QMAKE_CFLAGS_RELEASE += /Brepro
+    QMAKE_CXXFLAGS_RELEASE += /Brepro
+    QMAKE_LFLAGS_RELEASE += /Brepro /INCREMENTAL:NO /PDBALTPATH:BitBox.pdb
     # These flags aren't currently being respected at build time on Windows
     #QMAKE_CXXFLAGS += $$CFORTIFY
     #QMAKE_CXXFLAGS += $$CSTACK

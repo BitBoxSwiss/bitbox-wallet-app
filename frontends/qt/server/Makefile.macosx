@@ -3,16 +3,15 @@ include ../../../env.mk.inc
 CGO=1
 BUILDMODE=c-shared
 GOOS=darwin
-GOTOOLCHAIN=local
 
 darwin:
 	CGO_CFLAGS="-g ${GODARWINSECFLAGS} ${CFLAGS}" \
 	CGO_LDFLAGS="${GODARWINLDFLAGS} ${LFLAGS}" \
 	MACOSX_DEPLOYMENT_TARGET=${MACOS_MIN_VERSION} \
-	GOARCH=arm64 CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} \
+	GOARCH=arm64 CGO_ENABLED=${CGO} GOOS=${GOOS} \
 	go build -trimpath -ldflags="$(GO_RELEASE_LDFLAGS)" \
 		-x -mod=vendor -buildmode="c-shared" -o ${LIBNAME}_arm64.so
-	GOARCH=amd64 CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} \
+	GOARCH=amd64 CGO_ENABLED=${CGO} GOOS=${GOOS} \
 	go build -trimpath -ldflags="$(GO_RELEASE_LDFLAGS)" \
 		-x -mod=vendor -buildmode="c-shared" -o ${LIBNAME}_amd64.so
 	lipo -create -output ${LIBNAME}.so ${LIBNAME}_arm64.so ${LIBNAME}_amd64.so

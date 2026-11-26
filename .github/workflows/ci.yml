@@ -46,6 +46,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
+      - name: Test build archives
+        run: |
+          bash scripts/tests/test_compare_builds.sh
       - name: Install Windows packaging tools
         run: |
           sudo apt-get update
@@ -288,22 +291,29 @@ jobs:
     defaults:
       run:
         shell: bash
-    env:
-      MINGW_BIN: /C/mingw64/bin
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
           submodules: recursive
+      - name: Read Windows toolchain versions
+        id: pins
+        shell: pwsh
+        run: |
+          $pins = Get-Content -Raw frontends/qt/windows-toolchain.json | ConvertFrom-Json
+          "node=$($pins.node.version)" >> $env:GITHUB_OUTPUT
+          "go=$($pins.go.version)" >> $env:GITHUB_OUTPUT
+          "qt=$($pins.qt.version)" >> $env:GITHUB_OUTPUT
+          "arch=$($pins.qt.arch)" >> $env:GITHUB_OUTPUT
+          "modules=$($pins.qt.modules -join ' ')" >> $env:GITHUB_OUTPUT
       - name: Install Node.js
         uses: actions/setup-node@v6
         with:
-          node-version-file: frontends/web/package.json
+          node-version: ${{ steps.pins.outputs.node }}
       - name: Install Go
         uses: actions/setup-go@v6
         with:
-          # Take Go version to install from go.mod
-          go-version-file: 'go.mod'
+          go-version: ${{ steps.pins.outputs.go }}
       # We need to install wheel otherwise the below will fail
       # with "invalid command 'bdist_wheel'"
       # See https://github.com/jurplel/install-qt-action/issues/281
@@ -311,30 +321,57 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.8.2'
+          version: ${{ steps.pins.outputs.qt }}
           host: 'windows'
           target: 'desktop'
-          arch: 'win64_msvc2022_64'
-          modules: 'qtwebengine qtwebchannel qtpositioning'
-      - name: Link Visual Studio editions
-        # This is needed due to our build expecting the Community edition, but Enterprise being pre-installed
-        shell: cmd
+          arch: ${{ steps.pins.outputs.arch }}
+          modules: ${{ steps.pins.outputs.modules }}
+      - name: Provision remaining pinned tools on the hosted runner
+        shell: powershell
+        run: ./.github/scripts/windows-ci-toolchain.ps1
+      - name: Test Windows build checks
+        shell: powershell
         run: |
-          mklink /J "C:\Program Files\Microsoft Visual Studio\2022\Community" "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
-      - name: Build Windows app
+          ./frontends/qt/tests/test-windows-toolchain.ps1
+          ./frontends/qt/tests/test_windows_build.ps1
+      - name: Test build archives
         run: |
+          export PATH="/usr/bin:$PATH"
+          bash scripts/tests/test_compare_builds.sh
+      - name: Copy checkout to the fixed build location
+        shell: powershell
+        run: |
+          if (Test-Path -LiteralPath 'C:\bitbox-wallet-app') {
+            throw 'The CI build destination C:\bitbox-wallet-app already exists.'
+          }
+          # Include .git and initialized submodules; checkout's cleanup still needs the original workspace.
+          # Copy symlinks themselves: Linux packaging links have no target on Windows.
+          robocopy $env:GITHUB_WORKSPACE 'C:\bitbox-wallet-app' /E /SL /R:0 /NFL /NDL /NP
+          # Robocopy codes below 8 indicate success; normalize them for Actions' PowerShell wrapper.
+          if ($LASTEXITCODE -ge 8) {
+            throw "Copying checkout failed (robocopy exit code $LASTEXITCODE)."
+          }
+          exit 0
+      - name: Build Windows archive and installer
+        working-directory: C:\bitbox-wallet-app
+        run: |
+          # Go records untracked files in libserver.dll's vcs.modified flag.
+          changes=$(git status --porcelain)
+          test -z "$changes"
+          # Exercise environment isolation through the same entry point used locally.
+          export CC=unverified-compiler.exe GOFLAGS=-invalid-build-flag QMAKESPEC=invalid-mkspec
           make qt-windows WINDOWS_INSTALLER=1
       - name: Upload Windows release archive
         uses: actions/upload-artifact@v7
         with:
-          path: frontends/qt/build/BitBox-*-win64-build.tar.gz
+          path: C:/bitbox-wallet-app/frontends/qt/build/BitBox-*-win64-build.tar.gz
           archive: false
           if-no-files-found: error
       - name: Upload Installer
         id: upload
         uses: actions/upload-artifact@v7
         with:
-          path: frontends/qt/BitBox-installer.exe
+          path: C:/bitbox-wallet-app/frontends/qt/BitBox-installer.exe
           name: BitBoxApp-windows-${{ github.sha }}.exe
           if-no-files-found: error
 

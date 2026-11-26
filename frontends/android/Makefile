@@ -1,4 +1,5 @@
 include ../../android-env.mk.inc
+include ../../env.mk.inc
 
 apk-debug:
 	${MAKE} prepare-android
