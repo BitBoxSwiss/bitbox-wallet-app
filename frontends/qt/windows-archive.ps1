@@ -30,11 +30,14 @@ if ($Installer) {
     if (!$nsis) { throw 'NSIS is required for installer packaging. Install it with: choco install nsis' }
 }
 # Make runs this in a fresh PowerShell process; environment changes end with it.
-# Start with OS facilities only. Compiler flags, Go/npm configuration, Qt overrides,
-# Visual Studio developer shells, shell startup files and the caller's PATH must not leak in.
+# Keep OS facilities and the shared reproducibility settings from make qt-windows.
+# Compiler flags, Go/npm configuration, Qt overrides, Visual Studio developer shells,
+# shell startup files and the caller's PATH must not leak in.
 $keep = @('SystemRoot','SystemDrive','windir','ProgramFiles','ProgramFiles(x86)','ProgramW6432',
     'ProgramData','LOCALAPPDATA','APPDATA','USERPROFILE','USERNAME','COMPUTERNAME','OS','PROCESSOR_ARCHITECTURE',
     'PSModulePath','TEMP','TMP','HTTP_PROXY','HTTPS_PROXY','NO_PROXY','SSL_CERT_FILE','NODE_EXTRA_CA_CERTS')
+# env.mk.inc exports these for Make recipes and the Bash/Qt steps in this script.
+$keep += @('GOTOOLCHAIN','GOENV','GOWORK','LC_ALL','TZ','QT_HASH_SEED')
 foreach ($key in [Environment]::GetEnvironmentVariables().Keys) {
     if ($key -notin $keep) { [Environment]::SetEnvironmentVariable($key, $null) }
 }
@@ -51,26 +54,15 @@ if ([IO.Directory]::Exists($buildRoot)) {
     [IO.Directory]::Delete($buildRoot, $true)
 }
 [void][IO.Directory]::CreateDirectory($buildRoot)
-foreach ($dir in @('temp','config')) { [void][IO.Directory]::CreateDirectory("$buildRoot\$dir") }
+[void][IO.Directory]::CreateDirectory("$buildRoot\temp")
 $env:TEMP = $env:TMP = "$buildRoot\temp"
 # Keep Git's system and user config so status uses the checkout's line-ending rules.
 $env:GIT_TERMINAL_PROMPT = '0'
 $env:GOROOT = $tools.go
-$env:GOTOOLCHAIN = 'local'
-$env:GOENV = 'off'
-# Always use this checkout's vendored modules, even inside a larger Go workspace.
-$env:GOWORK = 'off'
 $env:GOCACHE = "$buildRoot\temp\go-cache"
 $env:GOPATH = "$buildRoot\temp\gopath"
 $env:CC = 'gcc'
-$env:CXX = 'g++'
-$env:NPM_CONFIG_USERCONFIG = "$buildRoot\config\.npmrc"
-$env:NPM_CONFIG_GLOBALCONFIG = "$buildRoot\config\global.npmrc"
-$env:NPM_CONFIG_PREFIX = "$buildRoot\npm-prefix"
 $env:NPM_CONFIG_CACHE = "$buildRoot\temp\npm-cache"
-$env:LC_ALL = $env:LANG = 'C'
-$env:TZ = 'UTC'
-$env:QT_HASH_SEED = '0'
 $env:BITBOX_WINDOWS_MAKE = "$($tools.mingw.Replace('\', '/'))/bin/mingw32-make.exe"
 $env:BITBOX_QT_BIN = "$($tools.qt.Replace('\', '/'))/bin"
 $env:BITBOX_GIT_BIN = "$($tools.git.Replace('\', '/'))/usr/bin"

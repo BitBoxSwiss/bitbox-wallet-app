@@ -34,10 +34,13 @@ servewallet-mainnet-prodservers:
 	$(GO_RUN) ./cmd/servewallet -mainnet -devservers=false
 servewallet-simulator:
 	$(GO_RUN) ./cmd/servewallet -simulator=true
+# These config paths are absent after clearing build/, so host npm settings are ignored.
+buildweb: export NPM_CONFIG_USERCONFIG := $(abspath $(WEBROOT)/build/.npmrc)
+buildweb: export NPM_CONFIG_GLOBALCONFIG := $(abspath $(WEBROOT)/build/global.npmrc)
 buildweb:
+	rm -rf ${WEBROOT}/build
 	node --version
 	npm --version
-	rm -rf ${WEBROOT}/build
 	cd ${WEBROOT} && npm ci --ignore-scripts
 	cd ${WEBROOT} && npm run check-licenses
 	cd ${WEBROOT} && npm run generate-licenses && git diff --exit-code -- public/licenses-npm.json

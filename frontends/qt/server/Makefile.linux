@@ -4,13 +4,12 @@ CGO=1
 BUILDMODE=c-shared
 GOARCH=amd64
 GOOS=linux
-GOTOOLCHAIN=local
 
 linux:
 	CC=clang \
 	CGO_CFLAGS="${GOLNXSECFLAGS} ${CFLAGS}" \
 	CGO_LDFLAGS="${GOLNXLDFLAGS} ${LFLAGS}" \
-	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} \
+	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} \
 	go build -trimpath -x -mod=vendor -buildmode=${BUILDMODE} -ldflags \
 		"$(GO_RELEASE_LDFLAGS) -extldflags=\"$(GOLNXEXTLDFLAGS)\"" \
 		-o ${LIBNAME}.so

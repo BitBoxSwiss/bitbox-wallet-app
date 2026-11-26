@@ -4,14 +4,13 @@ CGO=1
 BUILDMODE=c-shared
 GOARCH=amd64
 GOOS=windows
-GOTOOLCHAIN=local
 BREEZ_LIB_DIR=../../../vendor/github.com/breez/breez-sdk-spark-go/breez_sdk_spark/lib/windows-amd64/
 SERVER_OUT ?= .
 
 windows:
 	CGO_CFLAGS="${GOWINSECFLAGS} ${CFLAGS}" \
 	CGO_LDFLAGS="${GOWINLDFLAGS} ${LFLAGS}" \
-	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} \
+	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} \
 	go build -trimpath -x -mod=vendor \
 	-ldflags "$(GO_RELEASE_LDFLAGS)" \
 	-buildmode="${BUILDMODE}" -o ${LIBNAME}.dll
@@ -21,7 +20,7 @@ windows-cross:
 	CC_FOR_TARGET=/usr/bin/x86_64-w64-mingw32-gcc \
 	CGO_CFLAGS="-g ${GOWINSECFLAGS} ${CFLAGS}" \
 	CGO_LDFLAGS="${GOWINLDFLAGS} ${LFLAGS}" \
-	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} GOTOOLCHAIN=${GOTOOLCHAIN} \
+	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} \
 	go build -trimpath -x -mod=vendor \
 	-ldflags "$(GO_RELEASE_LDFLAGS)" \
 	-buildmode="${BUILDMODE}" -o ${LIBNAME}.dll
