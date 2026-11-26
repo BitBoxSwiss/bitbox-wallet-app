@@ -1,55 +1,145 @@
 {
   "account": {
+    "account": "חשבון",
+    "accounts": "חשבונות",
+    "backupReminder": "הארנק שלך <strong>{{name}}</strong> עבר {{fiat}} {{threshold}}!\n\nמומלץ ליצור גיבוי על נייר להגנה נוספת. זה מהיר ופשוט.",
+    "backupReminderLink": "צור גיבוי על נייר",
     "disconnect": "...החיבור אבד. מנסה שוב",
     "exportTransactions": "יצא עסקאות כקובץ רשומות לתיקיית ההורדות",
     "fatalError": ".אירעה שגיאה לא צפויה",
     "incoming": "נכנס",
     "initializing": "מייבא נתונים מהבלוקצ׳יין..",
+    "insuranceExpired": "<strong>החשבון כבר אינו מבוטח</strong>\n\nתוכנית הביטוח של חשבון זה שונתה.\nבדוק את דף הביטוח לפרטים.",
+    "insured": "חשבון מבוטח",
+    "maybeProxyError": "פרוקסי Tor מופעל. ודא שהוא פועל כראוי, או כבה את הגדרת הפרוקסי.",
     "reconnecting": "...החיבור אבד, מנסה להתחבר מחדש",
-    "syncedAddressesCount": "כתובות {{count}} סורק"
+    "syncedAddressesCount": "כתובות {{count}} סורק",
+    "syncing": "סנכרון החשבון מתבצע, אנא המתן…",
+    "uncoveredFunds": "יש לך מטבעות על סוגי כתובות לא מבוטחים הבאים בחשבון <strong>{{name}}</strong>: {{uncovered}}.\nמאחר שהחשבון מבוטח, רק מטבעות שהתקבלו באמצעות סוג הכתובת <strong>Native Segwit</strong> כלולים בביטוח. מטבעות על סוגי כתובות שונים, גם אם הם באותו חשבון, אינם מבוטחים.\nאנא העבר את כל המטבעות שלך מסוגי הכתובות שאינן נתמכות לסוג הכתובת <strong>Native Segwit</strong> כדי שכל המטבעות בחשבון זה יהיו מבוטחים.",
+    "uncoveredFundsLink": "עקוב אחר המדריך הזה כדי להעביר את המטבעות שלך.",
+    "warning": "אזהרה!"
   },
   "accountInfo": {
+    "accountDetails": "פרטי חשבון",
     "address": "כתובת",
+    "buyCTA": {
+      "information": {
+        "looksEmpty": "נראה שהארנק הזה ריק.",
+        "start": "התחל בהפקדת כמה מטבעות לארנק או ברכישה ישירה מתוך ה‑BitBoxApp."
+      }
+    },
+    "contractAddress": "כתובת חוזה",
+    "contractAddressWarning": "אל תשלח מטבעות לכתובת החוזה, אחרת יאבדו. כתובת החוזה מיועדת למידע בלבד.",
+    "descriptorWarning": "כדי להבטיח תאימות חלקה עם ארנקים, אפליקציות או שירותים אחרים, העתק בבקשה את ה-descriptor המלא. בחירה והעתקה של ה-xpub בלבד עלולה לגרום לייבוא החשבון עם סוג סקריפט שגוי, דבר שעלול להוביל לבעיות.",
+    "exportTransactions": "ייצא היסטוריית עסקאות",
+    "exportTransactionsDisabled": "אין עסקאות",
     "extendedPublicKey": "מפתח ציבורי מורחב",
     "label": "פרטי חשבון",
+    "scriptType": "סוג סקריפט",
     "title": "פרטי חשבון",
-    "verify": "אמת עם ההתקן"
+    "usedAddresses": "הצג כתובות בשימוש",
+    "verify": "אמת עם ההתקן",
+    "viewAccountDetails": "הצג פרטי חשבון",
+    "xpubTypeChangeBtn": {
+      "p2pkh": "הצג מפתח ציבורי מורחב מסוג P2PKH (legacy)",
+      "p2tr": "הצג Taproot",
+      "p2wpkh": "הצג Native SegWit"
+    },
+    "xpubTypeInfo": "כעת מוצג {{scriptType}} מפתח ציבורי מורחב ({{current}} מתוך {{numberOfXPubs}})"
   },
   "accountSummary": {
     "availableBalance": "יתרה זמינה",
     "balance": "יתרה",
     "name": "שם חשבון",
     "noAccount": "אין חשבונות להצגה",
+    "portfolio": "פורטפוליו",
+    "searchPlaceholder": "חפש עסקאות...",
     "title": "סיכום חשבונות",
     "total": "סכום סופי",
+    "totalAssets": "סך הנכסים",
     "transactionHistory": "היסטוריית עסקאות"
   },
   "addAccount": {
     "chooseName": {
-      "nextButton": "הוספת חשבון"
+      "nextButton": "הוספת חשבון",
+      "step": "שם חשבון",
+      "title": "בחר שם לחשבון"
     },
     "selectCoin": {
-      "nextButton": "הבא"
+      "nextButton": "הבא",
+      "step": "בחר מטבע",
+      "title": "בחר מטבע קריפטו"
+    },
+    "success": {
+      "addAnotherAccount": "הוסף חשבון נוסף",
+      "message": "<strong>{{accountName}}</strong> הוּתוֹסַף כעת לחשבונות שלך.",
+      "nextButton": "בוצע",
+      "step": "הושלם",
+      "title": "החשבון נוסף"
     },
     "title": "הוספת חשבון"
   },
   "addresses": {
+    "changeCopyBody": "אל תשתמש ב-change address כדי לקבל מטבעות. לקבלת מטבעות, לחץ <receiveLink>כאן</receiveLink>.",
     "columnAddress": "כתובת",
+    "columnLastUsed": "שימוש אחרון",
     "detail": {
       "address": "כתובת"
-    }
+    },
+    "empty": "עדיין לא נעשה שימוש בכתובות.",
+    "emptyFiltered": "אין כתובות התואמות את המסננים שלך.",
+    "filter": {
+      "changeAddresses": "כתובות החזר",
+      "receiveAddresses": "כתובות לקבלה"
+    },
+    "listDescriptionPrefix": "דף זה מציג את כל הכתובות שבהן נעשה שימוש בחשבון",
+    "loadFailed": "לא ניתן לטעון את הכתובות המשומשות.",
+    "loadNotSupported": "כתובות בשימוש אינן זמינות עבור סוג חשבון זה.",
+    "loadSyncInProgress": "הכתובות המשומשות עדיין מסונכרנות. נסה שוב בעוד רגע.",
+    "new": "כתובת חדשה",
+    "notFound": "הכתובת לא נמצאה.",
+    "searchPlaceholder": "חפש כתובת",
+    "skipDeviceVerification": "דלג על אימות המכשיר",
+    "skipVerifyBody": "אי־אימות הכתובת על המכשיר עלול לגרום להעתקת כתובת שאינה שייכת ל-BitBox שלך.",
+    "skipVerifyConfirm": "כן, דלג על האימות",
+    "skipVerifyQuestion": "האם אתה בטוח שברצונך להמשיך?",
+    "skipVerifyTitle": "דלג על אימות המכשיר?",
+    "skipVerifyWarning": "אזהרה",
+    "title": "כתובות בשימוש",
+    "unverifiedAddressWarning": "כתובת זו לא אומתה במכשיר.",
+    "verifyConnectFailed": "לא ניתן להתחבר למכשיר שנבחר.",
+    "verifyFailed": "אימות הכתובת נכשל."
   },
   "aopp": {
-    "labelAddress": "כתובת"
+    "addressRequest": "{{host}} מבקש כתובת לקבלה.",
+    "addressRequestWithLogo": "מבקש כתובת לקבלה",
+    "addressRequestWithLogoAndXPub": "מבקש כתובת לקבלה ומפתח ציבורי (xpub).",
+    "addressRequestWithXPub": "{{host}} מבקש כתובת לקבלה ומפתח ציבורי (xpub).",
+    "banner": "מתבצעת בקשת כתובת. חבר את המכשיר כדי להמשיך.",
+    "errorTitle": "שגיאה בבקשת הכתובת ",
+    "labelAddress": "כתובת",
+    "labelMessage": "הודעה",
+    "reverifyInfoText": "אמת את הכתובת",
+    "signing": "כדי להמשיך, יש לחתום על ההודעה ב-BitBox.",
+    "success": {
+      "message": "המשך ב-{{host}}",
+      "title": "הכתובת נשלחה בהצלחה"
+    },
+    "title": "בקשת כתובת",
+    "xpubRequested": "שיתוף ה‑xpub מאפשר לשירותים חיצוניים לראות את כתובות החשבון שלך. המטבעות שלך עדיין בטוחים ונשארים תחת שליטתך."
   },
   "app": {
     "upgrade": "גרסה חדשה של תכנה זו זמינה! אנא עדכן מ{{current}} ל{{version}}"
   },
   "auth": {
-    "dismissButton": "בטל"
+    "authButton": "אמת",
+    "dismissButton": "בטל",
+    "missing": "הגדר נעילת מסך בהגדרות המערכת של המכשיר שלך.",
+    "title": "אנא אמת את זהותך כדי להמשיך"
   },
   "backup": {
     "check": {
+      "aborted": "בדיקת הגיבוי בוטלה במכשיר",
       "checking": "...בודק גיבוי",
       "confirmTitle": "בדיקת גיבוי",
       "notOK": ".הגיבוי לא תואם את הארנק",
@@ -80,11 +170,13 @@
     "description": "בחר <strong>קובץ גיבוי לארנק</strong>",
     "insert": "אנא הכנס כרטיס זיכרון בכדי לנהל גיבויים",
     "insertButton": "הכנסתי את כרטיס הזיכרון",
+    "link": "עבור לניהול גיבויים",
     "list": "גיבויי כרטיס הזיכרון שלך",
     "noBackups": "כרטיס הזיכרון אינו מכיל גיבויים",
     "restore": {
       "confirmTitle": "שיחזור גיבוי",
       "error": {
+        "e104": "שחזור הגיבוי בוטל.",
         "e200": "כרטיס זיכרון לא נמצא",
         "general": "שגיאה בשיחזור הגיבוי"
       },
@@ -95,23 +187,44 @@
         "showLabel": "סיסמת שיחזור"
       },
       "restoring": "...משחזר גיבוי",
+      "selectedBackup": "<strong>{{backupName}}</strong> נוצר ב־{{createdDateTime}} ישוחזר.",
+      "subtitle": "בחר גיבוי כדי להמשיך",
       "title": "שיחזור",
       "understand": "אני מבין שסיסמת שחזור שגויה תיצור ארנק שונה"
     },
     "showMnemonic": {
-      "title": "mnemonic seed -הצג"
+      "availableIn_one": "זמין בעוד {{count}} שנייה",
+      "availableIn_other": "זמין בעוד {{count}} שניות",
+      "availableIn_two": "זמין בעוד 2 שניות",
+      "instructions": "ה-BitBox יציג את מילות השחזור שלך. <strong>רשום אותן על נייר.</strong>",
+      "safetyWarnings": {
+        "noAppsOrWebsites": "אין להזין אותן באפליקציה או באתר",
+        "noDigitalCopies": "אין לצלם או לשמור אותן באופן דיגיטלי",
+        "noSharing": "תמיכת BitBox או כל חברה אחרת לעולם לא תבקש ממך לשתף את מילות השחזור שלך.",
+        "noSpeaking": "אין לומר אותן בקול",
+        "safeStorage": "אינן מוגנות באמצעות סיסמה. שמור אותן במקום בטוח."
+      },
+      "scamWarning": "אם מישהו מבקש ממך לעשות זאת — נתק. זו הונאה.",
+      "title": "mnemonic seed -הצג",
+      "warning": "<strong>אל תשתף את הrecovery words שלך. </strong>כל מי שמחזיק בהן יכול לגשת לארנק שלך."
     },
     "title": "נהל גיבויים"
   },
   "bb02Bootloader": {
     "abort": "אל תשדרג - קח אותי חזרה",
+    "abort_noUpgrade": "חזור",
+    "additionalUpgradeFollows2": "אנא השאר את ה-BitBox מחובר עד שכל השדרוגים יסתיימו.",
     "advanced": {
       "label": "הגדרות מתקדמות",
       "toggleShowFirmwareHash": "הצג את גיבוב הקושחה בכל הדלקה "
     },
     "flipscreen": "הפוך מסך",
+    "furtherUpgrades": "שדרוגים נוספים יגיעו בהמשך.",
     "orientation": "?ההתקן מכוון בכיוון שגוי",
-    "success": "השדרוג הצליח!"
+    "success": "השדרוג הצליח!",
+    "success_install": "ההתקנה הושלמה בהצלחה!",
+    "upgradeTitle": "שדרוג הקושחה של BitBox",
+    "upgradeTitle_install": "התקנת קושחת BitBox"
   },
   "bitbox": {
     "error": {
@@ -124,22 +237,51 @@
     "confirmDate": "אשר את התאריך של היום בביטבוקס02",
     "confirmDateText": ".התאריך ישמש ליצירת הגיבוי",
     "confirmName": "אשר את השם בביטבוקס02",
+    "confirmWords": "רשום את {{amount}} מילות השחזור מה-BitBox שלך",
+    "confirmWordsText": "לאחר מכן ה‑BitBox יבקש ממך לאשר כל מילה כדי לוודא שהגיבוי תקין.",
     "followInstructions": "אנא התקדם לפי הוראות בביטבוקס02",
     "followInstructionsMnemonic": "mnemonic seed -המשך עם ההוראות לפי המופיע בביטבוקס02 שלך כדי לשחזר מ",
     "followInstructionsMnemonicTitle": "mnemonic seed -שיחזור"
   },
   "bitbox02Settings": {
+    "bluetoothToggleEnabled": {
+      "alertDisabled": "Bluetooth מושבת כעת ב-BitBox שלך. אם ברצונך להתחבר ל-iPhone בעתיד, יש להפעילו שוב.",
+      "alertEnabled": "Bluetooth הופעל כעת.",
+      "description": "Bluetooth משמש להתחברות ל-iPhone.",
+      "error_104": "שינוי הגדרת ה‑Bluetooth בוטל.",
+      "titleDisabled": "הפעל Bluetooth",
+      "titleEnabled": "השבת Bluetooth"
+    },
     "changePassword": {
+      "description": "שנה את סיסמת המכשיר של ה-BitBox.",
+      "error_104": "שינוי הסיסמה בוטל.",
+      "success": "הסיסמה שונתה בהצלחה",
       "title": "החלף סיסמת התקן"
     },
     "deviceName": {
       "current": "שם התקן נוכחי",
+      "error": "לא ניתן להגדיר את שם ההתקן",
+      "error_104": "אישור שם המכשיר בוטל במכשיר.",
       "input": "שם ביטבוקס02",
       "placeholder": "שם התקן חדש",
       "title": "קבע שם לביטבוקס02"
+    },
+    "gotoStartupSettings": {
+      "description": "זה יאתחל את ה-BitBox וייכנס להגדרות ההפעלה.",
+      "title": "עבור להגדרות אתחול"
     }
   },
   "bitbox02Wizard": {
+    "advanced": {
+      "button": "אפשרויות מתקדמות",
+      "outOfDate": "נדרש עדכון קושחה",
+      "seed12WordInfo": "שים לב שלא ניתן לשנות את מספר המילים לאחר יצירת הארנק.",
+      "seed12WordLabel": "צור seed של 12 מילים במקום 24 מילים",
+      "seed12WordText": "ברירת המחדל של BitBox היא seed של 24 מילים. שני אורכי ה-seed בטוחים מפני התקפות Brute-Force בפועל. חלק מהמשתמשים עשויים להעדיף את הנוחות של ה-seed בת 12 מילים.",
+      "skipSDCardLabel": "דלג על גיבוי כרטיס microSD ורשום במקום זאת את מילות השחזור",
+      "skipSDCardText": "תמיד יש לך אפשרות ליצור גיבוי על כרטיס microSD או לרשום את מילות השחזור לאחר ההגדרה. ניתן לעשות זאת מתוך ההגדרות.",
+      "title": "אפשרויות גיבוי מתקדמות"
+    },
     "attestationFailed": ".תעודת ההתקן נכשלה, זה יכול לנבוע מההפעלה מחודשת של היישום בזמן שהמכשיר חיכה לקלט מהמשתמש. התחבר מחדש ונסה שוב",
     "backup": {
       "point1": "בחר גיבוי מכרטיס הזיכרון",
@@ -152,7 +294,8 @@
       "userConfirmation2": ".הגיבוי שלי אינו מוגן בסיסמה. כל אחד עם גישה לגיבוי יכול לגשת לארנק שלי",
       "userConfirmation3": ".אם אאבד או שהביטבוקס02 יפגע, הדרך היחידה לשחזר את הנכסים היא באמצעות הגיבוי שלי",
       "userConfirmation4": ".אם אאבד או יפגעו, ביטבוקס02 והגיבוי, כל הנכסים יאבדו",
-      "userConfirmation5": "אני לא אמור להכניס את כרטיס הזיכרון לשום מחשב, פלאפון, מדפסת או מכשיר אחר מלבד לארנק"
+      "userConfirmation5": "אני לא אמור להכניס את כרטיס הזיכרון לשום מחשב, פלאפון, מדפסת או מכשיר אחר מלבד לארנק",
+      "userConfirmation5mnemonic": "אין לשים את מילות השחזור שלי במחשב, בטלפון, במדפסת או בכל מכשיר שאינו BitBox."
     },
     "create": {
       "button": "הזן שם להתקן והמשך",
@@ -163,6 +306,7 @@
       "point3": "צור גיבוי",
       "text": "!אוקיי, בואו ניצור ארנק חדש"
     },
+    "createBackupAborted": "יצירת הגיבוי בוטלה.",
     "createBackupFailed": ".יצירת גיבוי נכשלה, נסה שוב",
     "initialize": {
       "tip": ".אנו ממליצים שתמשיך במקום בטוח"
@@ -174,12 +318,26 @@
       "title": "אמת צופן צימוד",
       "unpaired": ".ביטבוקס02 חדש זוהה. אנא אמת שהצופן תואם לזה המוצג על המסך. אם הצופן זהה, גע בלחצן האישור ולחץ על הכפתור מטה כדי להמשיך"
     },
+    "passphrase": {
+      "confirmHostEntry": "אשר ב-BitBox כדי להזין את הpassphrase באפליקציה",
+      "confirmTitle": "אשר את הpassphrase ב-BitBox",
+      "dialogTitle": "הזן passphrase",
+      "enter": "הזן את הpassphrase של BitBox",
+      "enterInApp": "הזן את הpassphrase באפליקציה",
+      "error": {
+        "invalidChars": "ה-passphrase מכיל תווים שלא ניתן להזין ב-BitBox.",
+        "tooLong": "ה-passphrase יכול להכיל לכל היותר 149 תווים."
+      }
+    },
     "restoreFromMnemonic": {
-      "failed": ".נכשל, אנא נסה שוב mnemonic seed -שיחזור מ"
+      "e104": "שחזור מ-recovery words בוטל.",
+      "failed": ".נכשל, אנא נסה שוב mnemonic seed -שיחזור מ",
+      "securityNotice": "שחזור ארנק שלא נוצר ב‑BitBox? ארנק שנוצר במקום אחר עשוי שלא להיות בעל אותה רמת אבטחה כמו ארנק שנוצר ב‑BitBox שלך. אם אינך בטוח, אנו ממליצים להגדיר כאן ארנק חדש ולהעביר אליו את הכספים שלך."
     },
     "stepBackup": {
       "beforeProceed": ":לפני שתמשיך, אנא קרא את שיקולי האבטחה החשובים הבאים",
-      "createBackup": ".גיבוי לא יווצר בכרטיס הזיכרון"
+      "createBackup": ".גיבוי לא יווצר בכרטיס הזיכרון",
+      "createBackupMnemonic": "כעת יש לרשום את מילות השחזור."
     },
     "stepBackupSuccess": {
       "fundsSafe": ":על-מנת לאבטח את הנכסים, זכור",
@@ -189,6 +347,12 @@
       "unlock": "הזן את סיסמת הביטבוקס02 כדי לבטל נעילה"
     },
     "stepCreate": {
+      "description": "שם זה ישמש לשם המכשיר ולשם הגיבוי",
+      "error": {
+        "genericMessage": "השתמש באותיות, מספרים, סמלים בסיסיים ורווחים. עד 30 תווים.",
+        "invalidChars": "השם מכיל תווים לא חוקיים: {{invalidChars}}.",
+        "tooLong": "השם ארוך מדי."
+      },
       "nameLabel": "שם ביטבוקס02",
       "namePlaceholder": "הביטבוקס02 שלי",
       "title": "בחר שם לביטבוקס02",
@@ -196,13 +360,16 @@
     },
     "stepCreateSuccess": {
       "removeMicroSD": ".אנא הסר את כרטיס הזיכרון מהביטבוקס02 ואחסן אותו במקום בטוח",
+      "storeMnemonic": "שמור את מילות השחזור במקום בטוח",
       "success": ".יצרת בהצלחה גיבוי"
     },
     "stepInsertSD": {
       "insertSDCard": ".אנא הכנס כרטיס זיכרון לתוך הביטבוקס02 כדי להמשיך",
+      "insertSDCardToSeeBackups": "הכנס את כרטיס ה-microSD ל-BitBox כדי לראות את הגיבויים.",
       "insertSDcardTitle": ".הכנס כרטיס זיכרון"
     },
     "stepPassword": {
+      "e104": "הגדרת הסיסמה בוטלה.",
       "title": "קבע סיסמה לביטבוקס02",
       "useControls": ".השתמש בפקדים כדי לקבוע סיסמה לביטבוקס02"
     },
@@ -218,16 +385,76 @@
     }
   },
   "bitsurance": {
+    "dashboard": {
+      "active": "פוליסת ביטוח פעילה",
+      "button": "ביטח חשבון חדש",
+      "canceled": "בוטל",
+      "coverage": "כיסוי מקסימלי",
+      "inactive": "לא פעיל",
+      "processing": "בעיבוד",
+      "refused": "נדחה",
+      "supportLink": "נהל חוזה",
+      "title": "חשבונות מבוטחים",
+      "waitpayment": "ממתין לתשלום"
+    },
+    "detect": {
+      "button": "בדוק אם יש ביטוח קיים",
+      "insured": "זוהה חשבון מבוטח:",
+      "notInsured": "לא נמצאו חשבונות מבוטחים. אם אתה בטוח שיש לך חשבון מבוטח, ודא שהארנק הנכון מחובר.",
+      "text": "אם כבר נרשמת ל‑Bitsurance, ה‑BitBoxApp יכול לסנכרן אוטומטית את כיסוי הביטוח הקיים שלך.",
+      "title": "כבר מבוטח?"
+    },
     "insure": {
+      "button": "בדוק זמינות ומחירים",
+      "faq": "קרא עוד ב-שאלות נפוצות של Bitsurance",
+      "listItem1": "פריצה",
+      "listItem2": "סחיטה (למשל, '5$ wrench attack')",
+      "listItem3": "השמדה עקב אש, מים או אסונות טבע",
+      "month": "חודש",
+      "text": "ביטח את ה-BitBox שלך וביטקוין בשווי של עד €100,000 מפני",
+      "text2": "תוכניות הביטוח מתחילות ב-€30 לשנה (€2.50 לחודש). ניתן ללמוד עוד על Bitsurance ועל הצעות הביטוח הספציפיות שלהם ב-",
+      "text3": "זמין כרגע בגרמניה; אזורים נוספים יתווספו.",
       "title": "התחל"
-    }
+    },
+    "intro": {
+      "link": "אתר Bitsurance",
+      "text1": "BitBox פועלת עם Bitsurance כדי להוסיף שכבת הגנה נוספת עבור הביטקוין שלך. בעוד ה-BitBox שומר על הכספים שלך בטוחים, Bitsurance מכסה איומים בבית שלא ניתן למנוע באמצעות טכנולוגיה בלבד, כגון פריצה, סחיטה או השמדה של ארנק החומרה עצמו."
+    },
+    "terms": {
+      "link": "מדיניות הפרטיות של Bitsurance",
+      "text1": "Bitsurance היא שירות צד שלישי עצמאי. לשאלות לגבי השירותים שלהם או לתביעות ביטוח, יש לפנות ישירות ל-Bitsurance.",
+      "text2": "ביטוח זמין כעת בגרמניה, ואזורים נוספים יתווספו.",
+      "text3": "כיסוי ביטקוין המקסימלי הזמין כעת הוא €100,000 לאדם. סכומים גבוהים יותר מתוכננים בעתיד.",
+      "text4": "מידע אישי והמפתח הציבורי המורחב של חשבונך המבוטח מהווים חלק בפוליסת הביטוח ויועברו ל‑Bitsurance ולספק הביטוח.",
+      "text5": "למידע נוסף על פרטיות, עיין ב"
+    },
+    "title": "ביטוח"
+  },
+  "bitsuranceAccount": {
+    "errorNoXpub": "שגיאה: לא הצלחנו לקבל את ה-xpub מהחשבון.",
+    "noAccount": "אין חשבונות שניתן לבטח.",
+    "select": "בחר חשבון"
   },
   "blink": {
     "button": "הבהוב"
   },
+  "bluetooth": {
+    "connected": "מחובר",
+    "connectionFailed": "נכשל",
+    "connectionIssues": "בעיות חיבור?",
+    "connectionIssuesLink": "ראה כאן",
+    "disabledGloballyDescription": "הפעל את Bluetooth כדי להתחבר ל-BitBox שלך.",
+    "disabledGloballyTitle": "הגישה ל-Bluetooth מושבתת.",
+    "disabledPermissionDescription": "אנא אפשר את Bluetooth כדי להתחבר ל-BitBox שלך.",
+    "disabledPermissionTitle": "הגישה ל‑Bluetooth מושבתת עבור BitBoxApp.",
+    "enable": "אנא הפעל את ה-Bluetooth",
+    "select": "בחר את ה-BitBox שלך"
+  },
   "bootloader": {
     "button": "שדרג קושחה עכשיו",
+    "button_install": "התקן קושחה עכשיו",
     "progress": "%משדרג",
+    "progress_install": "מתקין",
     "success": ".שודרג בהצלחה! אנא חבר מחדש את ההתקן. הפעם, אל תגע בכפתור"
   },
   "button": {
@@ -237,28 +464,325 @@
     "check": "בדוק גיבוי",
     "continue": "המשך",
     "copy": "העתק",
+    "copyAddress": "העתק כתובת",
     "create": "צור",
+    "dismiss": "התעלם",
+    "done": "בוצע",
     "download": "הורד",
     "next": "הבא",
     "ok": "בסדר",
+    "openInBrowser": "פתח בדפדפן",
     "previous": "הקודם",
+    "proceedOnBitBox": "המשך ב-BitBox שלך",
     "restore": "שחזר",
     "review": "סקירה",
+    "save": "שמור",
     "select": "בחר",
     "unlock": "בטל נעילה",
     "update": "עדכן",
     "upgrade": "שדרג"
   },
   "buy": {
-    "info": {
-      "disclaimer": {
-        "payment": {
-          "table": {
-            "fee": "עמלה"
+    "bitrefill": {
+      "error": {
+        "insufficientFunds": "אין מספיק יתרה לרכישת כרטיס מתנה."
+      },
+      "transactionNote": "נשלח ל-Bitrefill"
+    },
+    "exchange": {
+      "bankTransfer": "העברה בנקאית",
+      "bestDeal": "הצעה הטובה ביותר",
+      "buy": "קנה",
+      "buyServices": "קנה שירותים",
+      "creditCard": "כרטיס אשראי",
+      "description_bitrefill": "קנה כרטיסי מתנה, הטענות לטלפון ועוד",
+      "description_btcdirect-otc": "BTC Direct - שולחן מסחר פרטי",
+      "description_pocket-otc": "Pocket Private",
+      "description_swapkit": "החלפות מבוזרות של BTC, ETH, USDT וכו'",
+      "fast": "מהיר",
+      "fee": "עמלה",
+      "infoContent": {
+        "bitrefill": {
+          "disclaimer": {
+            "account": {
+              "link": "מגבלות רכישה של Bitrefill",
+              "text": "ניתן להשתמש ב-Bitrefill ללא יצירת חשבון, במסגרת מגבלות מסוימות. כדי להגדיל את מגבלות ההוצאה ניתן ליצור חשבון בסיסי או להפוך ללקוח מאומת. לפרטים מלאים ראה את מגבלות הרכישה של Bitrefill.",
+              "title": "חשבון ומגבלות"
+            },
+            "claims": {
+              "link": "תמיכה ב-Bitrefill",
+              "text": "אם חווית בעיה ברכישה, יש לפנות ל-Bitrefill ישירות בתוך 30 יום מההזמנה.",
+              "title": "טענות"
+            },
+            "dataProtection": {
+              "link": "מדיניות הפרטיות של Bitrefill",
+              "text": "אפליקציית BitBoxApp אינה אוספת נתונים אישיים. Bitrefill אוספת מידע בהתאם למדיניות הפרטיות שלה.",
+              "title": "הגנת נתונים"
+            },
+            "fees": {
+              "text": "ל-Bitrefill אין עמלות מפורשות, אך מחירי המוצרים עלולים לכלול תוספת מחיר (markup), שיכולה להשתנות בהתאם לקמעונאי, לאזור ולשיעור ההמרה ש-Bitrefill מיישמת.",
+              "title": "עמלות"
+            },
+            "intro": {
+              "text": "Bitrefill היא פלטפורמה מקוונת שמאפשרת לקנות כרטיסי מתנה, לטעון טלפונים ניידים ולשלם חשבונות באמצעות ביטקוין או מטבעות קריפטוגרפיים אחרים. זו דרך נוחה להוציא קריפטו על מוצרים ושירותים יום-יומיים מבלי להמיר אותו למטבע רגיל. Bitrefill מציעה מגוון רחב של מוצרים ממותגים בינלאומיים ופופולרית בקרב אנשים שמעוניינים לחיות על קריפטו או לקנות באופן פרטי.",
+              "title_bitcoin": "השתמש בביטקוין עם Bitrefill",
+              "title_crypto": "השתמש בקריפטו ב-Bitrefill"
+            },
+            "security": {
+              "link": "מודל איומי האבטחה של BitBox",
+              "text": "Bitrefill היא שירות חיצוני שאינה כלולה במודל איומי האבטחה של BitBox. בעת ביצוע רכישה, התשלום נשלח לכתובת של Bitrefill. ה‑BitBox אינו יכול לאמת שכתובת זו נכונה.",
+              "title": "הודעת אבטחה"
+            },
+            "validEmail": {
+              "text": "ספקי דואר אלקטרוני זמניים שונים אינם נתמכים על ידי Bitrefill ולכן ייתכן שהחשבונית לא תתקבל. קוד/שובר כרטיס המתנה יופיע בסוף התהליך.",
+              "title": "כתובות דוא\"ל תקפות"
+            }
+          },
+          "infobox": {
+            "intro": "Bitrefill היא פלטפורמה מקוונת שבה ניתן להוציא ביטקוין ומטבעות קריפטו אחרים על מוצרים וסידורים יום‑יומיים באמצעות רכישת כרטיסי מתנה, הטענות לטלפון ושירותים שונים. האינטגרציה עם ה‑BitBoxApp מאפשרת הוצאה ישירה של המטבעות מה‑BitBox ללא העברתם לבורסה או לארנק אחר."
           }
+        },
+        "btcdirect": {
+          "disclaimer": {
+            "dataProtection": {
+              "link": "מדיניות הפרטיות של BTC Direct",
+              "text": "ה‑BitBoxApp אינו אוסף נתונים אישיים. BTC Direct אוסף מידע נחוץ על‑פי מדיניות הפרטיות שלו כדי לעמוד בדרישות הרגולציה.",
+              "title": "הגנת נתונים"
+            },
+            "kyc": {
+              "text": "אימות זהות הלקוח נדרש לכל העסקאות. מנהל החשבון שלך ילווה אותך בתהליך ויענה על כל שאלה.",
+              "title": "אימות זהות"
+            },
+            "partnership": {
+              "text": "בשיתוף עם BTC Direct, ברוקר אירופי מהימן, BitBox מציעה מסחר מחוץ לבורסה (OTC) בקנה מידה גדול בביטקוין, את'ריום, סטייבלקוין ועוד, עם תמיכה מקצועית ישירות ב‑BitBoxApp.",
+              "title": "קנה ומכור בשולחן המסחר הפרטי של BTC Direct"
+            },
+            "paymentMethods": {
+              "buy": "קניית ביטקוין:",
+              "buy2": "בצע הזמנות קנייה גדולות עם מנהל החשבון שלך, הבטח מחיר קבוע ושלם בהעברה בנקאית. הקריפטו יועבר ישירות ל‑BitBox שלך לאחר התשלום.",
+              "fee": "חלים סכומי מסחר מינימליים של €50,000, עם עמלות שקופות בטווח 0.5%–1%.",
+              "sell": "מכור ביטקוין:",
+              "sell2": "נעל מחיר OTC קבוע בעת הצבת הזמנת מכירה. התשלום ביורו מתבצע לאחר שתשלח את המטבעות ל‑BTC Direct. תמיכה אישית זמינה במידת הצורך.",
+              "title": "שיטות תשלום ועמלות"
+            },
+            "personal": {
+              "text": "לכל לקוח של Private Trading מוקצה מנהל חשבון ייעודי לסיוע מותאם בטלפון, שיחת וידאו, דוא\"ל או צ'אט. מחירי קנייה ומכירה נקבעים מיד עם ביצוע ההזמנה, גם אם ההסדר מתבצע מאוחר יותר. ההזמנות מבוצעות דרך הדלפק ה‑OTC של BTC Direct, מה שמקטין החלקה.",
+              "title": "שירות אישי עם תמחור קבוע"
+            },
+            "security": {
+              "link": "מודל איומי האבטחה של BitBox",
+              "text": "דלפק ה‑Private Trading של BTC Direct הוא שירות חיצוני שאינו מכוסה על ידי מודל איומי האבטחה של BitBox. עם זאת, BTC Direct מכיר היטב את מוצרי BitBox ומספק ייעוץ בטוח ומקצועי. מוצרי BitBox מאמתים כתובות קריפטו במהלך עסקאות כדי להבטיח מסירה בטוחה.",
+              "title": "אבטחה"
+            },
+            "title": "הצהרת אחריות"
+          },
+          "infobox": {
+            "intro_btconly": "קבל סיוע אישי בעסקאות ביטקוין OTC בעלות גבוהה.",
+            "intro_multi": "קבל סיוע אישי בעסקאות מחוץ לבורסה (OTC) בעלות גבוהה עבור ביטקוין, סטייבלקוינים של את'ריום ועוד.",
+            "kyc": "BTC Direct דורשת אימות זהות לכל העסקאות, ומנהל החשבון שלך ינחה אותך בכל שלב.",
+            "learnmore": "למידע נוסף על דסק המסחר הפרטי של BTC Direct.",
+            "listItem1": "קנה ומכור בכל עת על‑ידי יצירת קשר עם מנהל החשבון שלך בטלפון, בדוא״ל, בשיחת וידאו או בצ'אט.",
+            "listItem2": "התשלומים מבוצעים בהעברה בנקאית לאחר ביצוע ההזמנה.",
+            "listItem3": "סכום ההזמנה המינימלי: €50,000.",
+            "listItem4": "עמלות שקופות של 0.5%–1%, כולל ייעוץ אישי.",
+            "manager": "יהיה לך מנהל חשבון ייעודי שילווה אותך בכל שלב, ויבטיח חוויה בטוחה ופשוטה עם שערים קבועים והחלקה מינימלית."
+          }
+        },
+        "btcdirectWidget": {
+          "disclaimer": {
+            "description": "אנו עובדים עם BTC Direct, ברוקר אירופאי אמין, כדי להקל על קנייה ומכירה של מטבעות קריפטו בתוך ה‑BitBoxApp. שירות זה זמין ברחבי אירופה באמצעות העברות בנקאיות, כרטיסי אשראי ושיטות תשלום מקומיות רבות.",
+            "kyc": {
+              "description": "נדרש אימות זהות לכל העסקאות. תתבקש לצלם סלפי ולהעלות תמונה של מסמך רשמי.",
+              "title": "אימות זהות"
+            },
+            "paymentMethods": {
+              "buy": "קנייה: שלם ביורו כדי שהמטבעות יועברו ישירות ל‑BitBox שלך. ניתן לבחור בין קנייה חד‑פעמית לבין קנייה חוזרת. בהעברות בנקאיות שער החליפין נקבע כאשר BTC Direct מקבלת את הכסף. שיטות מיידיות משתמשות בשער המרה קבוע לזמן מוגבל.",
+              "note": "הערה: שערי החליפין של BTC Direct עשויים להיות שונים במעט משערי BitBoxApp.",
+              "sell": "מכירה: שלח את הקריפטו שלך ל‑BTC Direct וקבל יורו בחשבון הבנק שלך. שער החליפין נקבע ברגע ש‑BTC Direct מקבלת את המטבעות שלך.",
+              "title": "אמצעי תשלום ועמלות"
+            },
+            "security": {
+              "description": "BTC Direct הוא שירות חיצוני שאינו מכוסה על ידי מודל איומי האבטחה של BitBox. אנו עובדים בשיתוף פעולה הדוק עם BTC Direct לשיפור האבטחה הכוללת.",
+              "link": "מודל איומי אבטחה של BitBox",
+              "title": "אבטחה"
+            },
+            "title_bitcoin": "קנה ומכור ביטקוין דרך BTC Direct",
+            "title_crypto": "קנה ומכור קריפטו עם BTC Direct"
+          },
+          "infobox": {
+            "feesBuying": {
+              "bancontact": "Bancontact: {{fee}}%",
+              "bankTransfer": "העברה בנקאית, SEPA, iDEAL: {{fee}}%",
+              "creditDebitCard": "כרטיסי אשראי, Cartes Bancaires: {{fee}}%",
+              "sofort": "Sofort: {{fee}}%",
+              "title": "עמלות לקנייה"
+            },
+            "feesSelling": {
+              "bankTransfer": "העברה בנקאית: {{fee}}%",
+              "title": "עמלות למכירה"
+            },
+            "intro": "קנייה ומכירה באירופה של מטבעות קריפטו ב-EUR.",
+            "payment": {
+              "bancontact": "Bancontact",
+              "bankTransfer": "העברה בנקאית, SEPA Instant, iDEAL",
+              "creditDebitCard": "כרטיסי אשראי (Mastercard, Visa), Cartes Bancaires",
+              "sofort": "Sofort",
+              "title": "שיטות תשלום"
+            }
+          },
+          "learnmore": "למידע נוסף על BTC Direct"
+        },
+        "moonpay": {
+          "fees": {
+            "bankTransfer": "העברה בנקאית: {{fee}}%",
+            "creditDebitCard": "כרטיס אשראי/חיוב: {{fee}}%",
+            "learnMore": "למידע נוסף על Moonpay",
+            "title": "עמלות"
+          },
+          "fullCurrenciesList": "ראה את רשימת המטבעות המלאה כאן",
+          "payment": {
+            "asteriskText": "* לא זמין לתושבי ארה\"ב",
+            "bankTransfer": "העברה בנקאית*",
+            "bankTransferDetails": {
+              "pix": "PIX (עסקאות בברזיל בלבד)",
+              "sepa": "SEPA ו-SEPA Instant (עסקאות ביורו במדינות SEPA בלבד)",
+              "uk": "UK Faster Payments (עסקאות ב-GBP רק בבריטניה)"
+            },
+            "creditDebitCard": "כרטיס אשראי/חיוב",
+            "creditDebitCardDetails": {
+              "cards": "Amex, Mastercard, Visa ו-Maestro"
+            },
+            "learnMore": "ראה פרטים נוספים על שיטות התשלום",
+            "title": "שיטות תשלום"
+          },
+          "supportedCurrencies": "תומך בכל המטבעות הפיאטיים המרכזיים: USD, EUR, CHF ועוד."
+        },
+        "pocket": {
+          "fees": {
+            "info": "העברה בנקאית: {{fee}}%",
+            "title": "עמלות"
+          },
+          "learnMore": "למידע נוסף על Pocket",
+          "payment": {
+            "bankTransfer": "העברה בנקאית",
+            "bankTransferDetails": {
+              "sepa": "SEPA ו-SEPA Instant (עסקאות ב-EUR רק במדינות SEPA)",
+              "sic": "Swiss Interbank Clearing (עסקאות ב‑CHF רק ב‑CH/LI)",
+              "uk": "UK Faster Payments (עסקאות ב-GBP רק בבריטניה)"
+            },
+            "bankTransferReccuring": "איך להגדיר רכישות חוזרות באמצעות הוראת קבע?",
+            "title": "שיטות תשלום"
+          },
+          "sell": {
+            "title": "מכור ביטקוין"
+          },
+          "supportedCurrencies": "תומך במטבעות אירופיים: EUR, GBP ו‑CHF.",
+          "verification": {
+            "info": "דורש אימות זהות רק מעל ספים יומיים ושנתיים.",
+            "link": "מצא כאן את הספים הנוכחיים",
+            "title": "אימות זהות"
+          }
+        },
+        "pocket-otc": {
+          "disclaimer": {
+            "dataProtection": {
+              "info": "אפליקציית BitBoxApp אינה אוספת נתונים אישיים. Pocket Private אוספת את המידע הנחוץ בהתאם למדיניות הפרטיות שלה כדי לעמוד בסטנדרטים רגולטוריים.",
+              "link": "מדיניות הפרטיות של Pocket",
+              "title": "הגנת נתונים"
+            },
+            "kyc": {
+              "info": "נדרש אימות זהות לקוח לשימוש ב‑Pocket Private. מנהל החשבון שלך ינחה אותך בתהליך ויענה על כל שאלה.",
+              "title": "אימות זהות"
+            },
+            "partnership": {
+              "text": "בשיתוף עם Pocket Private, BitBox מציעה מסחר בעסקאות גדולות בביטקוין. ללקוחות Pocket Private מוקצה מנהל חשבון לסיוע אישי.",
+              "title": "קנה ומכור עם Pocket Private"
+            },
+            "payment": {
+              "info": [
+                "<strong>קניית ביטקוין:</strong> בצע הזמנות רכישה גדולות מול מנהל החשבון שלך ושלם באמצעות העברה בנקאית. הביטקוין יועבר ישירות ל‑BitBox שלך לאחר התשלום.",
+                "<strong>מכירת ביטקוין:</strong> תשלום בנקאי מתבצע לאחר שתשלח את הביטקוין ל‑Pocket Private. יש סיוע אישי במידת הצורך.",
+                "<strong>עמלות מסחר:</strong> עמלות המסחר מבוססות על נפח מצטבר לכל החיים, כלומר העמלה שלך פוחתת ככל שנפח המסחר הכולל שלך גדל, ללא תלות בגודל ההזמנה."
+              ],
+              "title": "שיטות תשלום ועמלות"
+            },
+            "security": {
+              "info": "Pocket Private הוא שירות חיצוני שאינו כלול במודל איומי האבטחה של BitBox. עם זאת, Pocket Private מכירה היטב את מוצרי BitBox ומספקת הדרכה בטוחה ובעלת ידע. מוצרי BitBox מאמתים כתובות ביטקוין במהלך עסקאות כדי להבטיח מסירה בטוחה.",
+              "link": "מודל איומי האבטחה של BitBox",
+              "title": "אבטחה"
+            }
+          },
+          "infobox": {
+            "intro": "קבל סיוע אישי ועמלות נמוכות יותר בעסקאות OTC בהיקפים גבוהים של ביטקוין. ב‑Pocket Private העמלות יורדות ככל שנפח העסקאות המצטבר גבוה יותר, כך שתמיד תקבל את העמלה הטובה ביותר ללא קשר לגודל ההזמנה.",
+            "learnmore": "למידע נוסף על Pocket Private",
+            "tradingVolume": "נפח מסחר (מצטבר לכל החיים)",
+            "transactionFee": "עמלת עסקה"
+          }
+        },
+        "region": {
+          "title": "בחר את האזור שבו חשבון הבנק שלך רשום כדי לראות אילו אפשרויות זמינות עבורך."
         }
       },
-      "next": "הבא"
+      "noExchanges": "מצטערים, אין בורסות זמינות באזור זה.",
+      "otcInfo": "קבל סיוע אישי ודמי מסחר נמוכים יותר לעסקאות OTC בנפחים גדולים.",
+      "region": "אזור",
+      "selectRegion": "לא צוין",
+      "sell": "מכור",
+      "sellServices": "מכירת שירותים",
+      "spend": "הוצאה",
+      "spendServices": "שירותי תשלום",
+      "swapServices": "שירותי החלפה"
+    },
+    "info": {
+      "continue": "אשר והמשך",
+      "crypto": "קריפטו",
+      "disclaimer": {
+        "intro": [
+          "אנו משתפים פעולה עם MoonPay כדי להציע לך דרך חלקה לרכוש {{coinCode}} ישירות בתוך BitBoxApp. זה רק כמה קליקים.",
+          "MoonPay היא פלטפורמה שמקלה ומהירה לרכישת {{coinCode}} בלמעלה מ-160 מדינות."
+        ],
+        "payment": {
+          "details": "ניתן לקנות {{coinCode}} מיידית דרך MoonPay באמצעות שיטות התשלום הבאות. הזמנות בכרטיסי אשראי או חיוב הן מיידיות ונוחות, אך יקרות יותר עקב סיכון גבוה יותר להחזר חיוב. אנו ממליצים להשתמש באפשרות העברה בנקאית עבור סכומים גדולים יותר. העמלה המינימלית היא 4 USD/EUR או המקבילה לה.",
+          "footnote": "שים לב ששערי ההמרה של MoonPay עשויים להיות שונים מאלו שב‑BitBoxApp, ולגרום לסכומים להיות מעט שונים.",
+          "table": {
+            "1_description": "עמלות הנמוכות ביותר — ייתכן שיידרשו עד 3 ימי עבודה",
+            "1_method": "העברות בנקאיות (SEPA)",
+            "2_description": "עמלות גבוהות יותר, אך מהיר ומיידי",
+            "2_method": "כרטיסי אשראי וחיוב",
+            "description": "תיאור",
+            "fee": "עמלה",
+            "method": "שיטה"
+          },
+          "title": "שיטות תשלום ועמלות"
+        },
+        "privacyPolicy": "מדיניות פרטיות של MoonPay",
+        "protection": {
+          "descriptionGeneric_bitcoin": "אפליקציית BitBox אינה אוספת נתונים בעת רכישת Bitcoin; הכספים הנכנסים מטופלים כעסקה רגילה. עם זאת, בורסות שותפות נדרשות לאסוף מידע כדי לפעול. עיין במדיניות הפרטיות שלהן לפרטים נוספים אודות אופן הטיפול בנתונים.",
+          "descriptionGeneric_crypto": "אפליקציית BitBox אינה אוספת נתונים בעת רכישת קריפטו; הכספים הנכנסים מטופלים כעסקה רגילה. עם זאת, בורסות שותפות נדרשות לאסוף מידע כדי לפעול. עיין במדיניות הפרטיות שלהן לפרטים נוספים אודות אופן הטיפול בנתונים.",
+          "title": "הגנת נתונים"
+        },
+        "security": {
+          "descriptionGeneric_bitcoin": "כשאתה קונה ביטקוין דרך בורסת שותף, אתה משתמש בשירות חיצוני. שירות זה מחוץ להיקף מודל איומי האבטחה של BitBox ותלוי בבטיחות ובאבטחת הסביבה שבה רצה תוכנת BitBoxApp.",
+          "descriptionGeneric_crypto": "כאשר אתה קונה קריפטו דרך בורסה שותפה, אתה משתמש בשירות חיצוני. שירות זה מחוץ להיקף מודל איומי האבטחה של BitBox ותלוי בבטיחות והאבטחה של הסביבה שבה פועלת תוכנת BitBoxApp.",
+          "link": "מודל איומי האבטחה",
+          "title": "מודל אבטחה"
+        },
+        "title_bitcoin": "ברוך הבא לפתרון הכולל לרכישת ביטקוין",
+        "title_crypto": "ברוכים הבאים לשירות המקיף לרכישת קריפטו"
+      },
+      "next": "הבא",
+      "selectLabel": "בחר את החשבון שלך",
+      "selectPlaceholder": "בחר מטבע",
+      "skip": "אל תציג שוב"
+    },
+    "pocket": {
+      "error": {
+        "insufficientFunds": "אין מספיק כספים בחשבון שנבחר."
+      },
+      "paymentRequestNote": "בקשת תשלום מ",
+      "previousTransactions": "היסטוריית העסקאות של חשבון זה אינה ריקה. שיתוף חשבון זה יחשוף ל‑Pocket את כל עסקאותיו הקודמות והעתידיות. להמשיך בכל זאת?",
+      "usedAddress": "הכתובת {{address}} כבר בשימוש; יש להתחיל שוב עם כתובת חדשה.",
+      "verifyBitBox02": "אנא ודא שהכתובת שקיבלת בדוא\"ל תואמת לזו שמוצגת על ה-BitBox שלך. אם אפשר, פתח את המייל במכשיר שני כדי להגביר את האבטחה."
     }
   },
   "changePin": {
@@ -267,13 +791,23 @@
   },
   "chart": {
     "dataMissing": "אנחנו עדיין אוספים נתונים, נסה בעוד מספר דקות פעם נוספת",
+    "dataOldTimestamp": "שערי חליפין היסטוריים מתעדכנים. התרשים לא מציג נתונים לאחר {{time}}.",
     "dataUpdating": "...מעדכן נתונים",
+    "displayMode": {
+      "performance": "ביצועים",
+      "switchTo": "עבור אל {{displayMode}}",
+      "totalValue": "ערך לאורך זמן",
+      "unavailableSwitchTo": "{{displayMode}} לא זמין. עבור אל {{nextDisplayMode}}"
+    },
     "filter": {
       "all": "הכל",
       "month": "חודש",
       "week": "שבוע",
       "year": "שנה"
-    }
+    },
+    "transactions_one": "{{count}} עסקה",
+    "transactions_other": "{{count}} עסקאות",
+    "transactions_two": "2 עסקאות"
   },
   "checkSDcard": "בודק כרטיס זיכרון",
   "clickHere": ".לחץ כאן",
@@ -281,29 +815,125 @@
     "info": ".המשך בביטבוקס"
   },
   "confirmOnDevice": ".אנא אשר בהתקן שלך",
+  "connectKeystore": {
+    "promptNoName": "חבר את ה-BitBox כדי להמשיך",
+    "promptWithName": "אנא חבר את ה-BitBox בשם \"{{name}}\" כדי להמשיך",
+    "swapHint": "חבר את BitBox Multi ל‑Swap."
+  },
+  "darkmode": {
+    "toggle": "מצב כהה"
+  },
   "device": {
-    "appUpradeRequired": ".הביטבוקס שלך אינו נתמך על-ידי היישום. הורד והתקן את הגרסה האחרונה"
+    "appUpradeRequired": ".הביטבוקס שלך אינו נתמך על-ידי היישום. הורד והתקן את הגרסה האחרונה",
+    "firmwareUpgradeRequired": "נדרש עדכון קושחה כדי להשתמש בתכונה זו.",
+    "keystoreConnected": "ארנק מחובר",
+    "unsupportedFeature": "תכונה זו אינה זמינה במכשיר זה."
   },
   "deviceSettings": {
+    "backups": {
+      "manageBackups": {
+        "description": "צור או אמת את גיבוי כרטיס ה-microSD שלך."
+      },
+      "showRecoveryWords": {
+        "description": "הצג ואמת את מילות השחזור על מסך ה‑BitBox."
+      },
+      "title": "גיבויים"
+    },
+    "bluetoothFirmware": {
+      "title": "קושחת Bluetooth"
+    },
+    "deviceInformation": {
+      "attestation": {
+        "description": "ה-BitBoxApp בודקת אם המכשיר שלך מקורי."
+      },
+      "deviceName": {
+        "description": "שנה את שם המכשיר שלך."
+      },
+      "passwordStretchingAlgo": {
+        "description": "האלגוריתם המשמש להצפנת ה-seed במכשיר ה-BitBox שלך.",
+        "title": "אלגוריתם פתיחת נעילה"
+      },
+      "rootFingerprint": {
+        "description": "ה-root fingerprint הוא מזהה ייחודי של הארנק שנמצא כרגע בשימוש. הוא יכול לעזור לך להבחין בין ארנקים שונים אם אתה משתמש ב-passphrases."
+      },
+      "securechip": {
+        "description": "דגם השבב המאובטח."
+      },
+      "title": "מידע על המכשיר"
+    },
+    "deviceLanguage": {
+      "description": "שנה את השפה שבה משתמש ה-BitBox שלך.",
+      "error_104": "שינוי שפת המכשיר בוטל.",
+      "success": "שפת המכשיר שונתה בהצלחה.",
+      "title": "שנה את שפת המכשיר"
+    },
+    "deviceSettings": {
+      "title": "הגדרות המכשיר"
+    },
+    "expert": {
+      "bip85": {
+        "description": "צור מפתחות נגזרים מה‑BitBox שלך.",
+        "disclaimer": "אני מבין כיצד פועלים child keys ואת שיקולי האבטחה",
+        "how": {
+          "description": "מפתחות המשנה מוצגים כ-mnemonic ב‑BitBox שלך. ניתן ליצור כמה מפתחות משנה שתרצה. כדי להציג מפתח משנה תתבקש להזין את מספר המפתח (למשל 1, 2, 3 וכו') ואת האורך הרצוי של ה‑mnemonic (12 או 24 recovery words). יש לשמור רישום של ה<strong>מספר המפתח ומספר המילים</strong> כדי להציג מאוחר יותר את אותו ה‑mnemonic.",
+          "title": "איך זה עובד?"
+        },
+        "recover": {
+          "description": "ניתן תמיד להציג שוב את מילות השחזור של המפתחות המשניים. כפי שהוזכר, עליך לזכור את <strong>מספר המפתח המשני ומספר המילים</strong> כדי להציג את אותו ביטוי שיחזור. לעולם אל תייבא את מילות השחזור הראשיות של ה-BitBox לארנק אחר; השתמש רק במפתחות המשניים כאשר מייבאים לארנק אחר.",
+          "title": "כיצד לשחזר ארנקים באמצעות BitBox child key?"
+        },
+        "security": {
+          "description": "אין להשתמש שוב במפתח child. לדוגמה, אל תשתמש במפתח child בארנק חם ואז באותו בארנק חומרה. המפתח אינו נחשב לבטוח מאחר שהוא שימש בארנק חם.",
+          "title": "שיקולי אבטחה"
+        },
+        "title": "הצג child key של BIP-85",
+        "what": {
+          "description": "מפתחות נגזרים מה‑seed הראשי שלך וניתן להשתמש בהם ליצירת ארנקים חדשים מבלי לגבות seed נוספים. לדוגמה, ניתן ליצור מפתח נגזר ולייבא אותו לארנק חם במקום שהארנק החם ייצור seed חדש לחלוטין.",
+          "link": "למידע נוסף על BIP-85",
+          "title": "מהם child keys?"
+        }
+      },
+      "factoryReset": {
+        "description": "מוחק את הארנק ואת הנתונים שלו מה-BitBox",
+        "title": "מחק ארנק מה-BitBox"
+      },
+      "goToStartupSettings": {
+        "description": "היכנס ל-bootloader של ה-BitBox. מכאן ניתן להפעיל את ה-hash של הקושחה."
+      },
+      "passphrase": {
+        "description": "הפעל או השבת את תכונת ה-passphrase.",
+        "title": "Passphrase"
+      }
+    },
     "firmware": {
+      "firmwareVersion": "גרסת קושחה",
       "newVersion": {
         "label": "גרסה זמינה"
       },
       "title": "קושחה",
       "upToDate": "ההתקן שלך מעודכן",
+      "upgradeAvailable": "שדרוג חדש ל-BitBox זמין",
+      "upgradeAvailableDescription": "זמין עדכון קושחה. עדכן כעת לקבלת שיפורי אבטחה ותכונות חדשות.",
       "version": {
         "label": "גרסה"
       }
     },
     "hardware": {
+      "attestation": {
+        "false": "בדיקת האותנטיות נכשלה",
+        "label": "בדיקת אותנטיות",
+        "true": "ה-BitBox שלך אותנטי"
+      },
       "sdcard": {
         "false": "לא הוכנס",
         "label": "כרטיס זיכרון",
         "true": "הכנס"
       },
+      "securechip": "שבב מאובטח",
       "title": "תכנה"
     },
     "loading": "מאחזר מידע על התקן",
+    "noDevice": "אין מכשירים מחוברים",
     "secrets": {
       "manageBackups": "נהל גיבויים",
       "title": "סודות"
@@ -315,6 +945,125 @@
     "confirm": "אשר",
     "confirmTitle": "אישור"
   },
+  "error": {
+    "accountAlreadyExists": "החשבון כבר קיים.",
+    "accountLimitReached": "לא ניתן להוסיף חשבון. הושג המספר המקסימלי של חשבונות עבור מטבע זה.",
+    "aoppCallback": "אירעה שגיאה בהעברת הכתובת ל{{host}}.",
+    "aoppInvalidRequest": "בקשה לא תקינה.",
+    "aoppNoAccounts": "אין חשבונות זמינים.",
+    "aoppSigningAborted": "בקשת בעלות על הכתובת בוטלה.",
+    "aoppUnknown": "אירעה שגיאה לא ידועה.",
+    "aoppUnsupportedAsset": "הנכס אינו נתמך.",
+    "aoppUnsupportedFormat": "אין חשבונות זמינים התומכים בפורמט הכתובת המבוקש.",
+    "aoppUnsupportedKeystore": "המכשיר המחובר אינו יכול לחתום על הודעות עבור נכס זה.",
+    "aoppVersion": "גרסה לא ידועה.",
+    "keystoreTimeout": "בקשת הארנק פגה. נסה שוב.",
+    "lightningAddressChangeCooldown": "המתן לפני שתשנה שוב את כתובת Lightning.",
+    "lightningAddressInvalidUsername": "השתמש רק באותיות קטנות וספרות.",
+    "lightningAddressUsernameUnavailable": "השם הזה אינו זמין.",
+    "lightningAmountBelowMinimum": "הסכום חייב להיות לפחות {{minAmountSat}} sats.",
+    "lightningBalanceLimitExceeded": "סכום ההטענה חורג מהמגבלה של ארנק Lightning של {{limit}}. סכום ההטענה המרבי חייב להיות {{remaining}} או פחות.",
+    "lightningInsufficientFunds": "אין מספיק כספים בארנק Lightning שלך.",
+    "lightningInvalidAmount": "סכום לא תקין.",
+    "lightningInvalidPaymentInput": "חשבונית או בקשת תשלום לא תקינה.",
+    "lightningInvoiceAlreadyUsed": "בקשת התשלום של Lightning כבר נוצלה. בקש בקשת תשלום חדשה.",
+    "lightningPaymentFailed": "תשלום Lightning נכשל. אנא בדוק את התשלום לפני ניסיון חוזר.",
+    "lightningPaymentPreparationFailed": "לא ניתן להכין את התשלום. נסה שוב.",
+    "lightningTopUpClaimFailed": "נסה לתבוע את ה‑top-up שוב.",
+    "lightningTopUpRefundFailed": "נסה להחזיר את ה‑top-up שוב.",
+    "paymentApprovalRequired": "עמלת התשלום גדלה. אנא בדוק ואשר שוב.",
+    "wrongKeystore": "הארנק המחובר שגוי. ודא שהכנסת את המכשיר הנכון התואם לחשבון זה.",
+    "wrongKeystore2": " אם אתה משתמש ב-passphrase האופציונלי, ודא שהקלדת את ה-passphrase הנכון עבור החשבון."
+  },
+  "evmChains": {
+    "arbitrumOne": "Arbitrum One",
+    "base": "Base",
+    "bnbSmartChain": "BNB Smart Chain",
+    "ethereumMainnet": "Mainnet של Ethereum",
+    "ethereumSepoliaTestnet": "Testnet Sepolia של Ethereum",
+    "gnosis": "Gnosis",
+    "hyperEVM": "HyperEVM",
+    "optimism": "Optimism",
+    "polygon": "Polygon",
+    "sonic": "Sonic"
+  },
+  "exchange": {
+    "btcdirect": {
+      "currencyMismatch": "מטבע בלתי צפוי בבקשת התשלום",
+      "insufficientFunds": "אין מספיק כספים בחשבון שנבחר."
+    },
+    "buySell": {
+      "coinNotSupported": "אין אפשרויות זמינות עבור סוג מטבע זה.",
+      "regionNotSupported": "אין אפשרויות זמינות לאזור זה."
+    },
+    "pocket": {
+      "terms": {
+        "dataprotection": {
+          "link": "מדיניות הפרטיות של Pocket",
+          "p1": "ה-BitBoxApp אינו לומד ואינו אוסף נתונים אישיים. Pocket אוספת חלק מנתונים אישיים כפי שמוסבר במדיניות הפרטיות שלה.",
+          "title": "הגנה על נתונים"
+        },
+        "fees": {
+          "extraNote": "שים לב: יש לקנות ביטקוין עם Pocket קודם לפני שניתן למכור.",
+          "note": "הערה: שערי ההמרה של Pocket עשויים להיות שונים משערי BitBoxApp.",
+          "p1": "<strong>קניית ביטקוין:</strong> השתמש בהעברה בנקאית SEPA כדי לשלוח EUR או CHF והביטקוין יסופק ישירות ל-BitBox שלך לאחר ש-Pocket תקבל את ההעברה, בדרך כלל באותו יום.",
+          "p2": "<strong>מכירת ביטקוין:</strong> שלח ביטקוין ל‑Pocket וקבל EUR או CHF בחשבון הבנק הרשום שלך. שער החליפין נקבע כאשר Pocket מקבלת את הביטקוין שלך.",
+          "title": "שיטות תשלום ועמלות"
+        },
+        "kyc": {
+          "info": "ייתכן ש‑Pocket תדרוש מסמכי זיהוי. עיין ב‑FAQ שלהם לקבלת מידע נוסף.",
+          "link": "קרא את ה-FAQ של Pocket",
+          "title": "KYC/AML (זיהוי הלקוח / מניעת הלבנת הון)"
+        },
+        "security": {
+          "link": "מודל האיומים של BitBox",
+          "p1": "השימוש ב-Pocket הוא שירות חיצוני ואינו נכלל במודל איומי האבטחה של BitBox. עם זאת, אנו עובדים בשיתוף פעולה צמוד עם Pocket לשיפור האבטחה הכוללת.",
+          "p2": "<strong>קניית ביטקוין:</strong> תקבל הודעת דואר אלקטרוני לאישור כתובת הקבלה של הביטקוין שלך דרך ערוץ תקשורת שני.",
+          "p3": "<strong>מכירת Bitcoin:</strong> ה-BitBox מאמת באופן קריפטוגרפי את כתובת ההפקדה של Bitcoin ומציג \"Pocket\" על ארנק החומרה.",
+          "title": "אבטחה"
+        },
+        "welcome": {
+          "p1": "אנחנו עובדים עם Pocket, ברוקר שוויצרי, כדי להקל על קנייה ומכירה של ביטקוין בתוך BitBoxApp. שירות זה זמין ברחבי אירופה שבה נתמכות העברות בנקאיות SEPA.",
+          "title": "קנה ומכור ביטקוין עם Pocket"
+        }
+      }
+    },
+    "swapkit": {
+      "disclaimer": {
+        "dataProtection": {
+          "link": "מדיניות הפרטיות של SwapKit",
+          "text": "ה-BitBoxApp אינו אוסף או לומד מידע אישי. ייתכן ש-SwapKit אוסף נתונים כפי שמתואר במדיניות הפרטיות שלהם.",
+          "title": "הגנת נתונים"
+        },
+        "fees": {
+          "note": "הערה: שערי ה-SwapKit עשויים להיות שונים משערי ה-BitBoxApp.",
+          "text": "עמלה קבועה של 1.5% מוחלת על כל החלפה",
+          "title": "עמלות"
+        },
+        "intro": {
+          "text": "SwapKit מציע שירות SDK/API להמרות ללא משמורת. אנו עובדים עם SwapKit כדי לספק המרת מטבעות קריפטו בין בלוקצ'יינים שונים במקום אחד. זה מאפשר מסחר מהיר, פשוט וללא משמורת, כך שתישאר בשליטה על הנכסים שלך.",
+          "title": "המרת מטבעות קריפטו עם SwapKit"
+        },
+        "protocol": {
+          "link": "מידע על ספקי SwapKit",
+          "text": "SwapKit API משתמש במספר ספקים לביצוע החלפות. ספקים עשויים להתווסף או להוסר לאורך הזמן כדי לעמוד בדרישות ההחלפה העדכניות ולשפר את הביצועים.",
+          "title": "ספקי SwapKit"
+        },
+        "security": {
+          "link": "מודל איומי האבטחה של BitBox",
+          "text": "SwapKit הוא שירות חיצוני ואינו מכוסה על ידי מודל איומי האבטחה של BitBox. עם זאת, אנו עובדים בצמוד ל-SwapKit כדי לשפר את האבטחה על ידי יישום בקשות תשלום בקושחת ה-BitBox. משמעות הדבר היא שה-BitBox יציג את כתובת היעד כ“SwapKit” בעת ביצוע החלפה.",
+          "title": "אבטחה"
+        },
+        "slippage": {
+          "text": "החלקה היא ההפרש בין המחיר שציפית לקבל כשהתחלת החלפה לבין המחיר שיתקבל בפועל כאשר ההחלפה תסתיים. מכיוון שמחירי המטבעות הקריפטוגרפיים יכולים להשתנות במהירות והנזילות עשויה להשתנות במהלך העסקה, הסכום הסופי שיתקבל עשוי להיות נמוך מההערכה.",
+          "title": "החלקה"
+        }
+      },
+      "infobox": {
+        "intro": "החלף כל מטבע קריפטו ב-BitBoxApp באחר, ללא הגבלות וללא KYC. שירות החלפה זה מסופק על ידי SwapKit, מאגד לשירותי החלפה מבוזרים."
+      }
+    }
+  },
   "fiat": {
     "default": "ברירת מחדל",
     "setDefault": "הגדר {{code}} כברירת מחדל",
@@ -323,10 +1072,55 @@
   "footer": {
     "appVersion": "גרסת תכנה:"
   },
+  "gapLimit": {
+    "change": "מגבלת הפער לכתובות השינוי",
+    "description": "הגדר גבולות gap מותאמים לכתובות קבלה וכתובות change של ביטקוין.",
+    "maxValue": "ה-gap limit לא יעלה על {{max}}.",
+    "minValue": "ה-gap limit חייב להיות לפחות {{min}}.",
+    "receive": "Gap limit עבור כתובות קבלה",
+    "title": "הגדרות gap limit מותאמות אישית"
+  },
   "generic": {
+    "beta": "בטא",
+    "bitcoinOnly": "רק ביטקוין",
+    "buy": "קנה {{coinCode}}",
+    "buySell": "שוק",
+    "buy_bitcoin": "קנה ביטקוין",
+    "buy_crypto": "קנה קריפטו",
+    "calculating": "מחשב…",
+    "close": "סגור",
+    "enable": "הפעל",
     "enabled_false": "מושבת",
     "enabled_true": "מופעל",
-    "resetToDefault": "אתחל לברירת מחדל"
+    "iHaveReadTheInformation": "קראתי את המידע שלמעלה",
+    "insure": "ביטוח",
+    "max": "מקס",
+    "new": "חדש",
+    "noOptionOnIos": "לא זמין ב‑iOS",
+    "noOptions": "לא נמצאו אפשרויות",
+    "paymentRequestNote": "תשלום של {{name}} {{orderId}}",
+    "receive": "קבל {{coinCode}}",
+    "receiveWithoutCoinCode": "קבל",
+    "receive_bitcoin": "קבל ביטקוין",
+    "receive_crypto": "קבל קריפטו",
+    "received": "התקבל",
+    "reset": "איפוס",
+    "resetToDefault": "אתחל לברירת מחדל",
+    "retry": "נסה שוב",
+    "search": "חפש…",
+    "searchButton": "חיפוש",
+    "selectAll": "בחר הכל",
+    "sell": "מכור {{coinCode}}",
+    "sell_bitcoin": "מכור ביטקוין",
+    "sell_crypto": "מכור קריפטו",
+    "send": "שלח",
+    "sent": "נשלח",
+    "skip": "דלג",
+    "spend_bitcoin": "הוצא ביטקוין",
+    "spend_crypto": "הוצא קריפטו",
+    "swap": "החלף",
+    "unavailable": "לא זמין",
+    "unknown": "לא ידוע"
   },
   "genericError": "שגיאה התרחשה. אם אתה מבחין בחריגות, התחל מחדש את התכנה.",
   "goal": {
@@ -373,6 +1167,22 @@
       "title": "?למה הכוונה במתקבלים"
     },
     "accountInfo": {
+      "exportTransactions": {
+        "text": "\"Export transactions\" תחת \"Account info\" ופתח את תיקיית ההורדות כדי למצוא את קובץ ה-CSV המיוצא. זה יכול להיות שימושי לשירותים כמו CoinTracking לצורך דיווח מס.",
+        "title": "איך אני יכול לייצא את היסטוריית העסקאות שלי? (למשל עבור CoinTracking)"
+      },
+      "multipleXPubs": {
+        "text": "כל xpub קשור ל\"Type\" שמוצג: או \"Native Segwit (bech32)\", או \"Taproot\" (רק לביטקוין). אלה סוגי סקריפטים המשמשים את {{coinName}}. ה-BitBoxApp משלב ביניהם ותומך בכמה סוגי סקריפטים באותו חשבון. מאחר שכל סוג סקריפט נותן xpub שונה, יש מספר xpub לכל חשבון.\n\nאם מקבלים באופן קבוע לכתובת ברירת המחדל (Native Segwit), נדרש רק xpub מסוג \"bech32\". עם זאת, אם גם מקבלים כספים ל-Taproot, יש צורך גם להשתמש במפתח הציבורי המוארך (extended public key) של Taproot.",
+        "title": "מדוע יש כמה xpubs?"
+      },
+      "privacy": {
+        "text": "עבור חשבון זה, מפתח ציבורי מורחב (xpub) חושף את כל היסטוריית העסקאות, את יתרת החשבון וכל העסקאות העתידיות. אך ה‑xpub אינו מאפשר לאף אחד להוציא את המטבעות שלך.\n\nאם תמסור את ה‑xpub למישהו, שים לב שאותו אדם או חברה יכולים לראות את כל העסקאות האחרות של אותו חשבון. לכן מומלץ להשתמש בחשבון זה רק למטרה זו ולשמור כספים אחרים בחשבונות נפרדים.",
+        "title": "האם עליי לשמור את ה-xpub בסוד?"
+      },
+      "verify": {
+        "text": "כן, תמיד כדאי לבדוק שוב את ה‑xpub שלך. אם מישהו אחר יפיק כתובות קבלה מה‑xpub הזה כדי לשלוח לך כסף, זה חשוב במיוחד. יש לאמת אותו על המכשיר כדי לוודא שה‑xpub שייך לך; אחרת כל הכספים עלולים להגיע לכתובות שגויות.",
+        "title": "האם צריך לאמת את ה-xpub על המכשיר?"
+      },
       "xpub": {
         "text": ".מפתח ציבורי מורחב הוא מקור כל כתובות הקבלה של המשתמש\n.המפתח מסופק פה לשימוש מתקדם ושיתוף עם ארנקי תצוגה בלבד, כמו אלקטרום או סנטינל",
         "title": "?מה זה מפתח ציבורי מורחב"
@@ -395,8 +1205,17 @@
       "title": "?כיצד הכמות הסופית מחושבת"
     },
     "accountSummaryDescription": {
-      "text": "כאן תוכל לראות את ביצועי תיק ההשקעות שלך לאורך זמן. סיכום של ארנקי הקריפטו שלך מוצגים תחת טבלה זו",
+      "text": "כאן תוכל לראות את הערך והביצועים של התיק שלך לאורך זמן. סיכום של חשבונות הקריפטו האישיים שלך מוצג מתחת לגרף.",
       "title": "?מה עמוד זה מראה לי"
+    },
+    "accountSummaryPercentageMeaning": {
+      "listOptions": [
+        "ערך לאורך זמן: זה השינוי בערך הפורטפוליו שלך לאורך זמן, כולל הפקדות ומשיכות.",
+        "תשואה: זו התשואה המשוקלת לפי כסף (MWR). היא מתחשבת בהפקדות ובמשיכות, ולכן משקפת את ביצועי התיק שלך."
+      ],
+      "outro": "אפשר לעבור בין תשואה לערך לאורך זמן על ידי לחיצה על האחוז, או בהגדרות תחת 'מראה'. כברירת מחדל האפליקציה מציגה את הערך לאורך זמן.",
+      "text": "האחוז בגרף התיק שלך מציג אחת משתי האפשרויות עבור טווח הזמן הנבחר:",
+      "title": "מה פירוש האחוז?"
     },
     "accountTransactionAttributesBTC": {
       "text": ".גודל וירטואלי: קובע את דמי הרשת. חסכת בהצלחה בעמלות אם הוא קטן מגודל העסקה\n.גודל: גודל עסקה בפועל בבתים בהמשכים לפי הבלוקצ׳יין הבסיסי\n.כדי להעריך גדלים של עסקאות וחסימה. כל ביי עד מופרד נחשב לאחת, וכל השאר כארבע יחידות משקל. במקום מגה-בייט אחת בגודל בפועל, מגבלת גודל החסימה היא כעת ארבעה מיליון יחידות משקל SegWit משקל: ערך חדש שהוצג עם",
@@ -410,6 +1229,10 @@
       "text": ".עסקה ששודרה לרשת אך טרם אושרה",
       "title": "?מה היא עסקה בהמתנה"
     },
+    "accountTransactionEstimation": {
+      "text": "ה-BitBoxApp תוסיף סימן הערכה לפני סכומי פיאט עד שהעסקה תאושר ויתקבל שיעור המרה סופי.",
+      "title": "מדוע עסקאות חדשות מציגות סימן אומדן?"
+    },
     "accountTransactionLabel": {
       "text": ".זו היא הכתובת אליה התקבלו או נשלחו ממנה מטבעות",
       "title": "?מה היא הכתובת המוצגת לכל עסקה"
@@ -418,9 +1241,60 @@
       "text": ".שעת אישור ביצוע העסקה לפי הבלוקצ׳יין",
       "title": "?מה הוא הזמן המוצג"
     },
+    "accounts": {
+      "howManyAccounts": {
+        "text": "לביטקוין וללייטקוין ניתן לפתוח כמות בלתי מוגבלת של חשבונות. לאחר שישה חשבונות, ניתן להוסיף חשבון נוסף רק אם החשבון הקודם שימש.\nלמטבעות אחרים ניתן לפתוח עד חמישה חשבונות.",
+        "title": "כמה חשבונות אפשר ליצור?"
+      },
+      "howtoAddTokens": {
+        "text": "אסימונים המשתמשים בסטנדרט ERC20 קשורים לחשבון Ethereum מסוים. כדי להפעיל או להשבית אסימון מסוים, פתח את מסך 'ניהול חשבונות', הרחב את חשבון ה-Ethereum שלך והפעל או השבת את האסימון הרצוי.",
+        "title": "איך ניתן להוסיף אסימונים נוספים?"
+      },
+      "moveFunds": {
+        "text": "כן. אבל מאחר שהחשבונות עצמאיים, יש לשלוח את הכספים באמצעות עסקה רגילה.",
+        "title": "האם אפשר להעביר כספים בין חשבונות?"
+      },
+      "recoverAccounts": {
+        "text": "כן. ה-BitBoxApp יוצר חשבונות לפי תקנים מבוססים התואמים לרוב הארנקים הקריפטו האחרים.",
+        "title": "האם ניתן לשחזר את החשבונות שלי באמצעות ארנקים אחרים?"
+      },
+      "supportedCoins": {
+        "link": {
+          "text": "הצג מטבעות נתמכים"
+        },
+        "text": "ה-BitBoxApp תומכת בביטקוין, לייטקוין ואת'ריום וכן במבחר אסימוני ERC20. עבור קרדנו ואסימונים אחרים, השתמש ב-BitBox עם תוכנה חלופית כגון AdaLite או Rabby. ניתן למצוא רשימה מקיפה של כל המטבעות הנתמכים באתר שלנו:",
+        "title": "אילו מטבעות נתמכים?"
+      },
+      "whatAreAccounts": {
+        "text": "הארנק שלך יכול לנהל מספר חשבונות לאותו מטבע. חשבונות שימושיים כדי לשמור על הפרדה בין כספים.",
+        "title": "מה זה חשבונות?"
+      },
+      "whatIsRememberWallet": {
+        "text": "הפעלת 'זכור ארנק' מאפשרת לך לראות את החשבונות של ארנק זה ב-BitBoxApp גם כאשר ה-BitBox אינו מחובר. כך תוכל לבדוק את היתרה והתיק מתי שתרצה. ה-BitBox עדיין צריך להיות מחובר ופתוח כדי לשלוח או לקבל מטבעות.\n\nכיבוי 'זכור ארנק' מחייב לחבר את ה-BitBox המתאים (או ארנק עם passphrase) כדי לראות את אותם חשבונות ב-BitBoxApp.",
+        "title": "מה קורה כשאני מפעיל/מבטל “Remember wallet”?"
+      },
+      "whyIsThisUseful": {
+        "text": "חשבונות מצוינים לניהול כספים עבור אנשים או מטרות שונות מכיוון שהם מופרדים. ניתן גם לשתף את \"מפתח ציבורי מורחב\" של חשבון מבלי לחשוף דבר על שאר החשבונות שלך. זה מאפשר לקבל כספים שוב ושוב מבלי להשתמש בכתובות חוזרות, למשל לקבלת שכר או לרכישות קבועות של קריפטו.",
+        "title": "למה זה שימושי?"
+      }
+    },
+    "appearancePortfolioPercentageOptions": {
+      "listOptions": [
+        "ערך לאורך זמן: זהו השינוי בערך התיק שלך לאורך זמן, כולל הפקדות ומשיכות.",
+        "ביצועים: זוהי התשואה המשוקללת לפי כסף (MWR). היא לוקחת בחשבון הפקדות ומשיכות, ולכן משקפת את ביצועי התיק שלך."
+      ],
+      "text": "האחוז בתרשים התיק שלך מציג אחת משתי האפשרויות:",
+      "title": "מה משמעות אפשרויות האחוז בתיק?"
+    },
     "appendix": {
+      "feedback": {
+        "link": "עדכן אותנו.",
+        "text": "יש לך משוב?"
+      },
       "link": "צור עימנו קשר",
-      "text": "שאלה נוספת?"
+      "questionService": "נתקל בבעיות עם {{serviceName}}?",
+      "text": "שאלה נוספת?",
+      "textService": "אם יש לך בעיות עם {{serviceName}}, פנה אליהם ישירות:"
     },
     "backups": {
       "check": {
@@ -464,6 +1338,163 @@
         "title": "?כיצד ניתן לנתק את כרטיס הזיכרון"
       }
     },
+    "bitrefill": {
+      "invoice": {
+        "link": {
+          "text": "help.bitrefill.com"
+        },
+        "text": "ייתכן שזה בגלל שהשתמשת בספק דואר אלקטרוני ש-Bitrefill לא תומכת בו. אם אתה צריך את החשבונית, פנה לתמיכת Bitrefill והם יספקו לך אותה.",
+        "title": "לא קיבלתי חשבונית מ-Bitrefill"
+      },
+      "kyc": {
+        "link": {
+          "text": "מגבלות רכישה ב-Bitrefill"
+        },
+        "text": "לא, Bitrefill אינה דורשת אימות זהות. ניתן לבצע רכישות ללא KYC עד גבולות מסוימים. לפרטים מלאים, ראה את מדיניות מגבלות הרכישה של Bitrefill:",
+        "title": "האם Bitrefill דורשת KYC?"
+      },
+      "limits": {
+        "link": {
+          "text": "אימות חשבון Bitrefill"
+        },
+        "text": "באפשרותך להעלות את מגבלות הרכישה על ידי אימות חשבון. אנא בקר בקישור הבא כדי להשלים את תהליך האימות:",
+        "title": "כיצד אוכל להגדיל את מגבלות הרכישה שלי עם Bitrefill?"
+      }
+    },
+    "bitsurance": {
+      "faq": {
+        "link": {
+          "text": "www.bitsurance.eu"
+        },
+        "text": "עיין באתר של Bitsurance ובעמוד השאלות הנפוצות שלהם לפרטים נוספים.",
+        "title": "שאלות נוספות?"
+      },
+      "privacy": {
+        "link": {
+          "text": "מדיניות הפרטיות של Bitsurance"
+        },
+        "text": "כמו בכל פוליסת ביטוח רגילה, היא מכילה את שמך המלא וכתובתך, ומציינת את הנכס המבוטח (המוגדר על‑ידי המפתח הציבורי המורחב של חשבון הביטקוין המבוטח). נתונים אלה נשלחים ישירות ל‑Bitsurance ואינם משותפים עם Shift Crypto. למידע נוסף עיין במדיניות הפרטיות של Bitsurance.",
+        "title": "איזה מידע אישי נדרש לביטוח?"
+      },
+      "renew": {
+        "text": "הביטוח יתחדש אוטומטית לשנה הבאה. ניתן לבטל את החידוש בכל עת על‑ידי לחיצה על \"Manage contract\" ב‑BitBoxApp, אשר מפנה אותך לפורטל הלקוחות של Bitsurance.",
+        "title": "כיצד ניתן לחדש או לבטל את הביטוח?"
+      },
+      "status": {
+        "text": "חשבונות מבוטחים בהצלחה מסומנים בסימול 'מבוטח' ירוק בפינה השמאלית העליונה בכל דף חשבון הביטקוין. במדור 'ביטוח' תוכל לראות סקירה של כל חשבונות הביטקוין המבוטחים ואת מצב הביטוח הנוכחי שלהם. עדכון מצב הביטוח עלול להימשך עד 48 שעות.",
+        "title": "האם ניתן לבדוק את הסטטוס של חשבון מבוטח?"
+      },
+      "what": {
+        "text": "כל חוזה ביטוח לביטקוין מכסה חשבון ארנק מסוים. ניתן לבטח מספר חשבונות על ידי רכישת מספר פוליסות. חשבונות מבוטחים מוגבלים לשימוש בכתובות ביטקוין מסוג “Native Segwit”.",
+        "title": "האם כל ארנק BitBox מבוטח?"
+      },
+      "who": {
+        "text": "הביטוח מוצע על ידי Bitsurance, ברוקר ביטוח שנבנה על ידי חובבי ביטקוין. הם משתפים פעולה עם ELEMENT Insurance כדי לספק ביטוח לביטקוין. שתי החברות מבוססות בגרמניה.",
+        "title": "מי מבטח את הביטקוין שלי?"
+      },
+      "why": {
+        "text": "Bitsurance מכסה חלק מהסיכונים של אחזקת המטבעות באופן עצמאי שאינם כלולים בהיקף של אפילו הארנק המאובטח ביותר, למשל פריצה, סחיטה או השמדת הארנק. זו החלטה אישית אם אתה צריך כיסוי ביטוחי לסיכונים אלה.",
+        "title": "האם אני צריך ביטוח לביטקוין?"
+      }
+    },
+    "device": {
+      "attestation": {
+        "link": {
+          "text": "למידע נוסף על בדיקת האותנטיות"
+        },
+        "text": "ה-BitBoxApp מבצע בדיקת האותנטיות על ה-BitBox כדי לוודא שהמכשיר מקורי. הבדיקה מתבצעת באופן מקומי ואינה מתחברת לשרתים.",
+        "title": "כיצד עובדת בדיקת האותנטיות?"
+      },
+      "name": {
+        "text": "זהו השם של הארנק והגיבוי שלך. השם משמש לגיבויים עתידיים ויכול לסייע להבחין בין ארנקים שונים. ניתן לשנותו בכל עת, אך שים לב שהגיבויים שנוצרו לפני השינוי ישמרו את השם הקודם.",
+        "title": "למה משמש השם של ה-BitBox?"
+      },
+      "secure-chip": {
+        "link": {
+          "text": "למידע נוסף על השבב המאובטח"
+        },
+        "text": "מידע זה מציג את מספר הדגם של השבב המאובטח. השבב העדכני ביותר הוא ATECC608B, עם תכונות אבטחה משופרות לעומת דגמים קודמים.",
+        "title": "למה להציג את דגם השבב המאובטח?"
+      }
+    },
+    "disclaimer": {
+      "link": "הצג את הצהרת האחריות של {{provider}}",
+      "title": "הצהרת האחריות של {{provider}}"
+    },
+    "guideTitle": {
+      "account": "מדריך חשבון",
+      "accountInformation": "מדריך למידע על החשבון",
+      "accountSummary": "מדריך סיכום חשבון",
+      "advancedSettings": "מדריך להגדרות מתקדמות",
+      "appearance": "מדריך למראה",
+      "buySell": "מדריך Marketplace",
+      "insurance": "מדריך ביטוח",
+      "lightningReceive": "מדריך לקבלת Lightning",
+      "lightningSend": "מדריך לשליחת Lightning",
+      "manageAccount": "מדריך לניהול חשבונות",
+      "manageDevice": "מדריך לניהול המכשיר",
+      "receive": "מדריך לקבלה",
+      "send": "מדריך לשליחה",
+      "walletConnect": "מדריך WalletConnect"
+    },
+    "lightning": {
+      "multipleDevices": {
+        "text": "כן — פשוט חבר את ה-BitBox למכשיר אחר והפעל את Lightning ב-BitBoxApp. ארנק ה-Lightning יהיה זהה לזה שבמכשיר הקודם אם תשתמש באותו ארנק.",
+        "title": "האם ניתן להשתמש בארנק Lightning שלי על מספר מכשירים?"
+      },
+      "multipleWallets": {
+        "text": "לא — נכון לעכשיו לא ניתן ליצור מספר ארנקי Lightning עם אותו BitBox, ולא ניתן להשתמש במספר ארנקי Lightning באותו BitBoxApp, גם אם יש לך כמה BitBox.",
+        "title": "האם אפשר ליצור מספר ארנקים ב‑Lightning?"
+      },
+      "privateKey": {
+        "text": "הארנק Lightning של BitBoxApp אינו נשמר על ידי גורם חיצוני, כלומר רק לך יש גישה למפתחות. המפתחות הפרטיים מאוחסנים ב‑BitBoxApp. זה הופך את ארנק ה‑Lightning שלך ל'ארנק חם', שכן מפתחות ה‑Lightning נמצאים במחשב/בטלפון שלך במקום על ה‑BitBox. לכן שמור בארנק ה‑Lightning רק סכום קטן של מטבעות.",
+        "title": "איפה מאוחסנים המפתחות הפרטיים של Lightning שלי?"
+      },
+      "providers": {
+        "text": "כן — ארנק Lightning משתמש ב‑Spark דרך ה‑Breez SDK. ה‑BitBoxApp שולט במפתחות ה‑Lightning שלך, בעוד ש‑Spark מספקת את התשתית החיצונית הדרושה לשליחת וקבלת תשלומים ב‑Lightning. יתכנו עמלות בעת שימוש בשירות.",
+        "title": "האם מעורבים צדדים חיצוניים בפתרון זה?"
+      },
+      "receive": {
+        "fee": {
+          "text": "לא — הנמען אינו משלם עמלה על קבלת תשלום Lightning. השולח משלם את העמלות.",
+          "title": "האם אני משלם עמלה בעת קבלת תשלום?"
+        },
+        "invoiceOrAddress": {
+          "text": "צור בקשת תשלום כשאתה רוצה לבקש סכום מסוים. בקשת תשלום תקפה לתשלום אחד ותפוג לאחר 30 ימים. שתף במקום זאת את כתובת Lightning שלך כאשר השולח צריך לבחור את הסכום, או כאשר אתה רוצה שהוא ישמור אותה לתשלומים עתידיים. ניתן להוסיף תיאור אופציונלי לבקשת התשלום כדי לזהות את התשלום מאוחר יותר.",
+          "title": "מתי כדאי ליצור Invoice במקום לשתף את הכתובת?"
+        },
+        "payment": {
+          "text": "תוכל לשתף את כתובת ה‑Lightning לשימוש חוזר או ליצור חשבונית BOLT11 לתשלום יחיד. שתף את קוד ה‑QR או את הטקסט המוצג עם השולח. אין צורך שה‑BitBoxApp יישאר פתוח בזמן ההמתנה לתשלום.",
+          "title": "כיצד ניתן לקבל תשלום ב-Lightning?"
+        },
+        "reuseAddress": {
+          "text": "כן. בניגוד לחשבונית, כתובת ה‑Lightning שלך ניתנת לשימוש עבור תשלומים מרובים. השולח בוחר את הסכום, והארנק שלהם מבקש אוטומטית את פרטי התשלום. זו אינה כתובת דוא\"ל, אף על פי שהיא נראית כך.",
+          "title": "האם אפשר להשתמש שוב בכתובת ה‑Lightning שלי?"
+        }
+      },
+      "securedByBitBox": {
+        "text": "לא. ה‑BitBox משמש רק ליצירה ושחזור של ארנק ה‑Lightning שלך. לאחר יצירת ארנק ה‑Lightning, הוא נחשב 'hot wallet'.",
+        "title": "האם ארנק ה‑Lightning שלי מאובטח על ידי ה‑BitBox?"
+      },
+      "send": {
+        "cancel": {
+          "text": "לא. תשלומי Lightning אינם ניתנים לביטול או להחזרה לאחר שנשלחו. בדוק תמיד את המקבל, הסכום, התיאור והעמלה לפני השליחה. אם אתה צריך החזר, בקש מהמוטב לשלוח את הכספים חזרה. חשבונית שלא שולמה פגה בסופו של דבר.",
+          "title": "האם ניתן לבטל או להחזיר תשלום Lightning?"
+        },
+        "fee": {
+          "text": "העמלה תלויה בסכום התשלום ובמסלול הזמין באותו רגע, ולכן מחושבת זמן קצר לפני השליחה. העמלה והסכום הכולל שיוחסר מהיתרה שלך יוצגו לפני האישור.",
+          "title": "כיצד מחושבת עמלת תשלום ב‑Lightning?"
+        },
+        "invoiceAndAddress": {
+          "text": "חשבונית BOLT11 נוצרת לתשלום יחיד. היא עשויה לציין את הסכום מראש, או לבקש שתזין סכום. לחשבוניות יש תוקף והן ניתנות לתשלום רק פעם אחת. כתובת Lightning ניתנת לשימוש חוזר ומאפשרת לבחור כל סכום במסגרת המגבלות שקבע המקבל.",
+          "title": "מה ההבדל בין חשבונית לכתובת Lightning?"
+        },
+        "payment": {
+          "text": "סרוק או הדבק חשבונית BOLT11, בקשת LNURL-Pay, או כתובת Lightning. כתובת Lightning נראית כמו כתובת אימייל, אך משמשת לתשלומים.",
+          "title": "כיצד לשלוח תשלום ב-Lightning?"
+        }
+      }
+    },
     "receive": {
       "address": {
         "text": "באפשרותך לתת את הכתובת לאחרים בכדי לשלוח לך מטבעות. תוודא שאתה שולח את הכתובת הנכונה",
@@ -474,12 +1505,16 @@
         "title": "?מתי כתובות משתנות"
       },
       "addressFormats": {
-        "text": "כברירת מחדל, ארנק הביטבוקס משתמש בכתובות מהסוג החדש ביותר. אם קיימת בעיה בשימוש בסוג כתובות אלו, ניתן ללחוץ על שינוי סוג הכתובות לסוג הקודם",
+        "text": "ברירת המחדל היא כתובת מסוג Native Segwit. סוג כתובת זה מאומץ באופן נרחב על ידי ארנקים ובורסות אחרות ומעניק את דמי העסקה המשתלמים ביותר לעסקאות יומיומיות. עם זאת, ניתן גם לבחור לשלוח ל‑Taproot (רק Bitcoin), שהוא סוג הכתובת החדש ביותר, אך ייתכן שהוא עדיין לא נתמך ברוב המקומות.",
         "title": "?מה ההבדלים בין כתובות מהדור הקודם לדור החדש"
       },
       "howVerify": {
         "text": "בביטבוקס01, לחץ על סמל הביטבוקס בתפריט בצד שמאל וחפש את הגדרת הצימוד. המדריך יתעדכן ותוכל להמשיך במעקב אחרי ההוראות משם\nבביטבוקס02, תוכל לאשר את הכתובת ישירות מההתקן בזמן תהליך השליחה או הקבלה",
         "title": "?כיצד אני יכול לאמת בבטחה כתובת"
+      },
+      "plugout": {
+        "text": "לא, לאחר ששלחת מטבעות לכתובת ה-BitBox שלך, אין צורך להשאיר את ה-BitBox מחובר. אתה יכול לנתק את ה-BitBox.",
+        "title": "האם צריך להשאיר את ה-BitBox מחובר בזמן קבלה?"
       },
       "why20": {
         "text": ".כדי לראות אם קיבלו כספים. מכיוון שהאפליקציה יכולה לייצר מספר אינסופי כמעט של כתובות, היא עשויה להקדיש שנים לקביעת היתרה. כדי להגביל חיפוש זה הוא מפסיק לאחר שהוא רואה 20 כתובות שמעולם לא קיבלו כספים. זהו \"גבול הפער\" ו- 20 הוא תקן דה-פקטו אם כי המספר הוא שרירותי. אלה 20 הכתובות בהן תוכלו לבחור Seed -במהלך האיתול, היישום מייצר כתובות הנגזרות מה",
@@ -490,14 +1525,22 @@
         "title": "?מדוע מספר רב כל-כך של כתובות"
       },
       "whyVerify": {
-        "text": "אין לסמוך על המחשב שלך כדי ליצור ולהציג כתובות אותנטיות. מחשב המחובר לרשת הופך אותו לפגיע באופן משמעותי יותר מארנק חומרה. עבור ביטבוקס01, הכפתור לאימות הכתובת שולח את הכתובת בצורה בטוחה לטלפון הנייד המוצמד, ממנו תוכלו לסרוק ולאמת את צופן ה״קיו-אר״. לגבי ביטבוקס02, ניתן לאמת את הכתובת ישירות על גבי מסך הביטבוקס02",
+        "text": "לא כדאי לסמוך על המחשב שלך ליצירה והצגה של כתובות אותנטיות. משטח התקיפה הגדול שלו הופך אותו לפגיע משמעותית יותר מארנק חומרה. ניתן לאמת את הכתובת ישירות על תצוגת ה‑BitBox.",
         "title": "מדוע עליי לאמת את הכתובת בצורה מאובטחת?"
       }
     },
     "send": {
+      "change": {
+        "text": "השינוי יוחזר לכתובת Taproot אם יש לך לפחות UTXO אחד מסוג Taproot. אם אתה משתמש ב‑coin control, השינוי יוחזר לכתובת Taproot אם יש לפחות UTXO אחד מסוג Taproot בין ה‑UTXO שנבחרו. בכל שאר המקרים, השינוי יוחזר לכתובת Native Segwit.",
+        "title": "כיצד נקבע פלט השינוי?"
+      },
       "fee": {
         "text": ".העמלה מבוססת על גודל נתוני העסקה ולא על גובהם. יעדי העמלות מחושבים על ידי אלגוריתם הערכת העמלות של ליבת הביטקוין לכל עדיפות ברשת שבחרת. הם מוצגים אם יש להם ערך שונה מהיעד למטה\n(חסכוני: 24 בלוקים (בערך 4 שעות לביטקוין, שעה עבור לייטקויין\n(נמוך: 12 בלוקים (בערך שעתיים לביטקוין, 30 דקות עבור לייטקויין\n(רגיל: 6 בלוקים (כשעה לביטקוין, 15 דקות עבור לייטקויין\n(גבוה: 2 חסימות (בערך 20 דקות לביטקוין, 5 דקות עבור לייטקויין\nלבלוק לוקח עשר דקות בממוצע לביטקוין (2.5 דקות בלייטקויין) ועומס הרשת עשוי להשתנות במידה ניכרת בתקופות שלעיל",
         "title": "?כיצד העמלה נקבעת"
+      },
+      "plugout": {
+        "text": "לא — לאחר שליחת עסקה אין צורך להשאיר את ה-BitBox מחובר. ניתן לנתק את ה-BitBox.",
+        "title": "האם יש להשאיר את ה‑BitBox מחובר בעת שליחה?"
       },
       "priority": {
         "text": ".ככל שהעמלה אותה תהיה מוכן לשלם תהיה גבוהה יותר, כך העסקה תאושר מהר יותר ברשת",
@@ -513,6 +1556,10 @@
       }
     },
     "settings": {
+      "sats": {
+        "text": "סאטושי ('sat' בקיצור) הוא היחידה הקטנה ביותר של הביטקוין. סאטושי אחד הוא אחד ממאה מיליון של ביטקוין (0.00000001 BTC). הוא נקרא על שמו של יוצר הביטקוין, סאטושי נאקאמוטו.",
+        "title": "מה זה סאטושי?"
+      },
       "servers": {
         "text": "כדי לבדוק עדכונים, לטעון עסקאות ולשלוח מידע לאפליקציות סלולריות מותאמות Shift Crypto -יישום זה מתקשר עם שרתי\n האפליקציה מאחזרת גם את שערי החליפין האחרונים מהפלטפורמה של קריפטו-קומפר\n,כל ההמרות מחושבות באופן מקומי, כלומר לא מועברים אי פעם נתונים על סכום העסקה שלך\n.Etherscan.io APIs -אנחנו משתמשים ב ERC20 -בשביל מטבעות אית׳ריום ו",
         "title": "?עם אילו שרתים התכנה מתקשרת"
@@ -552,6 +1599,10 @@
       "close": "סגור מדריך",
       "open": "מדריך"
     },
+    "trackingModePortfolioChart": {
+      "text": "במחשב, העבר את הסמן מעל הגרף. בנייד, החזק את האצבע על הגרף וגרור אופקית.",
+      "title": "איך לראות ערכים היסטוריים בתרשים?"
+    },
     "unlock": {
       "forgotDevicePassword": {
         "text": ".עלייך לאתחל מחדש את ההתקן ולשחזר את הארנק מגיבוי, באמצעות סיסמת השיחזור",
@@ -588,6 +1639,27 @@
       "welcome": {
         "text": "תודה על השימוש בתכנה שנבנתה ע״י שיפט קריפטו בשוויץ\nאנחנו מעריכים כל משוב, ניתן לרשום לנו בקישור למטה",
         "title": "!ברוך הבא לתכנת הביטבוקס"
+      },
+      "worksWithIos": {
+        "link": {
+          "text": "הזמן את BitBox02 Nova"
+        },
+        "text": "רק ה‑BitBox02 Nova עובד עם iOS. ה‑BitBox02 הרגיל ניתן לשימוש בכל שאר הפלטפורמות. לרכישת BitBox02 Nova, בקר בחנות שלנו.",
+        "title": "איזה BitBox עובד עם iOS?"
+      }
+    },
+    "walletConnect": {
+      "noPreviousConnections": {
+        "text": "אם אתה משתמש בטלפון/מחשב חדש עם BitBoxApp, תצטרך להתחבר שוב ל-DApps. לאחר מכן תראה את המטבעות שלך ב-dapp כרגיל.",
+        "title": "אני לא רואה את החיבורים הקודמים שלי."
+      },
+      "supportedNetworks": {
+        "text": "נכון לעכשיו, ב-BitBoxApp באמצעות WalletConnect נתמכת רק רשת ה-Ethereum mainnet. כדי להשתמש ברשתות תואמות EVM אחרות, השתמש בתוסף הדפדפן Rabby.",
+        "title": "אילו רשתות נתמכות?"
+      },
+      "whatIsWalletConnect": {
+        "text": "WalletConnect הוא פרוטוקול תקשורת עבור אפליקציות web3. הוא מאפשר לך להתחבר בנוחות ל-DApps ול-web wallets מבוססי Ethereum ללא שימוש באפליקציית צד שלישי, דבר השימושי במיוחד למשתמשי Android של BitBoxApp.",
+        "title": "מה זה WalletConnect?"
       }
     }
   },
@@ -618,48 +1690,432 @@
     "title": "בחר שפה"
   },
   "lightning": {
-    "claimTopUp": {
-      "confirm": {
-        "fee": "עמלה"
+    "accountLabel": "Lightning",
+    "activate": {
+      "connect": {
+        "content": "חבר את ה-BitBox כדי ליצור את ארנק ה-Lightning",
+        "title": "חבר את המכשיר שלך"
+      },
+      "disclaimer": {
+        "content": "ארנק ה-Lightning שלך ייווצר באמצעות מפתח שיונמך מה-BitBox שלך. כך תמיד תוכל לשחזר את ארנק ה-Lightning באמצעות ה-BitBox או הגיבוי שלך.\n\nעם זאת, בניגוד ל-BitBox, <strong>ארנק חם</strong>. משמעות הדבר היא שמפתחות ארנק ה-Lightning מאוחסנים ב-BitBoxApp, ולא ב-BitBox. אין להשתמש בארנק ה-Lightning לסכומים גדולים או לאחסון לטווח ארוך.\n\nבנוסף, תכונת Lightning נמצאת כרגע בבטא, ולכן ייתכן שתיתקל בבאגים, בבעיות אמינות או שהיא עלולה להפסיק לפעול לחלוטין.",
+        "title": "איך זה עובד עם BitBoxApp?"
+      },
+      "intro": {
+        "content": "Lightning היא שכבה שנייה מבוססת ערוצים על גבי ביטקוין. היא מאפשרת לך לשלוח ולקבל מטבעות באופן מיידי ובעמלה נמוכה מאוד.",
+        "title": "מה זה Lightning?"
+      },
+      "success": {
+        "message": "הצלחה, ארנק ה-Lightning שלך מוכן!"
+      },
+      "title": "צור ארנק Lightning",
+      "wait": {
+        "activating": "מפעיל את ארנק Lightning...",
+        "confirm": "אשר ב‑BitBox שלך שברצונך ליצור ארנק Lightning.",
+        "title": "צור ארנק Lightning"
       }
     },
-    "closeWithdrawFunds": {
-      "fee": "עמלה"
+    "betaWarning": "Lightning בבטא. יש להשתמש רק בסכום קטן של כספים.",
+    "bitcoinDeposit": {
+      "claim": "תביעת הטענה או החזר",
+      "label": "הטענת ביטקוין",
+      "state": {
+        "claiming": "תביעה על הפקדה",
+        "confirming": "ממתין לאישורים",
+        "refundPending": "החזר ממתין לשידור",
+        "unclaimed": "נדרשת תביעה"
+      },
+      "stateShort": {
+        "claiming": "בתהליך תביעה",
+        "confirming": "מתאשר",
+        "refundPending": "החזר בהמתנה",
+        "unclaimed": "יש לתבוע"
+      }
     },
+    "claimTopUp": {
+      "claimButton": "תביעת הטענה",
+      "claimFee": "עמלת תביעה",
+      "claimUnavailable": "תביעה לא זמינה",
+      "confirm": {
+        "amount": "הטענה שלא תבעו",
+        "claimButton": "אשר תביעה",
+        "claimTitle": "אשר תביעת הטענה",
+        "fee": "עמלה",
+        "feeRate": "שיעור עמלה",
+        "refundButton": "אשר החזר",
+        "refundDestination": "יעד החזר",
+        "refundTitle": "אשר החזרת הטופ-אפ"
+      },
+      "description": "תבע את הטופ-אפ הזה כדי להוסיף את הכספים לארנק Lightning שלך.",
+      "empty": "לא נמצאה הטענה שלא תבעו.",
+      "failure": {
+        "claimFailedMessage": "תביעת הטענה נכשלה.",
+        "claimFailedTryRefund": "נסה להחזיר אותו לחשבון ביטקוין במקום זאת.",
+        "refundFailedMessage": "החזר עבור ההטענה נכשל.",
+        "refundFailedTryAgain": "נסה שוב."
+      },
+      "feeRate": "{{feeRate}} sat/vByte",
+      "refundButton": "החזר הטענה",
+      "refundFee": "שיעור עמלת ההחזר",
+      "refundPending": "ההחזר לא הגיע לרשת הביטקוין. הוא ינסה שוב אוטומטית. תוכל גם לנסות שוב עם שיעור העמלות הנוכחי.",
+      "refundUnavailable": "החזר לא זמין",
+      "success": {
+        "claimTitle": "תבע הטענה",
+        "deferredMessage": "תביעת ההטענה נקבעה",
+        "deferredNote": "ההטענה עדיין לא נתבעה. היא תנסה שוב אוטומטית כאשר תהיה זכאית במסגרת הגבלת העמלות.",
+        "refundMessage": "התבקש החזר",
+        "refundNote": "ההחזר יופיע שוב בארנק on-chain שלך לאחר שהעסקה תאושר.",
+        "refundTitle": "החזר הטענה",
+        "settledMessage": "ההטענה נתבעה",
+        "settledNote": "הכספים זמינים כעת בארנק Lightning שלך.",
+        "submittedMessage": "תביעת ההטענה נשלחה",
+        "submittedNote": "התביעה מעובדת. הכספים יופיעו בארנק Lightning שלך לאחר סיומה."
+      },
+      "title": "קבל הטענה",
+      "topUp": "הטענה שלא נדרשה",
+      "viewTransaction": "הצג עסקה",
+      "warning": "תוכל לתבוע את ההטענה או לבקש החזר. בכל מקרה תחול עמלה."
+    },
+    "closeWithdrawFunds": {
+      "accountDestination": "המטבעות בחשבון יישלחו אל",
+      "confirm": "אשר סגירת ארנק Lightning",
+      "description": "פעולה זו תסגור את ארנק ה‑Lightning שלך ותשלח את כל המטבעות הנותרים ל‑BitBox שלך.",
+      "failure": {
+        "message": "סגירת ארנק Lightning נכשלה.",
+        "tryAgain": "נסה שוב."
+      },
+      "fee": "עמלה",
+      "incomingFunds": "כספים נכנסים",
+      "incomingWarning": "כספים נכנסים אינם ניתנים למשיכה בעת סגירת ארנק Lightning שלך. אנא נסה שוב מאוחר יותר למשוך את כל הכספים.",
+      "incomingWarningConfirm": "מובן לי שהכספים הנכנסים לא יימשכו.",
+      "lightningBalanceToBeSent": "יתרת לייטנינג שיש לשלוח",
+      "partialFailure": {
+        "action": "כבה את הארנק",
+        "message": "ההספקת הכספים נמשכה, אך לא היה ניתן לסגור את ארנק הלייטנינג. סגור אותו בנפרד."
+      },
+      "success": {
+        "message": "ארנק Lightning נסגר בהצלחה. המטבעות יישלחו אל הארנק on-chain.",
+        "note": "המטבעות שלך יופיעו בארנק שלך ברגע שהעסקה תאושר."
+      },
+      "viewTransaction": "הצג עסקה"
+    },
+    "contacts": {
+      "add": "הוסף איש קשר",
+      "addAfterPayment": "הוסף <strong>{{address}}</strong> לאנשי הקשר שלך",
+      "addressPlaceholder": "satoshi@bitbox.cash",
+      "delete": "מחק איש קשר",
+      "deleteAction": "מחק",
+      "deleteConfirmation": "האם למחוק איש קשר זה?",
+      "deleteError": "לא ניתן למחוק את איש הקשר. נסה שוב.",
+      "details": "פרטי איש קשר",
+      "duplicateAddress": "כתובת Lightning זו כבר נמצאת באנשי הקשר שלך.",
+      "empty": "עדיין אין אנשי קשר",
+      "invalidAddress": "הזן כתובת Lightning תקינה.",
+      "loadError": "לא ניתן לטעון אנשי קשר. נסה שוב.",
+      "myAccounts": "החשבונות שלי",
+      "name": "שם",
+      "namePlaceholder": "הקלד שם",
+      "notFound": "לא נמצא איש קשר.",
+      "optional": "אופציונלי",
+      "saveError": "לא ניתן לשמור את איש הקשר. נסה שוב.",
+      "saved": "איש הקשר נשמר",
+      "sendTo": "שלח אל",
+      "title": "אנשי קשר"
+    },
+    "deactivate": {
+      "intro": {
+        "content": "כיבוי ארנק ה‑Lightning ינתק אותך מהשרת ולא תוכל עוד להשתמש בארנק ה‑Lightning כדי לשלוח ולקבל.\nהכספים בארנק ה‑Lightning לא יושפעו. עדיין תוכל לגשת אליהם שוב על ידי הפעלת Lightning בהגדרות וחיבור ה‑BitBox שבו נוצר אותו ארנק."
+      },
+      "success": {
+        "message": "בוצע בהצלחה — ארנק ה‑Lightning שלך מושבת כעת"
+      },
+      "wait": {
+        "title": "מבטל את ארנק Lightning..."
+      }
+    },
+    "disclaimer": {
+      "backups": {
+        "content": "מפתח הפרטי של ארנק Lightning נגזר מה‑BitBox. משמעות הדבר היא שניתן לשחזר את ארנק Lightning באמצעות אותו BitBox ששימש ליצירתו.",
+        "title": "גיבויים"
+      },
+      "beta": {
+        "content": "מימוש הלייטנינג ב‑BitBoxApp נמצא בבטא. משמעות הדבר היא שעשויים להיות באגים או שהפיצ'ר יפסיק לעבוד לחלוטין. הבן את הסיכונים לפני השימוש ואל תמלא את ארנק הלייטנינג בכספים רבים יותר ממה שאתה מוכן להפסיד.",
+        "title": "בטא"
+      },
+      "continue": "מסכים והמשך",
+      "fees": {
+        "receiving": {
+          "content": "קבלת עסקאות לייטנינג היא בחינם. השולח משלם את העמלות.",
+          "title": "קבלה"
+        },
+        "sending": {
+          "content": "העמלה תלויה בסכום התשלום ובנתיב הזמין בזמן התשלום, ולכן היא מחושבת מעט לפני השליחה. העמלה והסכום הכולל שיופחתו מהיתרה יוצגו לפני האישור.",
+          "title": "שליחה"
+        },
+        "title": "עמלות"
+      },
+      "securityModel": {
+        "content": "ארנק הלייטנינג הוא <strong>ארנק חם</strong>. משמעות הדבר היא שהמפתחות מאוחסנים באפליקציה ולכן אינם מוגנים על ידי ה‑BitBox. זה מאפשר להשתמש בארנק הלייטנינג ללא צורך ב‑BitBox. שמור רק סכום קטן בארנק הלייטנינג.",
+        "title": "מודל אבטחה"
+      },
+      "title": "אזהרת לייטנינג",
+      "trustModel": {
+        "breezLink": "למידע על Breez SDK",
+        "content": "האינטגרציה של Lightning ב‑BitBoxApp משתמשת בתשתית Spark וב‑Breez SDK. שים לב שבשלב זה יציאה חד‑צדדית של הכספים שלך אינה אפשרית, מאחר ש‑Breez SDK כרגע לא תומך בכך. לכן, הוצאת הכספים מהארנק Lightning שלך תלויה בזמינותה ובשיתוף הפעולה של תשתית Spark.",
+        "sparkLink": "למידע על Spark",
+        "title": "מודל אמון"
+      }
+    },
+    "initializationFailed": "אירעה שגיאה בעת אתחול הלייטנינג. הפעל מחדש את BitBoxApp ונסה שוב.",
+    "initializing": "מאתחל חשבון Lightning...",
+    "limit": {
+      "accountWarning": "סכום הארנק חורג מהמגבלה של {{limit}} ב־{{excess}}. אנו ממליצים להעביר חלק מהמטבעות לארנק BitBox שלך לשיפור האבטחה.",
+      "createInvoiceWarning": "סכום בקשת התשלום יחרוג מהמגבלה של {{limit}} ב- {{excess}}. בכל זאת ניתן ליצור את בקשת התשלום.",
+      "invoiceWarning": "סכום בקשת התשלום יחרוג מהמגבלה של {{limit}} ב- {{excess}}. בכל זאת ניתן להשתמש בבקשת התשלום.",
+      "moveCoins": "העבר מטבעות"
+    },
+    "lnurlAddress": {
+      "availability": {
+        "available": "השם זמין",
+        "checking": "בודק זמינות...",
+        "taken": "השם כבר תפוס"
+      },
+      "choose": "אתה יכול לבחור כתובת משלך למטה או ליצור אחת.",
+      "description": "כתובת LNURL היא כתובת קריאה-לבני אדם שניתן לשתף בקלות כדי לקבל תשלומים ב‑Lightning",
+      "generate": "צור כתובת",
+      "label": "שם משתמש LNURL",
+      "notice": "שים לב, ניתן לשנות את הכתובת שלך <strong>פעם אחת בלבד בכל 24 שעות.</strong>",
+      "success": {
+        "message": "כתובת ה-LNURL שלך הוגדרה."
+      },
+      "title": "הגדר כתובת LNURL"
+    },
+    "paymentDescription": "תיאור Invoice",
     "payments": {
       "header": {
         "amount": "סכום",
         "date": "תאריך",
+        "description": "תיאור",
         "type": "סוג"
-      }
+      },
+      "placeholder": "עדיין אין תשלומים.",
+      "title": "היסטוריית תשלומים"
     },
     "receive": {
+      "address": {
+        "label": "כתובת לייטנינג",
+        "scanQRCode": "סרוק קוד QR לקבל"
+      },
       "amountSats": {
+        "label": "סאטס",
         "placeholder": "הכנס סכום"
-      }
+      },
+      "description": {
+        "label": "תיאור",
+        "optional": "אופציונלי",
+        "placeholder": "הזן תיאור"
+      },
+      "invoice": {
+        "copied": "בקשת תשלום הועתקה!",
+        "create": "צור בקשת תשלום",
+        "creating": "יוצר בקשת תשלום",
+        "edit": "ערוך invoice",
+        "newInvoice": "בקשת תשלום חדשה",
+        "title": "סרוק קוד QR כדי לקבל"
+      },
+      "openChannelWarning": "ינוכה סכום של {{feeSat}} sats כדי לפתוח ערוץ חדש.",
+      "subtitle": "צור Lightning invoice",
+      "success": {
+        "message": "תשלום Lightning התקבל!"
+      },
+      "title": "קבל Lightning"
     },
     "send": {
+      "activationRequired": "הפעל את Lightning לפני התשלום. לאחר ההגדרה, פתח שוב את קישור התשלום.",
       "confirm": {
         "amount": "סכום",
-        "note": "הערה"
-      }
+        "note": "הערה",
+        "receiver": "מקבל",
+        "title": "אשר פרטי העסקה"
+      },
+      "enterInvoice": "הזן כתובת או invoice",
+      "invoice": {
+        "label": "הזן פרטי תשלום",
+        "placeholder": "פרטי תשלום"
+      },
+      "lnurlPay": {
+        "invalidAmount": "הכנס סכום בין {{minAmount}} ל- {{maxAmount}} sats."
+      },
+      "onChain": "On-chain",
+      "pasteClipboard": "הדבק מהלוח",
+      "qrCode": {
+        "label": "סרוק כתובת או invoice"
+      },
+      "scanInstruction": "כוון את המצלמה אל קוד ה-QR של ה-invoice",
+      "sending": {
+        "connecting": "מכין תשלום",
+        "message": "שולח תשלום"
+      },
+      "success": {
+        "message": "העסקה אושרה ונשלחה!"
+      },
+      "title": "שלח ב‑Lightning"
     },
     "settings": {
+      "closeAndWithdrawFunds": "סגור ומשוך כספים",
+      "disableWallet": "השבת ארנק Lightning",
+      "enableDebugLogs": "הפעל יומני דיבוג של Lightning",
+      "enableWallet": "הפעל ארנק Lightning",
+      "enableWalletDescription": "Lightning מאפשר תשלומים מיידיים עם עמלות נמוכות.",
+      "expert": "מומחה",
+      "serviceProvider": "ספק שירות",
+      "setLightningAddress": "כתובת Lightning",
       "status": "מצב",
+      "statusConnected": "מחובר",
+      "title": "הגדרות Lightning",
       "wallet": "ארנק"
     },
+    "sparkStatus": {
+      "degraded": "רשת Spark חווה ירידה בביצועים. תשלומי Lightning עלולים להתעכב.",
+      "major": "רשת Spark חווה תקלה משמעותית. תשלומי Lightning עשויים להיות בלתי זמינים.",
+      "partial": "רשת Spark חווה אי-זמינות חלקית. תשלומי Lightning עשויים להיות בלתי זמינים.",
+      "unknown": "מצב רשת Spark אינו ידוע. ייתכן שתשלומי Lightning לא יהיו זמינים."
+    },
+    "testnetWarning": {
+      "message": "למטבעות Lightning יש ערך אמיתי, גם כשמשתמשים באפליקציה במצב testnet. להמשיך?",
+      "title": "אזהרה"
+    },
     "topUp": {
+      "action": "הטען",
+      "available": "זמין",
+      "claimFeeInfo": "מנוכה מסכום ההטענה שלך. העמלה בפועל עשויה להשתנות בהתאם למצב רשת הביטקוין בזמן התביעה.",
       "confirm": {
         "amount": "סכום",
+        "continue": "המשך ב-BitBox.",
         "networkFee": "עמלת רשת",
+        "receiver": "מקבל",
         "title": "אשר ובצע עסקה",
         "total": "סכום סופי"
-      }
+      },
+      "estimatedClaimFee": "עמלת תביעה משוערת",
+      "from": "מ-",
+      "noBitcoinAccounts": "אין חשבונות ביטקוין פעילים. אנא הפעל חשבון ביטקוין.",
+      "note": "הטענת Lightning",
+      "success": {
+        "message": "הטענה נוצרה!",
+        "note": "עסקת ההטענה תופיע כרשומה בהמתנה ברשימת התשלומים לפני האישור הראשון שלה. היא תתבע אוטומטית כאשר האשׁרוּת והעמלות יאפשרו זאת. תביעות סטנדרטיות דורשות שלושה אישורים; תביעות מוקדמות עשויות להסתיים מוקדם יותר."
+      },
+      "title": "הטענת ארנק Lightning",
+      "to": "אל"
     }
   },
   "loading": "...טוען",
+  "logo": {
+    "label": "{{name}} לוגו",
+    "placeholderLabel": "{{name}} לוגו זמני"
+  },
+  "manageAccounts": {
+    "accountHidden": "החשבון הזה הוסתר מהחשבונות ה-watch-only שלך. כדי לראותו שוב, חבר את ה-BitBox שלך.",
+    "editAccount": "ערוך",
+    "editAccountNameTitle": "ערוך שם החשבון",
+    "noAccounts": "לא נמצאו חשבונות",
+    "settings": {
+      "hideTokens": "הסתר אסימונים",
+      "showTokens": "הצג אסימונים ({{activeTokenCount}})"
+    },
+    "settingsButtonDescription": "הוסף והצג/הסתר חשבונות",
+    "title": "ניהול חשבונות",
+    "watchAccount": "חשבון לצפייה בלבד",
+    "watchAccountDescription": "חשבון זה הוא חלק מחשבונות לצפייה בלבד שלך. תוכל להסתיר אותו מרשימת החשבונות לצפייה בלבד באמצעות המתג."
+  },
   "mobile": {
     "usingMobileDataWarning": ".כדי להימנע משימוש בנתונים ניידים WiFi-שימוש בנתונים ניידים: יישום זה עשוי להוריד עד כמה מאות מגה-בייט של נתוני כותרות מהבלוקצ׳יין לאחר ביטול נעילת חשבון. אנא התחבר ל\n.לאחר הביטול, הודעה זו לא תוצג שוב"
+  },
+  "newSettings": {
+    "about": {
+      "appVersion": {
+        "title": "גרסת האפליקציה"
+      },
+      "feedbackLink": {
+        "description": "אם יש לך משוב כללי",
+        "title": "משוב"
+      },
+      "licenses": {
+        "description": "הצג רישיונות של ספריות ותלויות בקוד פתוח המשמשות באפליקציה זו",
+        "error": "טעינת הרישיונות נכשלה.",
+        "packagesInfo": "אפליקציה זו משתמשת בתלויות קוד פתוח הבאות ({{packageCount}} חבילות).",
+        "title": "רישיונות",
+        "unavailableLicenseText": "טקסט הרישיון אינו זמין."
+      },
+      "supportLink": {
+        "description": "במקרה של בעיה או צורך בעזרה",
+        "title": "תמיכה"
+      }
+    },
+    "advancedSettings": {
+      "authentication": {
+        "description": "נעל גישה לאפליקציה באמצעות נעילת מסך/טביעת אצבע.",
+        "title": "נעילת מסך"
+      },
+      "coinControl": {
+        "description": "בחר אילו UTXOs הם חלק מעסקה כדי לשפר את הפרטיות."
+      },
+      "customFees": {
+        "description": "מאפשר להזין עמלה משלך בעת השליחה."
+      },
+      "restartInTestnet": {
+        "description": "חקור ובדוק תכונות באמצעות testnet."
+      },
+      "torProxy": {
+        "description": "התחבר דרך Tor לפרטיות טובה יותר."
+      }
+    },
+    "appearance": {
+      "activeCurrencies": {
+        "description": "את המטבעות הנוספים הללו ניתן להפעיל או להשבית בדף החשבון שלך.",
+        "title": "מטבעות פעילים"
+      },
+      "darkmode": {
+        "description": "הצג את BitBoxApp במצב כהה."
+      },
+      "defaultCurrency": {
+        "description": "בחר את המטבע המוגדר כברירת מחדל",
+        "title": "מטבע ברירת מחדל"
+      },
+      "enableAccount": {
+        "description": "השבתת החשבון גורמת לכך שהוא לא יופיע בסרגל הצד או בפורטפוליו. תמיד תוכל להפעילו שוב מכאן. המטבעות בחשבון זה לא יושפעו ויישארו בטוחים.",
+        "title": "הפעל/השבת חשבון"
+      },
+      "hideAmounts": {
+        "description": "מציג מתג להסתיר את היתרה והסכומים על מנת לשפר את פרטיותך בעת שימוש באפליקציה בציבור.",
+        "hideAmounts": "הסתר סכומים",
+        "showAmounts": "הצג סכומים",
+        "title": "אפשר להסתיר סכומים"
+      },
+      "language": {
+        "description": "באיזו שפה ברצונך שה‑BitBoxApp ישתמש.",
+        "title": "שפה"
+      },
+      "portfolioPerformance": {
+        "description": "בחר כיצד מחושב אחוז התיק.",
+        "options": {
+          "moneyWeightedReturn": "תשואה",
+          "value": "ערך לאורך זמן"
+        },
+        "title": "אחוז הפורטפוליו"
+      },
+      "remebmerWallet": {
+        "enable": {
+          "description": "עכשיו ניתן לצפות בחשבונות המשויכים לארנק זה מבלי להכניס את מכשיר ה-BitBox. עם זאת, ה-BitBox עדיין נדרש לביצוע עסקאות ולהצגת כתובות קבלה.",
+          "title": "ארנק שמור"
+        },
+        "name": "זכור את הארנק",
+        "warning": "פעולה זו תסיר את הארנק שנשמר. כדי לראותו שוב, יהיה עליך לחבר את ה-BitBox של ארנק זה. המטבעות בארנק זה לא יושפעו. האם ברצונך להמשיך?",
+        "warningTitle": "השבת 'זכור את הארנק'"
+      },
+      "toggleSats": {
+        "description": "הפעל או כבה סאטושי."
+      }
+    }
   },
   "note": {
     "input": {
@@ -673,9 +2129,87 @@
     "newTxs_other": "{{count}} עסקה חדשה ב: {{accountName}}",
     "newTxs_two": ""
   },
+  "novaConnectionIssues": {
+    "connectionIssueTips": "טיפים לבעיות חיבור",
+    "description1": "רק ה-BitBox02 Nova תואם ל-iOS. עבור ה-BitBox02 השתמש ב-Windows, macOS, Android או Linux. ניתן לרכוש BitBox02 Nova בחנות המקוונת שלנו:",
+    "description2": "המסך אמור להידלק. אם המסך לא דולק, המכשיר לא מקבל חשמל.",
+    "description3": "החזק את ה-BitBox02 Nova קרוב ל-iPhone/iPad שלך. אנו ממליצים לחבר את ה-BitBox02 Nova ישירות למכשיר שלך.",
+    "description4": "ה-BitBox02 Nova מתחבר ל-iOS באמצעות Bluetooth. ב-BitBoxApp ניתן להשבית/להפעיל את ה-Bluetooth בפלטפורמות אחרות.",
+    "link1": "הזמן BitBox02 Nova",
+    "link2": "צור קשר עם התמיכה",
+    "stillHavingIssues": "עדיין יש בעיות?",
+    "title1": "השתמש רק ב-BitBox02 Nova עם iOS",
+    "title2": "וודא שה-BitBox02 Nova מחוברת לחשמל",
+    "title3": "שמור על BitBox02 Nova בטווח",
+    "title4": "וודא שה-Bluetooth ב-BitBox02 Nova לא מושבת"
+  },
   "passphrase": {
+    "considerations": {
+      "button": "שיקולי גיבוי",
+      "message": "The passphrase adds a layer of protection to your wallet backup (microSD card or recovery words). If someone has access to your backup they will also need the passphrase to access your wallet.\n\nHowever, this means you will need <strong>גם את ה-passphrase וגם את גיבוי הארנק</strong> to restore your passphrase-enabled wallet, in case your BitBox is lost or broken. If you forget or lose your passphrase, you will lose access to all the coins on that wallet.\n\nWhen storing your passphrase, consider putting it in a separate location than your backup. That way if someone finds your backup they don’t find your passphrase as well.",
+      "title": "שיקולי גיבוי"
+    },
+    "disable": "השבת passphrase",
+    "disableInfo": {
+      "button": "השבת",
+      "message": "After disabling the passphrase, you will no longer be asked to enter a passphrase after unlocking your BitBox. Therefore, you will enter your default wallet.\n\nAny coins on your passphrase-wallet will still be on that wallet, however you won’t be able to access them because after unlocking your BitBox, you will open your default wallet.\n\nTo access your passphrase-wallets again, simply re-enable the passphrase feature and enter the relevant passphrase after unlocking the BitBox.\n\n<strong>טיפ:</strong> You can still enter your original wallet by leaving the passphrase empty."
+    },
+    "enable": "הפעל passphrase",
+    "error": {
+      "e104": "שינוי הגדרת ה-passphrase בוטל."
+    },
+    "how": {
+      "button": "איך זה נראה",
+      "message": "A passphrase doesn’t work like a password that you’re used to. If you mistype your passphrase, you will not be notified. This is because <strong>כל passphrase יוצר ארנק שונה, אך תקין</strong>. This means you can use multiple passphrases for as many wallets as you want. But each wallet can only be accessed when typing in the corresponding passphrase.\n\nWhen plugging in your BitBox, you’ll be prompted for the device password as usual. After that, you’ll be asked to enter a passphrase on the device.\n\nAfter entering the passphrase, you’ll be shown the passphrase you entered. This is so you can confirm you entered it correctly.",
+      "title": "איך זה עובד"
+    },
+    "intro": {
+      "message": "passphrase מוסיפה שכבת אבטחה נוספת לארנק שלך.\nבוא נלמד איך זה עובד.",
+      "title": "הגדר passphrase"
+    },
+    "progressDisable": {
+      "message": "אשר ב-BitBox שברצונך <strong>לבטל</strong> את ה-passphrase האופציונלית.",
+      "title": "אשר במכשיר"
+    },
+    "progressEnable": {
+      "message": "אשר ב-BitBox שברצונך <strong>להפעיל</strong> את ה-passphrase האופציונלית.",
+      "title": "אשר במכשיר"
+    },
+    "successDisabled": {
+      "message": "ה-passphrase האופציונלי <strong>הופעל בהצלחה</strong>!\nמעכשיו תתבקש לספק את ה-passphrase.",
+      "messageEnd": "אנא חבר מחדש את ה-BitBox עכשיו.",
+      "title": "Passphrase מופעלת"
+    },
+    "successEnabled": {
+      "message": "Passphrase אופציונלית <strong>הושבתה בהצלחה</strong>!\n\nלא תתבקש לספק Passphrase יותר.",
+      "messageEnd": "אנא חבר מחדש את ה-BitBox כעת.",
+      "tips": "טיפים",
+      "tipsList": [
+        "מומלץ לשלוח תחילה סכום קטן לארנק עם ה‑passphrase. לאחר מכן נתק והחבר מחדש את ה‑BitBox והזן את הסיסמה וה‑passphrase. אם הכנסת את ה‑passphrase נכון, תראה את המטבעות בארנק שלך.",
+        "כדי להיכנס לארנק המקורי ללא passphrase, השאר את שדה ה‑passphrase ריק כאשר תתבקש להזינו. אפשר גם להשבית את תכונת ה‑passphrase."
+      ],
+      "title": "Passphrase מושבת"
+    },
     "summary": {
-      "title": "סיכום"
+      "button": "הפעל את ה-passphrase",
+      "title": "סיכום",
+      "understand": "אני מבין כיצד פועלת ה-passphrase והסיכונים הכרוכים בכך.",
+      "understandList": [
+        "ה-passphrase הוא שכבת אבטחה נוספת מעל הגיבוי שלך.",
+        "הזנה של passphrase שונה תמיד תייצר ארנק שונה.",
+        "על מנת לשחזר את הארנק יש צורך ב<strong>גם ב‑passphrase וגם בגיבוי</strong>.",
+        "אם תשכח את ה‑passphrase, <strong>לא ניתן עוד לגשת למטבעות שלך</strong>."
+      ]
+    },
+    "what": {
+      "button": "כיצד זה עובד",
+      "message": "ארנק נוצר (נגזר) ממספר אקראי גדול מאוד, הידוע גם כ-seed. ה-seed נוצר בעת ההגדרה הראשונית של ה-BitBox ומגובה בגיבוי על ידי כרטיס microSD או recovery words. לכל מי שיש גישה ל-seed יש שליטה מלאה על הכספים באותו ארנק.\n\npassphrase היא <strong>סוד אופציונלי</strong>, שנוסף ל-seed. בשימוש ב-passphrase, כל passphrase יוצר ארנק חדש המבוסס על seed + passphrase (סוד אופציונלי). ה-passphrase יכולה להיות כל דבר: אותיות, מילים, תווים מיוחדים או אפילו ריקה. ארנק ברירת המחדל נגזר מה-seed + passphrase ריקה.\n\nה-passphrase היא חלק מהתקן BIP39, לכן היא תואמת לכל הארנקים שתומכים באותו תקן.",
+      "title": "מהי passphrase?"
+    },
+    "why": {
+      "button": "למה להשתמש ב-passphrase",
+      "message": "The BitBox protects the seed against extraction from the device itself, but the backup (microSD card or recovery words) gives full access to the wallet. That is why it should be stored in a secure location!\n\nSince a passphrase creates a new wallet using your existing seed, the passphrase-wallet requires both your <strong>גם את הגיבוי וגם את ה-passphrase כדי לשחזר</strong>. The benefit of this is if someone finds your backup, they still need the passphrase to access the passphrase-wallet.\n\nAdditionally, the passphrase feature allows you to create multiple wallets on the same device, or “hidden wallets” in addition to the default one.",
+      "title": "למה להשתמש ב-passphrase?"
     }
   },
   "password": {
@@ -686,15 +2220,25 @@
     }
   },
   "receive": {
+    "bitsuranceWarning": "זהו חשבון מבוטח, לכן הוא יכול לקבל רק ל-Native Segwit. כך שלא תקבל בטעות ל-Taproot, שאינו מבוטח.",
+    "changeScriptType": "שנה סוג כתובת",
     "label": "כתובתך",
     "onlyThisCoin": {
       "description": ".בכדי לקבל אסימונים אחרים, אפשר אותם בהגדרות. אם תפקיד אסימונים שונים, ייתכן שהם לא יהיו נגישים",
       "warning": ".וודא כי אתה מקבל {{coinName}} בלבד בכתובת זו"
     },
+    "qrCodeCopiedMessage": "הועתק!",
+    "scriptType": {
+      "p2tr": "Taproot (הפורמט החדש ביותר)",
+      "p2wpkh": "Native Segwit (ברירת מחדל)"
+    },
+    "selectAccount": "בחר חשבון",
+    "taprootWarning": "שים לב: Taproot היא תכונה חדשה של Bitcoin ולא אומצה עדיין באופן נרחב. כספים המתקבלים לכתובות Taproot עשויים שלא להופיע בארנקים של צד שלישי לצפייה בלבד. ארנקים ובורסות רבים עדיין אינם מסוגלים לשלוח לכתובות Taproot.",
     "title": "קבל {{accountName}}",
     "verify": "וודא כתובת בצורה מאובטחת",
     "verifyBitBox02": "וודא כתובת בביטבוקס02",
-    "verifyInstruction": ".אנא וודא אם הכתובת הבאה תואמת את הכתובת המוצגת על גבי ההתקן שלך"
+    "verifyInstruction": ".אנא וודא אם הכתובת הבאה תואמת את הכתובת המוצגת על גבי ההתקן שלך",
+    "verifyTestnetWarning": "זהו חשבון ברשת הבדיקה; המטבעות שיתקבלו לכתובת זו אינם בעלי ערך."
   },
   "reset": {
     "description": "!כל המידע שבהתקן יימחק, זה כולל את המפתח הפרטי שלך",
@@ -772,37 +2316,60 @@
     },
     "availableBalance": "יתרה זמינה",
     "button": "סקירה",
+    "buyEth": "קנה ETH",
     "coincontrol": {
+      "addressReused": "כתובת בשימוש חוזר",
+      "change": "שנה",
       "outpoint": "נקודת יציאה",
       "title": "שלח מהפלט"
     },
     "confirm": {
+      "infoMessage": "וודא בקפדנות שהסכום והכתובת נכונים ב-BitBox.",
       "selected-coins": "מטבעות נבחרים",
       "title": "אשר ובצע עסקה",
+      "to": "אל",
       "total": "סכום סופי"
     },
+    "edit": "ערוך עסקה",
     "error": {
+      "accountNotSynced": "החשבון עדיין לא מסונכרן. המתן עד לסיום הסנכרון ונסה שוב.",
+      "broadcastUncertain": "יתכן שהעסקה עדיין תעבור. האפליקציה תמשיך לנסות להגיש אותה. בדוק את היסטוריית העסקאות לפני שליחה חוזרת כדי להימנע מתשלום כפול.",
+      "erc20InsufficientGasFunds": "אין לך מספיק Ether כדי לשלם על עסקת ERC20 זו. הוסף Ether לארנק שלך ונסה שוב.",
       "feeTooLow": "עמלה נמוכה מדי",
+      "feesNotAvailable": "לא ניתן להעריך עמלות",
       "insufficientFunds": "אין די כספים",
       "invalidAddress": "כתובת שגויה",
       "invalidAmount": "סכום שגוי",
-      "invalidData": "מידע שגוי"
+      "invalidData": "מידע שגוי",
+      "paymentRequestAccountMismatch": "בקשת תשלום זו מיועדת לרשת או נכס שונה. פתח את החשבון המתאים ונסה שוב.",
+      "syncInProgress": "החשבון עדיין מסנכרן. המתן עד שהסנכרון יסתיים ונסה שוב."
     },
     "fee": {
       "customPlaceholder": "הכנס סכום",
+      "highFee": "עמלה גבוהה",
+      "highFeeWarning": "העמלה היא {{percentage}}% מסכום השליחה. להמשיך?",
       "label": "עמלת רשת",
       "placeholder": "לא זמין"
     },
     "feeTarget": {
+      "customLabel": "שיעור העמלה",
+      "customLabel_eth": "מחיר הגז",
       "description": {
         "economy": "(בלוקים: 24 (סביב ה4 שעות לביטקויין, שעה ללייטקויין",
+        "economy_eth": "30 דקות או פחות",
         "economy_ltc": "(שעה (24 בלוקים",
         "high": "(בלוקים: 2 (סביב ה20 דקות לביטקויין, 5 דקות ללייטקויין",
+        "high_eth": "30 שניות או פחות",
         "high_ltc": "(חמש דקות (2 בלוקים",
         "low": "(בלוקים: 12 (סביב השעתיים לביטקויין, 30 דקות ללייטקויין",
+        "low_eth": "5 דקות או פחות",
         "low_ltc": "(חצי שעה (12 בלוקים",
+        "mEconomy": "-",
+        "mFastest": "10 דקות (הבלוק הבא)",
         "mHalfHour": "(בלוקים: 2 (סביב ה20 דקות לביטקויין, 5 דקות ללייטקויין",
+        "mHour": "30 דקות (3 בלוקים)",
         "normal": "(בלוקים: 6 (סביב השעה לביטקויין, רבע שעה ללייטקויין",
+        "normal_eth": "2 דקות או פחות",
         "normal_ltc": "(רבע שעה (6 בלוקים"
       },
       "estimate": ":זמן המתנה משוער",
@@ -811,22 +2378,52 @@
         "economy": "חסכוני",
         "high": "גבוה",
         "low": "נמוך",
+        "mEconomy": "ללא עדיפות",
         "mFastest": "גבוה",
+        "mHalfHour": "בינוני",
         "mHour": "נמוך",
         "normal": "רגיל"
       },
       "placeholder": "...מחשב הערכת עמלה"
     },
     "maximum": "שלח הכל",
+    "maximumSelectedCoins": "שלח מטבעות שנבחרו",
+    "newTransaction": "עסקה חדשה",
+    "noFeeTargets": "הערכת שיעורי העמלות אינה זמינה כרגע. אנא נסה שוב מאוחר יותר או הזן עמלה מותאמת.",
     "priority": "עדיפות",
     "scanQR": "QR סרוק צופן",
+    "scanQRInstruction": "כוון את המצלמה אל קוד QR של הכתובת",
+    "scanQRNoCameraMessage": "המצלמה לא נמצאה. ודא שהמכשיר תומך במצלמה ושההרשאות מוגדרות כראוי.",
+    "scanQRToggleFlash": "הפעל/כבה פנס",
+    "sendToAccount": {
+      "placeholder": "בחר חשבון",
+      "title": "שלח לחשבון"
+    },
     "success": "העסקה נחתמה ונשלחה",
     "title": "שלח {{accountName}}",
     "toggleCoinControl": "הפעל שליטת מטבע",
     "transactionDetails": "פרטי עסקה"
   },
   "settings": {
+    "about": "אודות",
     "advancedSettings": "הגדרות מתקדמות",
+    "appearance": "מראה",
+    "balanceStatement": {
+      "export": {
+        "description": "ייצא דוח ב-PDF של החזקות שלך לתאריך תמונת מצב שנבחר.",
+        "dialog": {
+          "accountsLabel": "חשבונות להכללה",
+          "dateLabel": "תאריך תמונת מצב",
+          "description": "בחר תאריך ובחר אילו חשבונות להכליל בתמונת המאזן.",
+          "generate": "צור PDF",
+          "noAccounts": "אין חשבונות פעילים זמינים."
+        },
+        "errors": {
+          "sepoliaBalanceStatementUnsupported": "לא ניתן לייצא את Ethereum Sepolia כיוון שערכי היתרות ההיסטוריים אינם זמינים. בטל את בחירת חשבונות Sepolia כדי לייצא את שאר החשבונות."
+        },
+        "title": "ייצא דוח מאזן"
+      }
+    },
     "electrum": {
       "add": "הוסף שרת",
       "add-server": "הוסף",
@@ -855,19 +2452,67 @@
       "title-tltc": "Litecoin Testnet Electrum שרתי"
     },
     "expert": {
+      "clearCache": {
+        "description": "נקה את המטמון של BitBoxApp. זה עשוי לעזור לתקן בעיות באפליקציה.",
+        "dialog": {
+          "description": "נקה את המטמון של BitBoxApp. אם אתה נתקל בבעיות ב‑BitBoxApp, זה יכול לעזור לפתור אותן.",
+          "note": "שמות החשבונות, ההערות והארנקים שלך לא מושפעים.",
+          "primaryCTA": "נקה מטמון"
+        },
+        "success": "המטמון נוקה בהצלחה",
+        "title": "נקה מטמון"
+      },
       "coinControl": "אפשר ניהול מטבע",
       "electrum": {
+        "description": "ניתן להתחבר לצומת Electrum מלא משלך.",
         "title": "חבר את הצומת המלא שלך"
       },
+      "exportLogs": {
+        "description": "ייצא קובץ לוג כדי לסייע באבחון תקלות ובתמיכה.",
+        "title": "ייצא לוגים"
+      },
       "fee": "אפשר ניהול עמלות",
+      "restartInTestnet": "מצב Testnet",
       "setProxyAddress": "קבע כתובת פרוקסי",
       "title": "הגדרות מתקדמות",
-      "useProxy": "הפעל פרוקסי תור"
+      "useProxy": "הפעל פרוקסי תור",
+      "useSats": "הצג ערכי BTC בסאטושי"
     },
+    "general": "כללי",
     "header": {
       "home": "בית"
     },
+    "info": {
+      "out-of-date": "עדכון חדש זמין",
+      "title": "מידע",
+      "up-to-date": "האפליקציה מעודכנת",
+      "version": "גרסת האפליקציה"
+    },
+    "more": "עוד",
+    "notes": {
+      "export": {
+        "description": "צור גיבוי של הערות העסקאות ושמות החשבונות שלך.",
+        "success": "ייצוא ההערות הושלם בהצלחה.",
+        "title": "ייצוא הערות"
+      },
+      "import": {
+        "accountNames_one": "יובא {{count}} שם חשבון.",
+        "accountNames_other": "יובאו {{count}} שמות חשבון.",
+        "accountNames_two": "יובאו 2 שמות חשבון.",
+        "description": "שחזר את הערות העסקאות ושמות החשבונות מקובץ גיבוי שנוצר קודם.",
+        "title": "ייבא הערות",
+        "tooLarge": "הקובץ גדול מדי.",
+        "transactionNotes_one": "יובאה {{count}} הערת עסקה.",
+        "transactionNotes_other": "יובאו {{count}} הערות עסקה.",
+        "transactionNotes_two": "יובאו 2 הערות עסקה."
+      },
+      "title": "ניהול הערות"
+    },
+    "other": "אחר",
     "restart": ".אתחל מחדש את התכנה בכדי שהשינויים יתממשו",
+    "search": {
+      "noResults": "לא נמצאו הגדרות"
+    },
     "services": {
       "title": "שירותים"
     },
@@ -881,7 +2526,18 @@
     "settings": "הגדרות"
   },
   "signMessage": {
-    "addressLabel": "כתובת"
+    "addressLabel": "כתובת",
+    "emptyMessage": "אנא הזן הודעה לחתימה.",
+    "error": "החתימה על ההודעה נכשלה. אנא נסה שוב.",
+    "messageLabel": "הודעה",
+    "messagePlaceholder": "הזן את ההודעה לחתימה",
+    "resultDescription": "הודעה נחתמה",
+    "signButton": "חתום במכשיר",
+    "signMessage": "חתום על הודעה",
+    "signOnBitBoxSubtitle": "חתום על הודעה ב-BitBox",
+    "signatureLabel": "חתימה",
+    "signing": "אשר את ההודעה במכשיר שלך.",
+    "unsupportedTaproot": "חתימת הודעות אינה נתמכת עדיין לכתובות Taproot. חזור ושנה את סוג הכתובת."
   },
   "success": {
     "create": {
@@ -897,33 +2553,90 @@
       "title": "הצלחה"
     }
   },
+  "swap": {
+    "completed": "החלפה הושלמה",
+    "confirmOnBitBox": "אשר החלפה ב-BitBox",
+    "fastest": "המהיר ביותר",
+    "fetchQuotesError": "לא ניתן לקבל הצעות מחיר כרגע. נסה שוב.",
+    "fetchStatusError": "לא ניתן לבדוק זמינות החלפה. נסה שוב.",
+    "fetchingRoutes": "טוען מסלולים...",
+    "firmwareUpgradeRequired": "עדכן את ה-BitBox לגרסת הקושחה האחרונה כדי לבצע החלפה.",
+    "insufficientGasFunds": "דרוש יותר ETH בחשבון <strong>{{accountName}}</strong> כדי לשלם את עמלות הרשת. <buyLink>קנה ETH עכשיו</buyLink>",
+    "new": "החלפה חדשה",
+    "noRouteFound": "לא נמצא נתיב",
+    "noRouteFoundForPair": "לא נמצא מסלול מ {{sellCoin}} ל {{buyCoin}}. נסה להזין סכום גדול יותר. אם לא — נסה שוב מאוחר יותר.",
+    "oneRouteAvailable": "נתיב אחד זמין",
+    "providersUnavailable": "ספקי החלפה אינם זמינים כרגע עבור הנכס שנבחר למכירה. אנא נסה שוב מאוחר יותר.",
+    "recommended": "מומלץ",
+    "route": "נתיב החלפה",
+    "routesPlaceholder": "המסלולים יופיעו כאן לאחר הזנת סכום",
+    "unexpectedError": "אירעה שגיאה בלתי צפויה.",
+    "updateFirmware": "עדכן קושחה"
+  },
   "testWallet": {
+    "connect": {
+      "description": "ארנק בדיקה תוכנתי לשימוש ללא מכשיר ב-Testnet.",
+      "title": "ארנק בדיקה"
+    },
+    "disconnect": {
+      "description": "מוחק את ארנק הבדיקה התוכנתי.",
+      "title": "נתק את ארנק הבדיקה"
+    },
     "prompt": {
-      "button": "בטל נעילה"
+      "button": "בטל נעילה",
+      "info": [
+        "ארנק הבדיקה משתמש במאגר מפתחות תוכנתי בתוך האפליקציה.",
+        "סיסמאות שונות פותחות ארנקים שונים. זהה לשימוש ב-passphrase.",
+        "ניתן לפתוח ללא סיסמה כדי להיכנס לארנק הבדיקה המוגדר כברירת מחדל."
+      ],
+      "passwordLabel": "סיסמת בדיקה",
+      "title": "פתח ארנק בדיקה"
+    }
+  },
+  "testnet": {
+    "activate": {
+      "description": "הפעל מחדש את האפליקציה במצב Testnet כדי לחקור ולבדוק תכונות.",
+      "prompt": "סגור את האפליקציה והפעל אותה מחדש כדי להיכנס למצב Testnet",
+      "title": "הפעל מצב testnet"
+    },
+    "deactivate": {
+      "description": "הפעל מחדש את האפליקציה כדי לצאת ממצב testnet.",
+      "prompt": "סגור את האפליקציה כדי לצאת ממצב testnet",
+      "title": "צא ממצב testnet"
     }
   },
   "transaction": {
+    "advanced": "מתקדם",
     "confirmation": "אישורים",
     "details": {
       "activity": "פעילות",
       "address": "כתובת",
       "amount": "כמות",
+      "currentValue": "ערך נוכחי",
       "date": "תאריך",
       "fiatAmount": "כמות פיאט",
+      "historicalValue": "ערך היסטורי",
+      "sentToSelf": "נשלח לעצמי",
       "status": "מצב",
+      "title": "פרטי העסקה",
       "type": "סוג"
     },
     "explorer": "מזהה עסקה",
+    "explorerError": "לא ניתן לפתוח את הדפדפן.",
     "explorerTitle": "פתח בחוקר בלוקים חיצוני",
     "fee": "עמלה",
+    "feeRate": "שיעור העמלה",
     "fiatHistorical": "היסטורי",
     "gas": "גז",
+    "no-results": "לא נמצאו עסקאות המתאימות ל \"{{searchTerm}}\"",
     "pending": "עסקה ממתינה",
     "size": "גודל",
     "status": {
       "complete": "הושלם",
       "failed": "נכשל",
       "pending": "ממתין",
+      "pending_receive": "עסקה נכנסת",
+      "pending_send": "עסקה יוצאת",
       "pending_send_to_self": "עסקה ממתינה"
     },
     "statusShort": {
@@ -931,12 +2644,24 @@
       "failed": "נכשל",
       "pending": "ממתין",
       "pending_receive": "נכנס",
+      "pending_send": "יוצא",
       "pending_send_to_self": "ממתין"
+    },
+    "tx": {
+      "receive_complete": "התקבל אל",
+      "receive_failed": "נכשל בקבלה אל",
+      "receive_pending": "התקבל אל",
+      "send_complete": "נשלח אל",
+      "send_failed": "כשל בשליחה אל",
+      "send_pending": "נשלח אל",
+      "send_to_self": "נשלח <amount /> לעצמך",
+      "send_to_self_failed": "השליחה של <amount />לעצמך נכשלה"
     },
     "vsize": "גודל וירטואלי",
     "weight": "משקל"
   },
   "transactions": {
+    "errorLoadTransactions": "אירעה שגיאה בטעינת העסקאות",
     "placeholder": ".אין עסקאות עדיין"
   },
   "unknownError": "שגיאה לא ידועה התרחשה: {{errorMessage}}",
@@ -947,6 +2672,18 @@
       "e109_touch": ".$t(unlock.error.e109_normal) ההתחברות הבאה תדרוש החזקה של מקש המגע",
       "e113": ".עקב נסיונות רבים, ההתחברות הבאה דורשת החזקה של מקש המגע למשך 4 שניות"
     },
+    "forgotPassword": {
+      "button": "ראה כאן",
+      "dialogDescription": "אם שכחת את סיסמת המכשיר, עדיין ניתן לשחזר מהגיבוי של הארנק שלך:",
+      "dialogTitle": "שכחת את סיסמת המכשיר?",
+      "info": "שכחת את הסיסמה?",
+      "stillHavingIssues": "עדיין יש בעיות?",
+      "supportLink": "פנה לתמיכה",
+      "text1": "לאחר שהקלדת סיסמת המכשיר שגויה 10 פעמים, המכשיר יאתחל להגדרות היצרן.",
+      "text2": "ניתן לשחזר את הארנק מ‑microSD או מגיבוי נייר, ללא צורך בסיסמה הקודמת של המכשיר. במהלך השחזור ניתן לקבוע סיסמת מכשיר חדשה.",
+      "title1": "המכשיר יאופס לאחר ניסיונות כושלים חוזרים",
+      "title2": "שחזור מגיבוי הארנק שלך"
+    },
     "input": {
       "label": "סיסמת ההתקן",
       "placeholder": "הזן את סיסמת ההתקן כדי לבטל את נעילתו"
@@ -954,6 +2691,7 @@
     "unlocking": "...מבטל נעילה"
   },
   "upgradeFirmware": {
+    "banner": "עדכון ל-BitBox זמין. <updateLink>עדכן עכשיו</updateLink> לקבלת שיפורי אבטחה ותכונות חדשות.",
     "button": "עדכון קושחה",
     "description": "?אתה מעוניין לשדרג את הקושחה מ{{currentVersion}} ל{{newVersion}}",
     "label": "ההתקן שלך דורש עדכון קושחה",
@@ -964,10 +2702,60 @@
     "unlocked2": "נורית הלד תדלק בביטבוקס שלך כשהוא יחובר בחזרה",
     "unlocked3": "גע במקש המגע כשמנורת הלד נדלקת"
   },
+  "walletConnect": {
+    "connect": {
+      "button": "התחבר",
+      "dappLabel": "הזן את כתובת ה‑URI של dapp",
+      "invalidPairingUri": "כתובת הזיווג (URI) לא תקינה",
+      "scanInstruction": "כוון את המצלמה אל קוד ה-QR של WalletConnect"
+    },
+    "dashboard": {
+      "allSessions": "כל החיבורים",
+      "disclaimer": "WalletConnect הוא פרוטוקול לחיבור ל-Dapps מבוססי Ethereum. ה-Dapps האלה מופעלות על ידי שירותי צד שלישי, לכן התחבר רק ל-Dapps שאתה סומך עליהם וודא תמיד מה אתה חותם כשאתה מבצע עסקה.",
+      "newConnection": "חיבור חדש",
+      "noConnectedSessions": "כרגע אין חשבונות מחוברים לשום dapp.",
+      "unspecifiedAccount": "חשבון לא מוגדר"
+    },
+    "pairingRequest": {
+      "approve": "אשר חיבור",
+      "chains": "רשתות",
+      "readOnly": "חיבור זה יכול לצפות בכתובת שלך אך אינו יכול לבקש חתימות או לשלוח עסקאות.",
+      "reject": "דחה",
+      "rejectionFailed": "לא ניתן לדחות את הבקשה, אך לא נוצר סשן.",
+      "title": "בקשת חיבור חדשה מ",
+      "unsupported": "בקשת החיבור הזו אינה נתמכת."
+    },
+    "pairingSuccess": "ה‑Dapp התחבר בהצלחה. ניתן להמשיך באתר ה‑dapp.",
+    "signingRequest": {
+      "chain": "רשת",
+      "dapp": "Dapp",
+      "data": "נתונים",
+      "dataParsingError": "לא ניתן לפרש את הנתונים",
+      "decodeError": "לא ניתן לפענח את ההודעה",
+      "method": {
+        "sendTransaction": "חתום ושלח עסקה",
+        "signMessage": "חתום על הודעה",
+        "signTransaction": "חתום על העסקה",
+        "signTypedData": "חתום על typed data"
+      },
+      "successfullySigned": "הבקשה נחתמה בהצלחה",
+      "walletConnectRequest": "בקשת WalletConnect"
+    },
+    "useNewUri": "כתובת ה-URI הזו כבר שימשה בניסיון חיבור. השתמש ב-URI חדש.",
+    "walletConnect": "WalletConnect"
+  },
   "warning": {
-    "sdcard": "שמור על כרטיס הזיכרון הרחק מההתקן, אלמלא אתה מעוניין לנהל את הגיבויים"
+    "coincontrol": "אחד או יותר UTXOs מקושרים לכתובת שחוזרת על עצמה. שים לב שהמקבל יראה את כל ה-UTXOs המשויכים לאותן כתובות.",
+    "offline": "אתה מנותק כרגע מהאינטרנט. לא תוכל לשלוח עסקאות או לראות את שערי החליפין העדכניים.",
+    "sdcard": "שמור על כרטיס הזיכרון הרחק מההתקן, אלמלא אתה מעוניין לנהל את הגיבויים",
+    "testnet": "אתה משתמש במצב Testnet. העסקאות והמטבעות כאן אינם אמיתיים וללא ערך. השתמש רק לצורך בדיקות."
   },
   "welcome": {
+    "connect": "חבר את ה-BitBox",
+    "getStarted": "בוא נתחיל בהתקנת הקושחה על ה-BitBox שלך.",
+    "loadingAccounts": "טוען חשבונות...",
+    "message": "אנא חבר את ה‑BitBox והקש בצדו כדי להמשיך.",
+    "messageIOS": "חבר את ה‑BitBox Nova שלך והקש על הצד כדי להמשיך.",
     "title": "ברוך הבא"
   }
 }
