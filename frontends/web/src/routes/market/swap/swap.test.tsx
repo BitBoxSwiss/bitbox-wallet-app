@@ -18,11 +18,16 @@ vi.mock('@/components/layout', () => ({
   GuidedContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   Main: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   Header: ({ title }: { title: ReactNode }) => <div>{title}</div>,
+  Column: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  Grid: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 vi.mock('@/components/view/view', () => ({
-  View: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  View: ({ children, fullscreen }: { children: ReactNode; fullscreen?: boolean }) => (
+    <div data-testid={fullscreen ? 'fullscreen-view' : undefined}>{children}</div>
+  ),
   ViewButtons: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   ViewContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  ViewHeader: ({ title }: { title?: ReactNode }) => <h1>{title}</h1>,
 }));
 vi.mock('@/components/guide/guide', () => ({
   Guide: ({ children }: { children: ReactNode }) => <div>{children}</div>,
@@ -36,12 +41,6 @@ vi.mock('@/components/backbutton/backbutton', () => ({
 }));
 vi.mock('@/components/spinner/SpinnerAnimation', () => ({
   SpinnerRingAnimated: () => null,
-}));
-vi.mock('./components/swap-confirm', () => ({
-  ConfirmSwap: () => null,
-}));
-vi.mock('./components/swap-result', () => ({
-  SwapResult: () => null,
 }));
 vi.mock('./components/input-with-account-selector', () => ({
   InputWithAccountSelector: ({
@@ -126,6 +125,7 @@ import { RatesContext } from '@/contexts/RatesContext';
 import { Swap } from './swap';
 import { AppStateContext } from '@/contexts/app-state-context';
 import { AppContext } from '@/contexts/AppContext';
+import { LocalizationContext } from '@/contexts/localization-context';
 
 const mockUseConfig = vi.mocked(useConfig);
 
@@ -238,6 +238,60 @@ const firmwareSwap = (appState: Partial<ContextType<typeof AppStateContext>> = {
 
 const renderFirmwareSwap = () => render(firmwareSwap());
 
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>(resolvePromise => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
+}
+
+const preparedSwap = (amount: string, unit: accountApi.TCoinUnit = 'ETH'): Extract<swapApi.TSwapSignResponse, { success: true }> => ({
+  success: true,
+  expectedOutput: { amount, unit, conversions: { USD: '42.00' }, estimated: false },
+  swapId: 'swap-1',
+  txInput: {
+    address: 'deposit-address', amount: '1', sendAll: 'no', selectedUTXOs: [], useHighestFee: true,
+    paymentRequest: {
+      recipientName: 'SwapKit', nonce: null, signature: 'signed-payload',
+      outputs: [{ address: 'deposit-address', amount: '100000000' }],
+      memos: [{
+        type: 'coinPurchase',
+        coinPurchase: { coinType: unit === 'BTC' ? 0 : 60, amount: `${amount} ${unit}`, address: 'receive-address' },
+      }],
+    },
+  },
+});
+
+const renderSwapFlow = (btcUnit: 'default' | 'sat' = 'default') => render(
+  <BackButtonProvider>
+    <LocalizationContext.Provider value={{ decimal: '.', group: '\'' }}>
+      <RatesContext.Provider value={{
+        activeCurrencies: ['USD'], btcUnit, defaultCurrency: 'USD',
+        addToActiveCurrencies: vi.fn(), removeFromActiveCurrencies: vi.fn(),
+        rotateBtcUnit: vi.fn(), rotateDefaultCurrency: vi.fn(), updateDefaultCurrency: vi.fn(),
+      }}>
+        <AppStateContext.Provider value={{
+          accounts: [sellAccount, buyAccount], activeAccounts: [sellAccount, buyAccount],
+          deviceIDs: [], devices: {}, hasAccounts: true, hasBottomNavigation: false,
+          hasDevices: true, lightningAccount: undefined, hasLightningAccount: false,
+        }}>
+          <MemoryRouter><Swap /></MemoryRouter>
+        </AppStateContext.Provider>
+      </RatesContext.Provider>
+    </LocalizationContext.Provider>
+  </BackButtonProvider>,
+);
+
+const requestReview = async () => {
+  const user = userEvent.setup();
+  await user.type(await screen.findByLabelText('swapSendAmount'), '1');
+  const button = screen.getByRole('button', { name: 'Swap' });
+  await waitFor(() => expect(button).toBeEnabled());
+  await user.click(button);
+  return user;
+};
+
 describe('routes/market/swap', () => {
   beforeEach(() => {
     // Unused one-shot responses must not carry over to another test.
@@ -272,7 +326,7 @@ describe('routes/market/swap', () => {
       defaultSellAccountCode: swapSellAccount.code,
       defaultBuyAccountCode: swapBuyAccount.code,
     });
-    vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+    vi.mocked(swapApi.getSwapQuote).mockReset().mockResolvedValue({
       success: true,
       quote: {
         routes: [{
@@ -452,6 +506,18 @@ describe('routes/market/swap', () => {
     expect(swapApi.signSwap).not.toHaveBeenCalled();
     expect(accountApi.proposeTx).not.toHaveBeenCalled();
     expect(accountApi.sendTx).not.toHaveBeenCalled();
+  });
+
+  // First-time swap users see the repricing disclosure before accepting the terms.
+  it('explains the receive amount estimate in the swap terms', async () => {
+    mockUseConfig.mockReturnValue({
+      config: { frontend: { skipSwapkitDisclaimer: false }, backend: {} } as TConfig,
+      setConfig: vi.fn(),
+    });
+    renderSwapFlow();
+
+    expect(await screen.findByText(/Receive amounts shown before review are estimates/)).toBeVisible();
+    expect(screen.getByTestId('agree-swap-terms')).toBeEnabled();
   });
 
   // Quote requests identify the sell account, and the returned providers appear together.
@@ -909,5 +975,170 @@ describe('routes/market/swap', () => {
 
     expect(swapButton).toBeDisabled();
     expect(screen.queryByText('THORChain + Mayachain')).not.toBeInTheDocument();
+  });
+  describe('prepared review', () => {
+    const amount: accountApi.TAmountWithConversions = {
+      amount: '1', unit: 'BTC', conversions: { USD: '100.00' }, estimated: false,
+    };
+    const proposal: accountApi.TTxProposalResult = {
+      success: true, recipientDisplayAddress: 'SwapKit', amount, total: amount,
+      fee: { ...amount, amount: '0.00001', conversions: { USD: '0.01' } },
+    };
+    beforeEach(() => {
+      mockUseConfig.mockReturnValue({
+        config: { frontend: { skipSwapkitDisclaimer: true }, backend: {} } as TConfig,
+        setConfig: vi.fn(),
+      });
+      vi.mocked(swapApi.signSwap).mockReset().mockResolvedValue(preparedSwap('1.24'));
+      vi.mocked(accountApi.proposeTx).mockReset().mockResolvedValue(proposal);
+      vi.mocked(accountApi.sendTx).mockReset().mockImplementation(() => new Promise(() => {}));
+    });
+
+    // Both providers can reprice in either direction; review and fiat must use preparation, not preview.
+    it.each([
+      ['FLASHNET', '1.240000000000000001'], ['FLASHNET', '1.22'], ['FLASHNET', '1.23'],
+      ['NEAR', '1.240000000000000001'], ['NEAR', '1.22'], ['NEAR', '1.23'],
+    ])('reviews the prepared %s amount %s', async (provider, amount) => {
+      vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+        success: true,
+        quote: { routes: [{ routeId: 'route-1', providers: [provider], expectedBuyAmount: '1.23' }] },
+      });
+      const prepared = preparedSwap(amount);
+      vi.mocked(swapApi.signSwap).mockResolvedValue(prepared);
+      renderSwapFlow();
+      await requestReview();
+
+      const review = await screen.findByTestId('fullscreen-view');
+      expect(review).toHaveTextContent(`${amount} ETH`);
+      expect(review).toHaveTextContent('42.00 USD');
+      expect(review).toHaveTextContent('0.00001 BTC');
+      expect(coinsApi.convertToCurrency).not.toHaveBeenCalled();
+      expect(accountApi.proposeTx).toHaveBeenCalledWith('btc-account', prepared.txInput);
+      expect(accountApi.sendTx).toHaveBeenCalledTimes(1);
+    });
+
+    // The quote uses the BTC preference, while review displays the unit and fiat supplied by preparation.
+    it.each([['default', '0.00293089'], ['sat', '293089']] as const)(
+      'preserves %s display for a prepared BTC receive amount', async (btcUnit, displayAmount) => {
+        vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
+          success: true, sellAccounts: [swapBuyAccount], buyAccounts: [swapSellAccount],
+        });
+        vi.mocked(swapApi.getSwapQuote).mockResolvedValue({
+          success: true,
+          quote: { routes: [{ routeId: 'route-1', providers: ['FLASHNET'], expectedBuyAmount: '0.00292978' }] },
+        });
+        const prepared = preparedSwap('0.00293089', 'BTC');
+        prepared.expectedOutput.amount = displayAmount;
+        prepared.expectedOutput.unit = btcUnit === 'sat' ? 'sat' : 'BTC';
+        vi.mocked(swapApi.signSwap).mockResolvedValue(prepared);
+        vi.mocked(coinsApi.parseExternalBtcAmount).mockResolvedValue({ success: true, amount: '292978' });
+        renderSwapFlow(btcUnit);
+        await requestReview();
+
+        const review = await screen.findByTestId('fullscreen-view');
+        expect(review).toHaveTextContent(`${displayAmount} ${prepared.expectedOutput.unit}`);
+        expect(review).toHaveTextContent('42.00 USD');
+        expect(coinsApi.parseExternalBtcAmount).not.toHaveBeenCalledWith('0.00293089');
+      },
+    );
+
+    // Token review must retain the prepared amount's full precision, including values above Number's safe range.
+    it('preserves ERC20 receive precision', async () => {
+      const amount = '9007199254740993.123456';
+      vi.mocked(swapApi.getSwapAccounts).mockResolvedValue({
+        success: true, sellAccounts: [swapSellAccount], buyAccounts: [swapBuyTokenAccount],
+      });
+      vi.mocked(swapApi.signSwap).mockResolvedValue(preparedSwap(amount, 'USDC'));
+      renderSwapFlow();
+      await requestReview();
+      expect(await screen.findByTestId('fullscreen-view')).toHaveTextContent(`${amount} USDC`);
+    });
+
+    // Unavailable fiat must not replace the prepared crypto amount or stop device confirmation.
+    it('keeps the receive amount when fiat conversion is unavailable', async () => {
+      const prepared = preparedSwap('1.24');
+      prepared.expectedOutput.conversions = {};
+      vi.mocked(swapApi.signSwap).mockResolvedValue(prepared);
+      renderSwapFlow();
+      await requestReview();
+      const review = await screen.findByTestId('fullscreen-view');
+      expect(review).toHaveTextContent('1.24 ETH');
+      expect(review).toHaveTextContent('--- USD');
+      expect(accountApi.sendTx).toHaveBeenCalledTimes(1);
+    });
+
+    // Device cancellation clears review; retry must prepare and display the new amount exactly once.
+    it('prepares a fresh amount after cancellation', async () => {
+      const send = deferred<accountApi.TSendTx>();
+      vi.mocked(accountApi.sendTx).mockReturnValueOnce(send.promise);
+      renderSwapFlow();
+      const user = await requestReview();
+      expect(await screen.findByTestId('fullscreen-view')).toHaveTextContent('1.24 ETH');
+      await act(async () => {
+        send.resolve({ success: false, aborted: true });
+      });
+      await user.click(await screen.findByRole('button', { name: 'Edit transaction' }));
+      vi.mocked(swapApi.signSwap).mockResolvedValue(preparedSwap('1.25'));
+      await user.dblClick(screen.getByRole('button', { name: 'Swap' }));
+      const review = await screen.findByTestId('fullscreen-view');
+      expect(review).toHaveTextContent('1.25 ETH');
+      expect(review).not.toHaveTextContent('1.24 ETH');
+      expect(swapApi.signSwap).toHaveBeenCalledTimes(2);
+      expect(accountApi.sendTx).toHaveBeenCalledTimes(2);
+    });
+
+    // A quote arriving after preparation must not overwrite the review already shown with the device.
+    it('retains prepared details when a later preview quote arrives', async () => {
+      const quote = deferred<swapApi.TSwapQuoteResponse>();
+      const preparation = deferred<swapApi.TSwapSignResponse>();
+      vi.mocked(swapApi.signSwap).mockReturnValueOnce(preparation.promise);
+      renderSwapFlow();
+      const user = await requestReview();
+      vi.mocked(swapApi.getSwapQuote).mockReturnValueOnce(quote.promise);
+      await user.type(screen.getByLabelText('swapSendAmount'), '2');
+      await waitFor(() => expect(swapApi.getSwapQuote).toHaveBeenCalledTimes(2));
+      await act(async () => {
+        preparation.resolve(preparedSwap('1.24'));
+      });
+      const review = await screen.findByTestId('fullscreen-view');
+      await act(async () => {
+        quote.resolve({
+          success: true,
+          quote: { routes: [{ routeId: 'route-2', providers: ['NEAR'], expectedBuyAmount: '9.99' }] },
+        });
+      });
+      expect(review).toHaveTextContent('1.24 ETH');
+      expect(review).not.toHaveTextContent('9.99 ETH');
+    });
+
+    // Wait for the selected call to start, then leave while it is pending. Its success must not advance the swap.
+    it.each([
+      {
+        stage: 'connection',
+        pause: (until: Promise<void>) => vi.mocked(connectKeystore).mockReturnValueOnce(until.then(() => ({ success: true }))),
+        nextCall: swapApi.signSwap,
+      },
+      {
+        stage: 'preparation',
+        pause: (until: Promise<void>) => vi.mocked(swapApi.signSwap).mockReturnValueOnce(until.then(() => preparedSwap('1.24'))),
+        nextCall: accountApi.proposeTx,
+      },
+      {
+        stage: 'proposal',
+        pause: (until: Promise<void>) => vi.mocked(accountApi.proposeTx).mockReturnValueOnce(until.then(() => proposal)),
+        nextCall: accountApi.sendTx,
+      },
+    ])('does not continue after unmount during $stage', async ({ pause, nextCall }) => {
+      const pending = deferred<void>();
+      const pendingCall = pause(pending.promise);
+      const { unmount } = renderSwapFlow();
+      await requestReview();
+      await waitFor(() => expect(pendingCall).toHaveBeenCalledTimes(1));
+      unmount();
+      await act(async () => pending.resolve());
+      expect(nextCall).not.toHaveBeenCalled();
+      expect(accountApi.sendTx).not.toHaveBeenCalled();
+      expect(alertUser).not.toHaveBeenCalled();
+    });
   });
 });
