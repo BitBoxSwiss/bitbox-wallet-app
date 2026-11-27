@@ -6,13 +6,14 @@ import { AppContext } from './AppContext';
 import { useLoad } from '@/hooks/api';
 import { useDefault } from '@/hooks/default';
 import { getNativeLocale } from '@/api/system';
-import { getDevServers, getTesting } from '@/api/environment';
+import { getTesting } from '@/api/environment';
 import { getOnline, subscribeOnline } from '@/api/network';
 import { i18nextFormat } from '@/i18n/utils';
 import type { TChartDisplay, TPortfolioPercentageType, TSessionConfig } from './AppContext';
 import { useOrientation } from '@/hooks/orientation';
 import { useMediaQuery } from '@/hooks/mediaquery';
 import { useSync } from '@/hooks/api';
+import { useDevServers } from '@/hooks/environment';
 
 type TProps = {
   children: ReactNode;
@@ -27,7 +28,7 @@ export const AppProvider = ({ children }: TProps) => {
   const nativeLocale = i18nextFormat(useDefault(useLoad(getNativeLocale), 'de-CH'));
   const isTesting = useLoad(getTesting);
   const isOnline = useSync(getOnline, subscribeOnline);
-  const isDevServers = useDefault(useLoad(getDevServers), false);
+  const isDevServers = useDevServers();
   const [guideShown, setGuideShown] = useState(false);
   const [guideExists, setGuideExists] = useState(false);
   const [hideAmounts, setHideAmounts] = useState(false);
