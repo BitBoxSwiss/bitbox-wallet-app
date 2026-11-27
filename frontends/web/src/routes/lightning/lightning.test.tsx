@@ -4,7 +4,6 @@ import '../../../__mocks__/i18n';
 import { useState, type ContextType, type ReactNode } from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Link, Route, Switch } from 'wouter';
 import { MemoryRouter } from '@/utils/test-helpers';

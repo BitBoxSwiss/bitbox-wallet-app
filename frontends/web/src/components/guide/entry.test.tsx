@@ -3,7 +3,6 @@
 import '../../../__mocks__/i18n';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { Entry, TEntryProp } from './entry';
 vi.mock('@/i18n/i18n');
 

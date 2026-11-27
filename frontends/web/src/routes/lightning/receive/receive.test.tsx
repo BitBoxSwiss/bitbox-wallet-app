@@ -3,7 +3,6 @@
 import '../../../../__mocks__/i18n';
 import type { ContextType, ReactNode } from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useLocation } from '@/utils/router-compatability';
 import { MemoryRouter } from '@/utils/test-helpers';

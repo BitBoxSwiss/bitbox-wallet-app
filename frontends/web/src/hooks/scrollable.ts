@@ -23,7 +23,7 @@ export const useIsScrollable = <T extends HTMLElement>(
     checkScrollable();
     window.addEventListener('resize', checkScrollable);
     return () => window.removeEventListener('resize', checkScrollable);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react/exhaustive-deps
   }, [checkScrollable, ...deps]);
 
   return isScrollable;

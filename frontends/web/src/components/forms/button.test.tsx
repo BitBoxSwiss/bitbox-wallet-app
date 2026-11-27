@@ -3,7 +3,6 @@
 import { describe, expect, it } from 'vitest';
 import { Router } from 'wouter';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { ButtonLink, Button } from './button';
 
 describe('components/forms/button', () => {

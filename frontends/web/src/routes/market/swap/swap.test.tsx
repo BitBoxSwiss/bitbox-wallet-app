@@ -4,7 +4,6 @@ import '../../../../__mocks__/i18n';
 import type { TConfig } from '@/api/config';
 import type { ContextType, ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import '@testing-library/jest-dom';
 
 vi.mock('@/i18n/i18n');
 // initialize i18n once at startup

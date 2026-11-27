@@ -77,10 +77,10 @@ export const WCWeb3WalletProvider = ({ children }: TProps) => {
     } catch (error: any) {
       console.error('Wallet connect attempt to pair error', error);
       if (error?.message?.includes('Pairing already exists')) {
-        throw new Error(t('walletConnect.useNewUri'));
+        throw new Error(t('walletConnect.useNewUri'), { cause: error });
       }
       //unexpected error, display native error message
-      throw new Error(error.message);
+      throw new Error(error.message, { cause: error });
     }
   };
 
@@ -97,4 +97,3 @@ export const WCWeb3WalletProvider = ({ children }: TProps) => {
     </WCWeb3WalletContext.Provider>
   );
 };
-

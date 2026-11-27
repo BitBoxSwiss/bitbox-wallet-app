@@ -2,7 +2,6 @@
 
 import '../../../../__mocks__/i18n';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { MemoryRouter } from '@/utils/test-helpers';
 import { useLocation } from '@/utils/router-compatability';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

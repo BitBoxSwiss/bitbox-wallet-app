@@ -42,7 +42,7 @@ export const useSDCard = (
       cancelled = true;
     };
     // disable warning about mounted not in the dependency list
-  }, [devices, ...(dependencies || [])]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [devices, ...(dependencies || [])]); // eslint-disable-line react/exhaustive-deps
 
   return sdcard;
 };
