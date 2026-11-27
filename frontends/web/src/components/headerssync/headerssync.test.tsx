@@ -3,7 +3,6 @@
 import '../../../__mocks__/i18n';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import { HeadersSync } from './headerssync';
 import { TStatus } from '@/api/coins';
 import * as apiHooks from '@/hooks/api';

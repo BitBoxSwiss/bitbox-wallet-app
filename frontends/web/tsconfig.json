@@ -28,7 +28,10 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["node"]
+    "types": [
+      "node",
+      "@testing-library/jest-dom/vitest"
+    ]
   },
   "include": [
     "src",

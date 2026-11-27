@@ -254,7 +254,7 @@
   {
     "name": "@jridgewell/sourcemap-codec",
     "versions": [
-      "1.5.5"
+      "1.6.0"
     ],
     "license": "MIT",
     "repository": "https://github.com/jridgewell/sourcemaps",

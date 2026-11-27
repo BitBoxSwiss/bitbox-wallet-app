@@ -3,7 +3,6 @@
 import { useContext } from 'react';
 import { Mock, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import '@testing-library/jest-dom';
 import type { TNativeCoinUnit, TConversionUnit } from '@/api/account';
 import { Amount } from './amount';
 
