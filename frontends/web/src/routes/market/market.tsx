@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import 'flag-icons';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SingleValue } from 'react-select';
@@ -33,6 +32,7 @@ import { useMarketContext } from './market-context';
 import { MarketGuide } from './guide';
 import { useFeatureConnect } from '@/hooks/keystore';
 import { FirmwareUpgradeRequiredDialog } from '@/components/dialog/firmware-upgrade-required-dialog';
+import '/node_modules/flag-icons/css/flag-icons.min.css';
 import style from './market.module.css';
 
 type TRouteParams = {
