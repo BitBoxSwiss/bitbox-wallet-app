@@ -23,7 +23,7 @@ export const BackupsListItem = ({
   radio,
   selectedBackup,
 }: Props) => {
-  let date = '';
+  let date: string;
   if (backup.date && backup.date !== '') {
     date = convertDateToLocaleString(backup.date, i18n.language);
   } else {

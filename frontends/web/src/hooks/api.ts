@@ -26,7 +26,7 @@ export const useSubscribeReset = <T>(
   useEffect(
     () => subscribe(),
     // empty dependencies because it's only subscribed once
-    [] // eslint-disable-line react-hooks/exhaustive-deps
+    [] // eslint-disable-line react/exhaustive-deps
   );
   return [response, () => setResponse(undefined)];
 };
@@ -70,7 +70,7 @@ export const useLoad = <T>(
   useEffect(
     () => load(),
     // By default no dependencies are passed to only query once
-    dependencies || [] // eslint-disable-line react-hooks/exhaustive-deps
+    dependencies || [] // eslint-disable-line react/exhaustive-deps
   );
   return response;
 };
@@ -120,6 +120,6 @@ export const useSync = <T>(
         onData(data);
       });
     }, // we pass no dependencies because it's only queried once
-    []); // eslint-disable-line react-hooks/exhaustive-deps
+    []); // eslint-disable-line react/exhaustive-deps
   return response;
 };

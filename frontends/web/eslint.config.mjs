@@ -1,7 +1,6 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import pluginReact from 'eslint-plugin-react';
-import pluginReactHooks from 'eslint-plugin-react-hooks';
+import pluginReact from '@eslint-react/eslint-plugin';
 import stylistic from '@stylistic/eslint-plugin';
 import { softBrackets } from './node_vendor/eslint-plugin-soft-brackets/lib/index.js';
 import { fileURLToPath } from 'url';
@@ -23,7 +22,6 @@ export default tseslint.config(
   {
     'plugins': {
       react: pluginReact,
-      'react-hooks': pluginReactHooks,
       '@stylistic': stylistic,
       'soft-brackets': softBrackets,
     },
@@ -51,9 +49,8 @@ export default tseslint.config(
       'no-extra-semi': [stylisticSeverity],
       'arrow-spacing': [stylisticSeverity],
       'space-infix-ops': [stylisticSeverity],
-      'react/no-unused-prop-types': 'error',
-      'react/jsx-equals-spacing': [stylisticSeverity, 'never'],
-      'react/react-in-jsx-scope': 'off',
+      'react/no-unused-props': 'error',
+      '@stylistic/jsx-equals-spacing': [stylisticSeverity, 'never'],
       'no-case-declarations': 'off',
       'react/no-children-prop': 'off',
       'prefer-const': 'off',
@@ -61,11 +58,10 @@ export default tseslint.config(
       'no-extra-boolean-cast': 'off',
       'no-undef': 'off',
       'no-empty': 'off',
-      'react/display-name': 'off',
-      'react-hooks/exhaustive-deps': 'error',
-      'react-hooks/rules-of-hooks': 'error',
+      'react/exhaustive-deps': 'error',
+      'react/rules-of-hooks': 'error',
       'no-async-promise-executor': 'off',
-      'react/jsx-wrap-multilines': [stylisticSeverity, {
+      '@stylistic/jsx-wrap-multilines': [stylisticSeverity, {
         'arrow': 'parens-new-line',
         'assignment': 'parens-new-line',
         'condition': 'parens-new-line',
