@@ -6,13 +6,15 @@ import type { TSelectedUTXOs } from './utxos';
 import { useMountedRef } from '@/hooks/mount';
 import { usePrevious } from '@/hooks/previous';
 import * as accountApi from '@/api/account';
+import { postPrepareTopUp, type TPrepareTopUpResult } from '@/api/lightning';
 import { syncdone } from '@/api/accountsync';
 import { convertFromCurrency, convertToCurrency, type BtcUnit } from '@/api/coins';
 import { View, ViewContent } from '@/components/view/view';
 import { alertUser } from '@/components/alert/Alert';
+import { Logo } from '@/components/icon/logo';
 import { Balance } from '@/components/balance/balance';
 import { HideAmountsButton } from '@/components/hideamountsbutton/hideamountsbutton';
-import { Button } from '@/components/forms';
+import { Button, Input } from '@/components/forms';
 import { DesktopBackButton } from '@/components/backbutton/backbutton';
 import { Column, ColumnButtons, GuideWrapper, GuidedContent, Header, Main, ResponsiveGrid } from '@/components/layout';
 import { AmountWithUnit } from '@/components/amount/amount-with-unit';
@@ -26,17 +28,26 @@ import { CoinInput } from './components/inputs/coin-input';
 import { FiatInput } from './components/inputs/fiat-input';
 import { NoteInput } from './components/inputs/note-input';
 import { FiatValue } from '@/components/amount/fiat-value';
-import { TProposalError, handleSendError } from './services';
+import { TProposalError, handleSendError, queueTxProposal } from './services';
 import { CoinControl } from './coin-control';
 import { connectKeystore } from '@/api/keystore';
 import { SubTitle } from '@/components/title';
 import { RatesContext } from '@/contexts/RatesContext';
+import { formatLightningFundingLimit, formatRemainingLightningFundingLimit } from '@/routes/lightning/limits';
+import { TopUpClaimFee } from '@/routes/lightning/topup/topup-claim-fee';
+import { TopUpSuccess } from '@/routes/lightning/topup/topup-result';
+import { useLightningRecipient } from './use-lightning-recipient';
 import style from './send.module.css';
 
 type TProps = {
   account: accountApi.TAccount;
   activeAccounts?: accountApi.TAccount[];
+  fixedRecipient?: 'lightning';
+  onBack?: () => void;
+  onDone?: () => void;
 };
+
+type TSendProposalResult = accountApi.TTxProposalResult | TPrepareTopUpResult;
 
 const useAccountBalance = (accountCode: accountApi.TAccountCode, btcUnit?: BtcUnit) => {
   const mounted = useMountedRef();
@@ -62,13 +73,20 @@ const useAccountBalance = (accountCode: accountApi.TAccountCode, btcUnit?: BtcUn
 export const Send = ({
   account,
   activeAccounts,
+  fixedRecipient,
+  onBack,
+  onDone,
 }: TProps) => {
   const { t } = useTranslation();
   const { btcUnit, defaultCurrency } = useContext(RatesContext);
+  const lightning = useLightningRecipient(account, fixedRecipient === 'lightning');
+  const isLightningRecipient = lightning.selected;
+  const conversionRequest = useRef(0);
+  const mounted = useMountedRef();
   const selectedUTXOsRef = useRef<TSelectedUTXOs>({});
   const [utxoDialogActive, setUtxoDialogActive] = useState(false);
   // in case there are multiple parallel tx proposals we can ignore all other but the last one
-  const lastProposal = useRef<Promise<accountApi.TTxProposalResult> | null>(null);
+  const lastProposal = useRef<Promise<TSendProposalResult | undefined> | null>(null);
   const proposeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // state used for the "Receiver address" input - what the user types or the account's address that is selected
@@ -81,7 +99,7 @@ export const Send = ({
   const [sendAll, setSendAll] = useState<boolean>(false);
   const [isConfirming, setIsConfirming] = useState<boolean>(false);
   const [isUpdatingProposal, setIsUpdatingProposal] = useState<boolean>(false);
-  const [note, setNote] = useState<string>('');
+  const [note, setNote] = useState(() => fixedRecipient === 'lightning' ? t('lightning.topUp.note') : '');
   const [customFee, setCustomFee] = useState<string>('');
   // Proposal and conversion errors are refreshed when transaction inputs change.
   const [errorHandling, setErrorHandling] = useState<TProposalError>({});
@@ -96,6 +114,7 @@ export const Send = ({
   const [highFeePercentage, setHighFeePercentage] = useState<string>();
   const [proposedTotal, setProposedTotal] = useState<accountApi.TAmountWithConversions>();
   const [proposedAmount, setProposedAmount] = useState<accountApi.TAmountWithConversions>();
+  const [estimatedClaimFee, setEstimatedClaimFee] = useState<accountApi.TAmountWithConversions | null>();
   const [recipientDisplayAddress, setRecipientDisplayAddress] = useState('');
   const [feeTarget, setFeeTarget] = useState<accountApi.TFeeTargetCode>();
   const [sendResult, setSendResult] = useState<accountApi.TSendTx>();
@@ -107,7 +126,9 @@ export const Send = ({
   const balance = useAccountBalance(account.code, btcUnit);
 
   const handleContinue = () => {
+    conversionRequest.current++;
     setScanErrors({});
+    lightning.reset();
     setSendAll(false);
     setIsConfirming(false);
     setRecipientInput('');
@@ -147,9 +168,9 @@ export const Send = ({
     }
   }, [account.code, account.keystore.rootFingerprint, note]);
 
-  const getValidTxInputData = useCallback((): Required<accountApi.TTxInput> | false => {
+  const getValidTxInputData = useCallback(() => {
     if (
-      !recipientInput
+      (isLightningRecipient ? !lightning.readyAccountCode : !recipientInput)
       || hasScanErrors
       || feeTarget === undefined
       || (!sendAll && !amount)
@@ -158,26 +179,27 @@ export const Send = ({
       return false;
     }
     return {
-      address: recipientInput,
       amount,
       feeTarget,
       customFee,
-      sendAll: (sendAll ? 'yes' : 'no'),
+      sendAll,
       selectedUTXOs: Object.keys(selectedUTXOsRef.current),
-      paymentRequest: null,
-      useHighestFee: false
     };
-  }, [recipientInput, feeTarget, sendAll, amount, customFee, hasScanErrors]);
+  }, [recipientInput, isLightningRecipient, lightning.readyAccountCode, feeTarget, sendAll, amount, customFee, hasScanErrors]);
 
   const convertToFiat = useCallback(async (amount: string) => {
+    const request = ++conversionRequest.current;
     if (amount) {
       const coinCode = account.coinCode;
       const data = await convertToCurrency({
         amount,
         coinCode,
         fiatUnit: defaultCurrency,
-      });
-      if (data.success) {
+      }).catch(() => undefined);
+      if (request !== conversionRequest.current || !mounted.current) {
+        return;
+      }
+      if (data?.success) {
         setFiatAmount(data.fiatAmount);
       } else {
         setErrorHandling({
@@ -187,32 +209,37 @@ export const Send = ({
     } else {
       setFiatAmount('');
     }
-  }, [account.coinCode, defaultCurrency, t]);
+  }, [account.coinCode, defaultCurrency, mounted, t]);
 
-  const convertFromFiat = useCallback(async (amount: string) => {
+  const convertFromFiat = useCallback(async (amount: string, fiatUnit: accountApi.TFiat = defaultCurrency) => {
+    const request = ++conversionRequest.current;
+    setAmount('');
+    setUpdateFiat(false);
+    setErrorHandling(errors => ({ ...errors, amountError: undefined }));
     if (amount) {
       const coinCode = account.coinCode;
       const data = await convertFromCurrency({
         amount,
         coinCode,
-        fiatUnit: defaultCurrency,
-      });
-      if (data.success) {
+        fiatUnit,
+      }).catch(() => undefined);
+      if (request !== conversionRequest.current || !mounted.current) {
+        return;
+      }
+      if (data?.success) {
         setAmount(data.amount);
-        setUpdateFiat(false);
       } else {
         setErrorHandling({ amountError: t('send.error.invalidAmount') });
       }
-    } else {
-      setAmount('');
     }
-  }, [account.coinCode, defaultCurrency, t]);
+  }, [account.coinCode, defaultCurrency, mounted, t]);
 
   const txProposal = useCallback((
     updateFiat: boolean,
-    result: accountApi.TTxProposalResult,
+    result: TSendProposalResult,
   ) => {
     setValid(result.success);
+    setEstimatedClaimFee(result.success && 'estimatedClaimFee' in result ? result.estimatedClaimFee : undefined);
     if (result.success) {
       setErrorHandling({});
       setProposedFee(result.fee);
@@ -225,7 +252,19 @@ export const Send = ({
         convertToFiat(result.amount.amount);
       }
     } else {
-      const errorHandling = handleSendError(result.errorCode, result.errorMessage);
+      let errorHandling: TProposalError;
+      if ('minAmountSat' in result) {
+        errorHandling = { amountError: t('error.lightningAmountBelowMinimum', { minAmountSat: result.minAmountSat }) };
+      } else if ('fundingLimit' in result) {
+        errorHandling = {
+          amountError: t('error.lightningBalanceLimitExceeded', {
+            limit: formatLightningFundingLimit(result.fundingLimit),
+            remaining: formatRemainingLightningFundingLimit(result.fundingLimit),
+          }),
+        };
+      } else {
+        errorHandling = handleSendError(result.errorCode, 'errorMessage' in result ? result.errorMessage : undefined);
+      }
       setErrorHandling(errorHandling);
       setIsUpdatingProposal(false);
       setProposedTotal(undefined);
@@ -237,14 +276,16 @@ export const Send = ({
         setProposedFee(undefined);
       }
       setRecipientDisplayAddress('');
+      setProposedAmount(undefined);
     }
-  }, [convertToFiat]);
+  }, [convertToFiat, t]);
 
   const validateAndDisplayFee = useCallback((
     updateFiat: boolean = true,
   ) => {
     setErrorHandling({});
     setHighFeePercentage(undefined);
+    setEstimatedClaimFee(undefined);
     setValid(false);
     lastProposal.current = null;
     if (proposeTimeout.current) {
@@ -260,14 +301,30 @@ export const Send = ({
     setIsUpdatingProposal(true);
     // defer the transaction proposal
     proposeTimeout.current = setTimeout(async () => {
-      let proposePromise;
+      let proposePromise: Promise<TSendProposalResult | undefined> | undefined;
       try {
-        proposePromise = accountApi.proposeTx(account.code, txInput);
+        proposePromise = queueTxProposal<TSendProposalResult | undefined>(account.code, () => {
+          if (proposePromise !== lastProposal.current) {
+            return;
+          }
+          return isLightningRecipient
+            ? postPrepareTopUp({
+              sourceAccountCode: account.code,
+              ...txInput,
+            })
+            : accountApi.proposeTx(account.code, {
+              ...txInput,
+              address: recipientInput,
+              sendAll: txInput.sendAll ? 'yes' : 'no',
+              paymentRequest: null,
+              useHighestFee: false,
+            });
+        });
         // keep this as the last known proposal
         lastProposal.current = proposePromise;
         const result = await proposePromise;
         // continue only if this is the most recent proposal
-        if (proposePromise === lastProposal.current) {
+        if (result && proposePromise === lastProposal.current) {
           txProposal(updateFiat, result);
         }
       } catch (error) {
@@ -275,6 +332,7 @@ export const Send = ({
           setValid(false);
           setProposedTotal(undefined);
           setIsUpdatingProposal(false);
+          alertUser(error instanceof Error ? error.message : t('genericError'));
           console.error('Failed to propose transaction:', error);
         }
       } finally {
@@ -284,7 +342,7 @@ export const Send = ({
         }
       }
     }, 400); // Delay the proposal by 400 ms
-  }, [account.code, getValidTxInputData, txProposal]);
+  }, [account.code, getValidTxInputData, isLightningRecipient, recipientInput, t, txProposal]);
 
   useEffect(() => {
     validateAndDisplayFee(updateFiat);
@@ -294,7 +352,7 @@ export const Send = ({
       }
       lastProposal.current = null;
     };
-  }, [amount, customFee, feeTarget, fiatAmount, updateFiat, validateAndDisplayFee]);
+  }, [updateFiat, validateAndDisplayFee]);
 
   useEffect(() => {
     const currencyChanged = prevDefaultCurrency !== undefined && prevDefaultCurrency !== defaultCurrency;
@@ -309,20 +367,9 @@ export const Send = ({
         validateAndDisplayFee(true);
       } else if (amount) {
         const fiatUnit = prevBtcUnit === 'default' ? 'BTC' : 'sat';
-        convertFromCurrency({
-          amount,
-          coinCode: account.coinCode,
-          fiatUnit
-        }).then((data) => {
-          if (data.success) {
-            setAmount(data.amount);
-            setUpdateFiat(false);
-          } else {
-            setErrorHandling({ amountError: t('send.error.invalidAmount') });
-          }
-        }).catch(() => {
-          setErrorHandling({ amountError: t('send.error.invalidAmount') });
-        });
+        convertFromFiat(amount, fiatUnit);
+      } else if (fiatAmount) {
+        convertFromFiat(fiatAmount);
       }
       return;
     }
@@ -336,13 +383,14 @@ export const Send = ({
     defaultCurrency,
     amount,
     btcUnit,
+    convertFromFiat,
     convertToFiat,
+    fiatAmount,
     getValidTxInputData,
     prevDefaultCurrency,
     prevBtcUnit,
     proposedAmount,
     sendAll,
-    t,
     validateAndDisplayFee,
   ]);
 
@@ -371,10 +419,16 @@ export const Send = ({
   // when user types in the input field or selects from dropdown
   const handleRecipientInputChange = (input: string) => {
     setScanErrors(errors => ({ ...errors, addressError: undefined }));
+    lightning.reset();
     setRecipientInput(input.replace(/\s/g, ''));
     setRecipientDisplayAddress('');
     setUpdateFiat(true);
     setSelectedReceiverAccount(null);
+  };
+
+  const handleSendToLightning = () => {
+    handleRecipientInputChange('');
+    lightning.select();
   };
 
 
@@ -405,6 +459,7 @@ export const Send = ({
       setFiatAmount('');
     }
     onReset?.();
+    lightning.reset();
     setScanErrors(handleSendError(parsedInput.validationError));
     setRecipientInput(recipient);
     setRecipientDisplayAddress('');
@@ -423,7 +478,9 @@ export const Send = ({
 
   const handleSendAllChange = (sendAll: boolean) => {
     setScanErrors(errors => ({ ...errors, amountError: undefined }));
-    if (!sendAll) {
+    if (sendAll) {
+      conversionRequest.current++;
+    } else {
       convertToFiat(amount);
     }
     setSendAll(sendAll);
@@ -437,6 +494,10 @@ export const Send = ({
 
   const handleNodeChange = (note: string) => setNote(note);
 
+  if (isLightningRecipient && sendResult?.success) {
+    return <TopUpSuccess />;
+  }
+
   return (
     <GuideWrapper>
       <GuidedContent>
@@ -444,7 +505,8 @@ export const Send = ({
           <Header
             variant="navigation"
             mobileBackButton
-            title={t('send.title', { accountName: account.coinName })}
+            onBack={onBack}
+            title={isLightningRecipient ? t('lightning.topUp.title') : t('send.title', { accountName: account.coinName })}
           >
             <HideAmountsButton />
           </Header>
@@ -465,15 +527,33 @@ export const Send = ({
               </div>
               <ResponsiveGrid className={style.sendForm}>
                 <Column col="2">
-                  <ReceiverAddressInput
-                    account={account}
-                    activeAccounts={activeAccounts}
-                    addressError={addressError}
-                    onInputChange={handleRecipientInputChange}
-                    onAccountChange={setSelectedReceiverAccount}
-                    recipientAddress={recipientInput}
-                    parseQRResult={parseQRResult}
-                  />
+                  {fixedRecipient === 'lightning' ? (
+                    <Input
+                      id="recipientAddress"
+                      label={t('send.address.label')}
+                      value={t('lightning.accountLabel')}
+                      readOnly
+                      error={addressError}
+                      labelSection={!lightning.readyAccountCode ? <span>{t('loading')}</span> : undefined}
+                    >
+                      <Logo coinCode="lightning" alt="" className={style.recipientLogo} />
+                    </Input>
+                  ) : (
+                    <ReceiverAddressInput
+                      account={account}
+                      activeAccounts={activeAccounts}
+                      addressError={addressError}
+                      onInputChange={handleRecipientInputChange}
+                      onAccountChange={setSelectedReceiverAccount}
+                      recipientAddress={isLightningRecipient ? t('lightning.accountLabel') : recipientInput}
+                      lightningOption={lightning.available ? {
+                        ready: !!lightning.readyAccountCode,
+                        selected: isLightningRecipient,
+                        onSelect: handleSendToLightning,
+                      } : undefined}
+                      parseQRResult={parseQRResult}
+                    />
+                  )}
                 </Column>
                 <Column>
                   <CoinInput
@@ -491,7 +571,7 @@ export const Send = ({
                   <FiatInput
                     onFiatChange={handleFiatInput}
                     disabled={sendAll}
-                    error={amountError}
+                    error={isLightningRecipient ? undefined : amountError}
                     fiatAmount={fiatAmount}
                     label={defaultCurrency}
                   />
@@ -510,6 +590,9 @@ export const Send = ({
                     error={errorHandling.feeError}
                     // value={feeTarget}
                   />
+                  {isLightningRecipient && estimatedClaimFee !== undefined && (
+                    <TopUpClaimFee amount={estimatedClaimFee} />
+                  )}
                 </Column>
                 <Column>
                   <NoteInput
@@ -527,6 +610,7 @@ export const Send = ({
                     </Button>
                     <DesktopBackButton
                       enableEsc={!isConfirming && !utxoDialogActive}
+                      onClick={onBack}
                     >
                       {t('button.back')}
                     </DesktopBackButton>
@@ -541,7 +625,7 @@ export const Send = ({
               selectedUTXOs={selectedUTXOsRef.current}
               coinCode={account.coinCode}
               transactionDetails={{
-                selectedReceiverAccountName: selectedReceiverAccount?.name,
+                selectedReceiverAccountName: isLightningRecipient ? t('lightning.accountLabel') : selectedReceiverAccount?.name,
                 selectedReceiverAccountNumber: selectedReceiverAccount?.accountNumber,
                 proposedFee,
                 proposedAmount,
@@ -556,6 +640,7 @@ export const Send = ({
                 code={account.code}
                 result={sendResult}
                 onContinue={handleContinue}
+                onDone={onDone}
                 onRetry={handleRetry}>
                 <p>
                   {proposedAmount && (

@@ -44,6 +44,9 @@ type TxProposalArgs struct {
 	SelectedUTXOs  map[wire.OutPoint]struct{}
 	Note           string
 	PaymentRequest *paymentrequest.Request
+	// Bitcoin only: validate the recipient amount after fees and coin selection, before storing
+	// the proposal for signing. Nil disables this additional validation.
+	ValidateOutputAmount func(coin.Amount) error
 }
 
 // Interface is the API of a Account.

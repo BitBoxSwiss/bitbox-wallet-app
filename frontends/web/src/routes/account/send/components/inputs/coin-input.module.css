@@ -1,5 +1,5 @@
-/* .maxAmount label {
-  display: block !important;
-  margin-right: 0 !important;
+.maxAmount {
+    flex-shrink: 0;
+    margin-left: var(--space-half);
+    white-space: nowrap;
 }
- */

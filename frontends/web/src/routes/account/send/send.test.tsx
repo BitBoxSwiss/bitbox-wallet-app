@@ -138,6 +138,56 @@ describe('send', () => {
     vi.useRealTimers();
   });
 
+  // A delayed fiat conversion must not restore a cleared amount, replace a later edit, or enable Review.
+  it.each(['clear fiat', 'edit fiat', 'edit coin', 'clear coin'])('ignores a pending fiat conversion after %s', async action => {
+    await renderSend();
+    let finish!: (result: Awaited<ReturnType<typeof convertFromCurrency>>) => void;
+    vi.mocked(convertFromCurrency).mockReturnValueOnce(new Promise(resolve => {
+      finish = resolve;
+    }));
+    const fiat = screen.getByLabelText('USD');
+    const coin = screen.getByLabelText('Amount');
+    fireEvent.input(fiat, { target: { value: '50' } });
+    await advanceProposal();
+    expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
+    if (action === 'clear fiat') {
+      fireEvent.input(fiat, { target: { value: '' } });
+    } else if (action === 'edit fiat') {
+      vi.mocked(convertFromCurrency).mockResolvedValueOnce({ success: true, amount: '0.002' });
+      await act(async () => fireEvent.input(fiat, { target: { value: '2' } }));
+    } else {
+      fireEvent.input(coin, { target: { value: '0.002' } });
+      if (action === 'clear coin') {
+        fireEvent.input(coin, { target: { value: '' } });
+      }
+    }
+    await act(async () => finish({ success: true, amount: '0.05' }));
+    await advanceProposal();
+    if (action.startsWith('clear')) {
+      expect(coin).toHaveValue(null);
+      expect(fiat).toHaveValue(null);
+      expect(screen.getByRole('button', { name: 'Review' })).toBeDisabled();
+    } else {
+      expect(coin).toHaveValue(0.002);
+      expect(accountApi.proposeTx).toHaveBeenLastCalledWith(account.code, expect.objectContaining({ amount: '0.002' }));
+    }
+    expect(accountApi.proposeTx).not.toHaveBeenCalledWith(account.code, expect.objectContaining({ amount: '0.05' }));
+  });
+
+  // Clearing coin input also invalidates the outstanding conversion of that input to fiat.
+  it('keeps the fiat field empty after a delayed coin conversion', async () => {
+    await renderEmptySend();
+    let finish!: (result: Awaited<ReturnType<typeof convertToCurrency>>) => void;
+    vi.mocked(convertToCurrency).mockReturnValueOnce(new Promise(resolve => {
+      finish = resolve;
+    }));
+    const coin = screen.getByLabelText('Amount');
+    fireEvent.input(coin, { target: { value: '0.05' } });
+    fireEvent.input(coin, { target: { value: '' } });
+    await act(async () => finish({ success: true, fiatAmount: '50' }));
+    expect(screen.getByLabelText('USD')).toHaveValue(null);
+  });
+
   // Invalid scans show an editable address and inline error before an amount is entered.
   // Editing another field must not hide the error or allow a proposal until the address is corrected.
   it.each(['btc', 'eth'] as const)('shows an invalid scanned %s address inline', async coinCode => {
