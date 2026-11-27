@@ -848,6 +848,7 @@ type signingResponse struct {
 	Aborted      bool   `json:"aborted"`
 	ErrorMessage string `json:"errorMessage"`
 	ErrorCode    string `json:"errorCode,omitempty"`
+	TxHash       string `json:"txHash,omitempty"`
 }
 
 func newSigningErrorResponse(err error) signingResponse {
@@ -951,6 +952,9 @@ func (handlers *Handlers) postEthSignWalletConnectTx(r *http.Request) (interface
 	})
 	if err != nil {
 		result := newSigningErrorResponse(err)
+		if signedTx != nil {
+			result.TxHash = signedTx.Hash().Hex()
+		}
 		if !result.Aborted {
 			handlers.log.WithError(err).Error("Failed to send transaction")
 		}

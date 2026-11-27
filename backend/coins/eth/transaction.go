@@ -42,6 +42,8 @@ type SignTransactionArgs struct {
 }
 
 // SignTransaction validates, signs, and optionally broadcasts an EVM transaction request.
+// When the broadcast may still confirm, it returns the signed transaction together with
+// ErrBroadcastUncertain so the caller can show its hash.
 func SignTransaction(
 	args SignTransactionArgs,
 	client rpcclient.Interface,
@@ -130,6 +132,9 @@ func SignTransaction(
 		} else {
 			err = sendUntrackedTransaction(client, txProposal.Tx)
 		}
+		if errp.Cause(err) == ErrBroadcastUncertain {
+			return txProposal.Tx, errp.WithStack(err)
+		}
 		if err != nil {
 			return nil, errp.WithStack(err)
 		}
@@ -140,12 +145,30 @@ func SignTransaction(
 // sendUntrackedTransaction reports any submission whose rejection is not explicit as uncertain.
 func sendUntrackedTransaction(client rpcclient.Interface, transaction *types.Transaction) error {
 	err := client.SendTransaction(context.TODO(), transaction)
-	rpcErr, _ := errp.Cause(err).(rpcclient.RPCError)
+	if err == nil {
+		return nil
+	}
+	cause := errp.Cause(err)
+	rpcErr, _ := cause.(rpcclient.RPCError)
 	if rpcErr.Message == "already known" {
 		return nil
 	}
-	if err == nil || rpcErr.Rejected() || errp.Cause(err) == rpcclient.ErrRequestRejected {
+	rejected := cause == rpcclient.ErrRequestRejected || rpcErr.Rejected()
+	if rpcErr.Code == -32000 {
+		// Rollup nodes also return this code when passing the transaction to the sequencer fails
+		// or times out. Only these messages prove a rejection. "nonce too low" does not: the
+		// provider may retry a submission that was already included.
+		rejected = slices.ContainsFunc(
+			[]string{"insufficient funds", "underpriced", "intrinsic gas too low"},
+			func(message string) bool { return strings.Contains(rpcErr.Message, message) })
+	}
+	if rejected {
+		// This transaction was signed for this attempt, so no earlier submission can be found.
 		return err
+	}
+	// The response can be lost or malformed after the node accepted the transaction.
+	if known, _, lookupErr := client.TransactionByHash(context.TODO(), transaction.Hash()); lookupErr == nil && known != nil {
+		return nil
 	}
 	return errp.WithMessage(ErrBroadcastUncertain, err.Error())
 }

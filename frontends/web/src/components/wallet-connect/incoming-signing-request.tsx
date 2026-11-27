@@ -135,9 +135,11 @@ export const WCSigningRequest = ({ accounts }: TProps) => {
       return;
     }
     if (!result.aborted) {
-      alertUser(result.errorCode === 'insufficientFunds' || result.errorCode === 'broadcastUncertain'
-        ? t(`send.error.${result.errorCode}`)
-        : result.errorMessage || t('pairing.error.text'));
+      alertUser(result.errorCode === 'broadcastUncertain'
+        ? t('walletConnect.signingRequest.broadcastUncertain', { txHash: result.txHash })
+        : result.errorCode === 'insufficientFunds'
+          ? t('send.error.insufficientFunds')
+          : result.errorMessage || t('pairing.error.text'));
     }
   };
 
